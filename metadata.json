@@ -1,0 +1,8 @@
+{
+  "name": "Remix DTF Studio",
+  "description": "Production-ready DTF printing mobile e-commerce platform and interactive customizer studio for customers, third-party designers, and business owners.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
