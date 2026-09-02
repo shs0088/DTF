@@ -1,0 +1,53 @@
+DTF STUDIO — FINAL MASTER REQUIREMENTS / TO DO
+1. Fix New Design upload: page navigation works, upload inside page is broken; verify frontend→backend→storage→DB→asset relation→preview.
+2. Verify full website + mobile-responsive experience using one backend/database.
+3. Add global Arabic/English switcher across all pages.
+4. Registration roles: Customer or Designer; Designer can also buy.
+5. Independent secure Admin login/dashboard with backend role authorization.
+6. Arabic/English tabs with mandatory Arabic title, English title, Arabic description, English description; block publish if any missing and identify exact field.
+7. Create Product Type selector: T-Shirt, Mug, Cap, T-Shirt+Mug, T-Shirt+Cap, Mug+Cap, all three.
+8. Upload via click and drag/drop on website and mobile/app.
+9. Individual, multi-select and bulk file deletion; full backend/database/storage cleanup when allowed.
+10. Design-level delete from list with protected-order checks; auto-remove empty unprotected designs.
+11. Ready-to-Print Master: select one file; source is not automatically master; unreadable master rejected.
+12. Internal file analyzer: format, pixels, DPI metadata, effective DPI, physical size, alpha, previewability, scaling risk.
+13. Data-driven/versioned DTF rules and product-specific T-Shirt/Mug/Cap criteria.
+14. Publish validation: bilingual metadata + previewable file + selected/approved master + product eligibility.
+15. Operator printing dashboard must receive correct approved master tied to order item.
+16. Paid/printing/production orders protect required design assets from deletion/modification.
+17. Database integrity: ownership, relationships, foreign keys/constraints, transactions, authorization, orphan prevention, storage cleanup, historical references.
+18. Designer approval workflow: 3 designs, system qualification, fixed 5-day admin review, rejection/replacement and notifications per approved workflow.
+19. Final QA: frontend, backend, DB, storage, business logic, security, mobile/website synchronization; no AI completion claim is evidence.
+
+============================================================
+LATEST GITHUB + LOVABLE AUDIT RECONCILIATION — 2026-09-02
+============================================================
+
+Implementation target:
+AI Studio.
+
+Audit/reference:
+GitHub and Lovable.
+
+Verified GitHub correction:
+- GitHub main contains a real source tree and database schema.
+- Latest commits:
+  69ef60960e633e0c599a5792a0f42a4a10160176
+  98d06856bd740625b87dfa34ad00abc35eaf5201
+- GitHub schema includes designAssets, productionJobs and stockReservations.
+- GitHub reservation configuration currently shows 15 minutes in the inspected schema, which FAILS the authoritative 30-minute requirement.
+
+Verified Lovable correction/reference:
+- Lovable database is enabled.
+- Lovable contains 35 public tables covering profiles/roles, products, designs, orders, inventory, payments, production, designer earnings/withdrawals, content and audit.
+- Lovable root frontend is still a blank-page placeholder.
+- Lovable reservation configuration currently shows 15 minutes, which FAILS the authoritative 30-minute requirement.
+- Lovable production_files default is print_ready_png, which conflicts with the authoritative non-PNG Master + separate production-output architecture.
+
+Cross-system conclusion:
+- GitHub source existence does NOT certify runtime behavior.
+- Lovable schema existence does NOT certify the finished frontend.
+- GitHub and Lovable are NOT proven synchronized.
+- No Production Ready claim is permitted from these findings alone.
+- The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
+

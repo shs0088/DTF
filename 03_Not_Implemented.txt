@@ -1,0 +1,44 @@
+DTF STUDIO — FINAL NOT IMPLEMENTED / REPORTED MISSING
+1. New Design internal upload is broken.
+2. Product Type selector and seven combinations are missing and must be created.
+3. Global Arabic/English switching was reported missing on pages.
+4. Designer delete controls and design-level deletion need implementation/verification.
+5. Bilingual mandatory title/description validation needs implementation/verification.
+6. Ready-to-Print Master selection and preflight need implementation/verification.
+7. Internal file analyzer and data-driven Rules Engine need implementation/verification.
+8. Independent Admin login and backend role authorization need implementation/verification.
+9. Full website versus mobile-responsive experience is not yet verified.
+10. Database relationship, deletion protection, orphan cleanup and printing-order protection need implementation/verification.
+
+============================================================
+LATEST GITHUB + LOVABLE AUDIT RECONCILIATION — 2026-09-02
+============================================================
+
+Implementation target:
+AI Studio.
+
+Audit/reference:
+GitHub and Lovable.
+
+Verified GitHub correction:
+- GitHub main contains a real source tree and database schema.
+- Latest commits:
+  69ef60960e633e0c599a5792a0f42a4a10160176
+  98d06856bd740625b87dfa34ad00abc35eaf5201
+- GitHub schema includes designAssets, productionJobs and stockReservations.
+- GitHub reservation configuration currently shows 15 minutes in the inspected schema, which FAILS the authoritative 30-minute requirement.
+
+Verified Lovable correction/reference:
+- Lovable database is enabled.
+- Lovable contains 35 public tables covering profiles/roles, products, designs, orders, inventory, payments, production, designer earnings/withdrawals, content and audit.
+- Lovable root frontend is still a blank-page placeholder.
+- Lovable reservation configuration currently shows 15 minutes, which FAILS the authoritative 30-minute requirement.
+- Lovable production_files default is print_ready_png, which conflicts with the authoritative non-PNG Master + separate production-output architecture.
+
+Cross-system conclusion:
+- GitHub source existence does NOT certify runtime behavior.
+- Lovable schema existence does NOT certify the finished frontend.
+- GitHub and Lovable are NOT proven synchronized.
+- No Production Ready claim is permitted from these findings alone.
+- The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
+

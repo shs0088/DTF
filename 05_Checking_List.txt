@@ -1,0 +1,114 @@
+DTF STUDIO — FINAL CHECKING LIST / TEST REPORT
+1 Add New Design navigation works.
+2 New Design upload works.
+3 Upload click works.
+4 Drag/drop works on website.
+5 Mobile upload works.
+6 Upload persists to storage and DB with correct design/asset relationship.
+7 Supported files preview correctly.
+8 Unsupported files remain assets but are not falsely presented as previewable.
+9 Arabic/English switch works across all pages.
+10 Registration offers Customer/Designer.
+11 Designer can buy and upload.
+12 Independent Admin login works and is backend-protected.
+13 Arabic title required.
+14 English title required.
+15 Arabic description required.
+16 English description required.
+17 Missing-field message identifies exact field/tab.
+18 Product Type selector has all seven combinations.
+19 Product eligibility is checked independently.
+20 One Ready-to-Print Master can be selected.
+21 Unreadable master is rejected.
+22 Analyzer reads pixel dimensions.
+23 Analyzer reads DPI metadata when available.
+24 Effective DPI is calculated from pixels vs required physical size.
+25 Embedded DPI alone cannot force approval.
+26 Physical size is checked.
+27 Min/max size rules are checked.
+28 Alpha/transparency checked where required.
+29 Scaling/enlargement risk checked.
+30 T-Shirt criteria checked.
+31 Mug criteria checked.
+32 Cap criteria checked.
+33 Master validation result/status is stored.
+34 Publish blocked without previewable file.
+35 Publish blocked without selected/approved master.
+36 Publish blocked without bilingual metadata.
+37 Failure reason is shown clearly.
+38 Approved master reaches Operator printing dashboard.
+39 Paid/printing/production references protect assets.
+40 Single-file delete works only when unprotected.
+41 Bulk delete works only when unprotected.
+42 Design-list delete works only when unprotected.
+43 Backend blocks protected delete even if frontend is bypassed.
+44 Storage cleanup occurs after allowed deletion.
+45 DB cleanup occurs after allowed deletion.
+46 Empty unprotected Design auto-removes.
+47 No orphan design/asset records remain.
+48 Historical order references remain intact.
+49 Rules are versioned/data-driven.
+50 Validation records rule/version used.
+51 Website and mobile use same backend/database.
+52 Website/mobile synchronization verified.
+53 Designer 3-design qualification tested.
+54 Fixed 5-day admin review tested.
+55 Approval/rejection notifications tested.
+56 Second rejection/escalation tested.
+57 Customer/designer/admin authorization tested.
+58 Unauthorized users cannot access protected resources.
+59 Regression tests pass after changes.
+60 Final independent verification: no feature marked Implemented without actual evidence from system/code/database.
+
+============================================================
+LATEST GITHUB + LOVABLE AUDIT RECONCILIATION — 2026-09-02
+============================================================
+
+Implementation target:
+AI Studio.
+
+Audit/reference:
+GitHub and Lovable.
+
+Verified GitHub correction:
+- GitHub main contains a real source tree and database schema.
+- Latest commits:
+  69ef60960e633e0c599a5792a0f42a4a10160176
+  98d06856bd740625b87dfa34ad00abc35eaf5201
+- GitHub schema includes designAssets, productionJobs and stockReservations.
+- GitHub reservation configuration currently shows 15 minutes in the inspected schema, which FAILS the authoritative 30-minute requirement.
+
+Verified Lovable correction/reference:
+- Lovable database is enabled.
+- Lovable contains 35 public tables covering profiles/roles, products, designs, orders, inventory, payments, production, designer earnings/withdrawals, content and audit.
+- Lovable root frontend is still a blank-page placeholder.
+- Lovable reservation configuration currently shows 15 minutes, which FAILS the authoritative 30-minute requirement.
+- Lovable production_files default is print_ready_png, which conflicts with the authoritative non-PNG Master + separate production-output architecture.
+
+Cross-system conclusion:
+- GitHub source existence does NOT certify runtime behavior.
+- Lovable schema existence does NOT certify the finished frontend.
+- GitHub and Lovable are NOT proven synchronized.
+- No Production Ready claim is permitted from these findings alone.
+- The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
+
+
+ADDED AUDIT REGRESSION TESTS — 2026-09-02
+257. GitHub current source tree is present and auditable.
+258. GitHub reservation setting is NOT 15 minutes in final implementation; exact 30 minutes verified.
+259. Lovable 15-minute reservation discrepancy is not copied into AI Studio.
+260. Admin inaction for 30 minutes does NOT auto-cancel the order.
+261. After 30 minutes without admin response, applicable order is assumed approved.
+262. Reservation starts only after checkout/order submission/payment-method step.
+263. Non-PNG Master can pass the complete Master → validation → production workflow.
+264. Production output is separate from the approved Master.
+265. Master is never silently replaced by a preview/presentation asset.
+266. Product architecture supports adding a new product model without source-code redesign.
+267. Financial history is ledger-like/append-only and historical transactions remain unchanged after profile updates.
+268. Stock movement history remains auditable after adjustments/reservations/releases.
+269. Historical order snapshot remains unchanged after current product price changes.
+270. Server-side authorization blocks protected operations even when frontend controls are bypassed.
+271. Protected historical records survive deletion attempts and unsafe cascades are blocked.
+272. Backup/restore verification evidence exists.
+273. GitHub/runtime/database schema reconciliation passes before Production Ready.
+274. No requirement is marked Implemented solely from an AI-agent completion statement.

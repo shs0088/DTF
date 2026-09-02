@@ -1,0 +1,248 @@
+DTF STUDIO — THEME DESIGN SPECIFICATION
+UPDATED AFTER LATEST GITHUB + LOVABLE AUDIT — 2026-09-02
+
+DESIGN STATUS
+All requirements, including deferred P2/P3 requirements, must be represented in the final design.
+P2/P3 may be delayed in implementation but may NOT be omitted from design.
+
+VISUAL DIRECTION
+- Premium dark/black DTF Studio identity.
+- Electric blue as primary interaction accent, with restrained secondary neon highlights.
+- Clean modern typography, high contrast, professional e-commerce presentation.
+- Fully responsive website/customer experience.
+- RTL Arabic and LTR English.
+- Admin is website-based.
+
+GLOBAL NAVIGATION
+Home
+Products
+Design Gallery
+Print Your Dream
+How It Works
+About Us
+Search
+Wishlist
+Cart
+Account
+Language EN / AR
+
+HOME
+Hero:
+“Bring Your Imagination To Life”
+Supporting message about high-quality DTF printing.
+Primary CTA: Shop Now.
+Secondary CTA: Print Your Dream.
+Feature strip:
+Premium Quality / Vibrant Colors / Fast Production / Delivery & Pickup.
+Product category cards must be data-driven, not limited to a fixed number.
+
+PRODUCTS
+Category → Product Type/Model → Variant → Printable Area → Mockup/Production configuration.
+Do not design only seven permanent product combinations.
+Seven combinations are initial examples/test cases only.
+Support future categories such as T-shirts, hoodies, mugs, caps, bags, wood, acrylic, metal, glass, signs and other models.
+
+PRODUCT DETAIL
+Show:
+- bilingual product information
+- model/variant
+- colors
+- size where applicable
+- quantity
+- price
+- printable areas
+- product-specific constraints
+- Customize / Add to Cart
+- stock state
+
+PRINT YOUR DREAM
+Separate primary section.
+Path A:
+Upload design → validation → choose product → customize where applicable → order.
+Path B:
+Choose product → choose gallery design OR upload design → customize where applicable → order.
+
+NEW DESIGN / UPLOAD
+States:
+- empty
+- click upload
+- drag/drop
+- mobile upload
+- uploading
+- analyzing
+- validation success
+- validation warning
+- validation rejection
+- saved
+- deletion protected
+- deletion allowed
+
+MASTER
+Dedicated Master section.
+Show:
+- selected Master
+- file format
+- validation state
+- explanation/info
+- production role
+
+IMPORTANT:
+Master is NOT restricted to PNG.
+Supported examples include PNG, PSD, AI, SVG, PDF, JPG/JPEG and other supported readable/processable formats.
+Source file is not automatically Master.
+Production output is a separate downstream object.
+
+ANALYZER / PREFLIGHT
+Show:
+- format/signature
+- pixels
+- embedded DPI
+- effective DPI
+- physical size
+- scaling risk
+- alpha/transparency where applicable
+- previewability
+- product/model-specific pass/fail
+- rule version
+- validation timestamp
+
+PUBLISH
+Publishing screen must show a clear gate:
+- Arabic title
+- English title
+- Arabic description
+- English description
+- previewable asset
+- approved Master
+- successful Master validation
+- product eligibility
+Missing fields must identify exact field/tab.
+
+DESIGN GALLERY
+Cards show presentation image, title, price, status and favorite.
+Do not confuse presentation image with production Master.
+
+CUSTOMIZER
+Keep existing 3D/customizer direction.
+Do not redesign/refactor it during baseline correction unless a P0/P1 requirement requires a minimal targeted fix.
+Show applicable product-specific printable areas and placement options.
+
+CART
+Show product/model/variant, artwork/Master reference, quantity, price and editable configuration.
+Gift wrapping appears inside cart/order flow, not as a separate checkout.
+
+GIFT WRAPPING — P2 IMPLEMENTATION, COMPLETE DESIGN
+Admin configuration screen:
+- image
+- Arabic/English name
+- Arabic/English description
+- price
+- enabled/disabled
+No hard-coded option count.
+Customer:
+- choose wrapping at item level
+- choose quantity of units to wrap
+- different wrapping per item
+- gift groups
+- gift message per group
+- no wrapping option
+- separate wrapping charge
+- final order snapshot
+
+CHECKOUT
+Guest browsing is allowed.
+Login/registration is required before payment.
+Show:
+- customer information
+- address
+- delivery/pickup
+- payment method
+- order summary
+- product totals
+- delivery
+- gift wrapping
+- discounts
+- final total
+
+RESERVATION STATE
+Display the exact rule:
+30-minute stock reservation after checkout/order submission/payment-method step.
+Admin notification.
+Confirm/reject controls.
+If no admin response within 30 minutes:
+ASSUMED APPROVED.
+Do NOT show auto-cancel due to admin inaction.
+
+CUSTOMER DASHBOARD
+Orders
+Order details
+Designs
+Addresses
+Profile
+Notifications/messages
+Wishlist where applicable
+
+DESIGNER DASHBOARD
+Application status
+3 sample designs
+Qualification
+5-day admin review status/deadline
+Designs
+Master assets
+Validation history
+Orders/sales attribution
+Earnings
+Withdrawals
+Notifications/messages
+
+FINANCIAL UI
+Show transaction history, not only current balance.
+Every financial record must be traceable to its source/order/action.
+
+ADMIN DASHBOARD
+Website only.
+Separate secure login.
+Screens:
+- orders
+- payment confirmation
+- stock/reservations
+- products/models/variants
+- designs/Master validation
+- designer applications
+- earnings/withdrawals
+- delivery
+- gift wrapping
+- bilingual content
+- messages/notifications
+- audit/history
+- settings
+
+MESSAGING
+All important customer/admin/designer communications must have an internal trace.
+Show sender, recipient, trigger, channel, related record, timestamp and status.
+
+DATA SAFETY UI PRINCIPLES
+Never expose destructive actions without protected checks.
+Protected order/production/financial assets show why deletion is blocked.
+Historical records show immutable/archive status where applicable.
+
+MOBILE
+Provide mobile equivalents for customer/designer experiences.
+Admin remains website-based.
+Every important page has mobile layout and state coverage.
+
+AUDIT-DRIVEN DESIGN GATES
+The final theme must visibly support:
+- non-PNG Master
+- separate production output
+- exact 30-minute reservation
+- no-response assumed approval
+- product/model extensibility
+- financial ledger/history
+- stock movement history
+- historical order snapshots
+- server-side authorization outcomes
+- protected deletion outcomes
+- backup/restore operational evidence where appropriate
+
+No screen may encode the outdated 15-minute reservation or PNG-only production assumption.

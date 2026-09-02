@@ -1,0 +1,51 @@
+DTF STUDIO — AUTHORITATIVE RULES & CRITERIA
+A. Roles: customer, designer, admin. Customer buys. Designer buys and uploads. Admin has independent secure login. Backend authorization is mandatory.
+B. Bilingual: Arabic title + English title + Arabic description + English description are mandatory. Use Arabic/English tabs. Publishing is blocked if any field is missing; message identifies exact field/tab.
+C. Product Type: T-Shirt; Mug; Cap; T-Shirt+Mug; T-Shirt+Cap; Mug+Cap; T-Shirt+Mug+Cap. Each selected product is validated independently.
+D. Upload: designer uploads files and metadata only; no manual DPI/dimension/technical entry. Click + drag/drop on website; mobile upload.
+E. Ready-to-Print Master: designer selects one master. Source files are not automatically master. Master must be readable/analyzable by the system. If selected master cannot be read/reviewed, reject it. Master is not restricted to PNG; any supported/readable/analyzable format may qualify.
+F. Preview: previewable file and print master are separate. If no file can be displayed, publishing to customers is blocked and a displayable file is required. Explain Master with ?/Info: it is used by operator for final printing.
+G. Internal analyzer: no external viewer is required for technical checking. Backend code/library reads supported files and obtains format, MIME/signature, byte size, pixel width/height, embedded DPI where available, color data/profile where supported, alpha/transparency, orientation, metadata, previewability. Calculate effective DPI from actual pixels versus required physical print size. Do not trust embedded DPI alone.
+H. Preflight checks: DPI/effective DPI; pixel dimensions; physical dimensions; target print size; minimum/maximum printable size; alpha/transparency; aspect ratio; scaling/enlargement risk; supported format; DTF minimums; product-specific requirements.
+I. Rules storage: rules are data-driven and versioned. Store product, min effective DPI, min/max physical dimensions, allowed formats/preview requirements, transparency/color constraints where applicable, scaling limits and other DTF criteria. Store validation result and rule/version used. Historical order decisions must remain reproducible.
+J. Publish: requires all four bilingual fields, at least one previewable file, selected master, successful master preflight, and product eligibility. If no master: “Please select the design that will be used for final print.” If no previewable file: require a displayable file.
+K. Delete: designer may delete one file, multiple files, or whole Design directly from Design List. Before deletion backend checks paid order, order item, printing/production job, protected master reference and other protected relationships. If protected, deny and explain. If unprotected, clean DB records, storage objects and references according to policy.
+L. Empty Design: if Design reaches zero files/assets and has no protected relationship, automatically delete the empty Design and orphan records. No manual DB deletion.
+M. Database: enforce ownership and integrity: User→Role; Designer→Designs; Design→Assets; Design→Product Types; Design→Master Asset; Master→Order Item; Order→Order Items; Order Item→Printing Job; protected asset references. Use constraints, transactions, backend authorization, orphan prevention and safe storage cleanup. Never delete assets required by paid/printing/production orders. Preserve historical references required for completed orders.
+N. Website/mobile: one central backend/database serves website and mobile-responsive experience; products, designs, prices, stock, orders, settings and content synchronize. Do not claim both exist without verification.
+O. Designer approval: 3 designs; system qualification; official admin review fixed at 5 days; if admin does not review within 5 days designer may continue under system-qualified capabilities but official Authorized label remains admin responsibility; rejection gives reasons and 5 days for replacement; second rejection escalates per approved workflow; notifications required.
+P. Security: frontend hiding is never sufficient; authorization and deletion protection must be enforced server-side.
+Q. Testing: every rule needs positive, negative, boundary, authorization, DB-integrity, deletion, bilingual, mobile and regression tests. AI-generated “completed” status is not evidence.
+
+============================================================
+LATEST GITHUB + LOVABLE AUDIT RECONCILIATION — 2026-09-02
+============================================================
+
+Implementation target:
+AI Studio.
+
+Audit/reference:
+GitHub and Lovable.
+
+Verified GitHub correction:
+- GitHub main contains a real source tree and database schema.
+- Latest commits:
+  69ef60960e633e0c599a5792a0f42a4a10160176
+  98d06856bd740625b87dfa34ad00abc35eaf5201
+- GitHub schema includes designAssets, productionJobs and stockReservations.
+- GitHub reservation configuration currently shows 15 minutes in the inspected schema, which FAILS the authoritative 30-minute requirement.
+
+Verified Lovable correction/reference:
+- Lovable database is enabled.
+- Lovable contains 35 public tables covering profiles/roles, products, designs, orders, inventory, payments, production, designer earnings/withdrawals, content and audit.
+- Lovable root frontend is still a blank-page placeholder.
+- Lovable reservation configuration currently shows 15 minutes, which FAILS the authoritative 30-minute requirement.
+- Lovable production_files default is print_ready_png, which conflicts with the authoritative non-PNG Master + separate production-output architecture.
+
+Cross-system conclusion:
+- GitHub source existence does NOT certify runtime behavior.
+- Lovable schema existence does NOT certify the finished frontend.
+- GitHub and Lovable are NOT proven synchronized.
+- No Production Ready claim is permitted from these findings alone.
+- The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
+

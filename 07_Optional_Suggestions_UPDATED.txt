@@ -1,0 +1,68 @@
+DTF STUDIO — SUGGESTIONS / IDEAS
+UPDATED STATUS: CONTROLS 01–14 ARE MANDATORY P0 — 2026-09-02
+
+IMPORTANT:
+Although this file retains the historical filename “Optional Suggestions”, Controls 01–14 below are NOT optional.
+They are user-approved MANDATORY P0 release/requirement controls.
+
+CONTROL 01 — SOURCE OF TRUTH
+AI Studio is the implementation target.
+GitHub and Lovable are read-only audit/reference sources.
+
+CONTROL 02 — EVIDENCE
+No requirement may be marked Implemented without actual evidence from code/runtime/database/test results.
+
+CONTROL 03 — CROSS-SYSTEM RECONCILIATION
+Reconcile requirements ↔ AI Studio runtime ↔ database ↔ GitHub evidence.
+Lovable discrepancies must not silently become requirements or implementation.
+
+CONTROL 04 — DATA SAFETY
+No reset, DROP, TRUNCATE, destructive reseed, or unsafe migration.
+Protect all existing business/historical data.
+
+CONTROL 05 — SCHEMA DRIFT
+Code, migrations and runtime database must agree before release.
+
+CONTROL 06 — HISTORICAL SNAPSHOTS
+Historical order facts and financial/stock history must remain reproducible after current data changes.
+
+CONTROL 07 — ASSET CHAIN
+Design → Asset → approved Master → production output → printing job must remain traceable.
+
+CONTROL 08 — SERVER AUTHORIZATION
+Sensitive authorization must be enforced server-side; frontend hiding is not security.
+
+CONTROL 09 — CASCADE / DELETE SAFETY
+Protected historical records must not be destroyed through unsafe foreign-key cascades or deletion paths.
+
+CONTROL 10 — FINANCIAL LEDGER
+Designer earnings, commissions, adjustments, withdrawals and payments require auditable immutable/append-only history.
+
+CONTROL 11 — STOCK LEDGER
+Stock reservations, commitments, releases, sales and adjustments require auditable movement history.
+
+CONTROL 12 — EXACT RESERVATION RULE
+Reservation duration is exactly 30 minutes.
+15 minutes is explicitly rejected.
+After 30 minutes with no admin response, the order is assumed approved and is NOT auto-cancelled for admin inaction.
+
+CONTROL 13 — MASTER FORMAT
+Master is not PNG-only.
+Any supported readable/processable format may be Master.
+Production output is separate from Master.
+
+CONTROL 14 — RELEASE CERTIFICATION
+Production Ready requires P0 pass, critical P1 resolution/acceptance, security/data-safety pass, schema reconciliation, backup/restore evidence, historical-data protection, requirement traceability and final QA evidence.
+
+LATEST AUDIT CORRECTIONS
+- GitHub source now exists; do not describe repository as empty.
+- GitHub and Lovable are not proven synchronized.
+- GitHub reservation default observed at 15 minutes → FAIL.
+- Lovable reservation default observed at 15 minutes → FAIL.
+- Lovable production_files default observed as print_ready_png → FAIL against flexible Master architecture.
+- Lovable frontend root remains a blank placeholder.
+- GitHub designAssets/productionJobs/stockReservations are evidence of structures only, not certification of end-to-end behavior.
+
+DESIGN PRIORITY
+All seven files must reflect these controls.
+P2/P3 implementation delays are acceptable only when their full design, data model and future integration are already specified.
