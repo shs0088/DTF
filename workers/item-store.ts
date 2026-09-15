@@ -674,7 +674,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
 
   printifyCatalogLocalState(): unknown[] {
     this.bootstrapCatalog();
-    return this.ctx.storage.sql.exec<any>(`SELECT c.blueprint_id, c.imported_model_id, c.provider_id, c.source_available, c.sync_status, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id`).toArray();, p.selected_provider_id
+    return this.ctx.storage.sql.exec<any>(`SELECT c.blueprint_id, c.imported_model_id, c.provider_id, c.source_available, c.sync_status, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream, p.selected_provider_id FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id`).toArray();
   }
 
   printifyCatalog(filters: { search?: string; imported?: string; published?: string } = {}): unknown[] {
