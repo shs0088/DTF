@@ -1,4 +1,4 @@
-import { DurableObject } from "cloudflare:workers";
+import { DurableObject } from "cloudflare:workers";\nimport { normalizePrintifyVariant, validatePrintifyPublishState } from "./printify-utils";\nexport { normalizePrintifyVariant } from "./printify-utils";
 
 interface ItemStoreEnv {}
 
@@ -106,32 +106,6 @@ async function hashPassword(password: string, salt: Uint8Array): Promise<string>
 
 async function verifyPassword(password: string, saltText: string, expectedHash: string): Promise<boolean> {
   return (await hashPassword(password, base64ToBytes(saltText))) === expectedHash;
-}
-
-export function normalizePrintifyVariant(blueprintId: string, providerId: string, raw: any) {
-  const variantId = String(raw?.id ?? raw?.variant_id ?? raw?.variantId ?? "");
-  if (!/^\d{1,30}$/.test(variantId)) return null;
-  const options = raw?.options && typeof raw.options === "object" ? raw.options : {};
-  const normalizedAvailability = raw?.sourceAvailable === undefined
-    ? (raw?.is_enabled !== false && raw?.available !== false)
-    : raw.sourceAvailable !== false;
-  const normalizedCost = raw?.sourceCostInternal !== undefined
-    ? Number(raw.sourceCostInternal)
-    : (raw?.cost == null ? (raw?.cost_jod == null ? null : Number(raw.cost_jod)) : Number(raw.cost));
-  return {
-    blueprintId: String(blueprintId),
-    printProviderId: String(providerId),
-    variantId,
-    sourceTitle: String(raw?.sourceTitle ?? raw?.title ?? raw?.name ?? "").slice(0,300),
-    size: raw?.size ?? options.size ?? null,
-    color: raw?.color ?? options.color ?? null,
-    options,
-    sourceAvailable: normalizedAvailability,
-    sourceCostInternal: normalizedCost == null || !Number.isFinite(normalizedCost) ? null : normalizedCost,
-    metadata: raw?.metadata ?? raw,
-    images: Array.isArray(raw?.images) ? raw.images : [],
-    placeholders: raw?.placeholders ?? raw?.print_areas ?? {}
-  };
 }
 
 export class ItemStore extends DurableObject<ItemStoreEnv> {
@@ -702,8 +676,21 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
              CASE WHEN m.source = 'printify' THEN 'custom' ELSE m.source END AS source
       FROM product_models m JOIN variants v ON v.model_id = m.id
       LEFT JOIN printify_product_data p ON p.model_id = m.id
+      LEFT JOIN printify_catalog_items c ON c.imported_model_id = m.id
       WHERE m.enabled = 1 AND v.enabled = 1
-        AND (m.source <> 'printify' OR (p.published = 1 AND p.title_en <> '' AND p.title_ar <> '' AND p.description_en <> '' AND p.description_ar <> '' AND p.display_image IS NOT NULL AND p.customer_price_jod > 0))
+        AND (
+          m.source <> 'printify'
+          OR (
+            p.published = 1
+            AND p.title_en <> '' AND p.title_ar <> ''
+            AND p.description_en <> '' AND p.description_ar <> ''
+            AND p.display_image IS NOT NULL
+            AND p.customer_price_jod > 0
+            AND p.selected_provider_id IS NOT NULL
+            AND c.source_available = 1
+            AND COALESCE(json_extract(v.options_json, '$.sourceAvailable'), 1) <> 0
+          )
+        )
       ORDER BY nameEn, v.sku
     `).toArray();
   }
@@ -805,6 +792,48 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     return this.printifyItem(blueprintId);
   }
 
+  refreshImportedPrintifySource(blueprintId: string, providerId: string, sourceVariants: unknown[]): unknown {
+    this.bootstrapCatalog();
+    const item = this.printifyItem(blueprintId) as any;
+    if (!item?.imported_model_id) throw new Error('Imported product not found.');
+    const modelId = String(item.imported_model_id);
+    const selectedProviderId = String(item.selected_provider_id || item.provider_id || '');
+    const pid = String(providerId || selectedProviderId);
+    if (!/^\d{1,20}$/.test(pid)) throw new Error('A valid Print Provider is required.');
+    if (selectedProviderId && selectedProviderId !== pid) throw new Error('Refresh cannot change the selected Print Provider.');
+    const normalized = sourceVariants.map((variant) => normalizePrintifyVariant(blueprintId, pid, variant)).filter(Boolean) as NonNullable<ReturnType<typeof normalizePrintifyVariant>>[];
+    const currentProduct = this.ctx.storage.sql.exec<any>('SELECT customer_price_jod FROM printify_product_data WHERE model_id=?', modelId).toArray()[0];
+    const defaultPrice = Math.max(0, Number(currentProduct?.customer_price_jod || 0));
+    this.ctx.storage.transactionSync(() => {
+      const existing = this.ctx.storage.sql.exec<any>('SELECT id,options_json FROM variants WHERE model_id=?', modelId).toArray();
+      for (const row of existing) {
+        let options: any = {};
+        try { options = JSON.parse(row.options_json || '{}'); } catch {}
+        options.sourceAvailable = false;
+        this.ctx.storage.sql.exec('UPDATE variants SET options_json=? WHERE id=? AND model_id=?', JSON.stringify(options), row.id, modelId);
+      }
+      this.ctx.storage.sql.exec('UPDATE printify_source_variants SET source_available=0,updated_at=CURRENT_TIMESTAMP WHERE blueprint_id=? AND print_provider_id=?', blueprintId, pid);
+      for (const nv of normalized) {
+        this.ctx.storage.sql.exec(
+          "INSERT OR REPLACE INTO printify_source_variants (blueprint_id,print_provider_id,variant_id,source_title,size,color,options_json,source_available,source_cost_internal,source_metadata_json,image_refs_json,placeholders_json,source_updated_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
+          nv.blueprintId,nv.printProviderId,nv.variantId,nv.sourceTitle,nv.size,nv.color,JSON.stringify(nv.options),nv.sourceAvailable?1:0,nv.sourceCostInternal,JSON.stringify(nv.metadata),JSON.stringify(nv.images),JSON.stringify(nv.placeholders),new Date().toISOString()
+        );
+        const vid = `pv-${blueprintId}-${nv.variantId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120);
+        const optionJson = JSON.stringify(nv);
+        const found = this.ctx.storage.sql.exec<any>('SELECT id FROM variants WHERE id=? AND model_id=?', vid, modelId).toArray()[0];
+        if (found) {
+          this.ctx.storage.sql.exec('UPDATE variants SET color=?,size=?,options_json=? WHERE id=? AND model_id=?', nv.color, nv.size, optionJson, vid, modelId);
+          this.ctx.storage.sql.exec('UPDATE printify_variant_settings SET source_cost_jod=?,updated_at=CURRENT_TIMESTAMP WHERE variant_id=?', nv.sourceCostInternal, vid);
+        } else {
+          this.ctx.storage.sql.exec('INSERT INTO variants (id,model_id,sku,color,size,options_json,retail_price_jod,enabled) VALUES (?,?,?,?,?,?,?,0)', vid, modelId, `PRINTIFY-${vid}`.slice(0,120), nv.color, nv.size, optionJson, defaultPrice);
+          this.ctx.storage.sql.exec('INSERT INTO printify_variant_settings (variant_id,source_cost_jod,enabled) VALUES (?,?,0)', vid, nv.sourceCostInternal);
+        }
+      }
+      this.ctx.storage.sql.exec('UPDATE printify_product_data SET selected_provider_id=COALESCE(selected_provider_id,?),updated_at=CURRENT_TIMESTAMP WHERE model_id=?', pid, modelId);
+    });
+    return this.printifyItem(blueprintId);
+  }
+
   updatePrintifyProduct(modelId: string, input: { titleEn?: string; titleAr?: string; descriptionEn?: string; descriptionAr?: string; displayImage?: string | null; categoryId?: string; customerPriceJod?: number | null; printYourDream?: boolean; enabled?: boolean; selectedProviderId?: string | null; enabledVariants?: string[] }): unknown {
     this.bootstrapCatalog();
     const current = this.ctx.storage.sql.exec<any>('SELECT * FROM printify_product_data WHERE model_id=?', modelId).toArray()[0];
@@ -845,7 +874,20 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   publishPrintify(modelId: string, published: boolean): unknown {
     this.bootstrapCatalog(); const row = this.ctx.storage.sql.exec<any>('SELECT p.*,c.blueprint_id,c.source_available FROM printify_product_data p JOIN printify_catalog_items c ON c.imported_model_id=p.model_id WHERE p.model_id=?',modelId).toArray()[0]; if (!row) throw new Error('Imported product not found.');
     if (!published) { this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=0,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=0 WHERE id=?',modelId); return this.printifyItem(row.blueprint_id); }
-    const errors:string[]=[]; if(!String(row.title_en||'').trim()) errors.push('English title is required.'); if(!String(row.title_ar||'').trim()) errors.push('Arabic title is required.'); if(!String(row.description_en||'').trim()) errors.push('English description is required.'); if(!String(row.description_ar||'').trim()) errors.push('Arabic description is required.'); if(!(Number(row.customer_price_jod)>0&&Number.isFinite(Number(row.customer_price_jod)))) errors.push('A valid customer price is required.'); if(!row.display_image) errors.push('Main Display Image is required.'); if(!row.selected_provider_id) errors.push('A Print Provider must be selected.'); if(Number(row.source_available)!==1) errors.push('Source product is unavailable.'); const variants=this.ctx.storage.sql.exec<any>('SELECT v.id,v.enabled,v.options_json FROM variants v WHERE v.model_id=?',modelId).toArray(); const validVariants=variants.filter(v=>Number(v.enabled)===1 && JSON.parse(v.options_json||'{}').sourceAvailable!==false); if(!validVariants.length) errors.push('At least one valid enabled variant must be selected.'); if(errors.length) return {ok:false,errors}; this.ctx.storage.transactionSync(() => { this.ctx.storage.sql.exec('UPDATE variants SET retail_price_jod=? WHERE model_id=?',Number(row.customer_price_jod),modelId); this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=1,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=1 WHERE id=?',modelId); }); return this.printifyItem(row.blueprint_id);
+    const variants=this.ctx.storage.sql.exec<any>('SELECT v.id,v.enabled,v.options_json FROM variants v WHERE v.model_id=?',modelId).toArray();
+    const validVariants=variants.filter(v=>{ if(Number(v.enabled)!==1) return false; try { return JSON.parse(v.options_json||'{}').sourceAvailable!==false; } catch { return false; } });
+    const errors = validatePrintifyPublishState({
+      titleEn: row.title_en,
+      titleAr: row.title_ar,
+      descriptionEn: row.description_en,
+      descriptionAr: row.description_ar,
+      customerPriceMinor: row.customer_price_jod,
+      displayImage: row.display_image,
+      selectedProviderId: row.selected_provider_id,
+      sourceAvailable: Number(row.source_available) === 1,
+      validEnabledVariantCount: validVariants.length
+    });
+    if(errors.length) return {ok:false,errors}; this.ctx.storage.transactionSync(() => { this.ctx.storage.sql.exec('UPDATE variants SET retail_price_jod=? WHERE model_id=?',Number(row.customer_price_jod),modelId); this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=1,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=1 WHERE id=?',modelId); }); return this.printifyItem(row.blueprint_id);
   }
 
   async registerUser(input: { displayName: string; email: string; password: string; role: "customer" | "designer" }): Promise<{userId:string;role:"customer"|"designer";sessionId:string}> {

@@ -24,3 +24,7 @@ jobs:
         run: npm run typecheck
       - name: Production build
         run: npm run build
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Printify unit tests
+        run: bun test tests/printify-utils.test.ts
