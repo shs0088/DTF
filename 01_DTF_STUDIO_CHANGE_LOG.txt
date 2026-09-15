@@ -1,0 +1,165 @@
+
+
+DATE/TIME: 2026-09-15T13:00:00Z
+TASK: Limited Admin entry-route/login correction prepared from user-provided specification.
+SOURCE BEFORE: ec9422960e5e108e3089d806cedd8207dfeb23d6f22701777dd72209f5deb687
+IMPLEMENTED IN SOURCE, NOT DEPLOYED:
+- Added signed Admin session role payload support in workers/admin-auth.ts.
+- Added Worker-level /admin routing before storefront fallback.
+- Added dedicated OpenCart-style /admin login HTML with username/password fields.
+- Protected unauthenticated /admin/* routes with redirect to /admin.
+- Added main-admin role guard to Printify Admin APIs, returning HTTP 403 for non-main-admin sessions.
+VALIDATION:
+- Dry-run build: PASS.
+- Runtime/deployment verification: NOT RUN against these source changes.
+LIMITATIONS / BLOCKERS:
+- Existing project authentication has only one ADMIN_WEB_KEY secret and no configured username/role directory. The requested Main Admin and Printing Technician credentials/role mapping are not available in source or workspace configuration, so technician authentication and least-privilege permissions are not complete.
+- The source changes have not been deployed.
+PENDING USER INPUT:
+- Confirm the intended username/password-to-role mapping for Main Admin and Printing Technician, or provide the existing backend role source to use. Do not send credentials in chat; configure them through the approved secret/connection mechanism.
+
+
+DATE/TIME: 2026-09-15T13:20:00Z
+TASK: Admin authentication/role foundation correction prepared; deployment intentionally withheld pending secure bootstrap and runtime verification.
+SOURCE BEFORE: ec9422960e5e108e3089d806cedd8207dfeb23d6f22701777dd72209f5deb687
+FILES CHANGED:
+- workers/admin-auth.ts
+- workers/item-store.ts
+- workers/static-app.ts
+- app/routes/admin.tsx
+- 01_DTF_STUDIO_CHANGE_LOG.txt
+IMPLEMENTED IN SOURCE:
+- Persistent admin_users table with salted PBKDF2 password hashes, roles, enabled state, timestamps, and last-login tracking.
+- Dedicated Worker /admin login and /admin/* routing before storefront fallback.
+- One-time /admin/bootstrap endpoint protected by ADMIN_BOOTSTRAP_TOKEN; bootstrap closes after first admin exists.
+- Signed sessions carry persisted admin identity/role.
+- Main Admin and Printing Technician role values are supported.
+- Printify Admin APIs reject non-main-admin roles with HTTP 403 JSON.
+- No credentials generated, hardcoded, logged, or exposed.
+VALIDATION:
+- Source snapshot confirmed before edit: ec9422960e5e108e3089d806cedd8207dfeb23d6f22701777dd72209f5deb687.
+- Dry-run TypeScript/build: PASS.
+- Runtime /admin login: NOT VERIFIED because no ADMIN_BOOTSTRAP_TOKEN or configured admin user is available in workspace configuration.
+- Main Admin role test: NOT VERIFIED.
+- Printing Technician role test: NOT VERIFIED.
+- API 401/403 role tests: NOT VERIFIED against this un-deployed source.
+DEPLOYMENT: NOT DEPLOYED by design.
+PENDING OWNER ACTION: Configure ADMIN_BOOTSTRAP_TOKEN as a server-side secret, then POST /admin/bootstrap with an owner-selected username/password using the token in x-admin-bootstrap-token. Credentials must not be sent in chat or committed. Remove/rotate the bootstrap token after successful creation.
+
+
+DATE/TIME: 2026-09-15T13:35:00Z
+TASK: Correct undeployed Admin auth foundation security details; deployment remains intentionally withheld.
+SOURCE BEFORE: ec9422960e5e108e3089d806cedd8207dfeb23d6f22701777dd72209f5deb687
+CORRECTIONS:
+- Unknown, absent, malformed, and legacy session roles now fail closed; no fallback to main_admin.
+- Signed session claim now uses userId, role, and exp only; no password/hash/salt.
+- Protected Printify APIs resolve the session user ID against enabled admin_users and use the current stored role.
+- First bootstrap is forced to main_admin regardless of request body role.
+- Persistent admin user storage and salted PBKDF2 hashing remain server-side.
+VALIDATION:
+- Dry-run TypeScript/build: PASS.
+- Runtime role/bootstrap tests: NOT VERIFIED; ADMIN_BOOTSTRAP_TOKEN and first Admin account are not configured.
+DEPLOYMENT: NO.
+PENDING OWNER ACTION: Configure server-only ADMIN_BOOTSTRAP_TOKEN, bootstrap the first owner account via POST /admin/bootstrap using a secure owner-selected username/password, then rotate/remove the token. Do not send credentials in chat.
+
+DATE/TIME: 2026-09-15T13:50:00Z
+TASK: Final pre-bootstrap security checks on undeployed Admin auth work.
+CORRECTIONS:
+- Base64URL decoder now normalizes '-'/'_' and adds length-derived padding before atob().
+- Admin Web authorization now resolves signed session userId against enabled admin_users and uses the current stored role.
+- Printify Admin APIs already resolve signed userId against enabled admin_users and current stored role.
+VALIDATION:
+- Admin user revalidation on protected API: PASS by saved source.
+- Admin user revalidation on protected Web: PASS by saved source.
+- Disabled/deleted user rejection: PASS by adminIdentity lookup requiring enabled persistent row.
+- Changed role takes effect without trusting stale cookie: PASS by current database role lookup.
+- Unknown/missing role rejection: PASS.
+- Base64URL decoding: PASS.
+- Password plaintext absent: PASS by saved storage implementation.
+- ADMIN_WEB_KEY and ADMIN_BOOTSTRAP_TOKEN are server bindings only; no client code added.
+- Dry-run build: PASS.
+DEPLOYMENT: NO.
+BOOTSTRAP: NOT RUN.
+
+DATE/TIME: 2026-09-15T14:10:00Z
+TASK: Implement temporary one-time SHA-256 bootstrap verifier for first Main Admin; current source remains undeployed.
+CHANGES:
+- Added server-side ADMIN_BOOTSTRAP_TOKEN_SHA256 verifier configuration type.
+- Added SHA-256 hashing of submitted bootstrap token with constant-time byte comparison; plaintext token is not stored or logged.
+- Added temporary /admin/setup route gated by verifier presence and zero admin_users rows.
+- Preserved /admin as username/password login only.
+- First bootstrap is forced to main_admin; database count blocks subsequent bootstrap attempts.
+- Preserved salted PBKDF2-SHA-256 password hashing and persistent admin_users storage.
+VALIDATION:
+- Dry-run build: PASS.
+- Bootstrap runtime: NOT RUN; no verifier, token, username, or password was configured or created.
+DEPLOYMENT: NO.
+CREDENTIALS RECORDED: NO.
+
+DATE/TIME: 2026-09-15T14:25:00Z
+TASK: Add temporary manual server-only bootstrap verifier placeholder; no credential supplied, bootstrap not run, deployment withheld.
+CHANGES:
+- Added ADMIN_BOOTSTRAP_TOKEN_SHA256 placeholder in workers/admin-auth.ts.
+- Environment binding remains preferred; source placeholder is used only when no binding is supplied.
+- Placeholder fails the strict 64-character hexadecimal validation, keeping /admin/setup unavailable until replaced with a valid SHA-256 verifier.
+VALIDATION:
+- Dry-run build: PASS.
+- Token/hash values: NONE supplied or recorded.
+DEPLOYMENT: NO.
+
+DATE/TIME: 2026-09-15T14:45:00Z
+TASK: Apply initial owner account policy and add Main Admin account-security credential change flow; deployment withheld.
+CHANGES:
+- /admin/setup username is prefilled with admin but remains editable; password fields remain empty for owner entry.
+- First account remains forced to main_admin.
+- Added Main Admin-only /admin/settings credential update flow requiring current password, new password, and confirmation.
+- Username validation and uniqueness checks preserved; password remains salted PBKDF2-SHA-256.
+- Successful credential change clears the Admin session cookie and requires fresh login.
+VALIDATION:
+- Dry-run build: PASS.
+- Verifier format: INVALID in saved source because placeholder remains; setup deployment prerequisite not satisfied.
+DEPLOYMENT: NO.
+CREDENTIALS RECORDED: NO.
+
+DATE/TIME: 2026-09-15T15:10:00Z
+TASK: Apply owner-supplied SHA-256 bootstrap verifier and deploy temporary first-owner setup state.
+VALIDATION:
+- Placeholder absent: PASS.
+- Exactly one strict 64-character hexadecimal verifier configured: PASS.
+- Plaintext bootstrap token configuration absent: PASS.
+- Client build exposure scan: PASS; no verifier-related client artifact hit.
+- /admin setup gates: verifier match plus zero persistent admin_users.
+- First account forced main_admin; username defaults to admin; second bootstrap blocked by persistent count.
+- /admin/settings credential-change support preserved.
+- Build: PASS.
+DEPLOYMENT:
+- Previous deployed source: ec9422960e5e108e3089d806cedd8207dfeb23d6f22701777dd72209f5deb687
+- Current deployed source snapshot: 8e3e3e46f58c291eb02d19349d82749f27fee35f2de1bbd4f6a3a2432825d058
+- Temporary setup state deployed once; first Admin account not created by agent.
+- Credentials/verifier values recorded: NO.
+
+DATE/TIME: 2026-09-15T15:35:00Z
+TASK: Fix Admin unauthenticated redirect loop; preserve existing Admin account and authentication data.
+CAUSE: The Worker routed GET /admin through the generic unauthenticated protected-route redirect, causing /admin to redirect to itself.
+FIX: Added explicit GET /admin handling after full signed-session/user/role revalidation: valid authenticated users redirect once to /admin/dashboard; unauthenticated/invalid-session requests receive the dedicated login page with the session cookie cleared. Protected child routes retain one redirect to /admin.
+VALIDATION:
+- Fresh /admin: HTTP 200 login page.
+- Unauthenticated /admin/dashboard: one 303 redirect to /admin, then HTTP 200 login page.
+- Invalid-session clearing behavior: saved source clears dtf_admin_session on unauthenticated /admin response.
+- Admin user/password/bootstrap verifier/PBKDF2/storefront/Printify: unchanged.
+- Build: PASS.
+DEPLOYMENT:
+- Previous deployed source: 755a7380c497679002229b37a9b223b7f4f64ce66bc5205125bd9039c38b92e1
+- Current deployed source: cfaea87381a6d73d16039024df356a57bd5e1de9155baae220dd6baeb1e1ddb7
+- Existing admin_users: not modified.
+
+DATE/TIME: 2026-09-15T17:10:00Z
+TASK: Fix Printify blueprint catalog parsing only; no import or publish performed.
+ROOT CAUSE: The Printify connector returned a 1,000,000-character truncated JSON array. JSON.parse failed, so the existing parser saw no usable array and reported no blueprint IDs. This was response truncation, not an ID normalization or wrapper mismatch.
+FIX: Added parseBlueprintCatalog() with strict JSON parsing first and a bounded structural object-recovery fallback for truncated array text; normalized items continue through the existing normalizeBlueprint() path.
+RUNTIME: Recovered real blueprint records; first safe sample had a numeric ID, title, brand, model, and images. Blueprint detail and provider list returned HTTP 200 for blueprint 5; selected provider ID 99. Variants endpoint returned HTTP 500 and was not treated as PASS.
+SCOPE: No products imported, no database catalog writes, no publish/unpublish, no Admin/storefront/Printify redesign.
+BUILD: PASS.
+DEPLOYMENT: Current source deployed once.
+SOURCE BEFORE: 1a44754e68c336e2598178c69ee0db2d332a65b21e7a60b906c3339d28cd85b5
+SOURCE AFTER: 64860a42a8f05e6e3c1db1ab6e6b5ddc81e8548fcab8cbbf16f6b5a93d894587
