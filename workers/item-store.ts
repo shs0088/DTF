@@ -703,8 +703,42 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
 
   printifyItem(blueprintId: string): unknown {
     this.bootstrapCatalog();
-    const row = this.ctx.storage.sql.exec<any>(`SELECT c.*, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id WHERE c.blueprint_id = ?`, blueprintId).toArray()[0];
-    return row ? { ...row, variants: JSON.parse(row.variants_json || '[]'), images: JSON.parse(row.images_json || '[]'), source: 'printify' } : null;
+    const row = this.ctx.storage.sql.exec<any>(`
+      SELECT c.*, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod,
+             p.display_image, p.published, p.print_your_dream, p.selected_provider_id,
+             m.category_id, m.enabled AS model_enabled
+      FROM printify_catalog_items c
+      LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id
+      LEFT JOIN product_models m ON m.id = c.imported_model_id
+      WHERE c.blueprint_id = ?
+    `, blueprintId).toArray()[0];
+    if (!row) return null;
+    const localVariants = row.imported_model_id ? this.ctx.storage.sql.exec<any>(
+      `SELECT id, sku, color, size, enabled, retail_price_jod, options_json
+       FROM variants WHERE model_id = ? ORDER BY color, size, sku`,
+      row.imported_model_id
+    ).toArray().map((variant) => {
+      let options: any = {};
+      try { options = JSON.parse(variant.options_json || '{}'); } catch {}
+      return {
+        id: variant.id,
+        sku: variant.sku,
+        color: variant.color,
+        size: variant.size,
+        enabled: Number(variant.enabled) === 1,
+        retailPriceJod: Number(variant.retail_price_jod || 0) / 100,
+        printifyVariantId: String(options.variantId ?? ''),
+        sourceTitle: String(options.sourceTitle ?? ''),
+        sourceAvailable: options.sourceAvailable !== false
+      };
+    }) : [];
+    return {
+      ...row,
+      variants: JSON.parse(row.variants_json || '[]'),
+      images: JSON.parse(row.images_json || '[]'),
+      localVariants,
+      source: 'printify'
+    };
   }
 
   upsertPrintifyCatalogItem(item: { blueprintId: string; title: string; description?: string; productType?: string; providerId?: string; source?: unknown; variants?: unknown[]; images?: unknown[]; sourceAvailable?: boolean; syncStatus?: string }): { count: number; syncedAt: string } {
@@ -724,26 +758,75 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   }
 
   importPrintify(blueprintId: string, providerId?: string): unknown {
-    const item = this.printifyItem(blueprintId) as any; if (!item) throw new Error('Catalog item not found.'); const modelId = item.imported_model_id || `printify-model-${blueprintId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100);
-    this.ctx.storage.transactionSync(() => { const pid=String(providerId||item.provider_id||""); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO site_categories (id,name_ar,name_en,enabled,home_featured,home_order,mockup_mode) VALUES ('cat-printify','منتجات مخصصة','Custom products',1,0,999,'custom')"); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO product_models (id,category_id,name_ar,name_en,source,enabled) VALUES (?,?,?,?, 'printify',0)", modelId, 'cat-printify', item.source_title, item.source_title); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO printify_product_data (model_id) VALUES (?)", modelId); this.ctx.storage.sql.exec("UPDATE printify_catalog_items SET imported_model_id=? WHERE blueprint_id=?", modelId, blueprintId); for (const v of item.variants as any[]) { const nv=normalizePrintifyVariant(blueprintId,pid,v); if(!nv) continue; this.ctx.storage.sql.exec("INSERT OR REPLACE INTO printify_source_variants (blueprint_id,print_provider_id,variant_id,source_title,size,color,options_json,source_available,source_cost_internal,source_metadata_json,image_refs_json,placeholders_json,source_updated_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",nv.blueprintId,nv.printProviderId,nv.variantId,nv.sourceTitle,nv.size,nv.color,JSON.stringify(nv.options),nv.sourceAvailable?1:0,nv.sourceCostInternal,JSON.stringify(nv.metadata),JSON.stringify(nv.images),JSON.stringify(nv.placeholders),new Date().toISOString()); const vid = `pv-${blueprintId}-${nv.variantId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO variants (id,model_id,sku,color,size,options_json,retail_price_jod,enabled) VALUES (?,?,?,?,?,?,0,0)", vid, modelId, `PRINTIFY-${vid}`.slice(0, 120), nv.color, nv.size, JSON.stringify(nv)); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO printify_variant_settings (variant_id,source_cost_jod,enabled) VALUES (?,?,0)", vid, nv.sourceCostInternal); } }); return this.printifyItem(blueprintId);
+    const item = this.printifyItem(blueprintId) as any;
+    if (!item) throw new Error('Catalog item not found.');
+    const modelId = item.imported_model_id || `printify-model-${blueprintId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100);
+    const pid = String(providerId || item.provider_id || "");
+    if (!/^\d{1,20}$/.test(pid)) throw new Error('A valid Print Provider is required.');
+    const images = Array.isArray(item.images) ? item.images : [];
+    const firstImageRaw: any = images[0];
+    const firstImage = typeof firstImageRaw === 'string' ? firstImageRaw : String(firstImageRaw?.src ?? firstImageRaw?.url ?? '');
+    this.ctx.storage.transactionSync(() => {
+      this.ctx.storage.sql.exec("INSERT OR IGNORE INTO site_categories (id,name_ar,name_en,enabled,home_featured,home_order,mockup_mode) VALUES ('cat-printify','منتجات مخصصة','Custom products',1,0,999,'custom')");
+      this.ctx.storage.sql.exec("INSERT OR IGNORE INTO product_models (id,category_id,name_ar,name_en,source,enabled) VALUES (?,?,?,?, 'printify',0)", modelId, 'cat-printify', item.source_title, item.source_title);
+      this.ctx.storage.sql.exec(
+        "INSERT OR IGNORE INTO printify_product_data (model_id,title_en,description_en,display_image,selected_provider_id) VALUES (?,?,?,?,?)",
+        modelId, String(item.source_title || '').slice(0,300), String(item.source_description || '').slice(0,5000), firstImage.slice(0,1000) || null, pid
+      );
+      this.ctx.storage.sql.exec("UPDATE printify_catalog_items SET imported_model_id=?,provider_id=? WHERE blueprint_id=?", modelId, pid, blueprintId);
+      for (const v of item.variants as any[]) {
+        const nv=normalizePrintifyVariant(blueprintId,pid,v);
+        if(!nv) continue;
+        this.ctx.storage.sql.exec("INSERT OR REPLACE INTO printify_source_variants (blueprint_id,print_provider_id,variant_id,source_title,size,color,options_json,source_available,source_cost_internal,source_metadata_json,image_refs_json,placeholders_json,source_updated_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",nv.blueprintId,nv.printProviderId,nv.variantId,nv.sourceTitle,nv.size,nv.color,JSON.stringify(nv.options),nv.sourceAvailable?1:0,nv.sourceCostInternal,JSON.stringify(nv.metadata),JSON.stringify(nv.images),JSON.stringify(nv.placeholders),new Date().toISOString());
+        const vid = `pv-${blueprintId}-${nv.variantId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120);
+        this.ctx.storage.sql.exec("INSERT OR IGNORE INTO variants (id,model_id,sku,color,size,options_json,retail_price_jod,enabled) VALUES (?,?,?,?,?,?,0,0)", vid, modelId, `PRINTIFY-${vid}`.slice(0, 120), nv.color, nv.size, JSON.stringify(nv));
+        this.ctx.storage.sql.exec("INSERT OR IGNORE INTO printify_variant_settings (variant_id,source_cost_jod,enabled) VALUES (?,?,0)", vid, nv.sourceCostInternal);
+      }
+    });
+    return this.printifyItem(blueprintId);
   }
 
   updatePrintifyProduct(modelId: string, input: { titleEn?: string; titleAr?: string; descriptionEn?: string; descriptionAr?: string; displayImage?: string | null; categoryId?: string; customerPriceJod?: number | null; printYourDream?: boolean; enabled?: boolean; selectedProviderId?: string | null; enabledVariants?: string[] }): unknown {
-    this.bootstrapCatalog(); const current = this.ctx.storage.sql.exec<any>('SELECT * FROM printify_product_data WHERE model_id=?', modelId).toArray()[0]; if (!current) throw new Error('Imported product not found.');
+    this.bootstrapCatalog();
+    const current = this.ctx.storage.sql.exec<any>('SELECT * FROM printify_product_data WHERE model_id=?', modelId).toArray()[0];
+    if (!current) throw new Error('Imported product not found.');
     const price = input.customerPriceJod === undefined ? (Number(current.customer_price_jod || 0) / 100) : Number(input.customerPriceJod);
     if (!Number.isFinite(price) || price < 0 || price > 1000000) throw new Error('Customer price must be a finite non-negative value under 1,000,000.');
+    const priceCents = Math.round(price * 100);
+    const printYourDream = input.printYourDream === undefined ? Number(current.print_your_dream) === 1 : input.printYourDream;
     this.ctx.storage.transactionSync(() => {
-      this.ctx.storage.sql.exec('UPDATE printify_product_data SET title_en=?,title_ar=?,description_en=?,description_ar=?,display_image=?,customer_price_jod=?,print_your_dream=?,selected_provider_id=?,updated_at=CURRENT_TIMESTAMP WHERE model_id=?', String(input.titleEn ?? current.title_en).trim().slice(0,300), String(input.titleAr ?? current.title_ar).trim().slice(0,300), String(input.descriptionEn ?? current.description_en).trim().slice(0,5000), String(input.descriptionAr ?? current.description_ar).trim().slice(0,5000), input.displayImage === undefined ? current.display_image : String(input.displayImage || '').slice(0,1000) || null, Math.round(price*100), input.printYourDream === false ? 0 : 1, input.selectedProviderId === undefined ? current.selected_provider_id : (input.selectedProviderId ? String(input.selectedProviderId).slice(0,80) : null), modelId);
+      this.ctx.storage.sql.exec(
+        'UPDATE printify_product_data SET title_en=?,title_ar=?,description_en=?,description_ar=?,display_image=?,customer_price_jod=?,print_your_dream=?,selected_provider_id=?,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',
+        String(input.titleEn ?? current.title_en).trim().slice(0,300),
+        String(input.titleAr ?? current.title_ar).trim().slice(0,300),
+        String(input.descriptionEn ?? current.description_en).trim().slice(0,5000),
+        String(input.descriptionAr ?? current.description_ar).trim().slice(0,5000),
+        input.displayImage === undefined ? current.display_image : String(input.displayImage || '').slice(0,1000) || null,
+        priceCents,
+        printYourDream ? 1 : 0,
+        input.selectedProviderId === undefined ? current.selected_provider_id : (input.selectedProviderId ? String(input.selectedProviderId).slice(0,80) : null),
+        modelId
+      );
+      if (input.customerPriceJod !== undefined) this.ctx.storage.sql.exec('UPDATE variants SET retail_price_jod=? WHERE model_id=?', priceCents, modelId);
       if (input.categoryId) this.ctx.storage.sql.exec('UPDATE product_models SET category_id=? WHERE id=?', input.categoryId.slice(0,100), modelId);
       if (input.enabled !== undefined) this.ctx.storage.sql.exec('UPDATE product_models SET enabled=? WHERE id=?', input.enabled ? 1 : 0, modelId);
-      if (input.enabledVariants) { this.ctx.storage.sql.exec('UPDATE variants SET enabled=0 WHERE model_id=?', modelId); for (const id of input.enabledVariants.slice(0,100)) this.ctx.storage.sql.exec('UPDATE variants SET enabled=1 WHERE id=? AND model_id=?', String(id).slice(0,120), modelId); }
-    }); return this.printifyItem(this.ctx.storage.sql.exec<{ blueprint_id:string }>('SELECT blueprint_id FROM printify_catalog_items WHERE imported_model_id=?',modelId).one().blueprint_id);
+      if (input.enabledVariants) {
+        this.ctx.storage.sql.exec('UPDATE variants SET enabled=0 WHERE model_id=?', modelId);
+        this.ctx.storage.sql.exec('UPDATE printify_variant_settings SET enabled=0 WHERE variant_id IN (SELECT id FROM variants WHERE model_id=?)', modelId);
+        for (const id of input.enabledVariants.slice(0,1000)) {
+          const safeId = String(id).slice(0,120);
+          this.ctx.storage.sql.exec('UPDATE variants SET enabled=1 WHERE id=? AND model_id=?', safeId, modelId);
+          this.ctx.storage.sql.exec('UPDATE printify_variant_settings SET enabled=1 WHERE variant_id=?', safeId);
+        }
+      }
+    });
+    return this.printifyItem(this.ctx.storage.sql.exec<{ blueprint_id:string }>('SELECT blueprint_id FROM printify_catalog_items WHERE imported_model_id=?',modelId).one().blueprint_id);
   }
 
   publishPrintify(modelId: string, published: boolean): unknown {
     this.bootstrapCatalog(); const row = this.ctx.storage.sql.exec<any>('SELECT p.*,c.blueprint_id,c.source_available FROM printify_product_data p JOIN printify_catalog_items c ON c.imported_model_id=p.model_id WHERE p.model_id=?',modelId).toArray()[0]; if (!row) throw new Error('Imported product not found.');
     if (!published) { this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=0,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=0 WHERE id=?',modelId); return this.printifyItem(row.blueprint_id); }
-    const errors:string[]=[]; if(!String(row.title_en||'').trim()) errors.push('English title is required.'); if(!String(row.title_ar||'').trim()) errors.push('Arabic title is required.'); if(!String(row.description_en||'').trim()) errors.push('English description is required.'); if(!String(row.description_ar||'').trim()) errors.push('Arabic description is required.'); if(!(Number(row.customer_price_jod)>0&&Number.isFinite(Number(row.customer_price_jod)))) errors.push('A valid customer price is required.'); if(!row.display_image) errors.push('Main Display Image is required.'); if(!row.selected_provider_id) errors.push('A Print Provider must be selected.'); if(Number(row.source_available)!==1) errors.push('Source product is unavailable.'); const variants=this.ctx.storage.sql.exec<any>('SELECT v.id,v.enabled,v.options_json FROM variants v WHERE v.model_id=?',modelId).toArray(); const validVariants=variants.filter(v=>Number(v.enabled)===1 && JSON.parse(v.options_json||'{}').source_available!==false); if(!validVariants.length) errors.push('At least one valid enabled variant must be selected.'); if(errors.length) return {ok:false,errors}; this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=1,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=1 WHERE id=?',modelId); return this.printifyItem(row.blueprint_id);
+    const errors:string[]=[]; if(!String(row.title_en||'').trim()) errors.push('English title is required.'); if(!String(row.title_ar||'').trim()) errors.push('Arabic title is required.'); if(!String(row.description_en||'').trim()) errors.push('English description is required.'); if(!String(row.description_ar||'').trim()) errors.push('Arabic description is required.'); if(!(Number(row.customer_price_jod)>0&&Number.isFinite(Number(row.customer_price_jod)))) errors.push('A valid customer price is required.'); if(!row.display_image) errors.push('Main Display Image is required.'); if(!row.selected_provider_id) errors.push('A Print Provider must be selected.'); if(Number(row.source_available)!==1) errors.push('Source product is unavailable.'); const variants=this.ctx.storage.sql.exec<any>('SELECT v.id,v.enabled,v.options_json FROM variants v WHERE v.model_id=?',modelId).toArray(); const validVariants=variants.filter(v=>Number(v.enabled)===1 && JSON.parse(v.options_json||'{}').source_available!==false); if(!validVariants.length) errors.push('At least one valid enabled variant must be selected.'); if(errors.length) return {ok:false,errors}; this.ctx.storage.transactionSync(() => { this.ctx.storage.sql.exec('UPDATE variants SET retail_price_jod=? WHERE model_id=?',Number(row.customer_price_jod),modelId); this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=1,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=1 WHERE id=?',modelId); }); return this.printifyItem(row.blueprint_id);
   }
 
   async registerUser(input: { displayName: string; email: string; password: string; role: "customer" | "designer" }): Promise<{userId:string;role:"customer"|"designer";sessionId:string}> {
