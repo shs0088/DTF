@@ -78,6 +78,23 @@ export interface NavigationItem extends Record<string, SqlStorageValue> {
   visibility: "both" | "desktop" | "mobile";
 }
 
+export interface PrintifyCatalogLocalStateRow extends Record<string, SqlStorageValue> {
+  blueprint_id: string;
+  imported_model_id: string | null;
+  provider_id: string | null;
+  source_available: number;
+  sync_status: string;
+  title_en: string | null;
+  title_ar: string | null;
+  description_en: string | null;
+  description_ar: string | null;
+  customer_price_jod: number | null;
+  display_image: string | null;
+  published: number | null;
+  print_your_dream: number | null;
+  selected_provider_id: string | null;
+}
+
 function bytesToBase64(bytes: Uint8Array): string { return btoa(String.fromCharCode(...bytes)); }
 function base64ToBytes(value: string): Uint8Array { return Uint8Array.from(atob(value), (char) => char.charCodeAt(0)); }
 
@@ -672,9 +689,9 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     `).toArray();
   }
 
-  printifyCatalogLocalState(): unknown[] {
+  printifyCatalogLocalState(): PrintifyCatalogLocalStateRow[] {
     this.bootstrapCatalog();
-    return this.ctx.storage.sql.exec<any>(`SELECT c.blueprint_id, c.imported_model_id, c.provider_id, c.source_available, c.sync_status, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream, p.selected_provider_id FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id`).toArray();
+    return this.ctx.storage.sql.exec<PrintifyCatalogLocalStateRow>(`SELECT c.blueprint_id, c.imported_model_id, c.provider_id, c.source_available, c.sync_status, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream, p.selected_provider_id FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id`).toArray();
   }
 
   printifyCatalog(filters: { search?: string; imported?: string; published?: string } = {}): unknown[] {
@@ -727,6 +744,74 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     this.bootstrapCatalog(); const row = this.ctx.storage.sql.exec<any>('SELECT p.*,c.blueprint_id,c.source_available FROM printify_product_data p JOIN printify_catalog_items c ON c.imported_model_id=p.model_id WHERE p.model_id=?',modelId).toArray()[0]; if (!row) throw new Error('Imported product not found.');
     if (!published) { this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=0,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=0 WHERE id=?',modelId); return this.printifyItem(row.blueprint_id); }
     const errors:string[]=[]; if(!String(row.title_en||'').trim()) errors.push('English title is required.'); if(!String(row.title_ar||'').trim()) errors.push('Arabic title is required.'); if(!String(row.description_en||'').trim()) errors.push('English description is required.'); if(!String(row.description_ar||'').trim()) errors.push('Arabic description is required.'); if(!(Number(row.customer_price_jod)>0&&Number.isFinite(Number(row.customer_price_jod)))) errors.push('A valid customer price is required.'); if(!row.display_image) errors.push('Main Display Image is required.'); if(!row.selected_provider_id) errors.push('A Print Provider must be selected.'); if(Number(row.source_available)!==1) errors.push('Source product is unavailable.'); const variants=this.ctx.storage.sql.exec<any>('SELECT v.id,v.enabled,v.options_json FROM variants v WHERE v.model_id=?',modelId).toArray(); const validVariants=variants.filter(v=>Number(v.enabled)===1 && JSON.parse(v.options_json||'{}').source_available!==false); if(!validVariants.length) errors.push('At least one valid enabled variant must be selected.'); if(errors.length) return {ok:false,errors}; this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=1,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=1 WHERE id=?',modelId); return this.printifyItem(row.blueprint_id);
+  }
+
+  async registerUser(input: { displayName: string; email: string; password: string; role: "customer" | "designer" }): Promise<{userId:string;role:"customer"|"designer";sessionId:string}> {
+    this.bootstrapCatalog();
+    const displayName = String(input.displayName || "").trim().slice(0, 160);
+    const email = String(input.email || "").trim().toLowerCase().slice(0, 320);
+    const password = String(input.password || "");
+    const role: "customer" | "designer" = input.role === "designer" ? "designer" : "customer";
+    if (displayName.length < 2) throw new Error("Display name is required.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
+    if (password.length < 8) throw new Error("Password must be at least 8 characters.");
+    if (this.ctx.storage.sql.exec<any>("SELECT id FROM users WHERE email=?", email).toArray()[0]) throw new Error("An account with this email already exists.");
+
+    const userId = crypto.randomUUID();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const hash = await hashPassword(password, salt);
+    const sessionId = crypto.randomUUID();
+    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+    const roleId = role === "designer" ? "role-designer" : "role-customer";
+
+    this.ctx.storage.transactionSync(() => {
+      this.ctx.storage.sql.exec("INSERT INTO users (id,email,display_name,status) VALUES (?,?,?,'active')", userId, email, displayName);
+      this.ctx.storage.sql.exec("INSERT INTO auth_credentials (user_id,password_salt,password_hash,updated_at) VALUES (?,?,?,CURRENT_TIMESTAMP)", userId, bytesToBase64(salt), hash);
+      this.ctx.storage.sql.exec("INSERT INTO user_roles (user_id,role_id) VALUES (?,?)", userId, roleId);
+      if (role === "designer") {
+        this.ctx.storage.sql.exec("INSERT INTO designer_profiles (user_id,authorization_status,created_at) VALUES (?,'pending',CURRENT_TIMESTAMP)", userId);
+      } else {
+        this.ctx.storage.sql.exec("INSERT INTO customer_profiles (user_id) VALUES (?)", userId);
+      }
+      this.ctx.storage.sql.exec("INSERT INTO sessions (id,user_id,expires_at,created_at) VALUES (?,?,?,CURRENT_TIMESTAMP)", sessionId, userId, expiresAt);
+    });
+
+    return { userId, role, sessionId };
+  }
+
+  async loginUser(identifier: string, password: string): Promise<{userId:string;role:"customer"|"designer";sessionId:string}|null> {
+    this.bootstrapCatalog();
+    const clean = String(identifier || "").trim().toLowerCase();
+    const suppliedPassword = String(password || "");
+    if (!clean || !suppliedPassword) return null;
+
+    const row = this.ctx.storage.sql.exec<any>(`
+      SELECT u.id, u.email, u.status, a.password_salt, a.password_hash, r.name AS role
+      FROM users u
+      JOIN auth_credentials a ON a.user_id = u.id
+      JOIN user_roles ur ON ur.user_id = u.id
+      JOIN roles r ON r.id = ur.role_id
+      LEFT JOIN customer_profiles cp ON cp.user_id = u.id
+      WHERE u.status = 'active'
+        AND (LOWER(u.email) = ? OR LOWER(COALESCE(cp.phone,'')) = ?)
+        AND r.name IN ('customer','designer')
+      ORDER BY CASE r.name WHEN 'designer' THEN 0 ELSE 1 END
+      LIMIT 1
+    `, clean, clean).toArray()[0];
+    if (!row) return null;
+
+    let valid = false;
+    try { valid = await verifyPassword(suppliedPassword, String(row.password_salt || ""), String(row.password_hash || "")); } catch { return null; }
+    if (!valid) return null;
+
+    const role: "customer" | "designer" = row.role === "designer" ? "designer" : "customer";
+    const sessionId = crypto.randomUUID();
+    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+    this.ctx.storage.transactionSync(() => {
+      this.ctx.storage.sql.exec("DELETE FROM sessions WHERE expires_at <= ?", Date.now());
+      this.ctx.storage.sql.exec("INSERT INTO sessions (id,user_id,expires_at,created_at) VALUES (?,?,?,CURRENT_TIMESTAMP)", sessionId, row.id, expiresAt);
+    });
+    return { userId: String(row.id), role, sessionId };
   }
 
   private async adminPasswordHash(password: string, salt: Uint8Array): Promise<string> {
