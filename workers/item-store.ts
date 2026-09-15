@@ -109,10 +109,29 @@ async function verifyPassword(password: string, saltText: string, expectedHash: 
 }
 
 export function normalizePrintifyVariant(blueprintId: string, providerId: string, raw: any) {
-  const variantId = String(raw?.id ?? raw?.variant_id ?? "");
+  const variantId = String(raw?.id ?? raw?.variant_id ?? raw?.variantId ?? "");
   if (!/^\d{1,30}$/.test(variantId)) return null;
   const options = raw?.options && typeof raw.options === "object" ? raw.options : {};
-  return { blueprintId: String(blueprintId), printProviderId: String(providerId), variantId, sourceTitle: String(raw?.title ?? raw?.name ?? "").slice(0,300), size: raw?.size ?? options.size ?? null, color: raw?.color ?? options.color ?? null, options, sourceAvailable: raw?.is_enabled !== false && raw?.available !== false, sourceCostInternal: raw?.cost == null ? (raw?.cost_jod == null ? null : Number(raw.cost_jod)) : Number(raw.cost), metadata: raw, images: Array.isArray(raw?.images) ? raw.images : [], placeholders: raw?.placeholders ?? raw?.print_areas ?? {} };
+  const normalizedAvailability = raw?.sourceAvailable === undefined
+    ? (raw?.is_enabled !== false && raw?.available !== false)
+    : raw.sourceAvailable !== false;
+  const normalizedCost = raw?.sourceCostInternal !== undefined
+    ? Number(raw.sourceCostInternal)
+    : (raw?.cost == null ? (raw?.cost_jod == null ? null : Number(raw.cost_jod)) : Number(raw.cost));
+  return {
+    blueprintId: String(blueprintId),
+    printProviderId: String(providerId),
+    variantId,
+    sourceTitle: String(raw?.sourceTitle ?? raw?.title ?? raw?.name ?? "").slice(0,300),
+    size: raw?.size ?? options.size ?? null,
+    color: raw?.color ?? options.color ?? null,
+    options,
+    sourceAvailable: normalizedAvailability,
+    sourceCostInternal: normalizedCost == null || !Number.isFinite(normalizedCost) ? null : normalizedCost,
+    metadata: raw?.metadata ?? raw,
+    images: Array.isArray(raw?.images) ? raw.images : [],
+    placeholders: raw?.placeholders ?? raw?.print_areas ?? {}
+  };
 }
 
 export class ItemStore extends DurableObject<ItemStoreEnv> {
