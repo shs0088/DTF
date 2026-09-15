@@ -742,5 +742,33 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     this.bootstrapCatalog(); const clean=String(username||"").trim().toLowerCase(); if(!/^[a-z0-9][a-z0-9._-]{2,63}$/.test(clean)) throw new Error("Username must be 3-64 characters and use letters, numbers, dot, underscore, or hyphen."); if(String(password||"").length<12) throw new Error("Password must be at least 12 characters."); if(await this.adminCount()>0) throw new Error("Admin bootstrap is already completed."); const salt=crypto.getRandomValues(new Uint8Array(16)); const id=crypto.randomUUID(); const hash=await this.adminPasswordHash(password,salt); this.ctx.storage.sql.exec("INSERT INTO admin_users (id,username,password_salt,password_hash,role) VALUES (?,?,?,?,?)",id,clean,this.adminB64(salt),hash,role); return {id,username:clean,role};
   }
   async updateAdminAccount(id: string, currentPassword: string, newUsername: string, newPassword: string): Promise<{id:string;username:string;role:"main_admin"|"printing_technician"}> {
+    this.bootstrapCatalog();
+    const row = this.ctx.storage.sql.exec<any>("SELECT id,username,password_salt,password_hash,role,enabled FROM admin_users WHERE id=? AND enabled=1", id).toArray()[0];
+    if (!row) throw new Error("Admin account not found.");
+    const currentHash = await this.adminPasswordHash(String(currentPassword || ""), base64ToBytes(String(row.password_salt || "")));
+    if (currentHash !== String(row.password_hash || "")) throw new Error("Current password is incorrect.");
+    const clean = String(newUsername || "").trim().toLowerCase();
+    if (!/^[a-z0-9][a-z0-9._-]{2,63}$/.test(clean)) throw new Error("Username must be 3-64 characters and use letters, numbers, dot, underscore, or hyphen.");
+    if (String(newPassword || "").length < 12) throw new Error("Password must be at least 12 characters.");
+    const duplicate = this.ctx.storage.sql.exec<any>("SELECT id FROM admin_users WHERE username=? AND id<>?", clean, id).toArray()[0];
+    if (duplicate) throw new Error("Username is already in use.");
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const hash = await this.adminPasswordHash(newPassword, salt);
+    this.ctx.storage.sql.exec("UPDATE admin_users SET username=?,password_salt=?,password_hash=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", clean, this.adminB64(salt), hash, id);
+    return { id: String(row.id), username: clean, role: row.role };
+  }
 
-[Showing lines 1-731 of 780. Use offset=732 to continue.]
+  async loginAdmin(username: string, password: string): Promise<{id:string;username:string;role:"main_admin"|"printing_technician"}|null> {
+    this.bootstrapCatalog();
+    const clean = String(username || "").trim().toLowerCase();
+    if (!clean || !password) return null;
+    const row = this.ctx.storage.sql.exec<any>("SELECT id,username,password_salt,password_hash,role FROM admin_users WHERE username=? AND enabled=1", clean).toArray()[0];
+    if (!row) return null;
+    let salt: Uint8Array;
+    try { salt = base64ToBytes(String(row.password_salt || "")); } catch { return null; }
+    const hash = await this.adminPasswordHash(password, salt);
+    if (hash !== String(row.password_hash || "")) return null;
+    this.ctx.storage.sql.exec("UPDATE admin_users SET last_login_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?", row.id);
+    return { id: String(row.id), username: String(row.username), role: row.role };
+  }
+}
