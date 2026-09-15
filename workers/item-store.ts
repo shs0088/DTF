@@ -1,4 +1,6 @@
-import { DurableObject } from "cloudflare:workers";\nimport { normalizePrintifyVariant, validatePrintifyPublishState } from "./printify-utils";\nexport { normalizePrintifyVariant } from "./printify-utils";
+import { DurableObject } from "cloudflare:workers";
+import { normalizePrintifyVariant, validatePrintifyPublishState } from "./printify-utils";
+export { normalizePrintifyVariant } from "./printify-utils";
 
 interface ItemStoreEnv {}
 

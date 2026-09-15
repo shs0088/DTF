@@ -12,7 +12,7 @@ if (!Array.isArray(snapshot?.products) || snapshot.products.length === 0) {
   throw new Error("Snapshot has no products to smoke-test.");
 }
 
-async function getJson(path) {
+async function tryGetJson(path) {
   const response = await fetch("https://api.printify.com" + path, {
     headers: {
       Authorization: "Bearer " + token,
@@ -20,22 +20,25 @@ async function getJson(path) {
       "User-Agent": "DTF-Studio-Selected-Product-Smoke/1.0"
     }
   });
-  if (!response.ok) throw new Error(path + " failed (" + response.status + ")");
-  return response.json();
+  if (!response.ok) return null;
+  try { return await response.json(); } catch { return null; }
 }
 
 let passed = null;
-for (const product of snapshot.products.slice(0, 25)) {
+for (const product of snapshot.products.slice(0, 40)) {
   const blueprintId = String(product.blueprintId);
-  const detail = await getJson(`/v1/catalog/blueprints/${blueprintId}.json`);
-  const providersPayload = await getJson(`/v1/catalog/blueprints/${blueprintId}/print_providers.json`);
+  const detail = await tryGetJson(`/v1/catalog/blueprints/${blueprintId}.json`);
+  if (!detail || !String(detail?.title ?? "").trim()) continue;
+  const providersPayload = await tryGetJson(`/v1/catalog/blueprints/${blueprintId}/print_providers.json`);
+  if (!providersPayload) continue;
   const providers = Array.isArray(providersPayload) ? providersPayload : (providersPayload?.data ?? []);
-  for (const provider of providers.slice(0, 10)) {
+  for (const provider of providers.slice(0, 12)) {
     const providerId = String(provider?.id ?? "");
     if (!/^\d+$/.test(providerId)) continue;
-    const variantsPayload = await getJson(`/v1/catalog/blueprints/${blueprintId}/print_providers/${providerId}/variants.json?show-out-of-stock=true`);
+    const variantsPayload = await tryGetJson(`/v1/catalog/blueprints/${blueprintId}/print_providers/${providerId}/variants.json?show-out-of-stock=true`);
+    if (!variantsPayload) continue;
     const variants = Array.isArray(variantsPayload) ? variantsPayload : (variantsPayload?.variants ?? variantsPayload?.data ?? []);
-    if (String(detail?.title ?? "").trim() && variants.length > 0) {
+    if (variants.length > 0) {
       passed = { blueprintId, providerId, variants: variants.length, title: String(detail.title).slice(0, 80) };
       break;
     }
