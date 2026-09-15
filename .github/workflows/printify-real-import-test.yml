@@ -1,0 +1,85 @@
+name: Printify real product import test
+
+on:
+  push:
+    branches:
+      - printify-import-test-lab
+  workflow_dispatch:
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+        with:
+          ref: printify-import-test-lab
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start isolated local DTF runtime
+        env:
+          PRINTIFY_API_TOKEN: ${{ secrets.PRINTIFY_API_TOKEN }}
+        run: |
+          test -n "$PRINTIFY_API_TOKEN"
+          npx wrangler dev --config wrangler.printify-test.jsonc --ip 127.0.0.1 --port 8787 --var PRINTIFY_API_TOKEN:"$PRINTIFY_API_TOKEN" > /tmp/dtf-wrangler.log 2>&1 &
+          echo $! > /tmp/dtf-wrangler.pid
+
+      - name: Test one real Printify product import and duplicate skip
+        run: |
+          set -euo pipefail
+          success=0
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8787/test > /tmp/result.json; then
+              success=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$success" -ne 1 ]; then
+            echo "Local runtime did not return a successful test response."
+            tail -n 200 /tmp/dtf-wrangler.log || true
+            exit 1
+          fi
+          cat /tmp/result.json
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const result = JSON.parse(fs.readFileSync("/tmp/result.json", "utf8"));
+          if (!result.ok) throw new Error("Integration result ok=false");
+          if (result.first?.status !== "imported") throw new Error("First import was not imported");
+          if (result.second?.status !== "skipped") throw new Error("Second import was not skipped");
+          if (result.second?.reason !== "already_imported") throw new Error("Wrong duplicate skip reason");
+          if (!result.unchangedOnSecondAttempt) throw new Error("Existing product changed on duplicate attempt");
+          if (result.published) throw new Error("Test product must remain unpublished");
+          if (!(result.normalizedVariantCount > 0)) throw new Error("No variants were imported");
+          console.log("ASSERTIONS PASSED");
+          console.log(JSON.stringify({
+            blueprintId: result.blueprintId,
+            title: result.title,
+            providerId: result.providerId,
+            normalizedVariantCount: result.normalizedVariantCount,
+            modelId: result.modelId,
+            first: result.first,
+            second: result.second,
+            unchangedOnSecondAttempt: result.unchangedOnSecondAttempt,
+            published: result.published
+          }, null, 2));
+          NODE
+
+      - name: Show runtime log on failure
+        if: failure()
+        run: tail -n 200 /tmp/dtf-wrangler.log || true
+
+      - name: Stop local runtime
+        if: always()
+        run: |
+          if [ -f /tmp/dtf-wrangler.pid ]; then
+            kill "$(cat /tmp/dtf-wrangler.pid)" || true
+          fi
