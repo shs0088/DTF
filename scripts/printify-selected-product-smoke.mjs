@@ -35,7 +35,7 @@ for (const product of snapshot.products.slice(0, 40)) {
   for (const provider of providers.slice(0, 12)) {
     const providerId = String(provider?.id ?? "");
     if (!/^\d+$/.test(providerId)) continue;
-    const variantsPayload = await tryGetJson(`/v1/catalog/blueprints/${blueprintId}/print_providers/${providerId}/variants.json?show-out-of-stock=true`);
+    const variantsPayload = await tryGetJson(`/v1/catalog/blueprints/${blueprintId}/print_providers/${providerId}/variants.json?show-out-of-stock=1`);
     if (!variantsPayload) continue;
     const variants = Array.isArray(variantsPayload) ? variantsPayload : (variantsPayload?.variants ?? variantsPayload?.data ?? []);
     if (variants.length > 0) {

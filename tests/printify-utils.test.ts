@@ -33,6 +33,11 @@ describe("normalizePrintifyVariant", () => {
     expect(twice?.sourceCostInternal).toBe(1450);
   });
 
+  test("honors Printify is_available stock state", () => {
+    const value = normalizePrintifyVariant("5", "99", { id: 456, title: "White / L", is_enabled: true, is_available: false });
+    expect(value?.sourceAvailable).toBe(false);
+  });
+
   test("rejects malformed variant ids", () => {
     expect(normalizePrintifyVariant("5", "99", { id: "bad-id" })).toBeNull();
   });

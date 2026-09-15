@@ -18,7 +18,7 @@ export function normalizePrintifyVariant(blueprintId: string, providerId: string
   if (!/^\d{1,30}$/.test(variantId)) return null;
   const options = raw?.options && typeof raw.options === "object" ? raw.options : {};
   const sourceAvailable = raw?.sourceAvailable === undefined
-    ? (raw?.is_enabled !== false && raw?.available !== false)
+    ? (raw?.is_enabled !== false && raw?.is_available !== false && raw?.available !== false)
     : raw.sourceAvailable !== false;
   const rawCost = raw?.sourceCostInternal !== undefined
     ? Number(raw.sourceCostInternal)
