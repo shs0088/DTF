@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - camel-current
+      - item-store-recovery-lab
 permissions:
   contents: read
 jobs:
@@ -10,10 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout camel-current
+      - name: Checkout current branch
         uses: actions/checkout@v4
-        with:
-          ref: camel-current
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
