@@ -674,7 +674,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
 
   printifyCatalogLocalState(): unknown[] {
     this.bootstrapCatalog();
-    return this.ctx.storage.sql.exec<any>(`SELECT c.blueprint_id, c.imported_model_id, c.provider_id, c.source_available, c.sync_status, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id`).toArray();
+    return this.ctx.storage.sql.exec<any>(`SELECT c.blueprint_id, c.imported_model_id, c.provider_id, c.source_available, c.sync_status, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id`).toArray();, p.selected_provider_id
   }
 
   printifyCatalog(filters: { search?: string; imported?: string; published?: string } = {}): unknown[] {
@@ -688,6 +688,14 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     this.bootstrapCatalog();
     const row = this.ctx.storage.sql.exec<any>(`SELECT c.*, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id WHERE c.blueprint_id = ?`, blueprintId).toArray()[0];
     return row ? { ...row, variants: JSON.parse(row.variants_json || '[]'), images: JSON.parse(row.images_json || '[]'), source: 'printify' } : null;
+  }
+
+  upsertPrintifyCatalogItem(item: { blueprintId: string; title: string; description?: string; productType?: string; providerId?: string; source?: unknown; variants?: unknown[]; images?: unknown[]; sourceAvailable?: boolean; syncStatus?: string }): { count: number; syncedAt: string } {
+    this.bootstrapCatalog(); const syncedAt = new Date().toISOString();
+    if (!/^[0-9]{1,20}$/.test(String(item.blueprintId))) throw new Error('Invalid blueprintId.');
+    const id = `printify-${item.blueprintId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100);
+    this.ctx.storage.transactionSync(() => { this.ctx.storage.sql.exec(`INSERT INTO printify_catalog_items (id, blueprint_id, source_title, source_description, product_type, provider_id, source_json, variants_json, images_json, sync_status, source_available, last_synced_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(blueprint_id) DO UPDATE SET source_title=excluded.source_title, source_description=excluded.source_description, product_type=excluded.product_type, provider_id=COALESCE(excluded.provider_id,printify_catalog_items.provider_id), source_json=excluded.source_json, variants_json=CASE WHEN json_array_length(excluded.variants_json)>0 THEN excluded.variants_json ELSE printify_catalog_items.variants_json END, images_json=excluded.images_json, sync_status=excluded.sync_status, source_available=excluded.source_available, last_synced_at=excluded.last_synced_at`, id, String(item.blueprintId).slice(0, 120), String(item.title).slice(0, 300), String(item.description ?? '').slice(0, 5000), String(item.productType ?? '').slice(0, 120), item.providerId ? String(item.providerId).slice(0, 120) : null, JSON.stringify(item.source ?? {}), JSON.stringify(item.variants ?? []), JSON.stringify(item.images ?? []), item.syncStatus ?? 'synced', item.sourceAvailable === false ? 0 : 1, syncedAt); });
+    return { count: 1, syncedAt };
   }
 
   savePrintifyCatalog(items: Array<{ blueprintId: string; title: string; description?: string; productType?: string; providerId?: string; source?: unknown; variants?: unknown[]; images?: unknown[]; sourceAvailable?: boolean; syncStatus?: string }>): { count: number; syncedAt: string } {
