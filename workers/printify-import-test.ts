@@ -114,8 +114,10 @@ export default {
         published: Number(afterSecond?.published ?? 0) === 1,
       }, { status: ok ? 200 : 500 });
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown test failure";
+      console.error("PRINTIFY_IMPORT_TEST_FAILURE", message);
       return Response.json(
-        { ok: false, error: error instanceof Error ? error.message : "Unknown test failure" },
+        { ok: false, error: message },
         { status: 500 },
       );
     }
