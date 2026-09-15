@@ -768,7 +768,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   importPrintify(blueprintId: string, providerId?: string): unknown {
     const item = this.printifyItem(blueprintId) as any;
     if (!item) throw new Error('Catalog item not found.');
-    const modelId = item.imported_model_id || `printify-model-${blueprintId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100);
+    const modelId = item.imported_model_id || `dtf-product-${blueprintId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100);
     const pid = String(providerId || item.provider_id || "");
     if (!/^\d{1,20}$/.test(pid)) throw new Error('A valid Print Provider is required.');
     const images = Array.isArray(item.images) ? item.images : [];
@@ -786,11 +786,26 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         const nv=normalizePrintifyVariant(blueprintId,pid,v);
         if(!nv) continue;
         this.ctx.storage.sql.exec("INSERT OR REPLACE INTO printify_source_variants (blueprint_id,print_provider_id,variant_id,source_title,size,color,options_json,source_available,source_cost_internal,source_metadata_json,image_refs_json,placeholders_json,source_updated_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",nv.blueprintId,nv.printProviderId,nv.variantId,nv.sourceTitle,nv.size,nv.color,JSON.stringify(nv.options),nv.sourceAvailable?1:0,nv.sourceCostInternal,JSON.stringify(nv.metadata),JSON.stringify(nv.images),JSON.stringify(nv.placeholders),new Date().toISOString());
-        const vid = `pv-${blueprintId}-${nv.variantId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120);
-        this.ctx.storage.sql.exec("INSERT OR IGNORE INTO variants (id,model_id,sku,color,size,options_json,retail_price_jod,enabled) VALUES (?,?,?,?,?,?,0,0)", vid, modelId, `PRINTIFY-${vid}`.slice(0, 120), nv.color, nv.size, JSON.stringify(nv));
+        const vid = `dtf-variant-${blueprintId}-${nv.variantId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120);
+        this.ctx.storage.sql.exec("INSERT OR IGNORE INTO variants (id,model_id,sku,color,size,options_json,retail_price_jod,enabled) VALUES (?,?,?,?,?,?,0,0)", vid, modelId, `DTF-${blueprintId}-${nv.variantId}`.slice(0, 120), nv.color, nv.size, JSON.stringify(nv));
         this.ctx.storage.sql.exec("INSERT OR IGNORE INTO printify_variant_settings (variant_id,source_cost_jod,enabled) VALUES (?,?,0)", vid, nv.sourceCostInternal);
       }
     });
+    return this.printifyItem(blueprintId);
+  }
+
+  markPrintifySourceUnavailable(blueprintId: string, syncStatus = 'source_unavailable'): unknown {
+    this.bootstrapCatalog();
+    if (!/^\d{1,20}$/.test(String(blueprintId))) throw new Error('Invalid blueprintId.');
+    const now = new Date().toISOString();
+    this.ctx.storage.sql.exec(
+      'UPDATE printify_catalog_items SET source_available=0,sync_status=?,last_synced_at=? WHERE blueprint_id=?',
+      String(syncStatus || 'source_unavailable').slice(0,80), now, blueprintId
+    );
+    const item = this.printifyItem(blueprintId) as any;
+    if (item?.imported_model_id && Number(item.published) === 1) {
+      this.publishPrintify(String(item.imported_model_id), false);
+    }
     return this.printifyItem(blueprintId);
   }
 
@@ -820,20 +835,28 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
           "INSERT OR REPLACE INTO printify_source_variants (blueprint_id,print_provider_id,variant_id,source_title,size,color,options_json,source_available,source_cost_internal,source_metadata_json,image_refs_json,placeholders_json,source_updated_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",
           nv.blueprintId,nv.printProviderId,nv.variantId,nv.sourceTitle,nv.size,nv.color,JSON.stringify(nv.options),nv.sourceAvailable?1:0,nv.sourceCostInternal,JSON.stringify(nv.metadata),JSON.stringify(nv.images),JSON.stringify(nv.placeholders),new Date().toISOString()
         );
-        const vid = `pv-${blueprintId}-${nv.variantId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120);
+        const vid = `dtf-variant-${blueprintId}-${nv.variantId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120);
         const optionJson = JSON.stringify(nv);
         const found = this.ctx.storage.sql.exec<any>('SELECT id FROM variants WHERE id=? AND model_id=?', vid, modelId).toArray()[0];
         if (found) {
           this.ctx.storage.sql.exec('UPDATE variants SET color=?,size=?,options_json=? WHERE id=? AND model_id=?', nv.color, nv.size, optionJson, vid, modelId);
           this.ctx.storage.sql.exec('UPDATE printify_variant_settings SET source_cost_jod=?,updated_at=CURRENT_TIMESTAMP WHERE variant_id=?', nv.sourceCostInternal, vid);
         } else {
-          this.ctx.storage.sql.exec('INSERT INTO variants (id,model_id,sku,color,size,options_json,retail_price_jod,enabled) VALUES (?,?,?,?,?,?,?,0)', vid, modelId, `PRINTIFY-${vid}`.slice(0,120), nv.color, nv.size, optionJson, defaultPrice);
+          this.ctx.storage.sql.exec('INSERT INTO variants (id,model_id,sku,color,size,options_json,retail_price_jod,enabled) VALUES (?,?,?,?,?,?,?,0)', vid, modelId, `DTF-${blueprintId}-${nv.variantId}`.slice(0,120), nv.color, nv.size, optionJson, defaultPrice);
           this.ctx.storage.sql.exec('INSERT INTO printify_variant_settings (variant_id,source_cost_jod,enabled) VALUES (?,?,0)', vid, nv.sourceCostInternal);
         }
       }
       this.ctx.storage.sql.exec('UPDATE printify_product_data SET selected_provider_id=COALESCE(selected_provider_id,?),updated_at=CURRENT_TIMESTAMP WHERE model_id=?', pid, modelId);
     });
-    return this.printifyItem(blueprintId);
+    const refreshed = this.printifyItem(blueprintId) as any;
+    if (Number(item.published) === 1) {
+      const publication = this.publishPrintify(modelId, true) as any;
+      if (publication?.ok === false) {
+        this.publishPrintify(modelId, false);
+        return { ...(this.printifyItem(blueprintId) as any), autoUnpublished: true, publishErrors: publication.errors };
+      }
+    }
+    return refreshed;
   }
 
   updatePrintifyProduct(modelId: string, input: { titleEn?: string; titleAr?: string; descriptionEn?: string; descriptionAr?: string; displayImage?: string | null; categoryId?: string; customerPriceJod?: number | null; printYourDream?: boolean; enabled?: boolean; selectedProviderId?: string | null; enabledVariants?: string[] }): unknown {
@@ -854,7 +877,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         input.displayImage === undefined ? current.display_image : String(input.displayImage || '').slice(0,1000) || null,
         priceCents,
         printYourDream ? 1 : 0,
-        input.selectedProviderId === undefined ? current.selected_provider_id : (input.selectedProviderId ? String(input.selectedProviderId).slice(0,80) : null),
+        input.selectedProviderId === undefined ? current.selected_provider_id : (input.selectedProviderId ? (/^\d{1,20}$/.test(String(input.selectedProviderId)) ? String(input.selectedProviderId) : (() => { throw new Error('Invalid Print Provider.'); })()) : null),
         modelId
       );
       if (input.customerPriceJod !== undefined) this.ctx.storage.sql.exec('UPDATE variants SET retail_price_jod=? WHERE model_id=?', priceCents, modelId);
@@ -870,7 +893,15 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         }
       }
     });
-    return this.printifyItem(this.ctx.storage.sql.exec<{ blueprint_id:string }>('SELECT blueprint_id FROM printify_catalog_items WHERE imported_model_id=?',modelId).one().blueprint_id);
+    const blueprintId = this.ctx.storage.sql.exec<{ blueprint_id:string }>('SELECT blueprint_id FROM printify_catalog_items WHERE imported_model_id=?',modelId).one().blueprint_id;
+    if (Number(current.published) === 1) {
+      const publication = this.publishPrintify(modelId, true) as any;
+      if (publication?.ok === false) {
+        this.publishPrintify(modelId, false);
+        return { ...(this.printifyItem(blueprintId) as any), autoUnpublished: true, publishErrors: publication.errors };
+      }
+    }
+    return this.printifyItem(blueprintId);
   }
 
   publishPrintify(modelId: string, published: boolean): unknown {
