@@ -47,6 +47,10 @@ export interface StudioProduct extends Record<string, SqlStorageValue> {
   categoryId: string;
   nameAr: string;
   nameEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  displayImage: string | null;
+  printYourDream: number;
   variantId: string;
   sku: string;
   color: string | null;
@@ -674,12 +678,20 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       SELECT m.id AS modelId, m.category_id AS categoryId,
              CASE WHEN m.source = 'printify' THEN COALESCE(NULLIF(p.title_ar, ''), '') ELSE m.name_ar END AS nameAr,
              CASE WHEN m.source = 'printify' THEN COALESCE(NULLIF(p.title_en, ''), '') ELSE m.name_en END AS nameEn,
+             CASE WHEN m.source = 'printify' THEN COALESCE(p.description_ar, '') ELSE '' END AS descriptionAr,
+             CASE WHEN m.source = 'printify' THEN COALESCE(p.description_en, '') ELSE '' END AS descriptionEn,
+             CASE WHEN m.source = 'printify' THEN p.display_image ELSE (
+               SELECT pm.storage_key FROM product_media pm WHERE pm.model_id=m.id
+               ORDER BY CASE pm.media_kind WHEN 'mockup' THEN 0 WHEN 'preview' THEN 1 ELSE 2 END, pm.id LIMIT 1
+             ) END AS displayImage,
+             CASE WHEN m.source = 'printify' THEN COALESCE(p.print_your_dream,0) ELSE 1 END AS printYourDream,
              v.id AS variantId, v.sku, v.color, v.size, CAST(v.retail_price_jod AS REAL) / 100.0 AS retailPriceJod,
              CASE WHEN m.source = 'printify' THEN 'custom' ELSE m.source END AS source
       FROM product_models m JOIN variants v ON v.model_id = m.id
+      JOIN site_categories sc ON sc.id = m.category_id
       LEFT JOIN printify_product_data p ON p.model_id = m.id
       LEFT JOIN printify_catalog_items c ON c.imported_model_id = m.id
-      WHERE m.enabled = 1 AND v.enabled = 1
+      WHERE m.enabled = 1 AND v.enabled = 1 AND sc.enabled = 1
         AND (
           m.source <> 'printify'
           OR (
@@ -905,7 +917,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   }
 
   publishPrintify(modelId: string, published: boolean): unknown {
-    this.bootstrapCatalog(); const row = this.ctx.storage.sql.exec<any>('SELECT p.*,c.blueprint_id,c.source_available FROM printify_product_data p JOIN printify_catalog_items c ON c.imported_model_id=p.model_id WHERE p.model_id=?',modelId).toArray()[0]; if (!row) throw new Error('Imported product not found.');
+    this.bootstrapCatalog(); const row = this.ctx.storage.sql.exec<any>('SELECT p.*,c.blueprint_id,c.source_available,m.category_id,sc.enabled AS category_enabled FROM printify_product_data p JOIN printify_catalog_items c ON c.imported_model_id=p.model_id JOIN product_models m ON m.id=p.model_id JOIN site_categories sc ON sc.id=m.category_id WHERE p.model_id=?',modelId).toArray()[0]; if (!row) throw new Error('Imported product not found.');
     if (!published) { this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=0,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=0 WHERE id=?',modelId); return this.printifyItem(row.blueprint_id); }
     const variants=this.ctx.storage.sql.exec<any>('SELECT v.id,v.enabled,v.options_json FROM variants v WHERE v.model_id=?',modelId).toArray();
     const validVariants=variants.filter(v=>{ if(Number(v.enabled)!==1) return false; try { return JSON.parse(v.options_json||'{}').sourceAvailable!==false; } catch { return false; } });
@@ -920,6 +932,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       sourceAvailable: Number(row.source_available) === 1,
       validEnabledVariantCount: validVariants.length
     });
+    if(Number(row.category_enabled)!==1) errors.push('An enabled DTF Studio category is required.');
     if(errors.length) return {ok:false,errors}; this.ctx.storage.transactionSync(() => { this.ctx.storage.sql.exec('UPDATE variants SET retail_price_jod=? WHERE model_id=?',Number(row.customer_price_jod),modelId); this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=1,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=1 WHERE id=?',modelId); }); return this.printifyItem(row.blueprint_id);
   }
 
