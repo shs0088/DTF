@@ -1,6 +1,9 @@
 name: Refresh Printify catalog snapshot
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - camel-current
 concurrency:
   group: printify-catalog-snapshot
   cancel-in-progress: false
