@@ -23,3 +23,7 @@ jobs:
         run: npm run typecheck
       - name: Production build
         run: npm run build
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Existing test suite
+        run: bun test
