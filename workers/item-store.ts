@@ -612,11 +612,16 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const cartId = `guest-${safeSession}`;
     this.ctx.storage.sql.exec("INSERT OR IGNORE INTO carts (id, session_key) VALUES (?, ?)", cartId, safeSession);
     const lines = this.ctx.storage.sql.exec<CartLine>(`
-      SELECT ci.id, ci.variant_id AS variantId, v.sku, m.name_en AS productName, v.color, v.size,
+      SELECT ci.id, ci.variant_id AS variantId, v.sku,
+             CASE WHEN m.source='printify' THEN COALESCE(NULLIF(p.title_en,''),m.name_en) ELSE m.name_en END AS productName,
+             v.color, v.size,
              ci.quantity, CAST(ci.unit_price_jod AS REAL) / 100.0 AS unitPriceJod,
              (CAST(ci.unit_price_jod AS REAL) / 100.0) * ci.quantity AS lineTotalJod,
              ci.design_id AS designId, ci.master_asset_id AS masterAssetId
-      FROM cart_items ci JOIN variants v ON v.id = ci.variant_id JOIN product_models m ON m.id = v.model_id
+      FROM cart_items ci
+      JOIN variants v ON v.id = ci.variant_id
+      JOIN product_models m ON m.id = v.model_id
+      LEFT JOIN printify_product_data p ON p.model_id = m.id
       WHERE ci.cart_id = ? ORDER BY ci.id
     `, cartId).toArray();
     return { cartId, lines, itemCount: lines.reduce((sum, line) => sum + line.quantity, 0), subtotalJod: lines.reduce((sum, line) => sum + line.lineTotalJod, 0) };
@@ -627,7 +632,32 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const safeSession = input.sessionKey.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) || "anonymous";
     const cartId = `guest-${safeSession}`;
     const quantity = Math.max(1, Math.min(99, Math.floor(input.quantity ?? 1)));
-    const variant = this.ctx.storage.sql.exec<{ id: string; price: number }>("SELECT id, retail_price_jod AS price FROM variants WHERE id = ? AND enabled = 1", input.variantId).one();
+    const variant = this.ctx.storage.sql.exec<{ id: string; price: number }>(`
+      SELECT v.id, v.retail_price_jod AS price
+      FROM variants v
+      JOIN product_models m ON m.id = v.model_id
+      JOIN site_categories sc ON sc.id = m.category_id
+      LEFT JOIN printify_product_data p ON p.model_id = m.id
+      LEFT JOIN printify_catalog_items c ON c.imported_model_id = m.id
+      WHERE v.id = ?
+        AND v.enabled = 1
+        AND m.enabled = 1
+        AND sc.enabled = 1
+        AND (
+          m.source <> 'printify'
+          OR (
+            p.published = 1
+            AND p.title_en <> '' AND p.title_ar <> ''
+            AND p.description_en <> '' AND p.description_ar <> ''
+            AND p.display_image IS NOT NULL
+            AND p.customer_price_jod > 0
+            AND p.selected_provider_id IS NOT NULL
+            AND c.source_available = 1
+            AND COALESCE(json_extract(v.options_json, '$.sourceAvailable'), 1) <> 0
+          )
+        )
+    `, input.variantId).toArray()[0];
+    if (!variant) throw new Error("This product option is no longer available.");
     const lineKey = [variant.id, input.designId ?? "", input.masterAssetId ?? "", input.printSpecJson ?? "{}"].join(":");
     this.ctx.storage.transactionSync(() => {
       this.ctx.storage.sql.exec("INSERT OR IGNORE INTO carts (id, session_key) VALUES (?, ?)", cartId, safeSession);
