@@ -144,3 +144,17 @@ OPENCART RBAC QC UPDATE — CURRENT HEAD 1e97148026dcdfbd7e06fa2995d4ff91c51cecd
 ============================================================
 - OpenCart-style group schema, exactly-one group assignment, protected system groups, custom group CRUD, Access/Modify persistence, and server-side resolver are present.
 - Remaining validation requires actual GitHub Actions evidence and runtime authorization matrix execution.
+
+============================================================
+DOCUMENTATION-ONLY SAFETY + KAMEL CI UPDATE — 2026-09-16
+============================================================
+FUTURE PROCESS:
+- All project paper/QC/rules/checklist updates are maintained on branch docs/project-records.
+- Documentation updates must not alter application source, database schema, runtime assets, deployment configuration, camel-current, or main.
+- A documentation requirement becomes code work only through a separate explicitly named implementation branch/task.
+CURRENT KAMEL RBAC:
+- Previous final SHA c8a4145e48aab03fcd36874ab67de9e48754ff55 failed GitHub Actions Typecheck.
+- GitHub corrected the narrow TypeScript identity check only on kamel/admin-rbac-foundation.
+- Current correction SHA: 0aba6ac42a932b37e5dfe6ae1f2f76f47ff18070.
+- GitHub Actions run 35073709467: SUCCESS.
+- Remaining before merge/deploy: full runtime authorization matrix and remaining polished Admin/User Groups UI requirements.
