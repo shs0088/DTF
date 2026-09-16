@@ -682,3 +682,54 @@ RESULT: camel-current now contains the complete verified implementation that was
 MAIN CHANGE: NO.
 DEPLOYMENT: NO.
 NEXT: continue remaining source/runtime work directly from camel-current.
+
+============================================================
+CANONICAL BASELINE CORRECTION / PROJECT-IDENTITY FIX — 2026-09-17
+============================================================
+TASK:
+Correct project records after an incorrect assumption that the reconciliation workspace should become the implementation workspace.
+
+VERIFIED ACTIVE CAMEL IMPLEMENTATION PROJECT:
+dtf-studio-v48-safe-frontend
+
+PROJECT ID:
+ca-4ae996677c654c02a0fc8e115bca8889-dtf-studio-v48-1l5d
+
+ACCEPTED BASELINE:
+DTF Studio V48.22E
+
+BASELINE FILE:
+public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html
+
+VERIFIED CURRENT STATE:
+- Baseline file exists.
+- Printify catalog/products functionality is present.
+- workers/item-store.ts exists.
+- workers/static-app.ts exists.
+- No source change was required to verify this identity.
+
+CORRECTION:
+- dtf-studio-current-github-sync is a reconciliation/verification workspace only.
+- It must not be treated as the main implementation project.
+- Today's Admin/OpenCart/RBAC/Orders work is preserved as reference/candidate work but is not accepted as a complete implementation in V48.22E.
+- Future reuse must be file-by-file / code-block-by-code-block, with exact comparison, adaptation where required, diff review, targeted tests, and Printify regression protection.
+- New reference files must be checked for duplicate/equivalent functionality before creation.
+
+DOCUMENTATION UPDATE:
+The eight project tracking/requirement records were corrected on documentation-only branch:
+docs/v48-baseline-correction-20260917
+
+APPLICATION SOURCE MODIFIED BY THIS DOCUMENTATION CORRECTION:
+NO
+
+V48.22E RUNTIME SOURCE MODIFIED:
+NO
+
+MAIN MODIFIED:
+NO
+
+DEPLOYMENT:
+NO
+
+MERGE:
+NO
