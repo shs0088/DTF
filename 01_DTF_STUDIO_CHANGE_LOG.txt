@@ -230,3 +230,30 @@ SOURCE: 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5.
 CHANGES: Reconciled React RBAC API with the current database-backed Admin group permission resolver; preserved Worker authorization and Access/Modify group model.
 VALIDATION: Source structure checked; GitHub Actions and runtime authorization results pending.
 DEPLOYMENT: NO. MERGE: NO.
+
+============================================================
+DOCUMENTATION-ONLY SAFETY + KAMEL CI UPDATE — 2026-09-16
+============================================================
+DOCUMENTATION SAFETY CHANGE:
+- Created docs/project-records from protected camel-current SHA da347ffbf928bbd1c80f302c134cd8928255abf8.
+- Copied the current project requirement/QC papers into the documentation branch.
+- Added DOCUMENTATION_ONLY_POLICY.md.
+- Added .github/workflows/docs-only-guard.yml.
+- Documentation-only guard run 35073628049 completed SUCCESS.
+- camel-current and main were not changed by documentation separation.
+
+KAMEL CI RECONCILIATION:
+- Final report SHA c8a4145e48aab03fcd36874ab67de9e48754ff55 was independently checked.
+- GitHub Actions run 35073114048 FAILED at Typecheck.
+- Exact errors: workers/static-app.ts lines 34 and 38, TS18047: session claims possibly null.
+- Applied a narrow correction on kamel/admin-rbac-foundation only: use the already-resolved current Admin identity ID for permission checks.
+- Correction commit: 0aba6ac42a932b37e5dfe6ae1f2f76f47ff18070.
+- GitHub Actions run 35073709467 completed SUCCESS.
+- npm install: PASS.
+- npm run typecheck: PASS.
+- npm run build: PASS.
+- bun test workers/admin-rbac.test.ts: PASS.
+- Deployment: NO.
+- Merge: NO.
+- Protected branches camel-current/main: unchanged.
+- Runtime authorization matrix: still pending.
