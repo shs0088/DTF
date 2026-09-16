@@ -1,0 +1,43 @@
+name: CAMEL loop monitor
+
+on:
+  push:
+    branches:
+      - camel-loop-test
+    paths:
+      - automation/camel/COMMAND.md
+
+permissions:
+  contents: read
+
+jobs:
+  wait-for-camel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+        with:
+          ref: camel-loop-test
+          fetch-depth: 0
+
+      - name: Show queued task
+        run: |
+          echo "CAMEL command queued from GitHub:"
+          sed -n '1,80p' automation/camel/COMMAND.md
+
+      - name: Wait for CAMEL result
+        run: |
+          echo "Waiting for automation/camel/HEAD_SYNC_125_RESULT.md from CAMEL..."
+          for i in $(seq 1 180); do
+            git fetch origin camel-loop-test --quiet
+            if git show origin/camel-loop-test:automation/camel/HEAD_SYNC_125_RESULT.md > /tmp/camel-result.md 2>/dev/null; then
+              echo "CAMEL result received:"
+              cat /tmp/camel-result.md
+              exit 0
+            fi
+            echo "Check $i/180: no CAMEL result yet."
+            sleep 10
+          done
+          echo "Timed out waiting for CAMEL result."
+          exit 1
