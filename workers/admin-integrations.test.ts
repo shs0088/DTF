@@ -12,13 +12,13 @@ describe("Admin Integrations implementation contracts", () => {
     const start=source.indexOf("adminIntegrationsStatus()");
     const end=source.indexOf("businessSettingsSnapshot()",start);
     const method=source.slice(start,end);
-    expect(method).toContain("configuredCount");
+    expect(method).toContain("inventoryDisclosed:false");
     expect(method).toContain("valuesExposed:false");
     expect(method).toContain("namesExposed:false");
     expect(method).toContain("internalSessionSecretHidden:true");
     expect(method).not.toContain("secret_value");
     expect(method).not.toContain("SELECT key_name AS");
-    expect(method).not.toContain("ADMIN_WEB_KEY", method.indexOf("return {"));
+    expect(method).not.toContain("ADMIN_WEB_KEY");
   });
 
   test("runtime status reports connector and snapshot presence without exposing credentials", async () => {
