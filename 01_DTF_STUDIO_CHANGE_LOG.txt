@@ -297,3 +297,23 @@ DEPLOYMENT: NO.
 MERGE: NO.
 RUNTIME AUTHORIZATION MATRIX: PENDING.
 GOVERNANCE: This QC update is a separate documentation-only commit and has no runtime effect.
+
+============================================================
+ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
+============================================================
+TASK: Continue Admin A–Z automatically after verified RBAC foundation.
+SOURCE BEFORE: 6da353c4197ba52be46a695bacf0d3da2f53606e
+SOURCE IMPLEMENTATION COMMIT: 1bd692923528975d34d9965311b2c79dfadbe064
+IMPLEMENTED:
+- Database-backed Admin Dashboard summary.
+- Orders/open/payment-pending KPIs.
+- Production/review/stock/payout attention KPIs.
+- Recent orders and recent Admin audit activity.
+- Seven-day order chart data.
+- Permission-aware Dashboard quick links.
+VALIDATION:
+- GitHub Actions run 35079512451: SUCCESS.
+- install/typecheck/build/RBAC tests: PASS.
+DEPLOYMENT: NO.
+MERGE: NO.
+NEXT: Orders module implementation.

@@ -148,3 +148,15 @@ RESOLVED FROM EARLIER BLOCKERS:
 - Fixed role-based Admin page gates: removed/replaced by current DB group Access checks.
 - Direct group assignment on user creation: resolved in source.
 - Main Administrator stale-role authority issue: resolved in source.
+
+============================================================
+ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
+============================================================
+DASHBOARD SOURCE/CI IS COMPLETE.
+STILL PENDING:
+- Live/browser Dashboard runtime verification in a safe test environment.
+- Orders full module.
+- Manual Review module.
+- Production Queue full module.
+- Products/Customers/Designers/Payouts/Reports/Promotions/Settings/Integrations/Audit A–Z completion.
+- No merge/deploy until required runtime evidence passes.

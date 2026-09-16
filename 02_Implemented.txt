@@ -151,3 +151,19 @@ VALIDATION:
 - production build: PASS.
 - RBAC tests: PASS.
 STATUS: SOURCE + CI VERIFIED. Runtime HTTP/browser authorization matrix remains pending.
+
+============================================================
+ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
+============================================================
+VERIFIED IMPLEMENTED:
+- Real database-backed Admin Dashboard API.
+- Real KPI counts for orders/open orders/payment pending/production/designer reviews/inventory attention/withdrawal requests.
+- Recent orders from database.
+- Recent Admin audit activity from database.
+- Last-7-day order series from database.
+- Permission-aware quick links based on current User Group Access.
+- No hard-coded operational KPI values.
+SOURCE SHA: 1bd692923528975d34d9965311b2c79dfadbe064
+GITHUB ACTIONS RUN: 35079512451 — SUCCESS.
+INSTALL/TYPECHECK/BUILD/RBAC TESTS: PASS.
+DEPLOYMENT: NO.

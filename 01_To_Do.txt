@@ -177,3 +177,14 @@ NEXT UNFINISHED ITEMS:
 2. Verify direct URL/API denial, view-only mutation denial, disabled-user/stale-session behavior, fake-header escalation resistance, custom-group permission changes, and last Main Administrator behavior at runtime.
 3. Continue Full Admin Dashboard A–Z implementation from the current verified branch after RBAC runtime evidence is available or while independently unblocked.
 4. Do not merge/deploy/main-update without separate authorization.
+
+============================================================
+ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
+============================================================
+DASHBOARD SOURCE + CI COMPLETE FOR THIS BATCH.
+NEXT IN DEPENDENCY ORDER:
+1. Orders list/detail/filters/status workflow.
+2. Production Queue tied to order items and approved Ready-to-Print Master.
+3. Manual Review queues.
+4. Remaining Admin modules per Full Admin Dashboard A–Z target.
+Runtime/browser verification remains required before merge/deploy.

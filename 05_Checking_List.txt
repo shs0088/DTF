@@ -298,3 +298,18 @@ RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
 382. Live disabled Admin/stale-session test: PENDING RUNTIME.
 383. Live custom-group permission change taking effect: PENDING RUNTIME.
 384. Live last Main Administrator protection: PENDING RUNTIME.
+
+============================================================
+ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
+============================================================
+385. Dashboard values come from real database queries: PASS SOURCE.
+386. Dashboard has no hard-coded fake operational KPIs: PASS SOURCE.
+387. Dashboard total/open/payment-pending order counts: PASS SOURCE.
+388. Dashboard production/review/inventory/payout attention counts: PASS SOURCE.
+389. Dashboard recent orders: PASS SOURCE.
+390. Dashboard recent Admin activity: PASS SOURCE.
+391. Dashboard last-7-day order series: PASS SOURCE.
+392. Dashboard quick links respect current Access permissions: PASS SOURCE.
+393. Dashboard API requires admin.dashboard Access: PASS SOURCE.
+394. GitHub Actions run 35079512451: PASS.
+395. Dashboard browser/runtime visual verification: PENDING RUNTIME.
