@@ -118,3 +118,11 @@ RBAC CONTINUATION OPEN ITEMS
 - Runtime HTTP authorization matrix: NEEDS RETEST.
 - Browser/UI verification: NOT RUN.
 - Full module-by-module navigation verification: NEEDS RETEST.
+
+============================================================
+KAMEL CONTINUE-UNTIL-COMPLETE EXECUTION DIRECTIVE — 2026-09-16
+============================================================
+A requirement remains here only while it is genuinely incomplete or blocked.
+KAMEL must not leave an item pending merely because one implementation batch finished.
+After each verified completion, move/update its status in the QC records and continue to the next item.
+External blockers must be specific and must not stop unrelated work.

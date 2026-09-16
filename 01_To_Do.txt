@@ -150,3 +150,13 @@ RBAC CONTINUATION UPDATE — CURRENT WORK
 - Complete fresh GitHub Actions run for final SHA.
 - Execute runtime HTTP authorization matrix against a test environment.
 - Verify active deployed Worker route behavior without deploying in this task.
+
+============================================================
+KAMEL CONTINUE-UNTIL-COMPLETE EXECUTION DIRECTIVE — 2026-09-16
+============================================================
+MANDATORY EXECUTION MODE:
+- KAMEL must continue through the current RBAC + Admin A–Z backlog without stopping after each small task.
+- Resolve the first unfinished item, test it, update QC, then immediately continue to the next unfinished item.
+- A failed CI/test becomes the next task automatically; fix and rerun before moving on.
+- If one item is externally blocked, record it and continue all other independent items.
+- No merge/deploy/main changes are authorized by this directive.

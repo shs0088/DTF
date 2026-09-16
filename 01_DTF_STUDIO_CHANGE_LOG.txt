@@ -238,3 +238,15 @@ RBAC CONTINUATION — 2026-09-16
 - Added expanded authorization matrix tests.
 - No deployment, merge, or database data changes.
 - Validation remains pending for final GitHub Actions and runtime HTTP behavior.
+
+============================================================
+KAMEL CONTINUE-UNTIL-COMPLETE EXECUTION DIRECTIVE — 2026-09-16
+============================================================
+OWNER EXECUTION INSTRUCTION:
+- KAMEL/CAMEL is instructed to continue implementation and verification without pausing for routine approval between already-authorized requirements.
+- Exact GitHub HEAD verification is mandatory before each implementation batch.
+- CI/test failures must be corrected and rerun.
+- QC records must be continuously maintained.
+- If an item is externally blocked, record the blocker and continue all independent work.
+- This directive does not authorize deployment, merge, or main-branch modification.
+RUNTIME IMPACT OF THIS RECORD: NONE. Documentation/governance only.

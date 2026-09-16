@@ -244,3 +244,15 @@ RBAC CONTINUATION CHECKLIST
 - Detailed current-group user query: COMPLETED in source.
 - Runnable authorization coverage: COMPLETED in source; execution NEEDS RETEST.
 - GitHub Actions final SHA: NEEDS RETEST.
+
+============================================================
+KAMEL CONTINUE-UNTIL-COMPLETE EXECUTION DIRECTIVE — 2026-09-16
+============================================================
+358. KAMEL verifies exact GitHub HEAD before every implementation batch.
+359. KAMEL continues automatically from one unfinished requirement to the next.
+360. Any CI/typecheck/build/test failure is fixed and rerun before final completion.
+361. QC files are updated continuously, not only at the end.
+362. A blocked runtime item does not stop unrelated source/CI work.
+363. No "completed" claim is made with known failing CI/tests.
+364. Final report includes exact final SHA and CI run result for that SHA.
+365. No deploy/merge/main modification occurs without separate authorization.
