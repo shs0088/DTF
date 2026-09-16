@@ -31,4 +31,6 @@ jobs:
         run: bun test workers/admin-rbac.test.ts
       - name: Orders tests
         run: bun test workers/admin-orders.test.ts
+      - name: Production tests
+        run: bun test workers/admin-production.test.ts
 
