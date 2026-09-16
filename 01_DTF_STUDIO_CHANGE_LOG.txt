@@ -207,3 +207,18 @@ DECISION:
 - Required modules and acceptance checks were added to QC.
 - Current KAMEL code must first repair the failing TypeScript/CI state before feature expansion.
 - No merge/deploy authorized by this QC update.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+INDEPENDENT QC:
+- Verified reported KAMEL final SHA 4ad0cff1ca0a3802080f64b2b14f4a7a0774df94.
+- Retrieved GitHub Actions run 35071195877: FAILURE.
+- Failure location: workers/item-store.ts line 868 TypeScript syntax errors.
+- Root cause: adminGroupPermissions() opened and setAdminGroupPermissions() started before the first method body was completed.
+- Applied minimal syntax-only correction to KAMEL branch.
+- Repair commit: 4d7b5a123095af7000adbeb3e8ec303e089cefff.
+- Validation run 35072055326: SUCCESS.
+- Install/typecheck/build/RBAC tests all passed.
+- No deployment or merge performed.
+- QC files updated to reflect verified status and remaining OpenCart-style UI/runtime work.

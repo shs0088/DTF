@@ -73,3 +73,29 @@ NOT VERIFIED AS PASS:
 - Full active Admin Access/Modify enforcement is NOT complete.
 - Full permission-matrix UI is NOT present in the active Worker Admin page.
 Therefore the KAMEL OpenCart-style RBAC implementation remains PARTIAL.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+VERIFIED:
+- KAMEL branch OpenCart-style backend group foundation exists.
+- admin_user_groups exists.
+- admin_group_permissions exists.
+- admin_users has group_id assignment.
+- Main Administrator and Printing Operator protected groups exist.
+- Custom group create/update/enable-disable/safe-delete backend exists.
+- User-to-group assignment/reassignment exists.
+- Access and Modify are independently persisted.
+- Last Main Administrator safeguards exist.
+- RBAC CI test step exists.
+QC CORRECTION APPLIED:
+- KAMEL HEAD 4ad0cff1ca0a3802080f64b2b14f4a7a0774df94 failed GitHub Actions typecheck because adminGroupPermissions() and setAdminGroupPermissions() were syntactically interleaved in workers/item-store.ts.
+- GitHub QC repaired only that syntax on commit 4d7b5a123095af7000adbeb3e8ec303e089cefff.
+- GitHub Actions run 35072055326: SUCCESS.
+- npm install: PASS.
+- npm run typecheck: PASS.
+- npm run build: PASS.
+- bun test workers/admin-rbac.test.ts: PASS.
+STATUS:
+- Backend RBAC foundation is validated by CI.
+- Full OpenCart-style Admin UI/runtime authorization is NOT yet complete.

@@ -83,3 +83,23 @@ NOT COMPLETE UNTIL VERIFIED:
 - No placeholder/fake KPI/report data remains.
 - Cross-module links (order → item → master → production; designer → design → review; product → variant → stock) are verified.
 - Full runtime authorization matrix and critical business-flow tests are still required before Production Ready.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+STILL NOT COMPLETE:
+1. Full professional Access/Modify matrix UI.
+2. Access Select All / Clear controls.
+3. Modify Select All / Clear controls.
+4. Permission matrix coverage for all 15 Admin modules/resources.
+5. Full active Admin navigation generated from Access permissions.
+6. Shared authoritative database-backed permission resolver across Worker and React Admin layers.
+7. Runtime test proving a view-only group can read but cannot mutate.
+8. Runtime direct URL/API denial tests.
+9. Runtime fake-header escalation test.
+10. Runtime disabled-user/stale-session test.
+11. Runtime group/permission change taking effect within an existing signed session.
+12. Runtime Printing Operator denial of Users/User Groups/Settings.
+13. Runtime self-escalation denial.
+14. Runtime last Main Administrator safeguards.
+15. Full A-Z business UIs for Manual Review, Products, Customers, Designers, Payouts, Reports, Promotions, Integrations, Audit Log, and structured Settings remain separate pending Admin-module work.

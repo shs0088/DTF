@@ -206,3 +206,24 @@ FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
 355. Full live runtime authorization matrix passes.
 356. Critical Admin A–Z business-flow runtime tests pass.
 357. No merge/deploy until 323–356 have evidence or an explicit documented exception.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+323. KAMEL branch exact current GitHub head verified before continuation.
+324. GitHub Actions run 35071195877 on 4ad0cff1... failed at Typecheck.
+325. Failure traced to malformed adminGroupPermissions/setAdminGroupPermissions method ordering.
+326. Syntax repaired without changing intended RBAC behavior.
+327. Repair commit 4d7b5a123095af7000adbeb3e8ec303e089cefff exists.
+328. GitHub Actions run 35072055326 completed SUCCESS.
+329. npm install passed on run 35072055326.
+330. npm run typecheck passed on run 35072055326.
+331. npm run build passed on run 35072055326.
+332. bun test workers/admin-rbac.test.ts passed on run 35072055326.
+333. Professional Access/Modify matrix UI still pending on KAMEL branch.
+334. Access Select All/Clear still pending on KAMEL branch.
+335. Modify Select All/Clear still pending on KAMEL branch.
+336. Full 15-resource permission coverage must be verified.
+337. Worker/React resolver reconciliation remains pending.
+338. Runtime authorization matrix remains pending.
+339. No merge/deploy permitted until pending authorization checks pass.

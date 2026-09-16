@@ -120,3 +120,20 @@ The DTF Studio Administration must be completed end-to-end using OpenCart-style 
 16. Every visible value must come from the real database/backend or an explicitly identified empty state; no fake dashboard metrics.
 17. Preserve storefront and all unrelated DTF Studio flows unless required to connect real admin operations.
 18. No merge/deploy until CI and runtime authorization/business-flow matrix pass.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+CURRENT VERIFIED HEAD AFTER QC REPAIR: 4d7b5a123095af7000adbeb3e8ec303e089cefff
+KAMEL must continue from this exact GitHub head, not from 4ad0cff1ca0a3802080f64b2b14f4a7a0774df94.
+REQUIRED NEXT:
+1. Complete the professional OpenCart-style User Groups permission matrix UI.
+2. Matrix must list every Admin resource with independent Access and Modify controls.
+3. Add Access Select All / Clear and Modify Select All / Clear controls.
+4. Include the full Admin resource catalog: Dashboard, Orders, Manual Review, Production Queue, Products, Customers, Designers, Payouts, Reports, Promotions, Settings, Integrations, Audit Log, Users, User Groups.
+5. Keep Main Administrator protected/full access and Printing Operator least privilege.
+6. Reconcile Worker and React Admin RBAC layers so both resolve CURRENT enabled Admin identity/group/permissions from the database.
+7. No stale signed-session role/group claim may be authoritative after group/permission changes.
+8. Run full authorization matrix, not source-string-only assertions.
+9. Keep existing Printify/customer/designer/cart/stock/order/checkout flows unchanged unless a permission guard is required.
+10. Do not deploy or merge until runtime authorization evidence passes.

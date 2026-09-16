@@ -89,3 +89,15 @@ S12. Destructive actions require backend relationship/protection checks and conf
 S13. Admin content must support responsive use. Arabic/English and RTL/LTR apply where project content/labels require bilingual behavior.
 S14. Existing correct functionality must be preserved; do not rebuild unrelated application areas.
 S15. Completion requires evidence: CI PASS plus runtime/API/UI checks. Agent statements alone are not evidence.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+S. CURRENT-KAMEL CONTINUATION RULE
+S1. All future KAMEL work on this branch must begin by fetching GitHub and verifying exact branch HEAD.
+S2. Current continuation source is commit 4d7b5a123095af7000adbeb3e8ec303e089cefff or its verified descendant.
+S3. KAMEL must never resume from an older workspace snapshot when GitHub head has advanced.
+S4. GitHub Actions success is required for typecheck/build/RBAC tests before a completion claim.
+S5. OpenCart-style permission UI means one resource list with independent Access and Modify selections, including select-all/clear operations.
+S6. Source-level contract tests are supplemental; runtime authorization evidence remains mandatory.
+S7. No merge/deploy while any runtime authorization matrix item remains unverified.
