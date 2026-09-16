@@ -371,3 +371,19 @@ STILL PENDING:
 4. Live protected deletion behavior when cart/order/production references exist.
 5. Global Arabic/English switching with RTL/LTR across active routes remains the next source-level requirement.
 6. Final deployed runtime/business-flow QA remains pending.
+
+============================================================
+NOT ACCEPTED / PENDING CONTROLLED REUSE — 2026-09-17
+============================================================
+The following must NOT be treated as completed implementation in the accepted V48.22E project:
+- Today's full Admin/OpenCart rebuild concept.
+- Today's Admin A–Z work as a complete package.
+- Today's RBAC/User Groups/Orders changes merely because they exist in separate GitHub reference branches.
+- Any source from dtf-studio-current-github-sync treated as a replacement for V48.22E.
+- workers/admin-order-policy.ts as a new file unless later review proves it is needed; current accepted source may already contain equivalent/newer order-policy logic.
+- Any reference test or helper copied without current-file comparison and targeted validation.
+
+PENDING METHOD:
+Each candidate change must be reviewed against dtf-studio-v48-safe-frontend one file at a time and classified KEEP / ADAPT / DISCARD. New files must be checked for duplication before creation.
+
+Until that process is completed and evidenced, the corresponding Admin/OpenCart/RBAC/Orders functionality remains NOT ACCEPTED / UNVERIFIED in the V48.22E implementation baseline.
