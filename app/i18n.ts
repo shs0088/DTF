@@ -1,3 +1,5 @@
+import { useRouteLoaderData } from "react-router";
+
 export type AppLocale = "en" | "ar";
 
 export function localeFromRequest(request: Request): AppLocale {
@@ -31,4 +33,9 @@ export function productTypeLabel(locale: AppLocale, value: string): string {
   const parts = value.split("+").map((x) => x.trim());
   const map: Record<string,string> = {"T-Shirt":"تيشيرت","Mug":"كوب","Cap":"كاب"};
   return parts.map((x)=>map[x] ?? x).join(" + ");
+}
+
+export function useAppLocale(): AppLocale {
+  const data = useRouteLoaderData("root") as { locale?: AppLocale } | undefined;
+  return data?.locale === "ar" ? "ar" : "en";
 }
