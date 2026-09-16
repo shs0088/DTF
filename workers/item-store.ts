@@ -1165,15 +1165,61 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const items=this.ctx.storage.sql.exec<any>("SELECT oi.id,oi.quantity,oi.variant_id AS variantId,v.sku,v.color,v.size,v.options_json AS variantOptionsJson,v.retail_price_jod AS currentRetailPriceJod,pm.id AS modelId,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,oi.design_id AS designId,d.title_en AS designTitleEn,d.title_ar AS designTitleAr,oi.master_asset_id AS masterAssetId,a.original_filename AS masterFilename,a.mime_type AS masterMimeType,a.storage_key AS masterStorageKey,a.protected AS masterProtected,oi.print_spec_json AS printSpecJson,oi.price_snapshot_json AS priceSnapshotJson,(SELECT pj.id FROM printing_jobs pj WHERE pj.order_item_id=oi.id ORDER BY pj.created_at DESC LIMIT 1) AS printingJobId,(SELECT pj.status FROM printing_jobs pj WHERE pj.order_item_id=oi.id ORDER BY pj.created_at DESC LIMIT 1) AS printingJobStatus,(SELECT pj.master_asset_id FROM printing_jobs pj WHERE pj.order_item_id=oi.id ORDER BY pj.created_at DESC LIMIT 1) AS printingJobMasterAssetId FROM order_items oi JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id LEFT JOIN designs d ON d.id=oi.design_id LEFT JOIN assets a ON a.id=oi.master_asset_id WHERE oi.order_id=? ORDER BY oi.id",id).toArray().map((row:any)=>({...row,variantOptions:parse(row.variantOptionsJson,{}),printSpec:parse(row.printSpecJson,{}),priceSnapshot:parse(row.priceSnapshotJson,{})}));
     const payments=this.ctx.storage.sql.exec<any>("SELECT id,method,status,proof_storage_key AS proofStorageKey,confirmed_by AS confirmedBy,created_at AS createdAt FROM payments WHERE order_id=? ORDER BY created_at",id).toArray();
     const history=this.ctx.storage.sql.exec<any>("SELECT h.id,h.event_type AS eventType,h.from_status AS fromStatus,h.to_status AS toStatus,h.payment_status AS paymentStatus,h.internal_comment AS internalComment,h.admin_actor_id AS adminActorId,a.username AS adminUsername,h.created_at AS createdAt FROM order_admin_history h LEFT JOIN admin_users a ON a.id=h.admin_actor_id WHERE h.order_id=? ORDER BY h.created_at DESC,h.id DESC",id).toArray();
-    return {...order,exchangeRate:parse(order.exchangeRateJson,null),defaultAddress:parse(order.defaultAddressJson,null),items,payments,history,allowedTransitions:[...allowedAdminOrderTransitions(order.status)]};
+    const checkout=this.ctx.storage.sql.exec<any>("SELECT source_cart_id AS sourceCartId,subtotal_jod AS subtotalJod,delivery_fee_jod AS deliveryFeeJod,discount_jod AS discountJod,promotion_code AS promotionCode,customer_name AS customerNameSnapshot,customer_phone AS customerPhoneSnapshot,city,address,notes,reservation_expires_at AS reservationExpiresAt,created_at AS createdAt FROM order_checkout_details WHERE order_id=?",id).toArray()[0]??null;
+    return {...order,exchangeRate:parse(order.exchangeRateJson,null),defaultAddress:parse(order.defaultAddressJson,null),checkout,items,payments,history,allowedTransitions:[...allowedAdminOrderTransitions(order.status)]};
   }
 
   adminOrderUpdateStatus(actorId: string, orderId: string, nextStatus: string, comment = ""): unknown {
     this.bootstrapCatalog(); const id=String(orderId||"").trim(); const row=this.ctx.storage.sql.exec<any>("SELECT id,status,payment_status AS paymentStatus FROM orders WHERE id=?",id).toArray()[0]; if(!row) throw new Error("Order not found.");
     const next=normalizeAdminOrderStatus(nextStatus); if(!next) throw new Error("Invalid order status."); if(!canTransitionAdminOrder(row.status,next)) throw new Error(`Invalid status transition: ${row.status} → ${next}.`);
-    const note=String(comment||"").trim().slice(0,2000); const paymentStatus=next==="payment_confirmed"?"confirmed":String(row.paymentStatus||"pending");
-    const historyId=crypto.randomUUID();
-    this.ctx.storage.transactionSync(()=>{ this.ctx.storage.sql.exec("UPDATE orders SET status=?,payment_status=? WHERE id=?",next,paymentStatus,id); if(next==="payment_confirmed") this.ctx.storage.sql.exec("UPDATE payments SET status='confirmed',confirmed_by=? WHERE order_id=? AND status<>'confirmed'",actorId,id); this.ctx.storage.sql.exec("INSERT INTO order_admin_history (id,order_id,event_type,from_status,to_status,payment_status,internal_comment,admin_actor_id) VALUES (?,?,'status_change',?,?,?,?,?)",historyId,id,String(row.status),next,paymentStatus,note||null,actorId); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.order.status_change','order',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{fromStatus:row.status,toStatus:next,paymentStatus,comment:note}})); });
+    const note=String(comment||"").trim().slice(0,2000); const paymentStatus=next==="payment_confirmed"?"confirmed":String(row.paymentStatus||"pending"); const historyId=crypto.randomUUID();
+    this.ctx.storage.transactionSync(()=>{
+      if(next==="payment_confirmed"){
+        const checkout=this.ctx.storage.sql.exec<any>("SELECT source_cart_id AS sourceCartId FROM order_checkout_details WHERE order_id=?",id).toArray()[0];
+        const items=this.ctx.storage.sql.exec<any>("SELECT oi.id AS orderItemId,oi.variant_id AS variantId,oi.quantity,oi.design_id AS designId,oi.master_asset_id AS masterAssetId,oi.print_spec_json AS printSpecJson,oi.price_snapshot_json AS priceSnapshotJson FROM order_items oi WHERE oi.order_id=? ORDER BY oi.id",id).toArray();
+        this.ctx.storage.sql.exec("UPDATE reservations SET status='expired' WHERE status='pending' AND datetime(expires_at)<=datetime('now')");
+        const totals=new Map<string,number>(); for(const item of items) totals.set(String(item.variantId),(totals.get(String(item.variantId))||0)+Number(item.quantity||0));
+        for(const [variantId,qty] of totals){
+          const stock=this.ctx.storage.sql.exec<any>("SELECT quantity,tracked FROM stocks WHERE variant_id=?",variantId).toArray()[0];
+          if(stock&&Number(stock.tracked)===1){
+            const otherReserved=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(quantity),0) AS qty FROM reservations WHERE variant_id=? AND status='pending' AND datetime(expires_at)>datetime('now') AND (? IS NULL OR cart_id<>?)",variantId,checkout?.sourceCartId??null,checkout?.sourceCartId??null).toArray()[0]?.qty??0);
+            if(Number(stock.quantity)-otherReserved<qty) throw new Error("Payment confirmation blocked because reserved stock is no longer available.");
+          }
+        }
+        for(const [variantId,qty] of totals){
+          const stock=this.ctx.storage.sql.exec<any>("SELECT tracked FROM stocks WHERE variant_id=?",variantId).toArray()[0];
+          if(stock&&Number(stock.tracked)===1){
+            const already=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM stock_movements WHERE variant_id=? AND reason='order_payment_confirmed' AND reference_id=? LIMIT 1",variantId,id).toArray()[0]?.ok);
+            if(!already){this.ctx.storage.sql.exec("UPDATE stocks SET quantity=quantity-? WHERE variant_id=?",qty,variantId);this.ctx.storage.sql.exec("INSERT INTO stock_movements (id,variant_id,quantity_delta,reason,reference_id) VALUES (?,?,?,?,?)",crypto.randomUUID(),variantId,-qty,"order_payment_confirmed",id);}
+          }
+        }
+        if(checkout?.sourceCartId)this.ctx.storage.sql.exec("UPDATE reservations SET status='consumed' WHERE cart_id=? AND status='pending'",checkout.sourceCartId);
+        for(const item of items){
+          if(!item.designId) continue;
+          if(!item.masterAssetId) throw new Error("Payment confirmation blocked because an order design has no approved Ready-to-Print Master.");
+          const existingJob=this.ctx.storage.sql.exec<any>("SELECT id FROM printing_jobs WHERE order_item_id=? LIMIT 1",item.orderItemId).toArray()[0]; if(existingJob) continue;
+          let snapshot:any={}; try{snapshot=JSON.parse(String(item.priceSnapshotJson||"{}"));}catch{}
+          const preflight=snapshot?.preflight; if(!preflight||String(preflight.status||"").toLowerCase()!=="passed") throw new Error("Payment confirmation blocked because the historical preflight snapshot is not passing.");
+          this.ctx.storage.sql.exec("INSERT INTO printing_jobs (id,order_item_id,status,master_asset_id,print_spec_snapshot_json,preflight_snapshot_json,protected_at) VALUES (?,?,'queued',?,?,?,?,CURRENT_TIMESTAMP)",crypto.randomUUID(),item.orderItemId,item.masterAssetId,String(item.printSpecJson||"{}"),JSON.stringify(preflight));
+          this.ctx.storage.sql.exec("UPDATE assets SET protected=1 WHERE id=?",item.masterAssetId);
+        }
+      }
+      if(next==="cancelled"){
+        const checkout=this.ctx.storage.sql.exec<any>("SELECT source_cart_id AS sourceCartId FROM order_checkout_details WHERE order_id=?",id).toArray()[0];
+        if(checkout?.sourceCartId)this.ctx.storage.sql.exec("UPDATE reservations SET status='released' WHERE cart_id=? AND status='pending'",checkout.sourceCartId);
+        const items=this.ctx.storage.sql.exec<any>("SELECT variant_id AS variantId,SUM(quantity) AS quantity FROM order_items WHERE order_id=? GROUP BY variant_id",id).toArray();
+        for(const item of items){
+          const deducted=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM stock_movements WHERE variant_id=? AND reason='order_payment_confirmed' AND reference_id=? LIMIT 1",item.variantId,id).toArray()[0]?.ok);
+          const restored=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM stock_movements WHERE variant_id=? AND reason='order_cancel_restore' AND reference_id=? LIMIT 1",item.variantId,id).toArray()[0]?.ok);
+          if(deducted&&!restored){this.ctx.storage.sql.exec("UPDATE stocks SET quantity=quantity+? WHERE variant_id=?",Number(item.quantity),item.variantId);this.ctx.storage.sql.exec("INSERT INTO stock_movements (id,variant_id,quantity_delta,reason,reference_id) VALUES (?,?,?,?,?)",crypto.randomUUID(),item.variantId,Number(item.quantity),"order_cancel_restore",id);}
+        }
+        this.ctx.storage.sql.exec("UPDATE printing_jobs SET status='cancelled' WHERE order_item_id IN (SELECT id FROM order_items WHERE order_id=?) AND status IN ('queued','printing','qc')",id);
+      }
+      this.ctx.storage.sql.exec("UPDATE orders SET status=?,payment_status=? WHERE id=?",next,paymentStatus,id);
+      if(next==="payment_confirmed")this.ctx.storage.sql.exec("UPDATE payments SET status='confirmed',confirmed_by=? WHERE order_id=? AND status<>'confirmed'",actorId,id);
+      this.ctx.storage.sql.exec("INSERT INTO order_admin_history (id,order_id,event_type,from_status,to_status,payment_status,internal_comment,admin_actor_id) VALUES (?,?,'status_change',?,?,?,?,?)",historyId,id,String(row.status),next,paymentStatus,note||null,actorId);
+      this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.order.status_change','order',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{fromStatus:row.status,toStatus:next,paymentStatus,comment:note}}));
+    });
     return this.adminOrderDetail(id);
   }
 
