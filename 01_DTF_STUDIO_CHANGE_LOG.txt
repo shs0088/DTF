@@ -317,3 +317,35 @@ VALIDATION:
 DEPLOYMENT: NO.
 MERGE: NO.
 NEXT: Orders module implementation.
+
+
+DATE/TIME: 2026-09-16T12:41:43Z
+TASK: Implement database-backed Admin Production Queue from verified KAMEL branch.
+SOURCE START: bc9959f9c09b6d8152fdd3f789d8a7c6bacfcbb9
+SOURCE FINAL: 728416b2dc96eb6bd6e06fe5460f2867a76305cc
+FILES ADDED/CHANGED IN SOURCE BATCH:
+- workers/admin-production.ts
+- workers/item-store.ts
+- workers/static-app.ts
+- workers/admin-production.test.ts
+- .github/workflows/dtf-build-validation.yml
+IMPLEMENTED:
+- database-backed printing job queue and detail
+- exact approved Ready-to-Print Master enforcement
+- historical print-spec/preflight snapshot display and guards
+- protected master download resolver
+- canonical production status transitions
+- admin.production Access/Modify authorization
+- production status audit logging
+VALIDATION:
+- GitHub Actions run 35097227839: SUCCESS
+- Install dependencies: PASS
+- Typecheck: PASS
+- Production build: PASS
+- RBAC tests: PASS
+- Orders tests: PASS
+- Production tests: PASS
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
+NEXT: Manual Review full module.

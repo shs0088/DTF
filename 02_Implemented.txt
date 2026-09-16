@@ -189,3 +189,22 @@ VERIFIED IN SOURCE + CI:
 - admin.orders Access/Modify authorization
 - Orders tests executed in GitHub Actions
 NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+PRODUCTION QUEUE VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 728416b2dc96eb6bd6e06fe5460f2867a76305cc
+CI RUN: 35097227839 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- database-backed Production Queue
+- printing job → order item → order/customer/product linkage
+- exact approved Ready-to-Print Master enforcement
+- print-spec and preflight snapshot visibility
+- blocked production on master mismatch/missing preflight/failed preflight
+- protected approved-master download endpoint
+- canonical production status transitions
+- server-side admin.production Access/Modify checks
+- production status audit logging
+- Production tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.

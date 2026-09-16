@@ -336,3 +336,23 @@ ADMIN ORDERS SOURCE/CI CHECK — 2026-09-16
 412. Orders browser/runtime verification: PENDING RUNTIME.
 413. Live Access-only mutation denial: PENDING RUNTIME.
 414. Live master/printing-job relationship verification: PENDING RUNTIME.
+
+============================================================
+PRODUCTION QUEUE SOURCE/CI CHECK — 2026-09-16
+============================================================
+415. Production Queue uses real printing_jobs/order_items/orders: PASS SOURCE.
+416. Queue shows order/customer/product/variant/quantity: PASS SOURCE.
+417. Exact order-item approved Ready-to-Print Master enforced: PASS SOURCE/TEST.
+418. Printing-job master mismatch blocks production: PASS SOURCE/TEST.
+419. Missing/failed historical preflight blocks production: PASS SOURCE/TEST.
+420. Print-spec/preflight snapshots displayed: PASS SOURCE.
+421. Approved master download resolver sanitizes storage key: PASS SOURCE/TEST.
+422. Production canonical status workflow: PASS SOURCE/TEST.
+423. Production status mutation audit logged: PASS SOURCE.
+424. admin.production GET requires Access: PASS SOURCE.
+425. admin.production mutation requires Modify: PASS SOURCE.
+426. GitHub Actions run 35097227839: PASS.
+427. npm install/typecheck/build/RBAC/Orders/Production tests: PASS.
+428. Production browser/runtime verification: PENDING RUNTIME.
+429. Live operator permission matrix: PENDING RUNTIME.
+430. Live master-byte download verification: PENDING RUNTIME.

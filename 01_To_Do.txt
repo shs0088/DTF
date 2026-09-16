@@ -217,3 +217,29 @@ RUNTIME STILL REQUIRED:
 - live status mutation/note persistence/audit persistence
 - live exact master/printing-job relationship verification
 - browser/responsive verification
+
+============================================================
+PRODUCTION QUEUE SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 728416b2dc96eb6bd6e06fe5460f2867a76305cc
+GITHUB ACTIONS RUN: 35097227839 — SUCCESS.
+COMPLETED FOR PRODUCTION QUEUE SOURCE/CI:
+- real database-backed printing jobs queue
+- search/status filter/pagination
+- order/customer/product/variant/quantity context
+- exact approved Ready-to-Print Master matching against order item
+- historical print-spec/preflight snapshot display
+- server-side block on missing/mismatched approved master
+- server-side block on missing/failed preflight snapshot
+- approved master download path with storage-key sanitization
+- production status workflow and audit logging
+- admin.production Access/Modify authorization
+- Production-specific regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Manual Review full module.
+2. Remaining Admin A–Z modules.
+RUNTIME STILL REQUIRED:
+- live operator Access/Modify matrix
+- live master download bytes
+- live printing-job status persistence/audit
+- browser/responsive verification
