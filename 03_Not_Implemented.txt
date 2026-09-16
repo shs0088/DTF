@@ -387,3 +387,35 @@ PENDING METHOD:
 Each candidate change must be reviewed against dtf-studio-v48-safe-frontend one file at a time and classified KEEP / ADAPT / DISCARD. New files must be checked for duplication before creation.
 
 Until that process is completed and evidenced, the corresponding Admin/OpenCart/RBAC/Orders functionality remains NOT ACCEPTED / UNVERIFIED in the V48.22E implementation baseline.
+
+============================================================
+CANONICAL WORKER ADMIN — STILL NOT IMPLEMENTED / NOT ACCEPTED — 2026-09-17
+============================================================
+FOUNDATION ITEMS NOT YET ACCEPTED:
+- Exact protected "Printing Operator" group naming/migration.
+- Approved default operator permission set (Dashboard/Orders/Production only).
+- Proven database-level exactly-one-group constraint.
+- Dedicated RBAC/dashboard regression tests.
+- Typecheck/build validation of the new foundation.
+- Runtime authorization validation.
+
+ADMIN A-Z STILL PENDING AFTER FOUNDATION:
+- Worker-backed OpenCart-style Admin shell/sidebar/header.
+- Live Dashboard HTML/UI.
+- Orders full module.
+- Production Queue.
+- Manual Review.
+- Catalog/Products/Categories/Inventory Admin.
+- Customers.
+- Designers/qualification.
+- Payouts.
+- Reports.
+- Promotions.
+- Settings.
+- Integrations.
+- Audit Log.
+- Admin Users.
+- User Groups management UI/API.
+- Permission-aware enforcement across every Admin API.
+- Runtime/browser authorization QA.
+- Printify regression QA.
