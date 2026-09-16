@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - camel-current
+      - kamel/admin-rbac-foundation
 permissions:
   contents: read
 jobs:
@@ -10,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout camel-current
+      - name: Checkout branch under validation
         uses: actions/checkout@v4
         with:
-          ref: camel-current
+          ref: ${{ github.ref_name }}
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
