@@ -1346,8 +1346,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       lastSync:lastSyncRow?parse(lastSyncRow.valueJson,null):null,
       lastSyncUpdatedAt:lastSyncRow?.updatedAt??null
     };
-    const nonInternalSecretCount=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM server_secrets WHERE key_name<>'ADMIN_WEB_KEY'").toArray()[0]?.count??0);
-    return {printify,serverManagedSecrets:{configuredCount:nonInternalSecretCount,valuesExposed:false,namesExposed:false},internalSessionSecretHidden:true,payments:{provider:null,status:"not_configured"},courier:{provider:null,status:"not_configured"}};
+    return {printify,serverManagedSecrets:{inventoryDisclosed:false,valuesExposed:false,namesExposed:false},internalSessionSecretHidden:true,payments:{provider:null,status:"not_configured"},courier:{provider:null,status:"not_configured"}};
   }
 
   businessSettingsSnapshot():unknown{
