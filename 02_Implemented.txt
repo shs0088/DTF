@@ -406,3 +406,20 @@ VERIFIED IN SOURCE + CI:
 - responsive Black + Electric Blue Designer UI
 - full existing regression chain plus Designer Upload tests
 NOTE: live R2/browser acceptance remains pending; this is not a Production Ready claim.
+
+============================================================
+VERIFIED ACCEPTED BASELINE STATUS — 2026-09-17
+============================================================
+IMPLEMENTED / VERIFIED AS CURRENT ACCEPTED WORKING BASELINE:
+- Active Camel project verified: dtf-studio-v48-safe-frontend.
+- Project ID verified: ca-4ae996677c654c02a0fc8e115bca8889-dtf-studio-v48-1l5d.
+- DTF Studio V48.22E baseline file exists:
+  public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html
+- Current project contains workers/item-store.ts and workers/static-app.ts.
+- Printify catalog/products functionality is present in the V48.22E project, including server-side Admin catalog/product APIs and frontend product/catalog behavior.
+- No source modification was required to establish this baseline identity.
+
+IMPORTANT IMPLEMENTATION BOUNDARY:
+- dtf-studio-current-github-sync is NOT an implemented-product baseline; it is a reconciliation/verification workspace.
+- Today's Admin/OpenCart/RBAC/Orders work is NOT accepted here as implemented merely because reference branches/tests/source exist.
+- Any portion of today's work becomes Implemented only after controlled integration into dtf-studio-v48-safe-frontend, targeted validation, regression review, and QC evidence.
