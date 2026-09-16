@@ -163,3 +163,70 @@ BUILD: PASS.
 DEPLOYMENT: Current source deployed once.
 SOURCE BEFORE: 1a44754e68c336e2598178c69ee0db2d332a65b21e7a60b906c3339d28cd85b5
 SOURCE AFTER: 64860a42a8f05e6e3c1db1ab6e6b5ddc81e8548fcab8cbbf16f6b5a93d894587
+
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+REVIEW/DECISION:
+- Existing RBAC branch is accepted as a foundation only.
+- Authoritative target changed/clarified to OpenCart-style functional behavior: Admin Users belong to User Groups; User Groups own separate Access and Modify permission sets.
+- Fixed two-role implementation alone is not sufficient for final completion.
+- Main Administrator and Printing Operator remain protected system groups; additional custom groups are required.
+- Authorization must be enforced server-side using current database state.
+QC ACTION:
+- Requirement/QC records 01_To_Do, 02_Implemented, 03_Not_Implemented, 04_Rules and 05_Checking_List updated.
+- CI must run RBAC tests in addition to install/typecheck/build.
+- No deployment/merge to main authorized by this record.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+KAMEL REPORT RECEIVED:
+- starting SHA: 0f8e04a6dc0b2c0555c47510859326c05e18114c
+- reported final SHA: d542319113b00387565b0f5252f023b16fda785e
+INDEPENDENT GITHUB VERIFICATION:
+- Final SHA exists.
+- Actions run 35069801013 was retrieved.
+- Result: FAILURE.
+- npm install: PASS.
+- Typecheck: FAIL at workers/item-store.ts around line 868.
+- Build/tests: SKIPPED.
+- Active Worker Printify and Admin page authorization still contains fixed main-admin role gates.
+- Active RBAC UI remains old fixed-role Users UI and does not yet expose full Access/Modify matrix.
+DECISION:
+- KAMEL report is accepted as evidence of partial source work only.
+- No merge/deploy/Production Ready status.
+- KAMEL must correct the listed blockers and return a new final SHA with successful CI.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+DECISION:
+- After RBAC foundation, next implementation target is the complete DTF Studio Admin Dashboard A–Z.
+- Functional reference: current OpenCart administration patterns, adapted to DTF Studio rather than copied visually or technologically.
+- Required modules and acceptance checks were added to QC.
+- Current KAMEL code must first repair the failing TypeScript/CI state before feature expansion.
+- No merge/deploy authorized by this QC update.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+INDEPENDENT QC:
+- Verified reported KAMEL final SHA 4ad0cff1ca0a3802080f64b2b14f4a7a0774df94.
+- Retrieved GitHub Actions run 35071195877: FAILURE.
+- Failure location: workers/item-store.ts line 868 TypeScript syntax errors.
+- Root cause: adminGroupPermissions() opened and setAdminGroupPermissions() started before the first method body was completed.
+- Applied minimal syntax-only correction to KAMEL branch.
+- Repair commit: 4d7b5a123095af7000adbeb3e8ec303e089cefff.
+- Validation run 35072055326: SUCCESS.
+- Install/typecheck/build/RBAC tests all passed.
+- No deployment or merge performed.
+- QC files updated to reflect verified status and remaining OpenCart-style UI/runtime work.
+
+
+DATE/TIME: 2026-09-16
+TASK: Continue OpenCart-style Admin RBAC from current QC HEAD.
+SOURCE: 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5.
+CHANGES: Reconciled React RBAC API with the current database-backed Admin group permission resolver; preserved Worker authorization and Access/Modify group model.
+VALIDATION: Source structure checked; GitHub Actions and runtime authorization results pending.
+DEPLOYMENT: NO. MERGE: NO.

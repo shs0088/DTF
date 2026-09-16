@@ -1,0 +1,41 @@
+name: Documentation-only guard
+
+on:
+  push:
+    branches:
+      - docs/project-records
+
+permissions:
+  contents: read
+
+jobs:
+  docs-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Reject application-source changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --name-only HEAD^ HEAD > /tmp/changed.txt
+          echo "Changed files:"
+          cat /tmp/changed.txt
+
+          allowed='^(00_DTF_STUDIO_PROTECTED_PASS_BASELINE\.txt|01_DTF_STUDIO_CHANGE_LOG\.txt|01_To_Do\.txt|02_Implemented\.txt|03_Not_Implemented\.txt|04_Rules\.txt|05_Checking_List\.txt|06_Theme_Design_Specification_UPDATED\.txt|07_Optional_Suggestions_UPDATED\.txt|DOCUMENTATION_ONLY_POLICY\.md|\.github/workflows/docs-only-guard\.yml)$'
+
+          bad=0
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            if ! [[ "$file" =~ $allowed ]]; then
+              echo "ERROR: documentation branch attempted to change non-documentation file: $file"
+              bad=1
+            fi
+          done < /tmp/changed.txt
+
+          if [ "$bad" -ne 0 ]; then
+            exit 1
+          fi
+
+          echo "PASS: documentation-only changes confirmed."

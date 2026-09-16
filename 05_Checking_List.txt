@@ -112,3 +112,126 @@ ADDED AUDIT REGRESSION TESTS — 2026-09-02
 272. Backup/restore verification evidence exists.
 273. GitHub/runtime/database schema reconciliation passes before Production Ready.
 274. No requirement is marked Implemented solely from an AI-agent completion statement.
+
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+275. Admin Users page lists persistent Admin identities from database.
+276. Every Admin user resolves to exactly one User Group.
+277. Main Administrator system group exists and cannot be deleted.
+278. Printing Operator system group exists and cannot be deleted.
+279. Main Administrator has full Access + Modify.
+280. Printing Operator default Access is limited to Dashboard/Orders/Production.
+281. Printing Operator cannot access Users/User Groups/Settings by default.
+282. Custom User Group can be created.
+283. Custom User Group can be renamed/updated.
+284. Custom User Group safe deletion behavior is enforced.
+285. User can be assigned/moved to a custom User Group.
+286. User Groups editor exposes separate Access and Modify permission sets.
+287. Access checkbox enables page/route/API-read access.
+288. Modify checkbox controls create/update/delete/status-change operations.
+289. View-only group can open an allowed page but receives 403 on mutation.
+290. No-access group receives 403 on direct protected URL.
+291. No-access group receives 403 on direct protected API read.
+292. Fake client role/group/permission headers cannot escalate authorization.
+293. Disabled Admin session is rejected after database revalidation.
+294. Changed group/permissions take effect from current database state, not stale cookie claims.
+295. Printing Operator cannot manage Users or User Groups without explicit permission.
+296. Self-escalation to Main Administrator is denied unless policy explicitly authorizes a separate Main Administrator actor.
+297. Last enabled Main Administrator cannot be disabled.
+298. Last enabled Main Administrator cannot be moved/demoted out of full-access group.
+299. Group/user/permission changes create audit records.
+300. Admin navigation hides resources without Access permission.
+301. Hidden navigation cannot replace server-side authorization.
+302. Worker and React/Admin route layers use the same authoritative database-backed permission resolver.
+303. CI executes RBAC regression tests, not only typecheck/build.
+304. Full authorization matrix passes before merge/deploy.
+305. OpenCart-style RBAC is not marked complete until items 275–304 are evidenced.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+323. KAMEL final SHA d542319113b00387565b0f5252f023b16fda785e exists.
+324. GitHub Actions run 35069801013 retrieved.
+325. npm install on KAMEL final SHA: PASS.
+326. Typecheck on KAMEL final SHA: FAIL.
+327. Production build on KAMEL final SHA: SKIPPED.
+328. RBAC regression tests on KAMEL final SHA: SKIPPED.
+329. Syntax defect around adminGroupPermissions/setAdminGroupPermissions corrected and CI rerun.
+330. Active Worker Admin page Access enforcement uses current DB User Group permissions.
+331. Active Worker Admin mutation enforcement uses current DB Modify permissions.
+332. Printify GET routes use Access and mutation routes use Modify.
+333. Users UI assigns exactly one User Group per Admin.
+334. User Groups UI contains Access/Modify permission matrix.
+335. User Groups UI contains Access Select All/Clear and Modify Select All/Clear.
+336. Protected Main Administrator and Printing Operator groups cannot be deleted.
+337. Full CI passes after correction.
+338. Live authorization matrix passes before KAMEL work is accepted.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+323. Admin Dashboard loads from real backend/database data.
+324. Dashboard KPIs contain no hard-coded/demo operational metrics.
+325. Dashboard recent orders and alerts link to their real records.
+326. Orders list supports filter/search/sort/pagination.
+327. Order detail shows customer, items, payment, fulfillment and status history.
+328. Order status mutation is server-authorized and audited.
+329. Order item links to the exact approved master used for production.
+330. Manual Review queue covers designer qualification/design review states.
+331. 5-day review/replacement/escalation rules are represented and testable.
+332. Production Queue uses approved master + preflight/print-spec snapshots.
+333. Printing Operator can perform only permitted production/order actions.
+334. Products page manages DTF Studio product records and variants.
+335. Printify catalog remains Admin/internal and does not leak to customer UI.
+336. Stock management prevents negative inventory and exposes auditable movements.
+337. Customers list/detail/order history work.
+338. Designers list/detail/qualification/design history work.
+339. Designer earnings and payout/withdrawal management work.
+340. Reports use real data and support date/status filtering.
+341. Promotions CRUD validates dates/limits/status.
+342. Settings persist safely and audit sensitive changes.
+343. Integrations page reports health/status without exposing secrets.
+344. Audit Log supports filters and preserves historical records.
+345. Users/User Groups use exactly-one-group membership and Access/Modify permissions.
+346. Permission-aware sidebar/navigation hides unavailable modules.
+347. Direct URL/API bypass is denied server-side.
+348. Shared list pages use consistent filters/sort/pagination/bulk actions.
+349. Add/edit pages validate required fields and show exact errors.
+350. Confirmation/error/success states are consistent.
+351. Admin is responsive on desktop/tablet/mobile.
+352. Arabic/English + RTL/LTR verified where applicable.
+353. Existing storefront/customer/designer/Printify catalog behavior regression-tested.
+354. CI install/typecheck/build/RBAC tests pass.
+355. Full live runtime authorization matrix passes.
+356. Critical Admin A–Z business-flow runtime tests pass.
+357. No merge/deploy until 323–356 have evidence or an explicit documented exception.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+323. KAMEL branch exact current GitHub head verified before continuation.
+324. GitHub Actions run 35071195877 on 4ad0cff1... failed at Typecheck.
+325. Failure traced to malformed adminGroupPermissions/setAdminGroupPermissions method ordering.
+326. Syntax repaired without changing intended RBAC behavior.
+327. Repair commit 4d7b5a123095af7000adbeb3e8ec303e089cefff exists.
+328. GitHub Actions run 35072055326 completed SUCCESS.
+329. npm install passed on run 35072055326.
+330. npm run typecheck passed on run 35072055326.
+331. npm run build passed on run 35072055326.
+332. bun test workers/admin-rbac.test.ts passed on run 35072055326.
+333. Professional Access/Modify matrix UI still pending on KAMEL branch.
+334. Access Select All/Clear still pending on KAMEL branch.
+335. Modify Select All/Clear still pending on KAMEL branch.
+336. Full 15-resource permission coverage must be verified.
+337. Worker/React resolver reconciliation remains pending.
+338. Runtime authorization matrix remains pending.
+339. No merge/deploy permitted until pending authorization checks pass.
+
+
+============================================================
+OPENCART RBAC CHECK STATUS — CURRENT HEAD 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5
+============================================================
+- Source-level group schema and resolver checks: PASS.
+- CI execution for this exact HEAD: PENDING.
+- Runtime authorization matrix: PENDING.

@@ -51,3 +51,96 @@ Cross-system conclusion:
 - No Production Ready claim is permitted from these findings alone.
 - The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
 
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+STATUS: REQUIRED — CURRENT FOUNDATION IS PARTIAL, NOT FINAL.
+1. Replace fixed-role-only Admin authorization with an OpenCart-style User → User Group → Permissions operating model.
+2. Every Admin user must belong to exactly one Admin User Group.
+3. Preserve protected system groups: Main Administrator and Printing Operator.
+4. Support creation, rename, enable/disable and safe deletion of additional custom Admin User Groups.
+5. User Group permissions must expose TWO independent permission sets per Admin resource/page:
+   - Access: page/route/API read access.
+   - Modify: create/update/delete/status-change and other mutating actions.
+6. Main Administrator has full Access + Modify and the last enabled Main Administrator must remain protected.
+7. Printing Operator default group keeps least privilege: Dashboard/Orders/Production only unless explicitly expanded by Main Administrator.
+8. Admin Users page must assign/move a user to a User Group and enable/disable the user.
+9. User Groups page must provide an OpenCart-style Access/Modify permission matrix with select-all/clear controls.
+10. Menu visibility must follow Access permission, but server-side authorization remains authoritative.
+11. All protected GET/page/API reads require Access permission. POST/PATCH/PUT/DELETE and mutating actions require Modify permission.
+12. Client-controlled role/group/permission headers are never authoritative.
+13. Permission/group/user changes must be audit logged.
+14. Preserve existing Printify/customer/designer/cart/stock/order/checkout behavior.
+15. Add and execute authorization regression tests in CI, including disabled admin, fake-header escalation, direct URL/API access, view-only modify attempt, Printing Operator Users/User Groups denial, custom group behavior, self-escalation denial, and last Main Administrator protection.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+KAMEL CORRECTION REQUIRED FROM SHA d542319113b00387565b0f5252f023b16fda785e.
+1. Fix TypeScript syntax failure in workers/item-store.ts around adminGroupPermissions/setAdminGroupPermissions.
+2. Re-run CI until npm install + typecheck + production build + RBAC tests all PASS.
+3. Do not claim CI unavailable: GitHub Actions run 35069801013 is available and FAILED at Typecheck.
+4. Complete active Worker-layer OpenCart-style enforcement:
+   - Admin page access must resolve User → current DB User Group → Access permission.
+   - Mutating Admin operations must resolve Modify permission.
+   - Printify GET routes must use Access permission; Printify POST/PATCH/PUT mutations must use Modify permission.
+   - Do not hard-code identity.role === main_admin for ordinary protected resources where User Group permissions are intended to control access.
+5. Complete Admin Users UI so each user shows/changes exactly one User Group, not only fixed role.
+6. Complete User Groups UI with full permission matrix:
+   - resource rows
+   - Access checkbox
+   - Modify checkbox
+   - Access Select All / Clear
+   - Modify Select All / Clear
+   - custom group create/rename/enable-disable/delete controls
+7. Reconcile active Worker RBAC and inactive React RBAC so both use current database-backed group identity/permissions and do not trust stale session role.
+8. Execute source/CI regression tests and then the requested live authorization matrix before marking complete.
+9. Preserve unrelated DTF Studio/Printify/customer/designer/cart/order/stock behavior and do not deploy/merge to main.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+STATUS: REQUIRED — BUILD AFTER RBAC CORRECTION PASSES CI.
+The DTF Studio Administration must be completed end-to-end using OpenCart-style operating patterns, adapted to DTF Studio business rules and Black + Electric Blue UI. Required modules:
+1. Dashboard: real KPIs, status cards, recent orders, production alerts, designer review alerts, low-stock alerts, payout alerts, useful charts, quick links.
+2. Orders: filters/search/sort/pagination, order detail, customer/contact, payment/fulfillment, status history, allowed status transitions, notes, print-master linkage, production handoff.
+3. Manual Review: designer qualification and design review queues, reasons, approve/reject/replacement/escalation, 5-day rules, preflight evidence.
+4. Production Queue: order-item jobs, approved master only, print specs/preflight snapshot, download, status transitions, operator-restricted experience.
+5. Products/Catalog: site categories, products, variants, stock, pricing, images, Print Your Dream eligibility, publish/unpublish; Printify catalog remains admin/internal only.
+6. Customers: list/detail/status/order history/contact information and safe admin actions.
+7. Designers: profile/qualification/status/designs/earnings/history, admin approval controls.
+8. Payouts: designer earnings/withdrawal requests/statuses/audit-safe ledger behavior.
+9. Reports: sales/orders/products/designers/production/inventory/payout operational reports with filters/date ranges and export-ready structure.
+10. Promotions: coupon/promotion CRUD, validity dates, usage limits, status and audit.
+11. Settings: business/store/order/payment/delivery/pickup/stock/reservation/DTF/preflight/content settings with safe validation and audit.
+12. Integrations: Printify and future integrations health/config status; secrets remain server-side and never displayed.
+13. Audit Log: searchable/filterable immutable audit history for sensitive admin actions.
+14. Users and User Groups: OpenCart-style User → User Group → Access/Modify permission model, custom groups, protected system groups.
+15. Shared Admin UX: sidebar/header/breadcrumbs, search, filters, sorting, pagination, bulk actions, confirmation dialogs, success/error states, responsive mobile/tablet behavior, Arabic/English + RTL/LTR where required.
+16. Every visible value must come from the real database/backend or an explicitly identified empty state; no fake dashboard metrics.
+17. Preserve storefront and all unrelated DTF Studio flows unless required to connect real admin operations.
+18. No merge/deploy until CI and runtime authorization/business-flow matrix pass.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+CURRENT VERIFIED HEAD AFTER QC REPAIR: 4d7b5a123095af7000adbeb3e8ec303e089cefff
+KAMEL must continue from this exact GitHub head, not from 4ad0cff1ca0a3802080f64b2b14f4a7a0774df94.
+REQUIRED NEXT:
+1. Complete the professional OpenCart-style User Groups permission matrix UI.
+2. Matrix must list every Admin resource with independent Access and Modify controls.
+3. Add Access Select All / Clear and Modify Select All / Clear controls.
+4. Include the full Admin resource catalog: Dashboard, Orders, Manual Review, Production Queue, Products, Customers, Designers, Payouts, Reports, Promotions, Settings, Integrations, Audit Log, Users, User Groups.
+5. Keep Main Administrator protected/full access and Printing Operator least privilege.
+6. Reconcile Worker and React Admin RBAC layers so both resolve CURRENT enabled Admin identity/group/permissions from the database.
+7. No stale signed-session role/group claim may be authoritative after group/permission changes.
+8. Run full authorization matrix, not source-string-only assertions.
+9. Keep existing Printify/customer/designer/cart/stock/order/checkout flows unchanged unless a permission guard is required.
+10. Do not deploy or merge until runtime authorization evidence passes.
+
+
+============================================================
+OPENCART RBAC QC UPDATE — CURRENT HEAD 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5 — 2026-09-16
+============================================================
+- OpenCart-style group schema, exactly-one group assignment, protected system groups, custom group CRUD, Access/Modify persistence, and server-side resolver are present.
+- Remaining validation requires actual GitHub Actions evidence and runtime authorization matrix execution.

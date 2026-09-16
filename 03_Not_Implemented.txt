@@ -42,3 +42,72 @@ Cross-system conclusion:
 - No Production Ready claim is permitted from these findings alone.
 - The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
 
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+NOT YET COMPLETE:
+1. Custom Admin User Group CRUD comparable to OpenCart.
+2. Exactly-one-group assignment model for each Admin user.
+3. Separate Access and Modify permission sets for every Admin resource/page.
+4. OpenCart-style permission matrix editor UI with Access/Modify columns and select-all/clear behavior.
+5. Group assignment editor for Admin users beyond the two fixed system roles.
+6. Consistent server-side Access enforcement for reads/pages and Modify enforcement for mutations across Admin.
+7. One authoritative permission resolver shared by Worker and React route implementations.
+8. Menu/navigation filtering derived from Access permissions for all groups.
+9. Safe custom-group deletion rules (deny deletion while assigned, or require reassignment).
+10. Full authorization matrix executed in CI/runtime.
+11. Current workers/admin-rbac.test.ts must be made runnable and CI must execute it.
+12. Current duplicate RBAC route/auth implementations must be reconciled so stale session role data is never treated as the authorization source.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+CURRENT VERIFIED BLOCKERS AT d542319113b00387565b0f5252f023b16fda785e:
+1. GitHub Actions run 35069801013 FAILED.
+2. Typecheck failure in workers/item-store.ts line ~868: malformed/missing adminGroupPermissions method body around setAdminGroupPermissions.
+3. Production build and RBAC tests were skipped because Typecheck failed.
+4. Active Worker adminPrintifyApi still gates on identity.role === "main_admin" instead of Access/Modify group permissions.
+5. Active Admin page routing still uses fixed role/main checks instead of the new User Group Access matrix for ordinary modules.
+6. Active ADMIN_RBAC_PAGE still shows Role and only Enable/Disable; it does not implement the requested OpenCart-style User Group assignment + Access/Modify matrix.
+7. React/Worker RBAC layers remain unreconciled.
+8. Full runtime authorization matrix remains pending.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+NOT COMPLETE UNTIL VERIFIED:
+- Full A–Z Admin modules listed in 01_To_Do are functional against real backend/database data.
+- OpenCart-style shared list/form/detail interaction patterns are consistently applied.
+- Operator sees only permitted pages/actions.
+- Admin pages do not rely on client-side hiding for security.
+- No placeholder/fake KPI/report data remains.
+- Cross-module links (order → item → master → production; designer → design → review; product → variant → stock) are verified.
+- Full runtime authorization matrix and critical business-flow tests are still required before Production Ready.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+STILL NOT COMPLETE:
+1. Full professional Access/Modify matrix UI.
+2. Access Select All / Clear controls.
+3. Modify Select All / Clear controls.
+4. Permission matrix coverage for all 15 Admin modules/resources.
+5. Full active Admin navigation generated from Access permissions.
+6. Shared authoritative database-backed permission resolver across Worker and React Admin layers.
+7. Runtime test proving a view-only group can read but cannot mutate.
+8. Runtime direct URL/API denial tests.
+9. Runtime fake-header escalation test.
+10. Runtime disabled-user/stale-session test.
+11. Runtime group/permission change taking effect within an existing signed session.
+12. Runtime Printing Operator denial of Users/User Groups/Settings.
+13. Runtime self-escalation denial.
+14. Runtime last Main Administrator safeguards.
+15. Full A-Z business UIs for Manual Review, Products, Customers, Designers, Payouts, Reports, Promotions, Integrations, Audit Log, and structured Settings remain separate pending Admin-module work.
+
+
+============================================================
+OPENCART RBAC REMAINING — CURRENT QC
+============================================================
+- Full professional permission-matrix UI with Access/Modify select-all and clear-all controls.
+- Full runtime authorization matrix evidence.
+- GitHub Actions result for the latest current HEAD.
