@@ -329,3 +329,9 @@ STILL PENDING:
 3. Live Access-only mutation denial.
 4. Business-rule reconciliation of saved timing/economic values in final end-to-end flows.
 5. Integrations remains next implementation dependency.
+
+============================================================
+INTEGRATIONS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+SOURCE/CI COMPLETE.
+PENDING: live UI verification, live Access/Modify denial checks, safe diagnostic verification, then Audit Log and final runtime/business-flow QA.

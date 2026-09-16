@@ -500,3 +500,18 @@ RUNTIME STILL REQUIRED:
 - live storefront /api/settings consumption
 - live Access-only/Modify denial
 - browser/responsive verification
+
+============================================================
+INTEGRATIONS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED HEAD: d5e12e2cc3fe7e853d69142a6390db7c55d3dec5
+CI RUN: 35107135859 — SUCCESS.
+COMPLETED:
+- real Printify operational status and safe diagnostics
+- connector/snapshot presence checks
+- no live supplier request in diagnostic
+- sensitive credential data is not exposed in the Admin response
+- admin.integrations Access/Modify authorization
+- Integrations regression tests in CI
+NEXT: Audit Log, then final runtime/business-flow QA.
+RUNTIME STILL REQUIRED: live Integrations UI/RBAC/diagnostic verification.

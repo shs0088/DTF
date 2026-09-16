@@ -525,3 +525,14 @@ SETTINGS SOURCE/CI CHECK — 2026-09-16
 565. GitHub Actions run 35106315962: PASS.
 566. install/typecheck/build/all Admin tests through Settings: PASS.
 567. Settings browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+INTEGRATIONS SOURCE/CI CHECK — 2026-09-16
+============================================================
+568. Real Printify operational status: PASS SOURCE/TEST.
+569. Connector/snapshot diagnostics: PASS SOURCE/TEST.
+570. No live supplier request in diagnostic: PASS SOURCE/TEST.
+571. Sensitive credential data excluded from Admin response: PASS SOURCE/TEST.
+572. admin.integrations Access/Modify checks: PASS SOURCE/TEST.
+573. Full CI run 35107135859: PASS.
+574. Integrations browser/runtime verification: PENDING RUNTIME.
