@@ -1306,6 +1306,31 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     return this.ctx.storage.sql.exec<any>("SELECT id AS designId,designer_id AS designerId,title_en AS titleEn,title_ar AS titleAr,status,created_at AS createdAt FROM designs WHERE id=?",id).toArray()[0];
   }
 
+  adminReports(filters: { dateFrom?:string; dateTo?:string } = {}): unknown {
+    this.bootstrapCatalog();const dateFrom=String(filters.dateFrom??"").trim(),dateTo=String(filters.dateTo??"").trim();const conditions:string[]=[];const args:any[]=[];
+    if(/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)){conditions.push("date(o.created_at)>=date(?)");args.push(dateFrom);}
+    if(/^\d{4}-\d{2}-\d{2}$/.test(dateTo)){conditions.push("date(o.created_at)<=date(?)");args.push(dateTo);}
+    const where=conditions.length?" WHERE "+conditions.join(" AND "):"";
+    const range={dateFrom:/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)?dateFrom:null,dateTo:/^\d{4}-\d{2}-\d{2}$/.test(dateTo)?dateTo:null};
+    const orderSummary=this.ctx.storage.sql.exec<any>(`SELECT COUNT(*) AS totalOrders,SUM(CASE WHEN lower(o.status)='completed' THEN 1 ELSE 0 END) AS completedOrders,SUM(CASE WHEN lower(o.status)='cancelled' THEN 1 ELSE 0 END) AS cancelledOrders,SUM(CASE WHEN lower(o.status) NOT IN ('completed','cancelled') THEN 1 ELSE 0 END) AS openOrders,COALESCE(SUM(CASE WHEN lower(o.status)<>'cancelled' THEN o.total_jod ELSE 0 END),0) AS grossOrderValueJod,COALESCE(SUM(CASE WHEN lower(o.status)<>'cancelled' AND lower(o.payment_status)='confirmed' THEN o.total_jod ELSE 0 END),0) AS confirmedRevenueJod${" FROM orders o"}${where}`,...args).toArray()[0]??{};
+    const orderStatuses=this.ctx.storage.sql.exec<any>(`SELECT o.status,COUNT(*) AS count,COALESCE(SUM(o.total_jod),0) AS totalJod FROM orders o${where} GROUP BY o.status ORDER BY count DESC,o.status`,...args).toArray();
+    const paymentStatuses=this.ctx.storage.sql.exec<any>(`SELECT o.payment_status AS paymentStatus,COUNT(*) AS count,COALESCE(SUM(o.total_jod),0) AS totalJod FROM orders o${where} GROUP BY o.payment_status ORDER BY count DESC,o.payment_status`,...args).toArray();
+    const fulfillment=this.ctx.storage.sql.exec<any>(`SELECT o.fulfillment_mode AS fulfillmentMode,COUNT(*) AS count FROM orders o${where} GROUP BY o.fulfillment_mode ORDER BY count DESC,o.fulfillment_mode`,...args).toArray();
+    const dailySales=this.ctx.storage.sql.exec<any>(`SELECT date(o.created_at) AS day,COUNT(*) AS orders,COALESCE(SUM(CASE WHEN lower(o.status)<>'cancelled' THEN o.total_jod ELSE 0 END),0) AS grossJod,COALESCE(SUM(CASE WHEN lower(o.status)<>'cancelled' AND lower(o.payment_status)='confirmed' THEN o.total_jod ELSE 0 END),0) AS confirmedJod FROM orders o${where} GROUP BY date(o.created_at) ORDER BY day`,...args).toArray().slice(-366);
+    const productQuantities=this.ctx.storage.sql.exec<any>(`SELECT pm.id AS modelId,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,SUM(oi.quantity) AS quantity,COUNT(DISTINCT o.id) AS orderCount FROM order_items oi JOIN orders o ON o.id=oi.order_id JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id${where} GROUP BY pm.id ORDER BY quantity DESC,orderCount DESC,pm.name_en LIMIT 50`,...args).toArray();
+    const designerEarningsWhere=conditions.length?conditions.map(x=>x.replaceAll("o.created_at","de.created_at")).join(" AND "):"";
+    const designerArgs=[...args];
+    const designerEarnings=this.ctx.storage.sql.exec<any>(`SELECT de.designer_id AS designerId,u.display_name AS designerName,u.email AS designerEmail,COUNT(*) AS earningCount,COALESCE(SUM(de.amount_jod),0) AS earningsJod FROM designer_earnings de LEFT JOIN users u ON u.id=de.designer_id${designerEarningsWhere?" WHERE "+designerEarningsWhere:""} GROUP BY de.designer_id ORDER BY earningsJod DESC LIMIT 50`,...designerArgs).toArray();
+    const withdrawalWhere=conditions.length?conditions.map(x=>x.replaceAll("o.created_at","w.created_at")).join(" AND "):"";
+    const payouts=this.ctx.storage.sql.exec<any>(`SELECT w.status,COUNT(*) AS count,COALESCE(SUM(w.amount_jod),0) AS amountJod FROM withdrawals w${withdrawalWhere?" WHERE "+withdrawalWhere:""} GROUP BY w.status ORDER BY count DESC,w.status`,...args).toArray();
+    const userRange=(alias:string)=>{const parts:string[]=[];const vals:any[]=[];if(range.dateFrom){parts.push(`date(${alias}.created_at)>=date(?)`);vals.push(range.dateFrom);}if(range.dateTo){parts.push(`date(${alias}.created_at)<=date(?)`);vals.push(range.dateTo);}return {where:parts.length?" WHERE "+parts.join(" AND "):"",args:vals};};
+    const ur=userRange("u");
+    const registrations=this.ctx.storage.sql.exec<any>(`SELECT r.name AS role,COUNT(DISTINCT u.id) AS count FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id${ur.where} GROUP BY r.name ORDER BY r.name`,...ur.args).toArray();
+    const inventory=this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS trackedVariants,SUM(CASE WHEN quantity<=0 THEN 1 ELSE 0 END) AS outOfStock,SUM(CASE WHEN quantity BETWEEN 1 AND 5 THEN 1 ELSE 0 END) AS lowStock,COALESCE(SUM(quantity),0) AS totalTrackedUnits FROM stocks WHERE tracked=1").toArray()[0]??{};
+    const generatedAt=new Date().toISOString();
+    return {range,generatedAt,orderSummary,orderStatuses,paymentStatuses,fulfillment,dailySales,productQuantities,designerEarnings,payouts,registrations,inventory};
+  }
+
   adminDashboardSummary(): unknown {
     this.bootstrapCatalog();
     const count=(sql:string,...args:any[])=>Number((this.ctx.storage.sql.exec<any>(sql,...args).toArray()[0]?.count)??0);
