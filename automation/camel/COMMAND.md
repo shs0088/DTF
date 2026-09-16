@@ -52,3 +52,5 @@ CHANGED_LINES:
 
 Do not modify COMMAND.md after reading it.
 Do not modify any other GitHub file.
+
+MONITOR_TRIGGER: 1
