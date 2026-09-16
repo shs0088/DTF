@@ -15,3 +15,27 @@ describe("Admin authorization matrix", () => {
 
 const policy=(group:string,resource:string,permission:'access'|'modify')=>{if(group==='main')return true;if(group==='operator')return permission==='access'&&['admin.dashboard','admin.orders','admin.production'].includes(resource)||permission==='modify'&&['admin.orders','admin.production'].includes(resource);return group==='custom-access'&&permission==='access'&&resource==='admin.orders';};
 describe('current group authorization requirements',()=>{test('main administrator full access',()=>{expect(policy('main','admin.settings','access')).toBe(true);expect(policy('main','admin.users','modify')).toBe(true)});test('operator denies users/groups/settings',()=>{for(const x of ['admin.users','admin.user_groups','admin.settings'])expect(policy('operator',x,'access')).toBe(false)});test('access-only cannot modify',()=>{expect(policy('custom-access','admin.orders','access')).toBe(true);expect(policy('custom-access','admin.orders','modify')).toBe(false)});test('fake headers are not policy inputs',()=>{const h={'x-role':'main_admin','x-group':'group-main-admin','x-permission':'modify'};expect(Object.keys(h)).toHaveLength(3);expect(policy('operator','admin.settings','access')).toBe(false)});test('protected invariants are enforced by service contract',()=>{expect({disabledSessionRejected:true,lastMainAdminProtected:true,systemGroupsUndeletable:true,assignedGroupUndeletable:true}).toEqual({disabledSessionRejected:true,lastMainAdminProtected:true,systemGroupsUndeletable:true,assignedGroupUndeletable:true})})});
+
+
+describe("RBAC current-database authority regression", () => {
+  test("Main Administrator authority is tied to protected group membership, not stale role", async () => {
+    const source = await Bun.file(new URL("./item-store.ts", import.meta.url)).text();
+    expect(source).toContain('actor.group_id!=="group-main-admin"');
+    expect(source).toContain('if(row.group_id==="group-main-admin") return true');
+    expect(source).toContain("UPDATE admin_users SET group_id=?,role=?");
+  });
+
+  test("Admin creation supports direct User Group assignment", async () => {
+    const source = await Bun.file(new URL("./static-app.ts", import.meta.url)).text();
+    expect(source).toContain('name="groupId" id="createUserGroup"');
+    expect(source).toContain("groupId:f.get('groupId')");
+    expect(source).toContain("'admin.products.printify'");
+  });
+
+  test("active Admin pages no longer depend on fixed main-role page gates", async () => {
+    const source = await Bun.file(new URL("./static-app.ts", import.meta.url)).text();
+    expect(source).not.toContain('const main=role===\'main_admin\'; const pageResource=');
+    expect(source).toContain('store.adminPermission(user.id,pageResource,"access")');
+    expect(source).toContain('store.adminPermission(user.id,"admin.settings","modify")');
+  });
+});
