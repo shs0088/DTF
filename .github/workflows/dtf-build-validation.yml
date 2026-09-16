@@ -4,6 +4,7 @@ on:
     branches:
       - camel-current
       - kamel/admin-rbac-foundation
+      - github/admin-orders-opencart
 permissions:
   contents: read
 jobs:
@@ -28,5 +29,5 @@ jobs:
       - name: Production build
         run: npm run build
       - name: RBAC tests
-        run: bun test workers/admin-rbac.test.ts
+        run: bun test workers/admin-rbac.test.ts workers/admin-orders.test.ts
 
