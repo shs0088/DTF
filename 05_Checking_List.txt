@@ -400,3 +400,22 @@ PRODUCTS / CATALOG SOURCE/CI CHECK — 2026-09-16
 464. GitHub Actions run 35102844014: PASS.
 465. npm install/typecheck/build/RBAC/Orders/Production/Manual Review/Products tests: PASS.
 466. Products browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+CUSTOMERS SOURCE/CI CHECK — 2026-09-16
+============================================================
+467. Customers list is scoped to customer role only: PASS SOURCE/TEST.
+468. Search by ID/name/email/phone: PASS SOURCE.
+469. Status/date filters + pagination: PASS SOURCE.
+470. Customer detail includes contact/address/registration data: PASS SOURCE.
+471. Customer detail includes order history/stats: PASS SOURCE/TEST.
+472. Password hashes/salts/auth credentials are not exposed: PASS SOURCE/TEST.
+473. Email uniqueness enforced on Admin update: PASS SOURCE/TEST.
+474. Customer status whitelist active/suspended/disabled: PASS SOURCE/TEST.
+475. Non-active customer sessions revoked: PASS SOURCE/TEST.
+476. Admin customer mutation audit logged: PASS SOURCE.
+477. admin.customers GET requires Access: PASS SOURCE.
+478. Customers mutation requires Modify: PASS SOURCE.
+479. GitHub Actions run 35103272968: PASS.
+480. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers tests: PASS.
+481. Customers browser/runtime verification: PENDING RUNTIME.

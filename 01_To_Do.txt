@@ -315,3 +315,33 @@ RUNTIME STILL REQUIRED:
 - live Access-only/Modify denial
 - live stock adjustment persistence
 - storefront regression verification after safe runtime deployment
+
+============================================================
+CUSTOMERS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: ec166e8eb72646927855401875b91849419fb7e9
+GITHUB ACTIONS RUN: 35103272968 — SUCCESS.
+COMPLETED FOR CUSTOMERS SOURCE/CI:
+- customer-only database list/search/status/date filters/pagination
+- profile/detail with contact, locale, address and registration date
+- order history and order statistics
+- active/suspended/disabled customer status handling
+- non-active status revokes customer sessions
+- email uniqueness and address validation
+- no password/auth credential exposure in Admin Customers API/UI
+- Admin customer update audit logging
+- admin.customers Access/Modify authorization
+- Customers regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Designers.
+2. Payouts.
+3. Reports.
+4. Promotions.
+5. Settings.
+6. Integrations.
+7. Audit Log.
+RUNTIME STILL REQUIRED:
+- live customer list/detail/edit verification
+- live Access-only/Modify denial
+- live session revocation after suspend/disable
+- browser/responsive verification

@@ -421,3 +421,31 @@ DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
 NEXT: Customers full Admin module.
+
+
+DATE/TIME: 2026-09-16T13:39:48Z
+TASK: Implement Admin Customers module.
+SOURCE START: 587f9f8a8465e75dfd2f7fdb9d0ecbbe27b1a25a
+SOURCE FINAL: ec166e8eb72646927855401875b91849419fb7e9
+FILES ADDED/CHANGED:
+- workers/item-store.ts
+- workers/static-app.ts
+- workers/admin-customers.test.ts
+- .github/workflows/dtf-build-validation.yml
+IMPLEMENTED:
+- customer-role list/detail/search/filter/pagination
+- profile/contact/address/locale/status Admin editing
+- customer order history and statistics
+- session revocation for suspended/disabled customers
+- no password/auth credential exposure
+- admin.customers Access/Modify authorization and audit logging
+VALIDATION:
+- GitHub Actions run 35103272968: SUCCESS
+- Install dependencies: PASS
+- Typecheck: PASS
+- Production build: PASS
+- RBAC/Orders/Production/Manual Review/Products/Customers tests: PASS
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
+NEXT: Designers full Admin module.

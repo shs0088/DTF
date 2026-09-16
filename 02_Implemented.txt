@@ -249,3 +249,21 @@ VERIFIED IN SOURCE + CI:
 - Products tests executed in GitHub Actions
 - deterministic CI restored by pinning Vite 8.0.16 and using Node 22
 NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+CUSTOMERS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: ec166e8eb72646927855401875b91849419fb7e9
+CI RUN: 35103272968 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- role-scoped Customers list/detail
+- search/status/date filters and pagination
+- contact/address/locale/status editing
+- customer order history and summary metrics
+- no password/auth credential exposure
+- non-active customers have sessions revoked
+- server-side admin.customers Access/Modify checks
+- customer update audit logging
+- Customers tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.

@@ -233,3 +233,20 @@ STILL PENDING:
 4. Live Access-only mutation denial.
 5. Safe storefront regression verification.
 6. Customers remains next implementation dependency.
+
+============================================================
+CUSTOMERS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- customer list/detail/filter/pagination
+- profile/contact/address/status editing
+- order history/statistics
+- credential non-exposure
+- session revocation code
+- Access/Modify guards and audit logging
+STILL PENDING:
+1. Live/browser Customers verification.
+2. Live Access-only mutation denial.
+3. Live suspend/disable session revocation verification.
+4. Live customer update/order-history persistence checks.
+5. Designers remains next implementation dependency.
