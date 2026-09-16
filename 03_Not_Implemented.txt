@@ -126,3 +126,9 @@ A requirement remains here only while it is genuinely incomplete or blocked.
 KAMEL must not leave an item pending merely because one implementation batch finished.
 After each verified completion, move/update its status in the QC records and continue to the next item.
 External blockers must be specific and must not stop unrelated work.
+
+
+RBAC BATCH STILL PENDING
+- Final SHA fc9f76b016ffb94036cb3bc6c63da47c2e2b89f3 GitHub Actions result: NEEDS RETEST while run 35077310054 is in progress.
+- Runtime HTTP authorization matrix: BLOCKED pending a running test environment without deployment.
+- Browser verification: NOT RUN.

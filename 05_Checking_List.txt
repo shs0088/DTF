@@ -256,3 +256,13 @@ KAMEL CONTINUE-UNTIL-COMPLETE EXECUTION DIRECTIVE — 2026-09-16
 363. No "completed" claim is made with known failing CI/tests.
 364. Final report includes exact final SHA and CI run result for that SHA.
 365. No deploy/merge/main modification occurs without separate authorization.
+
+
+RBAC BATCH CHECK
+- All 15 required resources listed: COMPLETED in source.
+- Independent Access/Modify controls and four bulk actions: COMPLETED in source.
+- Custom group rename and enable/disable controls: COMPLETED in source.
+- Current group selection and assignment wiring: COMPLETED in source.
+- Prior batch CI run 35077216041: PASS.
+- Final batch CI run 35077310054: NEEDS RETEST / IN PROGRESS.
+- Runtime authorization matrix: BLOCKED pending test environment.

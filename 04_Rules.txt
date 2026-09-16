@@ -116,3 +116,7 @@ RBAC CONTINUATION RULES
 - Access and Modify remain independent.
 - Protected system-group permissions are not editable.
 - Documentation updates are documentation-only and do not change runtime behavior.
+
+
+RBAC BATCH RULE
+- Permission matrix resource identifiers must match authoritative database admin.* keys; display labels remain human-readable.

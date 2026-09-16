@@ -120,3 +120,11 @@ RBAC CONTINUATION COMPLETED/CORRECTED
 - User group assignment route is connected to setAdminUserGroup.
 - Users API returns current group data through adminUsersDetailed.
 - New source-level authorization matrix tests added.
+
+
+RBAC BATCH VERIFIED IN SOURCE
+- Custom group Rename and Enable/Disable controls are present in the active Admin UI.
+- Permission matrix uses authoritative admin.* resource keys for all 15 required resources.
+- Current user group is selected in the Admin Users assignment control.
+- Direct page mapper covers all required Admin resources.
+- GitHub Actions run 35077216041 passed for the prior batch commit be386f5; final batch run 35077310054 is in progress.

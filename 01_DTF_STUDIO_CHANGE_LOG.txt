@@ -250,3 +250,12 @@ OWNER EXECUTION INSTRUCTION:
 - If an item is externally blocked, record the blocker and continue all independent work.
 - This directive does not authorize deployment, merge, or main-branch modification.
 RUNTIME IMPACT OF THIS RECORD: NONE. Documentation/governance only.
+
+
+RBAC IMPLEMENTATION BATCH — 2026-09-16
+- Added custom User Group rename and enable/disable UI controls.
+- Corrected matrix permission keys to authoritative admin.* identifiers across all 15 resources.
+- Corrected User assignment selector to reflect each user current group.
+- Expanded direct Admin page authorization resource mapping.
+- No deployment, merge, main modification, or unrelated storefront changes.
+- Validation: prior batch run 35077216041 PASS; final batch run 35077310054 pending.

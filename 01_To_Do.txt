@@ -160,3 +160,8 @@ MANDATORY EXECUTION MODE:
 - A failed CI/test becomes the next task automatically; fix and rerun before moving on.
 - If one item is externally blocked, record it and continue all other independent items.
 - No merge/deploy/main changes are authorized by this directive.
+
+
+RBAC BATCH — 2026-09-16
+- Professional User Groups controls and complete 15-resource matrix were implemented.
+- Final SHA CI validation and runtime authorization matrix remain required before acceptance.
