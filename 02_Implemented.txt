@@ -58,3 +58,18 @@ FOUNDATION VERIFIED:
 IMPORTANT:
 - This is IMPLEMENTED FOUNDATION ONLY.
 - Do NOT mark OpenCart-style RBAC complete until custom groups + Access/Modify matrix + server-side permission enforcement + full CI/runtime authorization matrix are verified.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+VERIFIED IN KAMEL BRANCH:
+- Final reported branch SHA exists: d542319113b00387565b0f5252f023b16fda785e.
+- KAMEL added schema/code for admin_user_groups, admin_group_permissions and admin_users.group_id.
+- Custom-group backend primitives are present in source.
+- Permission read/update backend primitives are present in source.
+- CI test step(s) are configured.
+NOT VERIFIED AS PASS:
+- The final SHA does NOT pass CI.
+- Full active Admin Access/Modify enforcement is NOT complete.
+- Full permission-matrix UI is NOT present in the active Worker Admin page.
+Therefore the KAMEL OpenCart-style RBAC implementation remains PARTIAL.

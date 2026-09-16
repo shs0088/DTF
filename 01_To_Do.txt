@@ -72,3 +72,27 @@ STATUS: REQUIRED — CURRENT FOUNDATION IS PARTIAL, NOT FINAL.
 13. Permission/group/user changes must be audit logged.
 14. Preserve existing Printify/customer/designer/cart/stock/order/checkout behavior.
 15. Add and execute authorization regression tests in CI, including disabled admin, fake-header escalation, direct URL/API access, view-only modify attempt, Printing Operator Users/User Groups denial, custom group behavior, self-escalation denial, and last Main Administrator protection.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+KAMEL CORRECTION REQUIRED FROM SHA d542319113b00387565b0f5252f023b16fda785e.
+1. Fix TypeScript syntax failure in workers/item-store.ts around adminGroupPermissions/setAdminGroupPermissions.
+2. Re-run CI until npm install + typecheck + production build + RBAC tests all PASS.
+3. Do not claim CI unavailable: GitHub Actions run 35069801013 is available and FAILED at Typecheck.
+4. Complete active Worker-layer OpenCart-style enforcement:
+   - Admin page access must resolve User → current DB User Group → Access permission.
+   - Mutating Admin operations must resolve Modify permission.
+   - Printify GET routes must use Access permission; Printify POST/PATCH/PUT mutations must use Modify permission.
+   - Do not hard-code identity.role === main_admin for ordinary protected resources where User Group permissions are intended to control access.
+5. Complete Admin Users UI so each user shows/changes exactly one User Group, not only fixed role.
+6. Complete User Groups UI with full permission matrix:
+   - resource rows
+   - Access checkbox
+   - Modify checkbox
+   - Access Select All / Clear
+   - Modify Select All / Clear
+   - custom group create/rename/enable-disable/delete controls
+7. Reconcile active Worker RBAC and inactive React RBAC so both use current database-backed group identity/permissions and do not trust stale session role.
+8. Execute source/CI regression tests and then the requested live authorization matrix before marking complete.
+9. Preserve unrelated DTF Studio/Printify/customer/designer/cart/order/stock behavior and do not deploy/merge to main.

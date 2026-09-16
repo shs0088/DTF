@@ -58,3 +58,16 @@ NOT YET COMPLETE:
 10. Full authorization matrix executed in CI/runtime.
 11. Current workers/admin-rbac.test.ts must be made runnable and CI must execute it.
 12. Current duplicate RBAC route/auth implementations must be reconciled so stale session role data is never treated as the authorization source.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+CURRENT VERIFIED BLOCKERS AT d542319113b00387565b0f5252f023b16fda785e:
+1. GitHub Actions run 35069801013 FAILED.
+2. Typecheck failure in workers/item-store.ts line ~868: malformed/missing adminGroupPermissions method body around setAdminGroupPermissions.
+3. Production build and RBAC tests were skipped because Typecheck failed.
+4. Active Worker adminPrintifyApi still gates on identity.role === "main_admin" instead of Access/Modify group permissions.
+5. Active Admin page routing still uses fixed role/main checks instead of the new User Group Access matrix for ordinary modules.
+6. Active ADMIN_RBAC_PAGE still shows Role and only Enable/Disable; it does not implement the requested OpenCart-style User Group assignment + Access/Modify matrix.
+7. React/Worker RBAC layers remain unreconciled.
+8. Full runtime authorization matrix remains pending.

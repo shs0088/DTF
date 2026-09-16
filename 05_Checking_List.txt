@@ -147,3 +147,23 @@ OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
 303. CI executes RBAC regression tests, not only typecheck/build.
 304. Full authorization matrix passes before merge/deploy.
 305. OpenCart-style RBAC is not marked complete until items 275–304 are evidenced.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+323. KAMEL final SHA d542319113b00387565b0f5252f023b16fda785e exists.
+324. GitHub Actions run 35069801013 retrieved.
+325. npm install on KAMEL final SHA: PASS.
+326. Typecheck on KAMEL final SHA: FAIL.
+327. Production build on KAMEL final SHA: SKIPPED.
+328. RBAC regression tests on KAMEL final SHA: SKIPPED.
+329. Syntax defect around adminGroupPermissions/setAdminGroupPermissions corrected and CI rerun.
+330. Active Worker Admin page Access enforcement uses current DB User Group permissions.
+331. Active Worker Admin mutation enforcement uses current DB Modify permissions.
+332. Printify GET routes use Access and mutation routes use Modify.
+333. Users UI assigns exactly one User Group per Admin.
+334. User Groups UI contains Access/Modify permission matrix.
+335. User Groups UI contains Access Select All/Clear and Modify Select All/Clear.
+336. Protected Main Administrator and Printing Operator groups cannot be deleted.
+337. Full CI passes after correction.
+338. Live authorization matrix passes before KAMEL work is accepted.
