@@ -490,6 +490,31 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         read_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
+      CREATE TABLE IF NOT EXISTS promotions (
+        id TEXT PRIMARY KEY,
+        code TEXT NOT NULL UNIQUE,
+        discount_type TEXT NOT NULL CHECK(discount_type IN ('percentage','fixed')),
+        discount_value REAL NOT NULL CHECK(discount_value > 0),
+        min_spend_jod INTEGER NOT NULL DEFAULT 0 CHECK(min_spend_jod >= 0),
+        max_uses INTEGER CHECK(max_uses IS NULL OR max_uses > 0),
+        starts_at TEXT,
+        expires_at TEXT,
+        enabled INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE TABLE IF NOT EXISTS promotion_redemptions (
+        id TEXT PRIMARY KEY,
+        promotion_id TEXT NOT NULL REFERENCES promotions(id),
+        order_id TEXT NOT NULL REFERENCES orders(id),
+        customer_id TEXT REFERENCES users(id),
+        discount_jod INTEGER NOT NULL CHECK(discount_jod >= 0),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(promotion_id, order_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_promotions_code ON promotions(code);
+      CREATE INDEX IF NOT EXISTS idx_promotions_enabled_dates ON promotions(enabled, starts_at, expires_at);
+      CREATE INDEX IF NOT EXISTS idx_promotion_redemptions_promotion ON promotion_redemptions(promotion_id, created_at);
       CREATE TABLE IF NOT EXISTS business_settings (
         key TEXT PRIMARY KEY,
         value_json TEXT NOT NULL,
@@ -1304,6 +1329,36 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const round=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM manual_review_history WHERE review_type='design' AND subject_id=?",id).toArray()[0]?.count??0)+1;
     this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("UPDATE designs SET status=? WHERE id=?",decision==="approve"?"approved":"rejected",id);this.ctx.storage.sql.exec("INSERT INTO manual_review_history (id,review_type,subject_id,decision,reason,review_round,admin_actor_id) VALUES (?,'design',?,?,?,?,?)",crypto.randomUUID(),id,decision,cleanReason||null,round,actorId);if(row.designerId)this.ctx.storage.sql.exec("INSERT INTO notifications (id,user_id,title_ar,title_en,body_ar,body_en) VALUES (?,?,?,?,?,?)",crypto.randomUUID(),row.designerId,decision==="approve"?"تم قبول التصميم":"تم رفض التصميم",decision==="approve"?"Design approved":"Design rejected",decision==="approve"?"تم قبول التصميم في المراجعة الإدارية.":"تم رفض التصميم. السبب: "+cleanReason,decision==="approve"?"Your design passed Admin review.":"Your design was rejected. Reason: "+cleanReason);this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin',?,'design',?,?)",actorId,decision==="approve"?"admin.manual_review.design.approve":"admin.manual_review.design.reject",id,JSON.stringify({result:"success",metadata:{designerId:row.designerId,round,reason:cleanReason||null}}));});
     return this.ctx.storage.sql.exec<any>("SELECT id AS designId,designer_id AS designerId,title_en AS titleEn,title_ar AS titleAr,status,created_at AS createdAt FROM designs WHERE id=?",id).toArray()[0];
+  }
+
+  adminPromotionsList(filters:{search?:string;status?:string;type?:string;page?:number;pageSize?:number}={}):unknown{
+    this.bootstrapCatalog();const conditions:string[]=[];const args:any[]=[];const search=String(filters.search??"").trim().toLowerCase();if(search){conditions.push("(lower(p.code) LIKE ? OR lower(p.id) LIKE ?)");const q="%"+search+"%";args.push(q,q);}const status=String(filters.status??"").trim().toLowerCase();if(status==="enabled"||status==="disabled"){conditions.push("p.enabled=?");args.push(status==="enabled"?1:0);}const type=String(filters.type??"").trim().toLowerCase();if(type==="percentage"||type==="fixed"){conditions.push("p.discount_type=?");args.push(type);}const where=conditions.length?" WHERE "+conditions.join(" AND "):"";const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||20)));const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM promotions p"+where,...args).toArray()[0]?.count??0);const pages=Math.max(1,Math.ceil(total/pageSize));const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1)));const offset=(page-1)*pageSize;
+    const items=this.ctx.storage.sql.exec<any>(`SELECT p.id AS promotionId,p.code,p.discount_type AS discountType,p.discount_value AS discountValue,p.min_spend_jod AS minSpendJod,p.max_uses AS maxUses,p.starts_at AS startsAt,p.expires_at AS expiresAt,p.enabled,p.created_at AS createdAt,p.updated_at AS updatedAt,(SELECT COUNT(*) FROM promotion_redemptions pr WHERE pr.promotion_id=p.id) AS usedCount,(SELECT COALESCE(SUM(pr.discount_jod),0) FROM promotion_redemptions pr WHERE pr.promotion_id=p.id) AS totalDiscountJod FROM promotions p${where} ORDER BY p.created_at DESC,p.id DESC LIMIT ? OFFSET ?`,...args,pageSize,offset).toArray().map((x:any)=>({...x,state:this.promotionOperationalState(x)}));
+    return {items,total,page,pageSize,pages};
+  }
+
+  private promotionOperationalState(row:any):string{
+    if(Number(row.enabled)!==1)return "disabled";const now=Date.now();const starts=String(row.startsAt??row.starts_at??"").trim();const expires=String(row.expiresAt??row.expires_at??"").trim();if(starts&&Number.isFinite(Date.parse(starts))&&Date.parse(starts)>now)return "scheduled";if(expires&&Number.isFinite(Date.parse(expires))&&Date.parse(expires)<now)return "expired";const max=row.maxUses??row.max_uses;if(max!==null&&max!==undefined&&Number(row.usedCount??0)>=Number(max))return "exhausted";return "active";
+  }
+
+  adminPromotionDetail(promotionId:string):unknown{
+    this.bootstrapCatalog();const id=String(promotionId||"").trim();const row=this.ctx.storage.sql.exec<any>("SELECT p.id AS promotionId,p.code,p.discount_type AS discountType,p.discount_value AS discountValue,p.min_spend_jod AS minSpendJod,p.max_uses AS maxUses,p.starts_at AS startsAt,p.expires_at AS expiresAt,p.enabled,p.created_at AS createdAt,p.updated_at AS updatedAt,(SELECT COUNT(*) FROM promotion_redemptions pr WHERE pr.promotion_id=p.id) AS usedCount,(SELECT COALESCE(SUM(pr.discount_jod),0) FROM promotion_redemptions pr WHERE pr.promotion_id=p.id) AS totalDiscountJod FROM promotions p WHERE p.id=?",id).toArray()[0];if(!row)return null;const redemptions=this.ctx.storage.sql.exec<any>("SELECT pr.id AS redemptionId,pr.order_id AS orderId,pr.customer_id AS customerId,u.display_name AS customerName,u.email AS customerEmail,pr.discount_jod AS discountJod,pr.created_at AS createdAt FROM promotion_redemptions pr LEFT JOIN users u ON u.id=pr.customer_id WHERE pr.promotion_id=? ORDER BY pr.created_at DESC,pr.id DESC LIMIT 200",id).toArray();return {...row,state:this.promotionOperationalState(row),redemptions};
+  }
+
+  adminCreatePromotion(actorId:string,input:{code:string;discountType:string;discountValue:number;minSpendJod?:number;maxUses?:number|null;startsAt?:string|null;expiresAt?:string|null;enabled?:boolean}):unknown{
+    this.bootstrapCatalog();const code=String(input.code||"").trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"").slice(0,40);if(code.length<3)throw new Error("Coupon code must be at least 3 valid characters.");if(this.ctx.storage.sql.exec<any>("SELECT id FROM promotions WHERE code=?",code).toArray()[0])throw new Error("Coupon code already exists.");const type=input.discountType==="fixed"?"fixed":"percentage";const value=Number(input.discountValue);if(!Number.isFinite(value)||value<=0)throw new Error("Discount value must be greater than zero.");if(type==="percentage"&&value>100)throw new Error("Percentage discount cannot exceed 100%.");const minSpend=Math.round(Math.max(0,Number(input.minSpendJod)||0)*100);const maxUses=input.maxUses===null||input.maxUses===undefined||String(input.maxUses)===""?null:Math.max(1,Math.floor(Number(input.maxUses)||0));const startsAt=this.normalizeOptionalDateTime(input.startsAt);const expiresAt=this.normalizeOptionalDateTime(input.expiresAt);if(startsAt&&expiresAt&&Date.parse(expiresAt)<=Date.parse(startsAt))throw new Error("Expiry must be after the start date.");const id="promo-"+crypto.randomUUID();this.ctx.storage.sql.exec("INSERT INTO promotions (id,code,discount_type,discount_value,min_spend_jod,max_uses,starts_at,expires_at,enabled) VALUES (?,?,?,?,?,?,?,?,?)",id,code,type,value,minSpend,maxUses,startsAt,expiresAt,input.enabled===false?0:1);this.adminAudit(actorId,"admin.promotion.create","promotion",id,"success",{code,type,value,minSpendJod:minSpend,maxUses,startsAt,expiresAt});return this.adminPromotionDetail(id);
+  }
+
+  private normalizeOptionalDateTime(value:unknown):string|null{
+    const clean=String(value??"").trim();if(!clean)return null;const timestamp=Date.parse(clean);if(!Number.isFinite(timestamp))throw new Error("Enter a valid promotion date/time.");return new Date(timestamp).toISOString();
+  }
+
+  adminUpdatePromotion(actorId:string,promotionId:string,input:{code?:string;discountType?:string;discountValue?:number;minSpendJod?:number;maxUses?:number|null;startsAt?:string|null;expiresAt?:string|null;enabled?:boolean}):unknown{
+    this.bootstrapCatalog();const id=String(promotionId||"").trim();const current=this.ctx.storage.sql.exec<any>("SELECT * FROM promotions WHERE id=?",id).toArray()[0];if(!current)throw new Error("Promotion not found.");const code=input.code===undefined?String(current.code):String(input.code||"").trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"").slice(0,40);if(code.length<3)throw new Error("Coupon code must be at least 3 valid characters.");if(this.ctx.storage.sql.exec<any>("SELECT id FROM promotions WHERE code=? AND id<>?",code,id).toArray()[0])throw new Error("Coupon code already exists.");const type=input.discountType===undefined?String(current.discount_type):(input.discountType==="fixed"?"fixed":"percentage");const value=input.discountValue===undefined?Number(current.discount_value):Number(input.discountValue);if(!Number.isFinite(value)||value<=0)throw new Error("Discount value must be greater than zero.");if(type==="percentage"&&value>100)throw new Error("Percentage discount cannot exceed 100%.");const minSpend=input.minSpendJod===undefined?Number(current.min_spend_jod):Math.round(Math.max(0,Number(input.minSpendJod)||0)*100);const maxUses=input.maxUses===undefined?(current.max_uses===null?null:Number(current.max_uses)):(input.maxUses===null||String(input.maxUses)===""?null:Math.max(1,Math.floor(Number(input.maxUses)||0)));const startsAt=input.startsAt===undefined?(current.starts_at?String(current.starts_at):null):this.normalizeOptionalDateTime(input.startsAt);const expiresAt=input.expiresAt===undefined?(current.expires_at?String(current.expires_at):null):this.normalizeOptionalDateTime(input.expiresAt);if(startsAt&&expiresAt&&Date.parse(expiresAt)<=Date.parse(startsAt))throw new Error("Expiry must be after the start date.");const used=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM promotion_redemptions WHERE promotion_id=?",id).toArray()[0]?.count??0);if(maxUses!==null&&maxUses<used)throw new Error("Maximum uses cannot be lower than the existing redemption count.");const enabled=input.enabled===undefined?Number(current.enabled):(input.enabled?1:0);this.ctx.storage.sql.exec("UPDATE promotions SET code=?,discount_type=?,discount_value=?,min_spend_jod=?,max_uses=?,starts_at=?,expires_at=?,enabled=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",code,type,value,minSpend,maxUses,startsAt,expiresAt,enabled,id);this.adminAudit(actorId,"admin.promotion.update","promotion",id,"success",{code,type,value,minSpendJod:minSpend,maxUses,startsAt,expiresAt,enabled});return this.adminPromotionDetail(id);
+  }
+
+  adminSetPromotionEnabled(actorId:string,promotionId:string,enabled:boolean):unknown{
+    this.bootstrapCatalog();const id=String(promotionId||"").trim();if(!this.ctx.storage.sql.exec<any>("SELECT id FROM promotions WHERE id=?",id).toArray()[0])throw new Error("Promotion not found.");this.ctx.storage.sql.exec("UPDATE promotions SET enabled=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",enabled?1:0,id);this.adminAudit(actorId,enabled?"admin.promotion.enable":"admin.promotion.disable","promotion",id,"success",{enabled});return this.adminPromotionDetail(id);
   }
 
   adminReports(filters: { dateFrom?:string; dateTo?:string } = {}): unknown {
