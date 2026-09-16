@@ -423,3 +423,21 @@ IMPORTANT IMPLEMENTATION BOUNDARY:
 - dtf-studio-current-github-sync is NOT an implemented-product baseline; it is a reconciliation/verification workspace.
 - Today's Admin/OpenCart/RBAC/Orders work is NOT accepted here as implemented merely because reference branches/tests/source exist.
 - Any portion of today's work becomes Implemented only after controlled integration into dtf-studio-v48-safe-frontend, targeted validation, regression review, and QC evidence.
+
+============================================================
+CANONICAL WORKER ADMIN FOUNDATION — REPORTED PARTIAL IMPLEMENTATION — 2026-09-17
+============================================================
+KAMEL REPORTED (SOURCE-LEVEL, NOT YET FULLY ACCEPTED):
+- Worker-backed Admin selected as canonical security/routing authority.
+- Added database-backed Admin group and permission tables.
+- Existing admin_users retained as authoritative Admin identity store.
+- Added Admin group membership and Access/Modify permission resolution.
+- Added ItemStore.adminPermission().
+- adminIdentity() reportedly requires enabled Admin user and enabled group membership.
+- Added protected GET /api/admin/dashboard endpoint.
+- Dashboard summary reportedly uses database-derived values for orders today, revenue, pending payments, production queue, designer reviews, withdrawals and generation time.
+- Printify/storefront files were reported unchanged.
+
+ACCEPTANCE STATUS:
+PARTIAL / REQUIRES CORRECTION AND DEDICATED VALIDATION.
+The group name/default permission mismatch and missing RBAC/dashboard tests prevent final acceptance of this batch.
