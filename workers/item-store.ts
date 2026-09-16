@@ -755,6 +755,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const lineKey = [variant.id, input.designId ?? "", input.masterAssetId ?? "", input.printSpecJson ?? "{}"].join(":");
     this.ctx.storage.transactionSync(() => {
       this.ctx.storage.sql.exec("INSERT OR IGNORE INTO carts (id, session_key) VALUES (?, ?)", cartId, safeSession);
+      this.ctx.storage.sql.exec("UPDATE carts SET status='open' WHERE id=?",cartId);
       this.ctx.storage.sql.exec(`
         INSERT INTO cart_items (id, cart_id, variant_id, design_id, master_asset_id, print_spec_json, quantity, unit_price_jod, line_key)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
