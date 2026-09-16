@@ -1346,8 +1346,8 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       lastSync:lastSyncRow?parse(lastSyncRow.valueJson,null):null,
       lastSyncUpdatedAt:lastSyncRow?.updatedAt??null
     };
-    const secretRows=this.ctx.storage.sql.exec<any>("SELECT key_name AS keyName,updated_at AS updatedAt FROM server_secrets WHERE key_name<>'ADMIN_WEB_KEY' ORDER BY key_name").toArray();
-    return {printify,serverManagedSecretMetadata:secretRows.map((row:any)=>({keyName:String(row.keyName),configured:true,updatedAt:row.updatedAt})),internalSessionSecretHidden:true,payments:{provider:null,status:"not_configured"},courier:{provider:null,status:"not_configured"}};
+    const nonInternalSecretCount=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM server_secrets WHERE key_name<>'ADMIN_WEB_KEY'").toArray()[0]?.count??0);
+    return {printify,serverManagedSecrets:{configuredCount:nonInternalSecretCount,valuesExposed:false,namesExposed:false},internalSessionSecretHidden:true,payments:{provider:null,status:"not_configured"},courier:{provider:null,status:"not_configured"}};
   }
 
   businessSettingsSnapshot():unknown{
