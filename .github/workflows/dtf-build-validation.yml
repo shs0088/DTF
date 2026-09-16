@@ -29,4 +29,6 @@ jobs:
         run: npm run build
       - name: RBAC tests
         run: bun test workers/admin-rbac.test.ts
+      - name: Orders tests
+        run: bun test workers/admin-orders.test.ts
 
