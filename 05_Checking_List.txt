@@ -356,3 +356,24 @@ PRODUCTION QUEUE SOURCE/CI CHECK — 2026-09-16
 428. Production browser/runtime verification: PENDING RUNTIME.
 429. Live operator permission matrix: PENDING RUNTIME.
 430. Live master-byte download verification: PENDING RUNTIME.
+
+============================================================
+MANUAL REVIEW SOURCE/CI CHECK — 2026-09-16
+============================================================
+431. Qualification queue uses real designer applications: PASS SOURCE.
+432. Approval requires exactly 3 qualification designs: PASS SOURCE/TEST.
+433. All 3 require preflight evidence; failed preflight blocks approval: PASS SOURCE/TEST.
+434. Five-day review due target calculated from submission: PASS SOURCE/TEST.
+435. First rejection requires reason and creates replacement-required flow: PASS SOURCE/TEST.
+436. Second rejection escalates/finalizes rejection: PASS SOURCE/TEST.
+437. Designer notifications created for decisions: PASS SOURCE/TEST.
+438. Authorized status remains Admin-controlled: PASS SOURCE/TEST.
+439. Designer design review queue exists: PASS SOURCE.
+440. Design review approve does not auto-publish: PASS SOURCE/TEST.
+441. Manual review history/audit logging: PASS SOURCE.
+442. admin.manual_review GET requires Access: PASS SOURCE.
+443. Manual Review mutation requires Modify: PASS SOURCE.
+444. GitHub Actions run 35101827809: PASS.
+445. npm install/typecheck/build/RBAC/Orders/Production/Manual Review tests: PASS.
+446. Manual Review browser/runtime verification: PENDING RUNTIME.
+447. Live replacement/escalation/notification persistence: PENDING RUNTIME.

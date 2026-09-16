@@ -197,3 +197,21 @@ STILL PENDING:
 3. Live status mutation and audit persistence.
 4. Live approved-master download bytes from configured storage.
 5. Manual Review full module remains next implementation dependency.
+
+============================================================
+MANUAL REVIEW REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- qualification/design review queues
+- exactly-three qualification approval rule
+- five-day review target display
+- preflight/analyzer evidence
+- first rejection replacement and second rejection escalation
+- notifications and Authorized status mutation
+- Access/Modify guards and audit history
+STILL PENDING:
+1. Live/browser Manual Review verification.
+2. Live Access-only mutation denial.
+3. Live approve/reject/replacement/escalation persistence.
+4. Live designer notification persistence and Authorized-state verification.
+5. Products/Catalog remains next implementation dependency.

@@ -243,3 +243,38 @@ RUNTIME STILL REQUIRED:
 - live master download bytes
 - live printing-job status persistence/audit
 - browser/responsive verification
+
+============================================================
+MANUAL REVIEW SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 7056e9ea98abac3afd5315a4f9867c45ba9ef8c8
+GITHUB ACTIONS RUN: 35101827809 — SUCCESS.
+COMPLETED FOR MANUAL REVIEW SOURCE/CI:
+- Designer Qualification queue
+- exact 3-design approval requirement
+- automatic preflight/analyzer evidence display
+- fixed five-day review due target
+- first rejection → replacement required flow
+- second rejection → escalation/final rejection flow
+- bilingual designer notifications
+- Admin-controlled Authorized status
+- Designer design review queue with approve/reject reasons
+- failed-preflight design approval block
+- review history and audit logging
+- admin.manual_review Access/Modify authorization
+- Manual Review regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Products/Catalog full internal management.
+2. Customers.
+3. Designers.
+4. Payouts.
+5. Reports.
+6. Promotions.
+7. Settings.
+8. Integrations.
+9. Audit Log.
+RUNTIME STILL REQUIRED:
+- live Access-only/Modify denial
+- live first/second rejection and notification persistence
+- live authorization-status update verification
+- browser/responsive verification

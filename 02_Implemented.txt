@@ -208,3 +208,23 @@ VERIFIED IN SOURCE + CI:
 - production status audit logging
 - Production tests executed in GitHub Actions
 NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+MANUAL REVIEW VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 7056e9ea98abac3afd5315a4f9867c45ba9ef8c8
+CI RUN: 35101827809 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- qualification queue/detail with exactly-three check
+- five-day review due calculation
+- preflight/analyzer evidence for qualification designs
+- first rejection replacement flow
+- second rejection escalation
+- bilingual notifications
+- Admin-controlled designer authorization
+- design review queue and decisions
+- review history + audit records
+- admin.manual_review Access/Modify server authorization
+- Manual Review tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.

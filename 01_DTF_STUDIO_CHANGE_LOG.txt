@@ -349,3 +349,37 @@ DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
 NEXT: Manual Review full module.
+
+
+DATE/TIME: 2026-09-16T13:26:27Z
+TASK: Implement Admin Manual Review qualification/design workflows.
+SOURCE START: 89d0c20495d91b5117698c605d8948695643d534
+SOURCE FINAL: 7056e9ea98abac3afd5315a4f9867c45ba9ef8c8
+FILES ADDED/CHANGED IN SOURCE BATCH:
+- workers/item-store.ts
+- workers/static-app.ts
+- workers/admin-manual-review.test.ts
+- .github/workflows/dtf-build-validation.yml
+IMPLEMENTED:
+- qualification queue/detail with exact-three requirement
+- five-day review target
+- preflight/analyzer evidence
+- first rejection replacement flow
+- second rejection escalation
+- bilingual notifications and Admin-controlled Authorized status
+- designer design review queue and decisions
+- review history + audit logging
+- admin.manual_review Access/Modify authorization
+VALIDATION:
+- GitHub Actions run 35101827809: SUCCESS
+- Install dependencies: PASS
+- Typecheck: PASS
+- Production build: PASS
+- RBAC tests: PASS
+- Orders tests: PASS
+- Production tests: PASS
+- Manual Review tests: PASS
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
+NEXT: Products/Catalog full module.
