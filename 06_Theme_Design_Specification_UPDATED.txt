@@ -246,3 +246,14 @@ The final theme must visibly support:
 - backup/restore operational evidence where appropriate
 
 No screen may encode the outdated 15-minute reservation or PNG-only production assumption.
+
+============================================================
+THEME / BASELINE CLARIFICATION — 2026-09-17
+============================================================
+- The accepted visual/frontend baseline remains DTF Studio V48.22E in dtf-studio-v48-safe-frontend.
+- The authoritative baseline file for visual continuity is:
+  public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html
+- Today's experimental Admin/OpenCart work does NOT supersede the approved DTF Studio Black + Electric Blue identity or the accepted V48.22E storefront presentation.
+- Any future Admin UI reused from today's reference work must be adapted to the existing DTF Studio visual system rather than replacing it with generic OpenCart styling.
+- Storefront, product/catalog, Designer, and Printify-facing accepted V48.22E presentation must be preserved unless a separately approved correction specifically targets them.
+- dtf-studio-current-github-sync is not a theme/design baseline.
