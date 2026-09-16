@@ -278,3 +278,40 @@ RUNTIME STILL REQUIRED:
 - live first/second rejection and notification persistence
 - live authorization-status update verification
 - browser/responsive verification
+
+============================================================
+PRODUCTS / CATALOG SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+FEATURE SOURCE SHA: 5bef0f4625c32e47515587809d38cd4489af8d73
+CI-STABILIZED HEAD: a2ece44705a09e0c9d60b4a389da92cea8b751c3
+GITHUB ACTIONS RUN: 35102844014 — SUCCESS.
+COMPLETED FOR PRODUCTS/CATALOG SOURCE/CI:
+- internal DTF Studio categories and custom product management
+- bilingual product metadata
+- custom product variants, pricing and stock controls
+- stock movement records for Admin quantity adjustments
+- product media references
+- Print Your Dream eligibility
+- all seven approved product-type combinations
+- custom product publish/unpublish validation
+- Printify-backed products preserved on existing dedicated workflow
+- admin.products Access/Modify authorization
+- Products regression tests added to CI
+CI STABILIZATION:
+- attempts on run 35102413636 failed before typecheck because npm resolved unavailable rolldown-1.2.9.tgz
+- pinned intended Vite 8.0.16 (which uses rolldown 1.0.3)
+- moved CI from Node 20 to Node 22 for current Cloudflare tooling
+NEXT UNFINISHED DEPENDENCY:
+1. Customers.
+2. Designers.
+3. Payouts.
+4. Reports.
+5. Promotions.
+6. Settings.
+7. Integrations.
+8. Audit Log.
+RUNTIME STILL REQUIRED:
+- Products browser/runtime CRUD/publish verification
+- live Access-only/Modify denial
+- live stock adjustment persistence
+- storefront regression verification after safe runtime deployment

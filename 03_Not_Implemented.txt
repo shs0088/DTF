@@ -215,3 +215,21 @@ STILL PENDING:
 3. Live approve/reject/replacement/escalation persistence.
 4. Live designer notification persistence and Authorized-state verification.
 5. Products/Catalog remains next implementation dependency.
+
+============================================================
+PRODUCTS / CATALOG REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- internal category/product/variant/stock/media management
+- custom publish validation
+- seven product-type eligibility rules
+- Printify workflow separation
+- Access/Modify guards and audit logging
+- deterministic CI dependency correction
+STILL PENDING:
+1. Live/browser Products verification.
+2. Live create/edit/publish/unpublish persistence.
+3. Live stock adjustment and stock movement verification.
+4. Live Access-only mutation denial.
+5. Safe storefront regression verification.
+6. Customers remains next implementation dependency.

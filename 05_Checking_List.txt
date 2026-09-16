@@ -377,3 +377,26 @@ MANUAL REVIEW SOURCE/CI CHECK — 2026-09-16
 445. npm install/typecheck/build/RBAC/Orders/Production/Manual Review tests: PASS.
 446. Manual Review browser/runtime verification: PENDING RUNTIME.
 447. Live replacement/escalation/notification persistence: PENDING RUNTIME.
+
+============================================================
+PRODUCTS / CATALOG SOURCE/CI CHECK — 2026-09-16
+============================================================
+448. Products list uses real product_models/categories/variants/stocks: PASS SOURCE.
+449. Internal custom products separated from Printify workflow: PASS SOURCE/TEST.
+450. Bilingual product name/description support: PASS SOURCE.
+451. Custom publish requires bilingual metadata + display image: PASS SOURCE/TEST.
+452. Publish requires at least one enabled positive-price variant: PASS SOURCE/TEST.
+453. Variant pricing/enable controls: PASS SOURCE.
+454. Stock quantity cannot be negative: PASS SOURCE/TEST.
+455. Admin stock adjustment creates stock movement: PASS SOURCE/TEST.
+456. Product media records supported with sanitized storage keys: PASS SOURCE.
+457. Print Your Dream setting supported: PASS SOURCE.
+458. Seven approved product-type combinations enforced: PASS SOURCE/TEST.
+459. admin.products GET requires Access: PASS SOURCE.
+460. Products mutations require Modify: PASS SOURCE.
+461. Original CI run 35102413636 attempts 1/2: FAILED INSTALL due unavailable npm rolldown-1.2.9.tgz; no source tests executed.
+462. Vite pinned to 8.0.16: PASS CORRECTION.
+463. CI Node moved to 22: PASS CORRECTION.
+464. GitHub Actions run 35102844014: PASS.
+465. npm install/typecheck/build/RBAC/Orders/Production/Manual Review/Products tests: PASS.
+466. Products browser/runtime verification: PENDING RUNTIME.

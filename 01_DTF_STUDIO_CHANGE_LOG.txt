@@ -383,3 +383,41 @@ DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
 NEXT: Products/Catalog full module.
+
+
+DATE/TIME: 2026-09-16T13:35:44Z
+TASK: Implement Admin Products/Catalog and stabilize deterministic validation.
+FEATURE SOURCE START: 2374b26614fb54892d94b5d333237b3494cac578
+FEATURE SOURCE FINAL: 5bef0f4625c32e47515587809d38cd4489af8d73
+VALIDATED HEAD: a2ece44705a09e0c9d60b4a389da92cea8b751c3
+FILES ADDED/CHANGED IN PRODUCTS BATCH:
+- workers/item-store.ts
+- workers/static-app.ts
+- workers/admin-products.test.ts
+- .github/workflows/dtf-build-validation.yml
+- package.json (CI dependency stabilization only)
+IMPLEMENTED:
+- internal category/custom-product management
+- bilingual product fields
+- variants/pricing/stock and stock movement records
+- media references and Print Your Dream setting
+- seven product-type eligibility combinations
+- publish/unpublish validation
+- existing Printify workflow preserved separately
+- admin.products Access/Modify authorization
+VALIDATION HISTORY:
+- run 35102413636 attempts 1 and 2 failed at npm install only: registry 404 for unavailable rolldown-1.2.9.tgz; typecheck/build/tests did not run.
+- Vite range corrected to exact 8.0.16; CI Node corrected to 22.
+- GitHub Actions run 35102844014: SUCCESS.
+- Install dependencies: PASS
+- Typecheck: PASS
+- Production build: PASS
+- RBAC tests: PASS
+- Orders tests: PASS
+- Production tests: PASS
+- Manual Review tests: PASS
+- Products tests: PASS
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
+NEXT: Customers full Admin module.

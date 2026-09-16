@@ -228,3 +228,24 @@ VERIFIED IN SOURCE + CI:
 - admin.manual_review Access/Modify server authorization
 - Manual Review tests executed in GitHub Actions
 NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+PRODUCTS / CATALOG VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+FEATURE SOURCE SHA: 5bef0f4625c32e47515587809d38cd4489af8d73
+VALIDATED HEAD: a2ece44705a09e0c9d60b4a389da92cea8b751c3
+CI RUN: 35102844014 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- internal categories/custom products
+- bilingual metadata and display-image reference
+- variants, prices, enabled state, stock tracking/quantity
+- stock movement audit trail for Admin adjustments
+- media references
+- seven product-type eligibility combinations
+- safe custom publish/unpublish validation
+- existing Printify editor/publication path preserved separately
+- admin.products Access/Modify authorization
+- Products tests executed in GitHub Actions
+- deterministic CI restored by pinning Vite 8.0.16 and using Node 22
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
