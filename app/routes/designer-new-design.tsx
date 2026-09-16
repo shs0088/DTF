@@ -1,7 +1,7 @@
 import { Form, Link, redirect, useActionData, useLoaderData, useNavigation } from "react-router";
 import type { Route } from "./+types/designer-new-design";
 import type { ItemStore } from "../../workers/item-store";
-import { analyzeUpload, DESIGN_PRODUCT_TYPES } from "../../workers/analyzer";
+import { analyzeAsset, DESIGN_PRODUCT_TYPES } from "../../workers/analyzer";
 import { inspectUpload } from "../../workers/upload-inspection";
 import { ArrowLeft, CheckCircle2, FileImage, Image as ImageIcon, Printer, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -78,17 +78,15 @@ export async function action({request,context}:Route.ActionArgs){
       if(!allowed.has(analysis.mime))throw new Error(`${file.name}: ${mimeLabel(analysis.mime)} is disabled in Artwork Settings.`);
       const browserMime=normalizeBrowserMime(file.type||"");
       if(browserMime&&browserMime!==analysis.mime)throw new Error(`${file.name}: browser MIME and file signature do not match.`);
-      const atoms=productType.split("+");
+      const atoms=productType.split("+").map(x=>x.trim());
       const results=atoms.map((atom)=>{
         const area=PRINT_AREAS[atom];
         if(!area)throw new Error("Unsupported Product Type component: "+atom);
-        const physicalWidth=analysis.embeddedDpi&&analysis.pixelWidth?analysis.pixelWidth/analysis.embeddedDpi:undefined;
-        const physicalHeight=analysis.embeddedDpi&&analysis.pixelHeight?analysis.pixelHeight/analysis.embeddedDpi:undefined;
-        return {atom,result:analyzeUpload({
-          filename:file.name,format:analysis.format,mime:analysis.mime,byteSize:file.size,signatureValid:analysis.signatureValid,
-          pixelWidth:analysis.pixelWidth,pixelHeight:analysis.pixelHeight,embeddedDpi:analysis.embeddedDpi??undefined,
-          physicalWidthIn:physicalWidth,physicalHeightIn:physicalHeight,hasAlpha:analysis.hasAlpha,
-          productPrintWidthIn:area.width,productPrintHeightIn:area.height,productType:atom,minDpi
+        return {atom,result:analyzeAsset({
+          format:analysis.format,mime:analysis.mime,byteSize:file.size,signatureValid:analysis.signatureValid,
+          pixelWidth:analysis.pixelWidth,pixelHeight:analysis.pixelHeight,embeddedDpi:analysis.embeddedDpi,
+          intendedWidthIn:area.width,intendedHeightIn:area.height,hasAlpha:analysis.hasAlpha,
+          previewable:analysis.previewable,productType:atom,minDpi
         })};
       });
       const passed=results.every(x=>x.result.passed);
@@ -102,7 +100,7 @@ export async function action({request,context}:Route.ActionArgs){
         previewable:results.every(x=>x.result.previewable)&&analysis.previewable,
         effectiveDpi:dpiValues.length?{minimum:Math.min(...dpiValues),width:null,height:null}:null,
         physicalSizeIn:results[0]?.result.physicalSizeIn??null,scalingRisk,
-        placeholderCheck:results.every(x=>x.result.placeholderCheck),
+        placeholderCheck:results.map(x=>({productType:x.atom,...x.result.placeholderCheck})),
         productChecks:results.map(x=>({productType:x.atom,passed:x.result.passed,effectiveDpi:x.result.effectiveDpi,errors:x.result.errors,warnings:x.result.warnings}))
       };
       if(index===masterIndex&&!passed)throw new Error(`${file.name}: selected Ready-to-Print Master failed preflight. ${errors.join(" ")}`);
@@ -113,7 +111,7 @@ export async function action({request,context}:Route.ActionArgs){
       storedKeys.push(storageKey);
       assets.push({assetId,storageKey,filename:file.name,mime:analysis.mime,byteSize:file.size,analysis,preflight,isMaster:index===masterIndex,isCover:index===coverIndex});
     }
-    const created:any=await s.createDesignerDesign(sessionId,{designId,titleEn,titleAr,descriptionEn,descriptionAr,productType,assets});
+    const created:any=await s.createDesignerDesign(sessionId,{designId,titleEn,titleAr,descriptionEn,descriptionAr,productType,minDpi,assets});
     return redirect("/designer?created="+encodeURIComponent(String(created?.designId||designId)));
   }catch(error){
     for(const key of storedKeys)try{await bucket.delete(key);}catch{}
