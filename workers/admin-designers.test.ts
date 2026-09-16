@@ -19,7 +19,7 @@ describe("Admin Designers implementation contracts", () => {
 
   test("Designers page cannot bypass qualification authorization", async () => {
     const source=await Bun.file(new URL("./static-app.ts",import.meta.url)).text();
-    const page=source.slice(source.indexOf("const ADMIN_DESIGNERS_PAGE"),source.indexOf("const ADMIN_CUSTOMERS_PAGE"));
+    const start=source.indexOf("const ADMIN_DESIGNERS_PAGE"); const end=source.indexOf("const ADMIN_RBAC_PAGE",start); const page=source.slice(start,end);
     expect(page).toContain("Qualification authorization is displayed here but decisions remain in Manual Review.");
     expect(page).toContain("Authorized status cannot be edited here.");
     expect(page).toContain('href="/admin/manual-review"');
