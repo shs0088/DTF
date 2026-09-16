@@ -478,3 +478,32 @@ DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
 NEXT: Payouts full Admin module.
+
+
+DATE/TIME: 2026-09-16T13:53:44Z
+TASK: Implement Admin Payouts financial workflow.
+SOURCE START: f15b554562eee453749d56858dffa01603f990b9
+SOURCE FINAL: 6e6d5824a29a3f6dcda9230ac2424ee670db9a35
+FILES ADDED/CHANGED:
+- workers/admin-payouts.ts
+- workers/item-store.ts
+- workers/static-app.ts
+- workers/admin-payouts.test.ts
+- .github/workflows/dtf-build-validation.yml
+IMPLEMENTED:
+- withdrawals queue/detail/filter/pagination
+- requested→approved/rejected and approved→paid workflow
+- payoutable earnings + committed withdrawal balance validation
+- duplicate-paid protection with one negative withdrawal_paid ledger entry
+- rejection reason, Admin transition history, notifications and audit logging
+- admin.payouts Access/Modify authorization
+VALIDATION:
+- GitHub Actions run 35104755254: SUCCESS
+- Install dependencies: PASS
+- Typecheck: PASS
+- Production build: PASS
+- RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts tests: PASS
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
+NEXT: Reports full Admin module.

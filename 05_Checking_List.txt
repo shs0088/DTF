@@ -439,3 +439,25 @@ DESIGNERS SOURCE/CI CHECK — 2026-09-16
 495. GitHub Actions run 35103920821: PASS.
 496. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers tests: PASS.
 497. Designers browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+PAYOUTS SOURCE/CI CHECK — 2026-09-16
+============================================================
+498. Payouts list uses real withdrawals/designers: PASS SOURCE.
+499. Search/status/date filters + pagination: PASS SOURCE.
+500. Requested→approved/rejected and approved→paid only: PASS SOURCE/TEST.
+501. Paid/rejected terminal states: PASS SOURCE/TEST.
+502. Rejection requires reason: PASS SOURCE/TEST.
+503. Approval uses payoutable earnings only: PASS SOURCE/TEST.
+504. Approved/paid withdrawals counted as committed: PASS SOURCE/TEST.
+505. Withdrawal above payoutable balance blocked: PASS SOURCE/TEST.
+506. Paid transition creates negative withdrawal_paid ledger record: PASS SOURCE/TEST.
+507. Duplicate paid ledger blocked: PASS SOURCE/TEST.
+508. Admin withdrawal history persisted: PASS SOURCE/TEST.
+509. Designer notifications generated: PASS SOURCE/TEST.
+510. Payout transition audit logged: PASS SOURCE/TEST.
+511. admin.payouts GET requires Access: PASS SOURCE.
+512. Payout mutations require Modify: PASS SOURCE.
+513. GitHub Actions run 35104755254: PASS.
+514. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts tests: PASS.
+515. Payouts browser/runtime verification: PENDING RUNTIME.

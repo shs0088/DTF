@@ -287,3 +287,21 @@ VERIFIED IN SOURCE + CI:
 - designer account audit logging
 - Designers tests executed in GitHub Actions
 NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+PAYOUTS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 6e6d5824a29a3f6dcda9230ac2424ee670db9a35
+CI RUN: 35104755254 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- database-backed withdrawals queue/detail
+- real designer earnings/ledger/withdrawal evidence
+- controlled requested→approved/rejected and approved→paid transitions
+- payoutable-balance and committed-withdrawal safeguards
+- rejection reasons
+- one-time negative paid ledger entry
+- transition history, notifications and audit logging
+- server-side admin.payouts Access/Modify checks
+- Payouts tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.

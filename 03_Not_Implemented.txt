@@ -266,3 +266,20 @@ STILL PENDING:
 3. Live suspend/disable session revocation.
 4. Live financial/order/qualification-history data verification.
 5. Payouts remains next implementation dependency.
+
+============================================================
+PAYOUTS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- payout list/detail/filter/pagination
+- controlled status workflow
+- payoutable-balance validation
+- one-time paid ledger protection
+- rejection reason/history/notification/audit records
+- Access/Modify guards
+STILL PENDING:
+1. Live/browser Payouts verification.
+2. Live Access-only mutation denial.
+3. Live approval balance enforcement against real data.
+4. Live paid ledger, notification, history and audit persistence.
+5. Reports remains next implementation dependency.

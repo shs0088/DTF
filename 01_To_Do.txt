@@ -379,3 +379,37 @@ RUNTIME STILL REQUIRED:
 - live Access-only/Modify denial
 - live session revocation after suspend/disable
 - live qualification/financial-history display verification
+
+============================================================
+PAYOUTS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 6e6d5824a29a3f6dcda9230ac2424ee670db9a35
+GITHUB ACTIONS RUN: 35104755254 — SUCCESS.
+COMPLETED FOR PAYOUTS SOURCE/CI:
+- real withdrawal list/search/status/date filters/pagination
+- designer identity, account/authorization and payout detail visibility
+- requested → approved/rejected → paid workflow
+- rejected/paid terminal states
+- rejection reason requirement
+- approval blocked above payoutable designer balance
+- payoutable earnings restricted to available/approved/earned/payable states
+- existing approved/paid withdrawals counted as committed balance
+- exactly one negative withdrawal_paid ledger entry on paid transition
+- duplicate paid-ledger prevention
+- Admin payout transition history
+- bilingual designer notifications
+- payout status audit logging
+- admin.payouts Access/Modify authorization
+- Payouts regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Reports.
+2. Promotions.
+3. Settings.
+4. Integrations.
+5. Audit Log.
+RUNTIME STILL REQUIRED:
+- live payout list/detail verification
+- live Access-only/Modify denial
+- live approval balance enforcement
+- live paid ledger/notification/history/audit persistence
+- browser/responsive verification
