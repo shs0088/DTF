@@ -153,3 +153,33 @@ FINAL CAMEL REFERENCE RULE — 2026-09-16
 - Business rules, database, security, RBAC, preflight, stock, orders and production follow approved DTF Studio requirements/QC.
 - If a visual request conflicts with verified functional/security behavior, preserve the functional/security behavior and adapt the visual implementation around it.
 - main remains unchanged until explicit merge authorization.
+
+============================================================
+CANONICAL PROJECT / INTEGRATION RULES — 2026-09-17
+============================================================
+1. MAIN CAMEL IMPLEMENTATION PROJECT:
+   dtf-studio-v48-safe-frontend
+   Project ID: ca-4ae996677c654c02a0fc8e115bca8889-dtf-studio-v48-1l5d
+2. ACCEPTED FRONTEND BASELINE:
+   DTF Studio V48.22E
+   public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html
+3. LAST ACCEPTED FUNCTIONAL POINT:
+   V48.22E with working Printify catalog/products functionality preserved.
+4. RECONCILIATION WORKSPACE:
+   dtf-studio-current-github-sync is verification/reconciliation only and is never an automatic implementation target.
+5. REFERENCE-BRANCH RULE:
+   Today's Admin/OpenCart/RBAC/Orders GitHub branches are reference/candidate sources only. Their existence, CI result, or source completeness does not automatically make them accepted V48.22E implementation.
+6. EXISTING-FILE RULE:
+   Open current V48.22E file first; open reference version second; compare exact diff; transplant only approved code; preserve unrelated current code; save; inspect diff; run targeted validation.
+7. NEW-FILE RULE:
+   If the reference contains a file absent from V48.22E, first check for equivalent current functionality. Classify USE / ADAPT / MERGE INTO EXISTING / DISCARD before creating anything.
+8. NO BLIND REPLACEMENT:
+   No whole-file replacement, whole-branch merge, cherry-pick of mixed changes, or rebuild-from-scratch unless separately and explicitly approved.
+9. PRINTIFY PROTECTION:
+   Do not regress accepted V48.22E Printify catalog/product behavior while integrating Admin work.
+10. EVIDENCE RULE:
+   A feature is marked Implemented only after it exists in the accepted V48.22E project and has source/runtime/test evidence appropriate to the requirement.
+11. QC SYNCHRONIZATION:
+   After each approved change, update To Do, Implemented, Not Implemented, Rules, Checking List, Change Log, and other affected requirement records.
+12. PROJECT-IDENTITY CHECK:
+   Before any future implementation task, confirm the active Camel project name and baseline file. If the project is not dtf-studio-v48-safe-frontend, stop instead of silently switching workspaces.
