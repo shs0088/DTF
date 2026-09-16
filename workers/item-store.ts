@@ -423,6 +423,24 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         price_snapshot_json TEXT NOT NULL DEFAULT '{}',
         quantity INTEGER NOT NULL CHECK (quantity > 0)
       );
+      CREATE TABLE IF NOT EXISTS order_checkout_details (
+        order_id TEXT PRIMARY KEY REFERENCES orders(id) ON DELETE CASCADE,
+        source_cart_id TEXT NOT NULL,
+        request_key TEXT NOT NULL UNIQUE,
+        subtotal_jod INTEGER NOT NULL CHECK(subtotal_jod >= 0),
+        delivery_fee_jod INTEGER NOT NULL CHECK(delivery_fee_jod >= 0),
+        discount_jod INTEGER NOT NULL DEFAULT 0 CHECK(discount_jod >= 0),
+        promotion_id TEXT REFERENCES promotions(id),
+        promotion_code TEXT,
+        customer_name TEXT NOT NULL,
+        customer_phone TEXT NOT NULL,
+        city TEXT,
+        address TEXT,
+        notes TEXT,
+        reservation_expires_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_checkout_source_cart ON order_checkout_details(source_cart_id);
       CREATE TABLE IF NOT EXISTS payments (
         id TEXT PRIMARY KEY,
         order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -752,6 +770,80 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     return this.getCart(safeSession);
   }
 
+  private normalizeCartKey(value:string):string { return String(value||"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,80)||"anonymous"; }
+
+  private checkoutPromotion(codeValue:string,subtotalCents:number):any{
+    const code=String(codeValue||"").trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"").slice(0,40);
+    if(!code)return null;
+    const row=this.ctx.storage.sql.exec<any>("SELECT id,code,discount_type AS discountType,discount_value AS discountValue,min_spend_jod AS minSpendJod,max_uses AS maxUses,starts_at AS startsAt,expires_at AS expiresAt,enabled FROM promotions WHERE code=?",code).toArray()[0];
+    if(!row)throw new Error("Coupon code was not found.");
+    if(Number(row.enabled)!==1)throw new Error("This coupon is disabled.");
+    const now=Date.now();if(row.startsAt&&Date.parse(String(row.startsAt))>now)throw new Error("This coupon is not active yet.");if(row.expiresAt&&Date.parse(String(row.expiresAt))<now)throw new Error("This coupon has expired.");
+    const used=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM promotion_redemptions WHERE promotion_id=?",row.id).toArray()[0]?.count??0);
+    if(row.maxUses!==null&&used>=Number(row.maxUses))throw new Error("This coupon has reached its usage limit.");
+    if(subtotalCents<Number(row.minSpendJod||0))throw new Error("Cart subtotal does not meet this coupon's minimum spend.");
+    let discount=String(row.discountType)==="percentage"?Math.round(subtotalCents*Math.min(100,Math.max(0,Number(row.discountValue)))/100):Math.round(Math.max(0,Number(row.discountValue))*100);
+    discount=Math.max(0,Math.min(subtotalCents,discount));
+    if(discount<=0)throw new Error("This coupon does not produce a valid discount.");
+    return {...row,usedCount:used,discountJod:discount};
+  }
+
+  checkoutPreview(cartSessionKey:string,couponCode="",fulfillmentMode:"delivery"|"store_pickup"="delivery"):unknown{
+    this.bootstrapCatalog();const key=this.normalizeCartKey(cartSessionKey),cartId=`guest-${key}`;
+    const lines=this.ctx.storage.sql.exec<any>(`SELECT ci.id,ci.variant_id AS variantId,ci.design_id AS designId,ci.master_asset_id AS masterAssetId,ci.print_spec_json AS printSpecJson,ci.quantity,ci.unit_price_jod AS unitPriceJod,v.sku,v.enabled AS variantEnabled,pm.enabled AS productEnabled,pm.name_en AS productName
+      FROM cart_items ci JOIN variants v ON v.id=ci.variant_id JOIN product_models pm ON pm.id=v.model_id WHERE ci.cart_id=? ORDER BY ci.id`,cartId).toArray();
+    if(!lines.length)throw new Error("Cart is empty.");
+    const subtotalJod=lines.reduce((sum:number,x:any)=>sum+Number(x.unitPriceJod||0)*Number(x.quantity||0),0);
+    const settings=this.businessSettingsSnapshot() as any;
+    const deliveryFeeJod=fulfillmentMode==="store_pickup"?0:(subtotalJod>=Math.round(Number(settings.freeDeliveryThreshold||0)*100)?0:Math.round(Number(settings.standardDeliveryFee||0)*100));
+    const promotion=this.checkoutPromotion(couponCode,subtotalJod);
+    const discountJod=Number(promotion?.discountJod||0);const totalJod=Math.max(0,subtotalJod+deliveryFeeJod-discountJod);
+    const issues:string[]=[];
+    this.ctx.storage.sql.exec("UPDATE reservations SET status='expired' WHERE status='pending' AND datetime(expires_at)<=datetime('now')");
+    for(const line of lines){
+      if(Number(line.variantEnabled)!==1||Number(line.productEnabled)!==1)issues.push(`${line.sku}: product or variant is unavailable.`);
+      const stock=this.ctx.storage.sql.exec<any>("SELECT quantity,tracked FROM stocks WHERE variant_id=?",line.variantId).toArray()[0];
+      if(stock&&Number(stock.tracked)===1){const reserved=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(quantity),0) AS qty FROM reservations WHERE variant_id=? AND status='pending' AND datetime(expires_at)>datetime('now') AND cart_id<>?",line.variantId,cartId).toArray()[0]?.qty??0);const available=Math.max(0,Number(stock.quantity||0)-reserved);if(available<Number(line.quantity))issues.push(`${line.sku}: only ${available} unit(s) available.`);}
+      if(line.designId){
+        if(!line.masterAssetId){issues.push(`${line.sku}: Ready-to-Print Master is required.`);continue;}
+        const master=this.ctx.storage.sql.exec<any>("SELECT mar.asset_id AS masterAssetId,mar.explicitly_selected AS explicitlySelected FROM master_asset_relations mar WHERE mar.design_id=?",line.designId).toArray()[0];
+        if(!master||Number(master.explicitlySelected)!==1||String(master.masterAssetId)!==String(line.masterAssetId)){issues.push(`${line.sku}: selected master does not match the approved Ready-to-Print Master.`);continue;}
+        const validation=this.ctx.storage.sql.exec<any>("SELECT status,errors_json AS errorsJson,warnings_json AS warningsJson,created_at AS createdAt FROM validation_results WHERE design_id=? AND asset_id=? ORDER BY created_at DESC LIMIT 1",line.designId,line.masterAssetId).toArray()[0];
+        if(!validation||String(validation.status).toLowerCase()!=="passed")issues.push(`${line.sku}: approved master has no passing preflight result.`);
+      }
+    }
+    return {cartId,lines:lines.map((x:any)=>({id:x.id,variantId:x.variantId,sku:x.sku,productName:x.productName,quantity:Number(x.quantity),unitPriceJod:Number(x.unitPriceJod),lineTotalJod:Number(x.unitPriceJod)*Number(x.quantity),designId:x.designId,masterAssetId:x.masterAssetId})),subtotalJod,deliveryFeeJod,discountJod,totalJod,currency:"JOD",promotion:promotion?{id:promotion.id,code:promotion.code,discountJod}:null,issues,canCheckout:issues.length===0,settings:{reservationMinutes:Number(settings.bankTransferReservationMinutes||30),storePickupEnabled:Boolean(settings.storePickupEnabled),storePickupAddress:String(settings.storePickupAddress||"")}};
+  }
+
+  createCheckoutOrder(input:{sessionId:string;cartSessionKey:string;requestKey:string;couponCode?:string;fulfillmentMode?:"delivery"|"store_pickup";paymentMethod?:"bank_transfer"|"cod";customerName:string;customerPhone:string;city?:string;address?:string;notes?:string}):unknown{
+    this.bootstrapCatalog();const identity=this.sessionIdentity(input.sessionId);if(!identity||identity.role!=="customer")throw new Error("Customer sign-in is required before checkout.");
+    const cartKey=this.normalizeCartKey(input.cartSessionKey);const cartId=`guest-${cartKey}`;const requestKey=String(input.requestKey||"").trim().replace(/[^a-zA-Z0-9_-]/g,"").slice(0,120);if(requestKey.length<8)throw new Error("Checkout request key is invalid.");
+    const existing=this.ctx.storage.sql.exec<any>("SELECT order_id AS orderId FROM order_checkout_details WHERE request_key=?",requestKey).toArray()[0];if(existing)return this.adminOrderDetail(String(existing.orderId));
+    const fulfillment=input.fulfillmentMode==="store_pickup"?"store_pickup":"delivery";const payment=input.paymentMethod==="cod"?"cod":"bank_transfer";
+    const preview=this.checkoutPreview(cartKey,input.couponCode||"",fulfillment) as any;if(!preview.canCheckout)throw new Error(String(preview.issues?.[0]||"Cart is not ready for checkout."));
+    const customerName=String(input.customerName||"").trim().slice(0,160);const customerPhone=String(input.customerPhone||"").trim().slice(0,60);if(customerName.length<2||customerPhone.length<5)throw new Error("Customer name and phone are required.");
+    const city=String(input.city||"").trim().slice(0,120),address=String(input.address||"").trim().slice(0,1000),notes=String(input.notes||"").trim().slice(0,2000);if(fulfillment==="delivery"&&!address)throw new Error("Delivery address is required.");
+    const settings=this.businessSettingsSnapshot() as any;const reservationMinutes=Math.max(5,Math.min(120,Number(settings.bankTransferReservationMinutes||30)));const expiresAt=new Date(Date.now()+reservationMinutes*60000).toISOString();const orderId=crypto.randomUUID();const initialStatus=payment==="bank_transfer"?"payment_pending":"new";
+    this.ctx.storage.transactionSync(()=>{
+      const promotion=preview.promotion?this.checkoutPromotion(String(preview.promotion.code),Number(preview.subtotalJod)):null;
+      this.ctx.storage.sql.exec("UPDATE reservations SET status='expired' WHERE status='pending' AND datetime(expires_at)<=datetime('now')");
+      for(const line of preview.lines){
+        const stock=this.ctx.storage.sql.exec<any>("SELECT quantity,tracked FROM stocks WHERE variant_id=?",line.variantId).toArray()[0];if(stock&&Number(stock.tracked)===1){const reserved=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(quantity),0) AS qty FROM reservations WHERE variant_id=? AND status='pending' AND datetime(expires_at)>datetime('now') AND cart_id<>?",line.variantId,cartId).toArray()[0]?.qty??0);if(Number(stock.quantity)-reserved<Number(line.quantity))throw new Error(`${line.sku}: stock changed before checkout; please review the cart.`);}
+      }
+      this.ctx.storage.sql.exec("INSERT INTO orders (id,user_id,status,payment_status,fulfillment_mode,total_jod,currency) VALUES (?,?,?,?,?,?,?)",orderId,identity.userId,initialStatus,"pending",fulfillment,Number(preview.totalJod),"JOD");
+      this.ctx.storage.sql.exec("INSERT INTO order_checkout_details (order_id,source_cart_id,request_key,subtotal_jod,delivery_fee_jod,discount_jod,promotion_id,promotion_code,customer_name,customer_phone,city,address,notes,reservation_expires_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",orderId,cartId,requestKey,Number(preview.subtotalJod),Number(preview.deliveryFeeJod),Number(preview.discountJod),promotion?.id??null,promotion?.code??null,customerName,customerPhone,city||null,fulfillment==="store_pickup"?String(settings.storePickupAddress||""):address,notes||null,expiresAt);
+      for(const line of preview.lines){const itemId=crypto.randomUUID();const raw=this.ctx.storage.sql.exec<any>("SELECT design_id AS designId,master_asset_id AS masterAssetId,print_spec_json AS printSpecJson,unit_price_jod AS unitPriceJod FROM cart_items WHERE id=? AND cart_id=?",line.id,cartId).toArray()[0];if(!raw)throw new Error("Cart changed before checkout.");let preflight:any=null;if(raw.designId&&raw.masterAssetId){preflight=this.ctx.storage.sql.exec<any>("SELECT status,errors_json AS errorsJson,warnings_json AS warningsJson,created_at AS createdAt FROM validation_results WHERE design_id=? AND asset_id=? ORDER BY created_at DESC LIMIT 1",raw.designId,raw.masterAssetId).toArray()[0];if(!preflight||String(preflight.status).toLowerCase()!=="passed")throw new Error("Ready-to-Print Master preflight is no longer passing.");this.ctx.storage.sql.exec("UPDATE assets SET protected=1 WHERE id=?",raw.masterAssetId);}
+        this.ctx.storage.sql.exec("INSERT INTO order_items (id,order_id,variant_id,design_id,master_asset_id,print_spec_json,price_snapshot_json,quantity) VALUES (?,?,?,?,?,?,?,?)",itemId,orderId,line.variantId,raw.designId??null,raw.masterAssetId??null,String(raw.printSpecJson||"{}"),JSON.stringify({unitPriceJod:Number(raw.unitPriceJod),currency:"JOD",preflight:preflight??null}),Number(line.quantity));
+        const stock=this.ctx.storage.sql.exec<any>("SELECT tracked FROM stocks WHERE variant_id=?",line.variantId).toArray()[0];if(stock&&Number(stock.tracked)===1)this.ctx.storage.sql.exec("INSERT INTO reservations (id,variant_id,cart_id,quantity,status,expires_at) VALUES (?,?,?,?, 'pending',?)",crypto.randomUUID(),line.variantId,cartId,Number(line.quantity),expiresAt);
+      }
+      this.ctx.storage.sql.exec("INSERT INTO payments (id,order_id,method,status) VALUES (?,?,?,'pending')",crypto.randomUUID(),orderId,payment);
+      if(promotion)this.ctx.storage.sql.exec("INSERT INTO promotion_redemptions (id,promotion_id,order_id,customer_id,discount_jod) VALUES (?,?,?,?,?)",crypto.randomUUID(),promotion.id,orderId,identity.userId,Number(preview.discountJod));
+      this.ctx.storage.sql.exec("UPDATE carts SET user_id=?,status='checked_out' WHERE id=?",identity.userId,cartId);
+      this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'customer','customer.checkout.create','order',?,?)",identity.userId,orderId,JSON.stringify({result:"success",metadata:{fulfillmentMode:fulfillment,paymentMethod:payment,promotionApplied:Boolean(promotion),discountJod:Number(preview.discountJod),reservationExpiresAt:expiresAt}}));
+    });
+    return this.adminOrderDetail(orderId);
+  }
+
   designs(): StudioDesign[] {
     this.bootstrapCatalog();
     return this.ctx.storage.sql.exec<StudioDesign>(`
@@ -917,6 +1009,18 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       this.ctx.storage.sql.exec("INSERT INTO sessions (id,user_id,expires_at,created_at) VALUES (?,?,?,CURRENT_TIMESTAMP)", sessionId, row.id, expiresAt);
     });
     return { userId: String(row.id), role, sessionId };
+  }
+
+  sessionIdentity(sessionId: string): {userId:string;role:"customer"|"designer";displayName:string;email:string}|null {
+    this.bootstrapCatalog();
+    const id=String(sessionId||"").trim(); if(!id) return null;
+    const now=Date.now();
+    this.ctx.storage.sql.exec("DELETE FROM sessions WHERE expires_at<=?",now);
+    const row=this.ctx.storage.sql.exec<any>(`SELECT s.user_id AS userId,u.display_name AS displayName,u.email,r.name AS role
+      FROM sessions s JOIN users u ON u.id=s.user_id JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id
+      WHERE s.id=? AND s.expires_at>? AND u.status='active' AND r.name IN ('customer','designer')
+      ORDER BY CASE r.name WHEN 'customer' THEN 0 ELSE 1 END LIMIT 1`,id,now).toArray()[0];
+    return row?{userId:String(row.userId),role:row.role==="designer"?"designer":"customer",displayName:String(row.displayName||""),email:String(row.email||"")}:null;
   }
 
   private async adminPasswordHash(password: string, salt: Uint8Array): Promise<string> {
