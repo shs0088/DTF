@@ -73,7 +73,7 @@ export function analyzeAsset(input: AnalyzerInput): AnalyzerResult {
   if (!input.previewable) errors.push("Asset cannot produce a preview.");
   if (!analyzable) errors.push("Asset is not readable/analyzable for preflight.");
   if (!productTypeValid) errors.push("Selected product type is not one of the 7 supported combinations.");
-  if (dpi && dpi.minimum < MIN_DPI) warnings.push(`Effective DPI is ${dpi.minimum}; minimum recommended DPI is ${MIN_DPI}.`);
+  if (dpi && dpi.minimum < minimumDpi) warnings.push(`Effective DPI is ${dpi.minimum}; minimum recommended DPI is ${MIN_DPI}.`);
   if (!dpi && !vectorLike) errors.push("Physical print size and pixel dimensions are required to calculate effective DPI.");
   if (vectorLike) warnings.push("Vector/document artwork does not use raster effective-DPI validation.");
 
@@ -87,7 +87,7 @@ export function analyzeAsset(input: AnalyzerInput): AnalyzerResult {
     } else placeholderCheck = { status: "passed", required, actual };
   }
 
-  const scalingRisk: AnalyzerResult["scalingRisk"] = vectorLike ? "none" : !dpi ? "critical" : dpi.minimum < 150 ? "critical" : dpi.minimum < MIN_DPI ? "warning" : "none";
+  const scalingRisk: AnalyzerResult["scalingRisk"] = vectorLike ? "none" : !dpi ? "critical" : dpi.minimum < 150 ? "critical" : dpi.minimum < minimumDpi ? "warning" : "none";
   if (scalingRisk === "critical" && dpi) errors.push("Scaling risk is critical for the requested physical size.");
   return { ruleVersion: "dtf-preflight-v1.0", readable, analyzable, previewable: input.previewable, effectiveDpi: dpi, physicalSizeIn, scalingRisk, productTypeValid, placeholderCheck, errors, warnings, passed: errors.length === 0 };
 }
