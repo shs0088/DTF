@@ -386,3 +386,23 @@ SOURCE SHA: 7c8b8e3db96243d42d2f9e377df5114460803a40
 CI RUN: 35118115500 — SUCCESS.
 Verified database-authoritative customer checkout, coupon redemption, separate cart/auth session handling, stock reservation/consumption/restoration, master/preflight enforcement, live Settings consumption, order confirmation, and checkout regression coverage.
 Runtime/browser acceptance remains pending; no Production Ready claim.
+
+============================================================
+DESIGNER NEW DESIGN UPLOAD VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 63c620dafb11379749007d48e078b01a4b71ba00
+CI RUN: 35121193690 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- real Designer Dashboard/New Design routes
+- private R2 upload architecture and ownership-gated previews
+- server-side signature/MIME/file-size inspection
+- configured minimum-DPI enforcement
+- PNG/JPEG/WebP/SVG/PDF support
+- bilingual metadata + seven Product Type combinations
+- multiple assets + explicit master + Main Display Image/auto-cover rules
+- analyzer/preflight/versioned rule persistence
+- protected asset/design deletion safeguards
+- responsive Black + Electric Blue Designer UI
+- full existing regression chain plus Designer Upload tests
+NOTE: live R2/browser acceptance remains pending; this is not a Production Ready claim.

@@ -636,3 +636,37 @@ KEY FILES CHANGED/ADDED:
 VALIDATION: GitHub Actions run 35118115500 — SUCCESS; install/typecheck/build/all Admin tests plus Checkout Integration PASS.
 DEPLOYMENT: NO. MERGE/MAIN CHANGE: NO.
 NEXT: remaining source-level storefront/designer reconciliation, then runtime QA.
+
+
+DATE/TIME: 2026-09-16T16:21:00Z
+TASK: Implement the active real Designer Dashboard and New Design upload flow.
+SOURCE START: 85ebc1ff4d29041706a29406a5f03f8554dfcb1a
+SOURCE FINAL: 63c620dafb11379749007d48e078b01a4b71ba00
+KEY FILES ADDED/CHANGED:
+- wrangler.jsonc
+- workers/upload-inspection.ts
+- workers/analyzer.ts
+- workers/item-store.ts
+- app/routes/designer.tsx
+- app/routes/designer-new-design.tsx
+- app/routes/designer-asset.ts
+- app/routes.ts
+- app/app.css
+- workers/designer-upload.test.ts
+- .github/workflows/dtf-build-validation.yml
+IMPLEMENTED:
+- real private design storage architecture
+- server-side file inspection/preflight
+- bilingual metadata and seven Product Types
+- multiple assets, explicit Master, Main Display Image/auto-cover
+- analyzer/preflight/versioned rule persistence
+- ownership-gated previews
+- protected deletion handling
+- active Black + Electric Blue Designer UI
+VALIDATION:
+- GitHub Actions run 35121193690: SUCCESS
+- install/typecheck/build/all existing suites plus Designer Upload: PASS
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+RUNTIME ACCEPTANCE: PENDING R2/runtime/browser verification.
+NEXT: global Arabic/English RTL/LTR integration.

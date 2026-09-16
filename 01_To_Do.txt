@@ -561,3 +561,42 @@ COMPLETED IN SOURCE/CI:
 - dedicated Checkout Integration regression suite added to CI
 NEXT: scan remaining source-level storefront/designer integration gaps, then runtime QA.
 RUNTIME STILL REQUIRED: real browser checkout/coupon/auth/payment-confirmation/cancellation/production validation.
+
+============================================================
+DESIGNER NEW DESIGN UPLOAD SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 63c620dafb11379749007d48e078b01a4b71ba00
+GITHUB ACTIONS RUN: 35121193690 — SUCCESS.
+COMPLETED IN SOURCE/CI:
+- active /designer Dashboard route
+- active /designer/new-design route
+- private /designer/assets/:assetId preview route
+- private R2 DESIGN_ASSETS storage binding
+- server-side byte/signature inspection for PNG/JPEG/WebP/SVG/PDF
+- standard VP8/VP8L/VP8X WebP dimension support
+- SVG preview sandboxing and PDF attachment handling
+- Admin Settings artwork file-size/format/minimum-DPI policy consumed by upload flow
+- raster artwork below configured minimum DPI fails final-print preflight
+- SVG/PDF treated as vector/document artwork without raster-DPI rejection
+- four mandatory bilingual metadata fields
+- all 7 approved Product Type combinations
+- multiple file upload with preview
+- explicit Ready-to-Print Master; never auto-selected
+- optional Main Display Image with image-only validation and suitable auto-cover fallback
+- product-combination preflight executed against each included product type
+- R2 objects cleaned up when database design creation fails
+- analyzer/preflight/rule-version/asset relations persisted
+- preflight rule version records configured minimum DPI
+- private designer-owned asset access
+- cover/master role update controls
+- asset/design deletion with cart/order/production protection and FK-safe validation cleanup
+- fixed-size Designer cards with inner asset view and preflight labels
+- Designer Upload regression tests added to CI
+NEXT SOURCE-LEVEL WORK:
+1. Global Arabic/English switching with RTL/LTR across active routes.
+2. Final source reconciliation against remaining master requirements.
+3. Runtime/browser QA after an authorized safe deployment.
+RUNTIME BLOCKER:
+- DESIGN_ASSETS R2 bucket must exist in the deployment environment before real uploads can run live.
+DEPLOYMENT: NOT PERFORMED.
+MERGE/MAIN CHANGE: NONE.

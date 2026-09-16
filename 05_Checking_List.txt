@@ -577,3 +577,38 @@ CHECKOUT INTEGRATION SOURCE/CI CHECK — 2026-09-16
 615. GitHub Actions run 35118115500: PASS.
 616. install/typecheck/build/all Admin suites + Checkout Integration: PASS.
 617. Checkout end-to-end browser/runtime acceptance: PENDING RUNTIME.
+
+============================================================
+DESIGNER NEW DESIGN UPLOAD SOURCE/CI CHECK — 2026-09-16
+============================================================
+618. Active /designer route: PASS SOURCE/BUILD.
+619. Active /designer/new-design route: PASS SOURCE/BUILD.
+620. Private designer asset route: PASS SOURCE/BUILD.
+621. DESIGN_ASSETS R2 binding configured in source: PASS SOURCE.
+622. Server verifies uploaded bytes/signature: PASS SOURCE/TEST.
+623. Browser MIME/signature mismatch blocked: PASS SOURCE/TEST.
+624. Settings maximum file size enforced: PASS SOURCE/TEST.
+625. Settings allowed artwork formats enforced: PASS SOURCE/TEST.
+626. Configured minimum DPI enforced as preflight failure: PASS SOURCE/TEST.
+627. Vector SVG/PDF handled without raster-DPI rejection: PASS SOURCE/TEST.
+628. Standard WebP VP8/VP8L/VP8X inspection: PASS SOURCE/TEST.
+629. Four bilingual fields required: PASS SOURCE/TEST.
+630. Seven Product Type combinations available: PASS SOURCE/TEST.
+631. Product combinations preflight each included product: PASS SOURCE/TEST.
+632. Multiple assets supported up to 20 files: PASS SOURCE.
+633. Ready-to-Print Master requires explicit selection: PASS SOURCE/TEST.
+634. Selected Master must pass preflight: PASS SOURCE/TEST.
+635. Main Display Image limited to previewable image: PASS SOURCE/TEST.
+636. Auto-cover fallback uses suitable recent image: PASS SOURCE.
+637. Analyzer/preflight/rule version rows persisted: PASS SOURCE/TEST.
+638. Rule version reflects configured minimum DPI: PASS SOURCE/TEST.
+639. Failed DB design creation cleans uploaded R2 objects: PASS SOURCE/TEST.
+640. Private asset access is designer ownership-gated: PASS SOURCE/TEST.
+641. SVG previews are sandboxed: PASS SOURCE/TEST.
+642. Asset deletion blocks cart/order/production references: PASS SOURCE/TEST.
+643. Validation rows explicitly cleaned before asset delete: PASS SOURCE/TEST.
+644. Design deletion blocks active cart/order/production protection: PASS SOURCE/TEST.
+645. Designer Dashboard exposes cover/master/preflight/deletion controls: PASS SOURCE/TEST.
+646. GitHub Actions run 35121193690: PASS.
+647. install/typecheck/build/all Admin/Checkout/Designer Upload tests: PASS.
+648. Live R2/browser Designer upload verification: PENDING RUNTIME.

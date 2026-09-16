@@ -359,3 +359,15 @@ PENDING:
 4. Live payment confirmation → stock consumption → printing-job creation.
 5. Live cancellation → reservation release / stock restoration.
 6. Full remaining storefront/designer source reconciliation and runtime QA.
+
+============================================================
+DESIGNER UPLOAD REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+SOURCE/CI: COMPLETE for the New Design upload batch.
+STILL PENDING:
+1. Provision/verify DESIGN_ASSETS R2 bucket in the safe runtime environment.
+2. Live authorized-designer upload of PNG/JPEG/WebP/SVG/PDF.
+3. Live preview, explicit Master, auto/explicit cover, rejection-reason display and deletion verification.
+4. Live protected deletion behavior when cart/order/production references exist.
+5. Global Arabic/English switching with RTL/LTR across active routes remains the next source-level requirement.
+6. Final deployed runtime/business-flow QA remains pending.
