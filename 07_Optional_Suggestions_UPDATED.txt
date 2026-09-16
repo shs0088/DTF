@@ -81,3 +81,14 @@ OPTIONAL / NON-AUTHORITATIVE:
 - New files should be created only when current V48.22E has no equivalent source of truth.
 - Optional reference code must never be allowed to regress accepted Printify/catalog or other protected V48.22E behavior.
 - These suggestions do not change mandatory business requirements; they define a safe reuse method only.
+
+============================================================
+CANONICAL ADMIN IMPLEMENTATION STRATEGY — 2026-09-17
+============================================================
+Preferred sequence after foundation correction:
+1. Correct protected group naming/default permissions and prove exactly-one-group persistence.
+2. Add dedicated RBAC/Dashboard tests and restore typecheck/build validation.
+3. Build Worker-backed OpenCart-style shell and live Dashboard.
+4. Continue Orders → Production → Manual Review → Catalog/Products → Customers → Designers → Payouts → Reports → Promotions → Settings → Integrations → Audit Log → Admin Users → User Groups.
+5. Keep legacy React Admin untouched until canonical Worker Admin is runtime-verified.
+6. Preserve Printify/storefront behavior throughout.
