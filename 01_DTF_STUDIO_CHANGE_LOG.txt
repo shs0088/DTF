@@ -197,3 +197,13 @@ DECISION:
 - KAMEL report is accepted as evidence of partial source work only.
 - No merge/deploy/Production Ready status.
 - KAMEL must correct the listed blockers and return a new final SHA with successful CI.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+DECISION:
+- After RBAC foundation, next implementation target is the complete DTF Studio Admin Dashboard A–Z.
+- Functional reference: current OpenCart administration patterns, adapted to DTF Studio rather than copied visually or technologically.
+- Required modules and acceptance checks were added to QC.
+- Current KAMEL code must first repair the failing TypeScript/CI state before feature expansion.
+- No merge/deploy authorized by this QC update.

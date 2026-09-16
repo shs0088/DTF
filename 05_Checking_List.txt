@@ -167,3 +167,42 @@ INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
 336. Protected Main Administrator and Printing Operator groups cannot be deleted.
 337. Full CI passes after correction.
 338. Live authorization matrix passes before KAMEL work is accepted.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+323. Admin Dashboard loads from real backend/database data.
+324. Dashboard KPIs contain no hard-coded/demo operational metrics.
+325. Dashboard recent orders and alerts link to their real records.
+326. Orders list supports filter/search/sort/pagination.
+327. Order detail shows customer, items, payment, fulfillment and status history.
+328. Order status mutation is server-authorized and audited.
+329. Order item links to the exact approved master used for production.
+330. Manual Review queue covers designer qualification/design review states.
+331. 5-day review/replacement/escalation rules are represented and testable.
+332. Production Queue uses approved master + preflight/print-spec snapshots.
+333. Printing Operator can perform only permitted production/order actions.
+334. Products page manages DTF Studio product records and variants.
+335. Printify catalog remains Admin/internal and does not leak to customer UI.
+336. Stock management prevents negative inventory and exposes auditable movements.
+337. Customers list/detail/order history work.
+338. Designers list/detail/qualification/design history work.
+339. Designer earnings and payout/withdrawal management work.
+340. Reports use real data and support date/status filtering.
+341. Promotions CRUD validates dates/limits/status.
+342. Settings persist safely and audit sensitive changes.
+343. Integrations page reports health/status without exposing secrets.
+344. Audit Log supports filters and preserves historical records.
+345. Users/User Groups use exactly-one-group membership and Access/Modify permissions.
+346. Permission-aware sidebar/navigation hides unavailable modules.
+347. Direct URL/API bypass is denied server-side.
+348. Shared list pages use consistent filters/sort/pagination/bulk actions.
+349. Add/edit pages validate required fields and show exact errors.
+350. Confirmation/error/success states are consistent.
+351. Admin is responsive on desktop/tablet/mobile.
+352. Arabic/English + RTL/LTR verified where applicable.
+353. Existing storefront/customer/designer/Printify catalog behavior regression-tested.
+354. CI install/typecheck/build/RBAC tests pass.
+355. Full live runtime authorization matrix passes.
+356. Critical Admin A–Z business-flow runtime tests pass.
+357. No merge/deploy until 323–356 have evidence or an explicit documented exception.

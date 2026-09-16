@@ -71,3 +71,15 @@ CURRENT VERIFIED BLOCKERS AT d542319113b00387565b0f5252f023b16fda785e:
 6. Active ADMIN_RBAC_PAGE still shows Role and only Enable/Disable; it does not implement the requested OpenCart-style User Group assignment + Access/Modify matrix.
 7. React/Worker RBAC layers remain unreconciled.
 8. Full runtime authorization matrix remains pending.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+NOT COMPLETE UNTIL VERIFIED:
+- Full A–Z Admin modules listed in 01_To_Do are functional against real backend/database data.
+- OpenCart-style shared list/form/detail interaction patterns are consistently applied.
+- Operator sees only permitted pages/actions.
+- Admin pages do not rely on client-side hiding for security.
+- No placeholder/fake KPI/report data remains.
+- Cross-module links (order → item → master → production; designer → design → review; product → variant → stock) are verified.
+- Full runtime authorization matrix and critical business-flow tests are still required before Production Ready.

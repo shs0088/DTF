@@ -69,3 +69,23 @@ R13. Permission/group/user changes are audit logged with actor, target, action, 
 R14. System groups may not be deleted. Custom group deletion must be blocked while users are assigned unless an explicit safe reassignment transaction occurs.
 R15. Authorization policy must have one authoritative resolver; duplicate route layers must use current database identity/group state rather than trusting stale session role claims.
 R16. Every RBAC change requires positive/negative/boundary/regression tests and CI evidence before being marked Implemented.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+S. ADMIN DASHBOARD OPERATING MODEL
+S1. OpenCart is the functional/UX reference, not a requirement to copy PHP/Twig/code.
+S2. Reuse OpenCart interaction conventions where applicable: left navigation hierarchy, list pages, filters, pagination, selection/bulk actions, add/edit forms, breadcrumbs, status toggles, permission-aware menus, Access/Modify checks, clear success/error notices.
+S3. DTF Studio business rules override OpenCart where the businesses differ.
+S4. Admin UI uses DTF Studio Black + Electric Blue visual system; do not replace it with OpenCart visual styling.
+S5. All Admin reads and writes are database-backed. Do not present generated demo numbers as operational data.
+S6. Access permission controls visibility/read access; Modify controls mutations. Modify must imply/require usable Access behavior consistently.
+S7. Protected routes/APIs must re-resolve current enabled Admin identity and current group permissions server-side.
+S8. Printing Operator default scope is Dashboard + Orders + Production only; no Users/User Groups/Settings/pricing unless explicitly granted.
+S9. Printify is an internal supplier/catalog integration and must not be exposed by name to customers.
+S10. Orders/production must use the explicitly selected, successfully preflighted Ready-to-Print Master associated with the order item.
+S11. Sensitive changes require audit logging.
+S12. Destructive actions require backend relationship/protection checks and confirmation UI.
+S13. Admin content must support responsive use. Arabic/English and RTL/LTR apply where project content/labels require bilingual behavior.
+S14. Existing correct functionality must be preserved; do not rebuild unrelated application areas.
+S15. Completion requires evidence: CI PASS plus runtime/API/UI checks. Agent statements alone are not evidence.

@@ -96,3 +96,27 @@ KAMEL CORRECTION REQUIRED FROM SHA d542319113b00387565b0f5252f023b16fda785e.
 7. Reconcile active Worker RBAC and inactive React RBAC so both use current database-backed group identity/permissions and do not trust stale session role.
 8. Execute source/CI regression tests and then the requested live authorization matrix before marking complete.
 9. Preserve unrelated DTF Studio/Printify/customer/designer/cart/order/stock behavior and do not deploy/merge to main.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+STATUS: REQUIRED — BUILD AFTER RBAC CORRECTION PASSES CI.
+The DTF Studio Administration must be completed end-to-end using OpenCart-style operating patterns, adapted to DTF Studio business rules and Black + Electric Blue UI. Required modules:
+1. Dashboard: real KPIs, status cards, recent orders, production alerts, designer review alerts, low-stock alerts, payout alerts, useful charts, quick links.
+2. Orders: filters/search/sort/pagination, order detail, customer/contact, payment/fulfillment, status history, allowed status transitions, notes, print-master linkage, production handoff.
+3. Manual Review: designer qualification and design review queues, reasons, approve/reject/replacement/escalation, 5-day rules, preflight evidence.
+4. Production Queue: order-item jobs, approved master only, print specs/preflight snapshot, download, status transitions, operator-restricted experience.
+5. Products/Catalog: site categories, products, variants, stock, pricing, images, Print Your Dream eligibility, publish/unpublish; Printify catalog remains admin/internal only.
+6. Customers: list/detail/status/order history/contact information and safe admin actions.
+7. Designers: profile/qualification/status/designs/earnings/history, admin approval controls.
+8. Payouts: designer earnings/withdrawal requests/statuses/audit-safe ledger behavior.
+9. Reports: sales/orders/products/designers/production/inventory/payout operational reports with filters/date ranges and export-ready structure.
+10. Promotions: coupon/promotion CRUD, validity dates, usage limits, status and audit.
+11. Settings: business/store/order/payment/delivery/pickup/stock/reservation/DTF/preflight/content settings with safe validation and audit.
+12. Integrations: Printify and future integrations health/config status; secrets remain server-side and never displayed.
+13. Audit Log: searchable/filterable immutable audit history for sensitive admin actions.
+14. Users and User Groups: OpenCart-style User → User Group → Access/Modify permission model, custom groups, protected system groups.
+15. Shared Admin UX: sidebar/header/breadcrumbs, search, filters, sorting, pagination, bulk actions, confirmation dialogs, success/error states, responsive mobile/tablet behavior, Arabic/English + RTL/LTR where required.
+16. Every visible value must come from the real database/backend or an explicitly identified empty state; no fake dashboard metrics.
+17. Preserve storefront and all unrelated DTF Studio flows unless required to connect real admin operations.
+18. No merge/deploy until CI and runtime authorization/business-flow matrix pass.
