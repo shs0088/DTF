@@ -612,3 +612,32 @@ DESIGNER NEW DESIGN UPLOAD SOURCE/CI CHECK — 2026-09-16
 646. GitHub Actions run 35121193690: PASS.
 647. install/typecheck/build/all Admin/Checkout/Designer Upload tests: PASS.
 648. Live R2/browser Designer upload verification: PENDING RUNTIME.
+
+============================================================
+CANONICAL LIVE PROJECT / DEPLOYMENT TARGET — 2026-09-16
+============================================================
+323. Canonical homepage URL opens the current DTF Studio storefront: https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app/
+324. Canonical Admin URL opens the current Admin login/dashboard: https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app/admin
+325. No new/alternate CAMEL project URL is used for the current deployment.
+326. /admin and all Admin child routes use the same deployed project as /.
+327. Current verified branch is fetched immediately before deployment; stale workspace deployment is rejected.
+328. GitHub CI is PASS for the source SHA selected for deployment.
+329. Admin Dashboard works on canonical /admin.
+330. Users/User Groups/RBAC work appears under canonical Admin.
+331. Orders works under canonical Admin.
+332. Production Queue works under canonical Admin.
+333. Manual Review works under canonical Admin.
+334. Products/Printify work under canonical Admin.
+335. Customers works under canonical Admin.
+336. Designers administration works under canonical Admin.
+337. Payouts works under canonical Admin.
+338. Reports works under canonical Admin.
+339. Promotions works under canonical Admin.
+340. Settings works under canonical Admin.
+341. Integrations works under canonical Admin without secret disclosure.
+342. Audit Log works under canonical Admin.
+343. Admin Access/Modify permissions are enforced by direct URL/API tests on canonical deployment.
+344. Printing Operator least privilege is verified on canonical deployment.
+345. Homepage / remains visually/functionally intact after Admin deployment.
+346. Current checkout/customer/designer/backend changes from the deployed branch do not regress the homepage.
+347. Deployment/runtime verification results are recorded with deployed source SHA and canonical URL evidence.

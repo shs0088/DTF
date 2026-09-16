@@ -92,3 +92,22 @@ DOCUMENTATION-ONLY CHANGE SAFETY — 2026-09-16
 6. After the commit, compare changed paths. If any non-documentation application file changed unexpectedly, stop and treat the commit as FAILED; do not deploy or merge it.
 7. Documentation-only commits may trigger validation CI, but they do not authorize deployment.
 8. When implementation is required by a documentation update, create a separate implementation commit/batch after reading the updated requirements; never mix the paper change with the code change.
+
+============================================================
+CANONICAL LIVE PROJECT / DEPLOYMENT TARGET — 2026-09-16
+============================================================
+OWNER-AUTHORIZED CANONICAL PROJECT:
+- Front-end homepage: https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app/
+- Admin entry/dashboard: https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app/admin
+
+MANDATORY DEPLOYMENT RULES:
+1. These two URLs are the authoritative live project routes. Do not create or switch to a different CAMEL project/domain unless the owner explicitly requests it.
+2. The storefront remains rooted at /.
+3. All Admin work belongs under /admin and its child routes on this same deployment.
+4. Future Admin implementation must update this existing project, not create a parallel dashboard deployment.
+5. Deploying to this canonical project is authorized for the current verified branch after pre-deploy validation.
+6. Before deployment, fetch GitHub and verify the exact current branch/head; never deploy a stale CAMEL workspace.
+7. Preserve the existing homepage/storefront while applying current Admin, checkout, designer, and backend changes from the verified branch.
+8. After deployment, verify both canonical URLs plus all protected Admin routes, APIs, role/permission behavior, and navigation.
+9. Do not modify main and do not merge solely for deployment.
+10. Documentation-only edits remain non-runtime and must never themselves alter the deployed application.

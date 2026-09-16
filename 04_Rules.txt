@@ -142,3 +142,15 @@ T4. Creating or reassigning an Admin user must set exactly one current group and
 T5. Last enabled Main Administrator protection is evaluated by protected Main Administrator group membership, not by stale role text.
 T6. Admin navigation visibility is derived from Access permission; direct URL/API authorization remains server-side.
 T7. Documentation/QC edits remain isolated from runtime source changes and never imply deployment.
+
+============================================================
+CANONICAL LIVE PROJECT / DEPLOYMENT TARGET — 2026-09-16
+============================================================
+U. CANONICAL ROUTING / DEPLOYMENT
+U1. Canonical homepage is https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app/
+U2. Canonical Admin entry is https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app/admin
+U3. Storefront and Admin are one DTF Studio project/deployment.
+U4. Admin modules must live under /admin child routes; no alternate Admin project/domain is accepted without owner approval.
+U5. Deploy only from the current verified GitHub branch state after CI passes.
+U6. Deployment must preserve homepage/storefront behavior and apply current verified backend/database/Admin functionality to the same canonical project.
+U7. Runtime acceptance requires direct browser/API verification on the canonical project after deployment.

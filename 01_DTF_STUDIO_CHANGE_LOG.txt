@@ -670,3 +670,18 @@ DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 RUNTIME ACCEPTANCE: PENDING R2/runtime/browser verification.
 NEXT: global Arabic/English RTL/LTR integration.
+
+============================================================
+CANONICAL LIVE PROJECT / DEPLOYMENT TARGET — 2026-09-16
+============================================================
+OWNER CORRECTION:
+- The correct existing DTF Studio live project is the CAMEL deployment at dtf-studio-v48-safe-frontend-zk9t5j.camelai.app.
+- Homepage is /.
+- Admin entry/dashboard is /admin.
+- All current Admin work must be applied to this existing Admin route, not to a new or alternate deployment.
+- Owner authorized applying the current verified work to this canonical project and verifying it.
+SOURCE STATE WHEN THIS DEPLOYMENT TASK WAS PREPARED:
+- branch: kamel/admin-rbac-foundation
+- verified implementation HEAD before documentation-only task: 549689a4b710f1afc9f45ef2d48520e9cb1ab349
+- latest GitHub Actions for that SHA: SUCCESS
+RUNTIME EFFECT OF THIS RECORD: NONE. Documentation/task only; deployment is a separate KAMEL action.
