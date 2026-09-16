@@ -4,6 +4,7 @@ on:
     branches:
       - camel-current
       - kamel/admin-rbac-foundation
+      - github/admin-opencart-rbac
 permissions:
   contents: read
 jobs:
