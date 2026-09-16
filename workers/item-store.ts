@@ -868,12 +868,15 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const assets=Array.isArray(input?.assets)?input.assets.slice(0,20):[];if(!assets.length)throw new Error("Upload at least one design asset.");if(assets.filter((a:any)=>Boolean(a.isMaster)).length!==1)throw new Error("Select exactly one Ready-to-Print Master.");
     if(assets.filter((a:any)=>Boolean(a.isCover)).length>1)throw new Error("Select only one Main Display Image.");
     const master=assets.find((a:any)=>Boolean(a.isMaster));if(!master?.preflight?.passed)throw new Error("The selected Ready-to-Print Master must pass preflight.");
-    let cover=assets.find((a:any)=>Boolean(a.isCover));if(!cover)cover=[...assets].reverse().find((a:any)=>Boolean(a?.analysis?.previewable));if(!cover)throw new Error("At least one uploaded asset must be previewable for the Main Display Image.");
+    let cover=assets.find((a:any)=>Boolean(a.isCover));
+    if(cover&&(!Boolean(cover?.analysis?.previewable)||!String(cover?.mime||cover?.analysis?.mime||"").startsWith("image/")))throw new Error("Main Display Image must be a previewable image asset.");
+    if(!cover)cover=[...assets].reverse().find((a:any)=>Boolean(a?.analysis?.previewable)&&String(a?.mime||a?.analysis?.mime||"").startsWith("image/"));
+    if(!cover)throw new Error("At least one uploaded image must be previewable for the Main Display Image.");
     const expectedPrefix=`designer/${designer.userId}/${designId}/`;for(const a of assets){if(!String(a.storageKey||"").startsWith(expectedPrefix))throw new Error("Asset storage path is outside the designer/design namespace.");if(!a.analysis?.signatureValid)throw new Error("Uploaded asset signature validation failed.");}
-    const ruleId="rule-dtf-preflight-v1.0";
+    const minDpi=Math.max(72,Math.min(1200,Math.round(Number(input?.minDpi)||300)));const ruleVersion="1.0-dpi-"+minDpi;const ruleId="rule-dtf-preflight-"+ruleVersion;
     this.ctx.storage.transactionSync(()=>{
       if(this.ctx.storage.sql.exec<any>("SELECT id FROM designs WHERE id=?",designId).toArray()[0])throw new Error("Design ID already exists.");
-      this.ctx.storage.sql.exec("INSERT OR IGNORE INTO rule_versions (id,rule_set,version,definition_json) VALUES (?,'dtf-preflight','1.0',?)",ruleId,JSON.stringify({minEffectiveDpi:300,productTypes:[...DESIGN_PRODUCT_TYPES]}));
+      this.ctx.storage.sql.exec("INSERT OR IGNORE INTO rule_versions (id,rule_set,version,definition_json) VALUES (?,'dtf-preflight',?,?)",ruleId,ruleVersion,JSON.stringify({minEffectiveDpi:minDpi,productTypes:[...DESIGN_PRODUCT_TYPES]}));
       this.ctx.storage.sql.exec("INSERT INTO designs (id,designer_id,title_ar,title_en,description_ar,description_en,product_type,status) VALUES (?,?,?,?,?,?,?,'pending_review')",designId,designer.userId,clean.titleAr,clean.titleEn,clean.descriptionAr,clean.descriptionEn,productType);
       for(const raw of assets){const assetId=String(raw.assetId||"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,100);if(!assetId)throw new Error("Asset ID is required.");const filename=String(raw.filename||"asset").replace(/[\\/\0]/g,"_").slice(0,240);const mime=String(raw.mime||raw.analysis?.mime||"application/octet-stream").slice(0,120);const bytes=Math.max(1,Math.floor(Number(raw.byteSize)||0));const kind=raw.isMaster?"master":raw.isCover?"cover":"original";const a=raw.analysis||{},p=raw.preflight||{};
         this.ctx.storage.sql.exec("INSERT INTO assets (id,design_id,storage_key,original_filename,mime_type,byte_size,asset_kind) VALUES (?,?,?,?,?,?,?)",assetId,designId,String(raw.storageKey),filename,mime,bytes,kind);
