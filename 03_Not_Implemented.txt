@@ -314,3 +314,18 @@ STILL PENDING:
 3. Checkout coupon validation/application/redemption integration against the authoritative promotions tables.
 4. Atomic used-count/redemption behavior under checkout concurrency.
 5. Settings remains next Admin implementation dependency.
+
+============================================================
+SETTINGS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- authoritative Settings persistence
+- safe public settings endpoint
+- range validation and qualification-count protection
+- Access/Modify guards and audit logging
+STILL PENDING:
+1. Live/browser Settings verification.
+2. Live storefront consumption of saved /api/settings values.
+3. Live Access-only mutation denial.
+4. Business-rule reconciliation of saved timing/economic values in final end-to-end flows.
+5. Integrations remains next implementation dependency.

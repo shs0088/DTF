@@ -558,3 +558,29 @@ BOUNDARY: checkout redemption was not modified in this Admin batch; final storef
 DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 NEXT: Settings full Admin module.
+
+
+DATE/TIME: 2026-09-16T14:07:38Z
+TASK: Implement authoritative Admin Business Settings.
+SOURCE START: 4475106dc0f89dd80296be63522431f004f66367
+SOURCE FINAL: ad6500b7eddfb882f1e336fe8ae168bfff635748
+FILES ADDED/CHANGED:
+- workers/item-store.ts
+- workers/static-app.ts
+- workers/admin-settings.test.ts
+- .github/workflows/dtf-build-validation.yml
+IMPLEMENTED:
+- authoritative business_settings snapshot/update path
+- safe public /api/settings endpoint
+- validated payment/timing/delivery/designer/artwork/policy configuration
+- reservation_minutes synchronization
+- fixed exactly-three designer qualification sample rule
+- admin.settings Access/Modify authorization and audit logging
+VALIDATION:
+- GitHub Actions run 35106315962: SUCCESS
+- Install dependencies/typecheck/build: PASS
+- all Admin regression suites through Settings: PASS
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
+NEXT: Integrations full Admin module.

@@ -474,3 +474,29 @@ RUNTIME/INTEGRATION STILL REQUIRED:
 - live operational-state/date behavior
 - checkout coupon validation/redemption integration verification
 - browser/responsive verification
+
+============================================================
+SETTINGS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: ad6500b7eddfb882f1e336fe8ae168bfff635748
+GITHUB ACTIONS RUN: 35106315962 — SUCCESS.
+COMPLETED FOR SETTINGS SOURCE/CI:
+- authoritative business_settings-backed configuration
+- safe public GET /api/settings endpoint for storefront
+- bank/CliQ display details, timing rules, delivery/pickup, designer economics, artwork defaults and bilingual policy text
+- reservation_minutes compatibility maintained with authoritative snapshot
+- validation ranges for reservation timeout, cancellation, POD, DPI and upload size
+- supported artwork MIME whitelist
+- required designer qualification count fixed at exactly 3 and not editable
+- sensitive server_secrets excluded from public/Admin business settings payloads
+- admin.settings Access/Modify authorization and audit logging
+- Settings regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Integrations.
+2. Audit Log.
+3. Final storefront/business-flow integration and runtime QA.
+RUNTIME STILL REQUIRED:
+- live Admin Settings read/write verification
+- live storefront /api/settings consumption
+- live Access-only/Modify denial
+- browser/responsive verification

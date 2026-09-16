@@ -503,3 +503,25 @@ PROMOTIONS SOURCE/CI CHECK — 2026-09-16
 547. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts/Reports/Promotions tests: PASS.
 548. Checkout promotion redemption integration: PENDING FINAL BUSINESS-FLOW INTEGRATION.
 549. Promotions browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+SETTINGS SOURCE/CI CHECK — 2026-09-16
+============================================================
+550. Settings use existing business_settings table: PASS SOURCE/TEST.
+551. Legacy reservation_minutes read compatibility: PASS SOURCE/TEST.
+552. Saving Settings synchronizes reservation_minutes: PASS SOURCE/TEST.
+553. Reservation timeout 5–120 validation: PASS SOURCE/TEST.
+554. POD 1–72 hours validation: PASS SOURCE/TEST.
+555. Cancellation window 0–240 validation: PASS SOURCE/TEST.
+556. Artwork minimum DPI 72–1200 validation: PASS SOURCE/TEST.
+557. Max file size 1–200 MB validation: PASS SOURCE/TEST.
+558. Artwork MIME whitelist enforced: PASS SOURCE.
+559. Required qualification designs fixed at exactly 3: PASS SOURCE/TEST.
+560. Public /api/settings GET only: PASS SOURCE/TEST.
+561. Public settings endpoint excludes server secrets: PASS SOURCE/TEST.
+562. admin.settings GET requires Access: PASS SOURCE/TEST.
+563. Settings write requires Modify: PASS SOURCE/TEST.
+564. Settings changes audit logged: PASS SOURCE.
+565. GitHub Actions run 35106315962: PASS.
+566. install/typecheck/build/all Admin tests through Settings: PASS.
+567. Settings browser/runtime verification: PENDING RUNTIME.
