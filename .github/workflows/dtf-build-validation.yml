@@ -41,3 +41,5 @@ jobs:
         run: bun test workers/admin-customers.test.ts
       - name: Designers tests
         run: bun test workers/admin-designers.test.ts
+      - name: Payouts tests
+        run: bun test workers/admin-payouts.test.ts
