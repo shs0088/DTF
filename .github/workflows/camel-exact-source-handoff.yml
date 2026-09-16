@@ -1,0 +1,47 @@
+name: CAMEL exact-source handoff
+
+on:
+  push:
+    branches:
+      - github/camel-source-handoff-329e046
+    paths:
+      - .github/workflows/camel-exact-source-handoff.yml
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact camel-current source
+        uses: actions/checkout@v4
+        with:
+          ref: 329e046e4391c560ae98a3ffc16737cbfad98d8b
+          fetch-depth: 1
+
+      - name: Verify exact source SHA
+        run: |
+          ACTUAL="$(git rev-parse HEAD)"
+          echo "EXPECTED=329e046e4391c560ae98a3ffc16737cbfad98d8b"
+          echo "ACTUAL=$ACTUAL"
+          test "$ACTUAL" = "329e046e4391c560ae98a3ffc16737cbfad98d8b"
+
+      - name: Create complete source archive and manifest
+        run: |
+          git ls-tree -r --name-only HEAD > SOURCE_TREE_MANIFEST.txt
+          git archive --format=zip --output=dtf-studio-current-github-sync-329e046.zip HEAD
+          sha256sum dtf-studio-current-github-sync-329e046.zip > SOURCE_ARCHIVE_SHA256.txt
+          wc -l SOURCE_TREE_MANIFEST.txt
+          cat SOURCE_ARCHIVE_SHA256.txt
+
+      - name: Upload exact-source artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtf-studio-current-github-sync-329e046
+          path: |
+            dtf-studio-current-github-sync-329e046.zip
+            SOURCE_TREE_MANIFEST.txt
+            SOURCE_ARCHIVE_SHA256.txt
+          if-no-files-found: error
+          retention-days: 7
