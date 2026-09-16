@@ -99,3 +99,13 @@ QC CORRECTION APPLIED:
 STATUS:
 - Backend RBAC foundation is validated by CI.
 - Full OpenCart-style Admin UI/runtime authorization is NOT yet complete.
+
+
+============================================================
+OPENCART RBAC CURRENT IMPLEMENTATION EVIDENCE — 2026-09-16
+============================================================
+- Current branch HEAD: 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5.
+- Worker and React RBAC API now call the current database-backed adminPermission resolver.
+- Group management and Access/Modify persistence remain in workers/item-store.ts.
+- CI workflow includes npm install, typecheck, build, and bun test workers/admin-rbac.test.ts.
+- CI result for this exact HEAD is pending retrieval.

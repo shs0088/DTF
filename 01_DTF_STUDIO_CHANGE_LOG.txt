@@ -222,3 +222,11 @@ INDEPENDENT QC:
 - Install/typecheck/build/RBAC tests all passed.
 - No deployment or merge performed.
 - QC files updated to reflect verified status and remaining OpenCart-style UI/runtime work.
+
+
+DATE/TIME: 2026-09-16
+TASK: Continue OpenCart-style Admin RBAC from current QC HEAD.
+SOURCE: 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5.
+CHANGES: Reconciled React RBAC API with the current database-backed Admin group permission resolver; preserved Worker authorization and Access/Modify group model.
+VALIDATION: Source structure checked; GitHub Actions and runtime authorization results pending.
+DEPLOYMENT: NO. MERGE: NO.

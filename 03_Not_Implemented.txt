@@ -103,3 +103,11 @@ STILL NOT COMPLETE:
 13. Runtime self-escalation denial.
 14. Runtime last Main Administrator safeguards.
 15. Full A-Z business UIs for Manual Review, Products, Customers, Designers, Payouts, Reports, Promotions, Integrations, Audit Log, and structured Settings remain separate pending Admin-module work.
+
+
+============================================================
+OPENCART RBAC REMAINING — CURRENT QC
+============================================================
+- Full professional permission-matrix UI with Access/Modify select-all and clear-all controls.
+- Full runtime authorization matrix evidence.
+- GitHub Actions result for the latest current HEAD.

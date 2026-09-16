@@ -101,3 +101,11 @@ S4. GitHub Actions success is required for typecheck/build/RBAC tests before a c
 S5. OpenCart-style permission UI means one resource list with independent Access and Modify selections, including select-all/clear operations.
 S6. Source-level contract tests are supplemental; runtime authorization evidence remains mandatory.
 S7. No merge/deploy while any runtime authorization matrix item remains unverified.
+
+
+============================================================
+OPENCART RBAC ENFORCEMENT NOTE — 2026-09-16
+============================================================
+- Access and Modify are independent database permissions.
+- Current enabled user, group, and permissions are authoritative for Worker and React RBAC API checks.
+- Client role/group/permission headers are not authorization sources.

@@ -137,3 +137,10 @@ REQUIRED NEXT:
 8. Run full authorization matrix, not source-string-only assertions.
 9. Keep existing Printify/customer/designer/cart/stock/order/checkout flows unchanged unless a permission guard is required.
 10. Do not deploy or merge until runtime authorization evidence passes.
+
+
+============================================================
+OPENCART RBAC QC UPDATE — CURRENT HEAD 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5 — 2026-09-16
+============================================================
+- OpenCart-style group schema, exactly-one group assignment, protected system groups, custom group CRUD, Access/Modify persistence, and server-side resolver are present.
+- Remaining validation requires actual GitHub Actions evidence and runtime authorization matrix execution.
