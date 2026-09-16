@@ -195,6 +195,17 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         slot INTEGER NOT NULL CHECK (slot BETWEEN 1 AND 3),
         UNIQUE(application_id, slot)
       );
+      CREATE TABLE IF NOT EXISTS manual_review_history (
+        id TEXT PRIMARY KEY,
+        review_type TEXT NOT NULL CHECK (review_type IN ('qualification','design')),
+        subject_id TEXT NOT NULL,
+        decision TEXT NOT NULL CHECK (decision IN ('approve','reject')),
+        reason TEXT,
+        review_round INTEGER NOT NULL DEFAULT 1,
+        admin_actor_id TEXT REFERENCES admin_users(id),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_manual_review_subject ON manual_review_history(review_type, subject_id, created_at);
 
       CREATE TABLE IF NOT EXISTS site_categories (
         id TEXT PRIMARY KEY,
@@ -1017,6 +1028,73 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     this.bootstrapCatalog(); const id=String(jobId||"").trim();
     const row=this.ctx.storage.sql.exec<any>("SELECT pj.id AS jobId,pj.master_asset_id AS jobMasterAssetId,oi.master_asset_id AS approvedMasterAssetId,a.storage_key AS storageKey,a.original_filename AS filename,a.mime_type AS mimeType,a.byte_size AS byteSize,pj.preflight_snapshot_json AS preflightSnapshotJson FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id LEFT JOIN assets a ON a.id=oi.master_asset_id WHERE pj.id=?",id).toArray()[0];
     if(!row) throw new Error("Printing job not found."); if(!row.approvedMasterAssetId||!row.jobMasterAssetId||String(row.approvedMasterAssetId)!==String(row.jobMasterAssetId)) throw new Error("The printing job is not linked to the exact approved Ready-to-Print Master."); if(!row.storageKey) throw new Error("Approved master file is unavailable."); return row;
+  }
+
+  adminManualReviewQueues(): unknown {
+    this.bootstrapCatalog();
+    const qualifications=this.ctx.storage.sql.exec<any>(`
+      SELECT da.id AS applicationId,da.designer_id AS designerId,da.status,da.submitted_at AS submittedAt,
+             COALESCE(da.review_due_at,CASE WHEN da.submitted_at IS NOT NULL THEN datetime(da.submitted_at,'+5 days') END) AS reviewDueAt,
+             da.rejection_reason AS rejectionReason,da.replacement_due_at AS replacementDueAt,da.escalation_state AS escalationState,
+             u.display_name AS designerName,u.email AS designerEmail,dp.authorization_status AS authorizationStatus,
+             (SELECT COUNT(*) FROM qualification_designs qd WHERE qd.application_id=da.id) AS designCount,
+             (SELECT COUNT(*) FROM manual_review_history mr WHERE mr.review_type='qualification' AND mr.subject_id=da.id AND mr.decision='reject') AS rejectionCount
+      FROM designer_applications da JOIN designer_profiles dp ON dp.user_id=da.designer_id JOIN users u ON u.id=da.designer_id
+      WHERE lower(da.status) NOT IN ('approved','rejected','cancelled')
+      ORDER BY CASE WHEN COALESCE(da.review_due_at,datetime(da.submitted_at,'+5 days')) IS NULL THEN 1 ELSE 0 END,
+               COALESCE(da.review_due_at,datetime(da.submitted_at,'+5 days')), da.submitted_at, da.id
+    `).toArray().map((x:any)=>({...x,overdue:Boolean(x.reviewDueAt&&Date.parse(x.reviewDueAt)<Date.now()),exactlyThree:Number(x.designCount)===3}));
+    const designs=this.ctx.storage.sql.exec<any>(`
+      SELECT d.id AS designId,d.designer_id AS designerId,d.title_en AS titleEn,d.title_ar AS titleAr,d.product_type AS productType,d.status,d.created_at AS createdAt,
+             u.display_name AS designerName,u.email AS designerEmail,
+             (SELECT vr.status FROM validation_results vr WHERE vr.design_id=d.id ORDER BY vr.created_at DESC LIMIT 1) AS preflightStatus,
+             (SELECT vr.errors_json FROM validation_results vr WHERE vr.design_id=d.id ORDER BY vr.created_at DESC LIMIT 1) AS preflightErrorsJson,
+             (SELECT vr.warnings_json FROM validation_results vr WHERE vr.design_id=d.id ORDER BY vr.created_at DESC LIMIT 1) AS preflightWarningsJson
+      FROM designs d LEFT JOIN users u ON u.id=d.designer_id
+      WHERE lower(d.status) IN ('submitted','pending_review','under_review')
+      ORDER BY d.created_at,d.id
+    `).toArray();
+    const parse=(v:any,f:any)=>{try{return JSON.parse(String(v??""));}catch{return f;}};
+    return {qualifications,designs:designs.map((x:any)=>({...x,preflightErrors:parse(x.preflightErrorsJson,[]),preflightWarnings:parse(x.preflightWarningsJson,[])}))};
+  }
+
+  adminQualificationReviewDetail(applicationId: string): unknown {
+    this.bootstrapCatalog(); const id=String(applicationId||"").trim();
+    const application=this.ctx.storage.sql.exec<any>("SELECT da.id AS applicationId,da.designer_id AS designerId,da.status,da.submitted_at AS submittedAt,COALESCE(da.review_due_at,CASE WHEN da.submitted_at IS NOT NULL THEN datetime(da.submitted_at,'+5 days') END) AS reviewDueAt,da.rejection_reason AS rejectionReason,da.replacement_due_at AS replacementDueAt,da.escalation_state AS escalationState,u.display_name AS designerName,u.email AS designerEmail,dp.authorization_status AS authorizationStatus FROM designer_applications da JOIN designer_profiles dp ON dp.user_id=da.designer_id JOIN users u ON u.id=da.designer_id WHERE da.id=?",id).toArray()[0];
+    if(!application) return null;
+    const parse=(v:any,f:any)=>{try{return JSON.parse(String(v??""));}catch{return f;}};
+    const rows=this.ctx.storage.sql.exec<any>("SELECT qd.slot,d.id AS designId,d.title_en AS titleEn,d.title_ar AS titleAr,d.description_en AS descriptionEn,d.description_ar AS descriptionAr,d.product_type AS productType,d.status AS designStatus,(SELECT vr.status FROM validation_results vr WHERE vr.design_id=d.id ORDER BY vr.created_at DESC LIMIT 1) AS preflightStatus,(SELECT vr.errors_json FROM validation_results vr WHERE vr.design_id=d.id ORDER BY vr.created_at DESC LIMIT 1) AS preflightErrorsJson,(SELECT vr.warnings_json FROM validation_results vr WHERE vr.design_id=d.id ORDER BY vr.created_at DESC LIMIT 1) AS preflightWarningsJson,(SELECT vr.created_at FROM validation_results vr WHERE vr.design_id=d.id ORDER BY vr.created_at DESC LIMIT 1) AS preflightAt FROM qualification_designs qd JOIN designs d ON d.id=qd.design_id WHERE qd.application_id=? ORDER BY qd.slot",id).toArray();
+    const designs=rows.map((row:any)=>{const assets=this.ctx.storage.sql.exec<any>("SELECT a.id AS assetId,a.original_filename AS filename,a.mime_type AS mimeType,a.byte_size AS byteSize,a.storage_key AS storageKey,ar.format,ar.pixel_width AS pixelWidth,ar.pixel_height AS pixelHeight,ar.embedded_dpi AS embeddedDpi,ar.effective_dpi AS effectiveDpi,ar.has_alpha AS hasAlpha,ar.readable,ar.analyzable,ar.previewable FROM assets a LEFT JOIN analyzer_results ar ON ar.id=(SELECT ar2.id FROM analyzer_results ar2 WHERE ar2.asset_id=a.id ORDER BY ar2.created_at DESC LIMIT 1) WHERE a.design_id=? ORDER BY a.created_at,a.id",row.designId).toArray();return {...row,preflightErrors:parse(row.preflightErrorsJson,[]),preflightWarnings:parse(row.preflightWarningsJson,[]),assets};});
+    const history=this.ctx.storage.sql.exec<any>("SELECT mr.id,mr.decision,mr.reason,mr.review_round AS reviewRound,mr.admin_actor_id AS adminActorId,au.username AS adminUsername,mr.created_at AS createdAt FROM manual_review_history mr LEFT JOIN admin_users au ON au.id=mr.admin_actor_id WHERE mr.review_type='qualification' AND mr.subject_id=? ORDER BY mr.created_at DESC,mr.id DESC",id).toArray();
+    return {...application,designs,exactlyThree:designs.length===3,rejectionCount:history.filter((h:any)=>h.decision==="reject").length,history};
+  }
+
+  adminQualificationReviewDecision(actorId: string, applicationId: string, decision: "approve"|"reject", reason = ""): unknown {
+    this.bootstrapCatalog(); const id=String(applicationId||"").trim(); const app=this.ctx.storage.sql.exec<any>("SELECT id,designer_id AS designerId,status FROM designer_applications WHERE id=?",id).toArray()[0]; if(!app) throw new Error("Designer qualification application not found."); if(["approved","rejected","cancelled"].includes(String(app.status||"").toLowerCase())) throw new Error("This qualification application is already final.");
+    const designs=this.ctx.storage.sql.exec<any>("SELECT qd.design_id AS designId,(SELECT vr.status FROM validation_results vr WHERE vr.design_id=qd.design_id ORDER BY vr.created_at DESC LIMIT 1) AS preflightStatus FROM qualification_designs qd WHERE qd.application_id=? ORDER BY qd.slot",id).toArray();
+    const rejectCount=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM manual_review_history WHERE review_type='qualification' AND subject_id=? AND decision='reject'",id).toArray()[0]?.count??0);
+    const round=rejectCount+1; const cleanReason=String(reason||"").trim().slice(0,2000);
+    if(decision==="approve"){
+      if(designs.length!==3) throw new Error("Qualification approval requires exactly 3 qualification designs.");
+      if(designs.some((d:any)=>!d.preflightStatus)) throw new Error("Qualification approval requires preflight evidence for all 3 designs.");
+      if(designs.some((d:any)=>String(d.preflightStatus).toLowerCase()==="failed")) throw new Error("Qualification approval is blocked while any qualification design has failed preflight.");
+      this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("UPDATE designer_applications SET status='approved',rejection_reason=NULL,replacement_due_at=NULL,escalation_state=NULL WHERE id=?",id);this.ctx.storage.sql.exec("UPDATE designer_profiles SET authorization_status='authorized',rejection_reason=NULL WHERE user_id=?",app.designerId);this.ctx.storage.sql.exec("INSERT INTO manual_review_history (id,review_type,subject_id,decision,reason,review_round,admin_actor_id) VALUES (?,'qualification',?,'approve',NULL,?,?)",crypto.randomUUID(),id,round,actorId);this.ctx.storage.sql.exec("INSERT INTO notifications (id,user_id,title_ar,title_en,body_ar,body_en) VALUES (?,?,?,?,?,?)",crypto.randomUUID(),app.designerId,"تم اعتماد المصمم","Designer qualification approved","تم اعتماد حسابك كمصمم بعد مراجعة تصاميم التأهيل الثلاثة.","Your designer account has been authorized after review of the three qualification designs.");this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.manual_review.qualification.approve','designer_application',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{designerId:app.designerId,round}}));});
+    } else {
+      if(!cleanReason) throw new Error("Rejection reason is required.");
+      const secondOrLater=rejectCount>=1; const nextStatus=secondOrLater?"rejected":"replacement_required"; const escalation=secondOrLater?"second_rejection_escalated":"replacement_required";
+      this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("UPDATE designer_applications SET status=?,rejection_reason=?,replacement_due_at=?,escalation_state=? WHERE id=?",nextStatus,cleanReason,secondOrLater?null:new Date(Date.now()+5*24*60*60*1000).toISOString(),escalation,id);this.ctx.storage.sql.exec("UPDATE designer_profiles SET authorization_status=?,rejection_reason=? WHERE user_id=?",secondOrLater?"rejected":"pending",cleanReason,app.designerId);this.ctx.storage.sql.exec("INSERT INTO manual_review_history (id,review_type,subject_id,decision,reason,review_round,admin_actor_id) VALUES (?,'qualification',?,'reject',?,?,?)",crypto.randomUUID(),id,cleanReason,round,actorId);const titleAr=secondOrLater?"تم تصعيد رفض التأهيل":"مطلوب استبدال تصاميم التأهيل";const titleEn=secondOrLater?"Qualification rejection escalated":"Qualification replacement required";const bodyAr=secondOrLater?"تم رفض التأهيل للمرة الثانية وتحويل الحالة للتصعيد. السبب: "+cleanReason:"يرجى استبدال التصاميم المطلوبة وإعادة التقديم. السبب: "+cleanReason;const bodyEn=secondOrLater?"The qualification was rejected a second time and escalated. Reason: "+cleanReason:"Please replace the required qualification designs and resubmit. Reason: "+cleanReason;this.ctx.storage.sql.exec("INSERT INTO notifications (id,user_id,title_ar,title_en,body_ar,body_en) VALUES (?,?,?,?,?,?)",crypto.randomUUID(),app.designerId,titleAr,titleEn,bodyAr,bodyEn);this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.manual_review.qualification.reject','designer_application',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{designerId:app.designerId,round,reason:cleanReason,escalation}}));});
+    }
+    return this.adminQualificationReviewDetail(id);
+  }
+
+  adminDesignReviewDecision(actorId: string, designId: string, decision: "approve"|"reject", reason = ""): unknown {
+    this.bootstrapCatalog(); const id=String(designId||"").trim(); const row=this.ctx.storage.sql.exec<any>("SELECT id,designer_id AS designerId,status FROM designs WHERE id=?",id).toArray()[0]; if(!row) throw new Error("Design not found."); if(!["submitted","pending_review","under_review"].includes(String(row.status||"").toLowerCase())) throw new Error("Design is not awaiting manual review."); const cleanReason=String(reason||"").trim().slice(0,2000);
+    const latest=this.ctx.storage.sql.exec<any>("SELECT status FROM validation_results WHERE design_id=? ORDER BY created_at DESC LIMIT 1",id).toArray()[0];
+    if(decision==="approve"&&String(latest?.status||"").toLowerCase()==="failed") throw new Error("Design approval is blocked while the latest preflight result is failed.");
+    if(decision==="reject"&&!cleanReason) throw new Error("Rejection reason is required.");
+    const round=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM manual_review_history WHERE review_type='design' AND subject_id=?",id).toArray()[0]?.count??0)+1;
+    this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("UPDATE designs SET status=? WHERE id=?",decision==="approve"?"approved":"rejected",id);this.ctx.storage.sql.exec("INSERT INTO manual_review_history (id,review_type,subject_id,decision,reason,review_round,admin_actor_id) VALUES (?,'design',?,?,?,?,?)",crypto.randomUUID(),id,decision,cleanReason||null,round,actorId);if(row.designerId)this.ctx.storage.sql.exec("INSERT INTO notifications (id,user_id,title_ar,title_en,body_ar,body_en) VALUES (?,?,?,?,?,?)",crypto.randomUUID(),row.designerId,decision==="approve"?"تم قبول التصميم":"تم رفض التصميم",decision==="approve"?"Design approved":"Design rejected",decision==="approve"?"تم قبول التصميم في المراجعة الإدارية.":"تم رفض التصميم. السبب: "+cleanReason,decision==="approve"?"Your design passed Admin review.":"Your design was rejected. Reason: "+cleanReason);this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin',?,'design',?,?)",actorId,decision==="approve"?"admin.manual_review.design.approve":"admin.manual_review.design.reject",id,JSON.stringify({result:"success",metadata:{designerId:row.designerId,round,reason:cleanReason||null}}));});
+    return this.ctx.storage.sql.exec<any>("SELECT id AS designId,designer_id AS designerId,title_en AS titleEn,title_ar AS titleAr,status,created_at AS createdAt FROM designs WHERE id=?",id).toArray()[0];
   }
 
   adminDashboardSummary(): unknown {
