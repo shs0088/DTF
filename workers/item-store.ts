@@ -118,6 +118,24 @@ export function normalizePrintifyVariant(blueprintId: string, providerId: string
   return { blueprintId: String(blueprintId), printProviderId: String(providerId), variantId, sourceTitle: String(raw?.title ?? raw?.name ?? "").slice(0,300), size: raw?.size ?? options.size ?? null, color: raw?.color ?? options.color ?? null, options, sourceAvailable: raw?.is_enabled !== false && raw?.available !== false, sourceCostInternal: raw?.cost == null ? (raw?.cost_jod == null ? null : Number(raw.cost_jod)) : Number(raw.cost), metadata: raw, images: Array.isArray(raw?.images) ? raw.images : [], placeholders: raw?.placeholders ?? raw?.print_areas ?? {} };
 }
 
+function sanitizeAuditMetadataValue(value: unknown, depth = 0): unknown {
+  if (depth > 6) return "[truncated]";
+  if (Array.isArray(value)) return value.slice(0, 100).map((item) => sanitizeAuditMetadataValue(item, depth + 1));
+  if (value && typeof value === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [key, item] of Object.entries(value as Record<string, unknown>).slice(0, 100)) {
+      if (/(password|credential|authorization|cookie|secret|token|api.?key|private.?key)/i.test(key)) {
+        out[key] = "[redacted]";
+      } else {
+        out[key] = sanitizeAuditMetadataValue(item, depth + 1);
+      }
+    }
+    return out;
+  }
+  if (typeof value === "string") return value.length > 1000 ? value.slice(0, 1000) + "…" : value;
+  return value;
+}
+
 export class ItemStore extends DurableObject<ItemStoreEnv> {
   constructor(ctx: DurableObjectState, env: ItemStoreEnv) {
     super(ctx, env);
@@ -166,6 +184,8 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         metadata_json TEXT NOT NULL DEFAULT '{}',
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at);
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_action_resource ON audit_logs(action, resource_type);
 
       CREATE TABLE IF NOT EXISTS customer_profiles (
         user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -959,7 +979,31 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const group=this.setAdminUserGroup(actorId,targetId,groupId);
     return {id:targetId,role,group};
   }
-  adminAuditList(limit=100): unknown[] { this.bootstrapCatalog(); return this.ctx.storage.sql.exec("SELECT id,actor_id AS actorId,actor_role AS actorRole,action,resource_type AS resourceType,resource_id AS resourceId,metadata_json AS metadata,created_at AS createdAt FROM audit_logs ORDER BY id DESC LIMIT ?",Math.max(1,Math.min(500,Math.floor(limit)))).toArray(); }
+  adminAuditLogs(filters: { search?:string; action?:string; resourceType?:string; actorId?:string; dateFrom?:string; dateTo?:string; page?:number; pageSize?:number } = {}): unknown {
+    this.bootstrapCatalog();
+    const conditions:string[]=[]; const args:any[]=[];
+    const search=String(filters.search??"").trim().toLowerCase();
+    if(search){conditions.push("(lower(a.action) LIKE ? OR lower(a.resource_type) LIKE ? OR lower(COALESCE(a.resource_id,'')) LIKE ? OR lower(COALESCE(a.actor_id,'')) LIKE ? OR lower(COALESCE(au.username,'')) LIKE ?)");const q="%"+search+"%";args.push(q,q,q,q,q);}
+    const action=String(filters.action??"").trim().toLowerCase();if(action){conditions.push("lower(a.action)=?");args.push(action);}
+    const resourceType=String(filters.resourceType??"").trim().toLowerCase();if(resourceType){conditions.push("lower(a.resource_type)=?");args.push(resourceType);}
+    const actorId=String(filters.actorId??"").trim();if(actorId){conditions.push("a.actor_id=?");args.push(actorId);}
+    const dateFrom=String(filters.dateFrom??"").trim();if(/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)){conditions.push("date(a.created_at)>=date(?)");args.push(dateFrom);}
+    const dateTo=String(filters.dateTo??"").trim();if(/^\d{4}-\d{2}-\d{2}$/.test(dateTo)){conditions.push("date(a.created_at)<=date(?)");args.push(dateTo);}
+    const where=conditions.length?" WHERE "+conditions.join(" AND "):"";
+    const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||25)));
+    const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM audit_logs a LEFT JOIN admin_users au ON au.id=a.actor_id"+where,...args).toArray()[0]?.count??0);
+    const pages=Math.max(1,Math.ceil(total/pageSize));const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1)));const offset=(page-1)*pageSize;
+    const rows=this.ctx.storage.sql.exec<any>("SELECT a.id,a.actor_id AS actorId,a.actor_role AS actorRole,au.username AS actorUsername,a.action,a.resource_type AS resourceType,a.resource_id AS resourceId,a.metadata_json AS metadataJson,a.created_at AS createdAt FROM audit_logs a LEFT JOIN admin_users au ON au.id=a.actor_id"+where+" ORDER BY a.id DESC LIMIT ? OFFSET ?",...args,pageSize,offset).toArray();
+    const items=rows.map((row:any)=>{let parsed:any={};try{parsed=JSON.parse(String(row.metadataJson??"{}"));}catch{parsed={invalidMetadata:true};}const safe=sanitizeAuditMetadataValue(parsed);return {id:row.id,actorId:row.actorId,actorRole:row.actorRole,actorUsername:row.actorUsername,action:row.action,resourceType:row.resourceType,resourceId:row.resourceId,metadata:safe,result:safe&&typeof safe==="object"&&!Array.isArray(safe)?String((safe as any).result??""):"",createdAt:row.createdAt};});
+    const actionOptions=this.ctx.storage.sql.exec<any>("SELECT DISTINCT action FROM audit_logs ORDER BY action LIMIT 500").toArray().map((x:any)=>String(x.action));
+    const resourceTypes=this.ctx.storage.sql.exec<any>("SELECT DISTINCT resource_type AS resourceType FROM audit_logs ORDER BY resource_type LIMIT 500").toArray().map((x:any)=>String(x.resourceType));
+    return {items,total,page,pageSize,pages,actionOptions,resourceTypes};
+  }
+
+  adminAuditList(limit=100): unknown[] {
+    const result=this.adminAuditLogs({page:1,pageSize:Math.max(1,Math.min(100,Math.floor(limit)))}) as any;
+    return Array.isArray(result.items)?result.items:[];
+  }
 
   adminPermission(userId: string, resource: string, permission: "access"|"modify"): boolean { this.bootstrapCatalog(); const row=this.ctx.storage.sql.exec<any>("SELECT au.enabled,g.enabled AS group_enabled,g.id AS group_id FROM admin_users au JOIN admin_user_groups g ON g.id=au.group_id WHERE au.id=?",userId).toArray()[0]; if(!row || Number(row.enabled)!==1 || Number(row.group_enabled)!==1) return false; if(row.group_id==="group-main-admin") return true; return Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM admin_group_permissions WHERE group_id=? AND resource=? AND permission=?",row.group_id,resource,permission).toArray()[0]?.ok); }
   adminGroupForUser(userId: string): unknown { this.bootstrapCatalog(); return this.ctx.storage.sql.exec<any>("SELECT g.id,g.name,g.is_system AS isSystem,g.protected,g.enabled FROM admin_users u JOIN admin_user_groups g ON g.id=u.group_id WHERE u.id=?",userId).toArray()[0] ?? null; }
