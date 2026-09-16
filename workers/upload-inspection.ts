@@ -25,9 +25,22 @@ function jpeg(b:Uint8Array):InspectedUpload|null{
   return {format:"jpg",mime:"image/jpeg",signatureValid:true,pixelWidth:width,pixelHeight:height,embeddedDpi:dpi,hasAlpha:false,previewable:true};
 }
 function webp(b:Uint8Array):InspectedUpload|null{
-  if(b.length<30||String.fromCharCode(...b.slice(0,4))!=="RIFF"||String.fromCharCode(...b.slice(8,12))!=="WEBP")return null;
+  if(b.length<25||String.fromCharCode(...b.slice(0,4))!=="RIFF"||String.fromCharCode(...b.slice(8,12))!=="WEBP")return null;
   const kind=String.fromCharCode(...b.slice(12,16));let width=0,height=0,alpha:null|boolean=null;
-  if(kind==="VP8X"&&b.length>=30){alpha=Boolean(b[20]&0x10);width=1+b[24]+(b[25]<<8)+(b[26]<<16);height=1+b[27]+(b[28]<<8)+(b[29]<<16);}
+  if(kind==="VP8X"&&b.length>=30){
+    alpha=Boolean(b[20]&0x10);
+    width=1+b[24]+(b[25]<<8)+(b[26]<<16);
+    height=1+b[27]+(b[28]<<8)+(b[29]<<16);
+  }else if(kind==="VP8 "&&b.length>=30&&b[23]===0x9d&&b[24]===0x01&&b[25]===0x2a){
+    width=((b[26]|(b[27]<<8))&0x3fff);
+    height=((b[28]|(b[29]<<8))&0x3fff);
+    alpha=false;
+  }else if(kind==="VP8L"&&b.length>=25&&b[20]===0x2f){
+    width=1+((b[21]|(b[22]<<8))&0x3fff);
+    height=1+(((b[22]>>6)|(b[23]<<2)|(b[24]<<10))&0x3fff);
+    alpha=null;
+  }
+  if(width<=0||height<=0)return null;
   return {format:"webp",mime:"image/webp",signatureValid:true,pixelWidth:width,pixelHeight:height,embeddedDpi:null,hasAlpha:alpha,previewable:true};
 }
 function textType(b:Uint8Array):InspectedUpload|null{
