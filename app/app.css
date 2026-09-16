@@ -130,3 +130,20 @@ a { color: inherit; text-decoration: none; } button, input { font: inherit; } bu
   .designer-submit-bar { align-items:stretch; flex-direction:column; }
   .designer-submit-bar .button { width:100%; }
 }
+
+
+/* Global bilingual / RTL controls */
+.global-language-toggle{
+  position:fixed;z-index:9999;top:14px;right:14px;min-width:48px;height:34px;display:inline-flex;align-items:center;justify-content:center;
+  padding:0 10px;border:1px solid rgba(74,158,234,.45);border-radius:999px;background:rgba(5,14,24,.92);color:#8fd0ff;
+  font:800 10px/1 monospace;letter-spacing:.04em;text-decoration:none;box-shadow:0 10px 32px rgba(0,0,0,.28);backdrop-filter:blur(10px)
+}
+.global-language-toggle:hover{border-color:#329cff;color:white;background:#0a2339}
+html[dir="rtl"] .global-language-toggle{right:auto;left:14px}
+.app-locale-root[dir="rtl"]{font-family:Arial,"Noto Sans Arabic",sans-serif}
+.app-locale-root[dir="rtl"] .site-header,.app-locale-root[dir="rtl"] .header-actions,.app-locale-root[dir="rtl"] .cart-heading,
+.app-locale-root[dir="rtl"] .summary-row,.app-locale-root[dir="rtl"] .designer-card-meta,.app-locale-root[dir="rtl"] .designer-submit-bar{
+  direction:rtl
+}
+.app-locale-root[dir="rtl"] .back-link svg{transform:scaleX(-1)}
+.app-locale-root[dir="rtl"] input,.app-locale-root[dir="rtl"] textarea,.app-locale-root[dir="rtl"] select{text-align:right}
