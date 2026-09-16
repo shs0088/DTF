@@ -1,5 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 import { allowedAdminOrderTransitions, canTransitionAdminOrder, normalizeAdminOrderStatus } from "./admin-orders";
+import { allowedAdminProductionTransitions, canTransitionAdminProduction, normalizeAdminProductionStatus } from "./admin-production";
 
 interface ItemStoreEnv {}
 
@@ -975,6 +976,47 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     this.bootstrapCatalog(); const id=String(orderId||"").trim(); const row=this.ctx.storage.sql.exec<any>("SELECT id,status,payment_status AS paymentStatus FROM orders WHERE id=?",id).toArray()[0]; if(!row) throw new Error("Order not found."); const note=String(comment||"").trim().slice(0,2000); if(!note) throw new Error("Internal note is required."); const historyId=crypto.randomUUID();
     this.ctx.storage.transactionSync(()=>{ this.ctx.storage.sql.exec("INSERT INTO order_admin_history (id,order_id,event_type,from_status,to_status,payment_status,internal_comment,admin_actor_id) VALUES (?,?,'note',?,?,?, ?,?)",historyId,id,String(row.status),String(row.status),String(row.paymentStatus||"pending"),note,actorId); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.order.note','order',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{comment:note}})); });
     return this.adminOrderDetail(id);
+  }
+
+  adminProductionQueue(filters: { search?:string; status?:string; page?:number; pageSize?:number } = {}): unknown {
+    this.bootstrapCatalog(); const conditions:string[]=[]; const args:any[]=[];
+    const search=String(filters.search??"").trim().toLowerCase();
+    if(search){conditions.push("(lower(pj.id) LIKE ? OR lower(o.id) LIKE ? OR lower(COALESCE(u.display_name,'')) LIKE ? OR lower(COALESCE(u.email,'')) LIKE ? OR lower(COALESCE(v.sku,'')) LIKE ? OR lower(COALESCE(pm.name_en,'')) LIKE ?)"); const q="%"+search+"%"; args.push(q,q,q,q,q,q);}
+    const status=String(filters.status??"").trim().toLowerCase(); if(status){conditions.push("lower(pj.status)=?");args.push(status);}
+    const where=conditions.length?" WHERE "+conditions.join(" AND "):"";
+    const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||20)));
+    const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id JOIN orders o ON o.id=oi.order_id LEFT JOIN users u ON u.id=o.user_id JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id"+where,...args).toArray()[0]?.count??0);
+    const pages=Math.max(1,Math.ceil(total/pageSize)); const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1))); const offset=(page-1)*pageSize;
+    const rows=this.ctx.storage.sql.exec<any>(`SELECT pj.id AS jobId,pj.status,pj.created_at AS createdAt,pj.protected_at AS protectedAt,pj.order_item_id AS orderItemId,o.id AS orderId,o.status AS orderStatus,o.fulfillment_mode AS fulfillmentMode,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,oi.quantity,oi.variant_id AS variantId,v.sku,v.color,v.size,pm.id AS modelId,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,oi.design_id AS designId,oi.master_asset_id AS approvedMasterAssetId,pj.master_asset_id AS jobMasterAssetId,a.original_filename AS masterFilename,a.mime_type AS masterMimeType,a.storage_key AS masterStorageKey,pj.print_spec_snapshot_json AS printSpecSnapshotJson,pj.preflight_snapshot_json AS preflightSnapshotJson FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id JOIN orders o ON o.id=oi.order_id LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id LEFT JOIN assets a ON a.id=oi.master_asset_id${where} ORDER BY pj.created_at ASC,pj.id ASC LIMIT ? OFFSET ?`,...args,pageSize,offset).toArray();
+    const parse=(v:any)=>{try{return JSON.parse(String(v??"{}"));}catch{return {};}};
+    return {items:rows.map((r:any)=>({...r,masterReady:Boolean(r.approvedMasterAssetId&&r.jobMasterAssetId&&r.approvedMasterAssetId===r.jobMasterAssetId),printSpecSnapshot:parse(r.printSpecSnapshotJson),preflightSnapshot:parse(r.preflightSnapshotJson),allowedTransitions:[...allowedAdminProductionTransitions(r.status)]})),total,page,pageSize,pages};
+  }
+
+  adminProductionJob(jobId: string): unknown {
+    this.bootstrapCatalog(); const id=String(jobId||"").trim();
+    const row=this.ctx.storage.sql.exec<any>("SELECT pj.id AS jobId,pj.status,pj.created_at AS createdAt,pj.protected_at AS protectedAt,pj.order_item_id AS orderItemId,o.id AS orderId,o.status AS orderStatus,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,oi.quantity,oi.variant_id AS variantId,v.sku,v.color,v.size,pm.id AS modelId,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,oi.design_id AS designId,oi.master_asset_id AS approvedMasterAssetId,pj.master_asset_id AS jobMasterAssetId,a.original_filename AS masterFilename,a.mime_type AS masterMimeType,a.storage_key AS masterStorageKey,pj.print_spec_snapshot_json AS printSpecSnapshotJson,pj.preflight_snapshot_json AS preflightSnapshotJson FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id JOIN orders o ON o.id=oi.order_id LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id LEFT JOIN assets a ON a.id=oi.master_asset_id WHERE pj.id=?",id).toArray()[0];
+    if(!row) return null; const parse=(v:any)=>{try{return JSON.parse(String(v??"{}"));}catch{return {};}};
+    return {...row,masterReady:Boolean(row.approvedMasterAssetId&&row.jobMasterAssetId&&row.approvedMasterAssetId===row.jobMasterAssetId),printSpecSnapshot:parse(row.printSpecSnapshotJson),preflightSnapshot:parse(row.preflightSnapshotJson),allowedTransitions:[...allowedAdminProductionTransitions(row.status)]};
+  }
+
+  adminProductionUpdateStatus(actorId: string, jobId: string, nextStatus: string): unknown {
+    this.bootstrapCatalog(); const id=String(jobId||"").trim();
+    const row=this.ctx.storage.sql.exec<any>("SELECT pj.id,pj.status,pj.master_asset_id AS jobMasterAssetId,pj.preflight_snapshot_json AS preflightSnapshotJson,oi.master_asset_id AS approvedMasterAssetId,oi.order_id AS orderId FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id WHERE pj.id=?",id).toArray()[0];
+    if(!row) throw new Error("Printing job not found."); const next=normalizeAdminProductionStatus(nextStatus); if(!next) throw new Error("Invalid production status."); if(!canTransitionAdminProduction(row.status,next)) throw new Error(`Invalid production transition: ${row.status} → ${next}.`);
+    if(next!=="cancelled"){
+      if(!row.approvedMasterAssetId||!row.jobMasterAssetId||String(row.approvedMasterAssetId)!==String(row.jobMasterAssetId)) throw new Error("Production is blocked until the printing job references the exact approved Ready-to-Print Master from the order item.");
+      let preflight:any={}; try{preflight=JSON.parse(String(row.preflightSnapshotJson||"{}"));}catch{}
+      if(!preflight||typeof preflight!=="object"||Object.keys(preflight).length===0) throw new Error("Production is blocked because the historical preflight snapshot is missing.");
+      const result=String(preflight.status??preflight.result??"").toLowerCase(); if(["failed","rejected","invalid"].includes(result)) throw new Error("Production is blocked because the approved master preflight snapshot is not passing.");
+    }
+    this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("UPDATE printing_jobs SET status=?,protected_at=COALESCE(protected_at,CURRENT_TIMESTAMP) WHERE id=?",next,id);this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.production.status_change','printing_job',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{fromStatus:row.status,toStatus:next,orderId:row.orderId,masterAssetId:row.approvedMasterAssetId}}));});
+    return this.adminProductionJob(id);
+  }
+
+  adminProductionMasterAsset(jobId: string): unknown {
+    this.bootstrapCatalog(); const id=String(jobId||"").trim();
+    const row=this.ctx.storage.sql.exec<any>("SELECT pj.id AS jobId,pj.master_asset_id AS jobMasterAssetId,oi.master_asset_id AS approvedMasterAssetId,a.storage_key AS storageKey,a.original_filename AS filename,a.mime_type AS mimeType,a.byte_size AS byteSize,pj.preflight_snapshot_json AS preflightSnapshotJson FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id LEFT JOIN assets a ON a.id=oi.master_asset_id WHERE pj.id=?",id).toArray()[0];
+    if(!row) throw new Error("Printing job not found."); if(!row.approvedMasterAssetId||!row.jobMasterAssetId||String(row.approvedMasterAssetId)!==String(row.jobMasterAssetId)) throw new Error("The printing job is not linked to the exact approved Ready-to-Print Master."); if(!row.storageKey) throw new Error("Approved master file is unavailable."); return row;
   }
 
   adminDashboardSummary(): unknown {
