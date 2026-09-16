@@ -413,3 +413,35 @@ RUNTIME STILL REQUIRED:
 - live approval balance enforcement
 - live paid ledger/notification/history/audit persistence
 - browser/responsive verification
+
+============================================================
+REPORTS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 3a6ed1eea280cfa08a9ce45b682cefa9b570b16c
+GITHUB ACTIONS RUN: 35105176696 — SUCCESS.
+COMPLETED FOR REPORTS SOURCE/CI:
+- real database-backed read-only Admin Reports
+- optional date-from/date-to filters
+- total/open/completed/cancelled order metrics
+- non-cancelled gross order value
+- confirmed-payment revenue separated from gross order value
+- order/payment/fulfillment status breakdowns
+- daily orders/revenue table
+- product quantity/order-count report
+- designer earnings report
+- payout status/amount report
+- user registrations by role
+- current tracked inventory/low-stock/out-of-stock summary
+- client-side CSV export of daily/product report data
+- admin.reports Access enforcement
+- Reports regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Promotions.
+2. Settings.
+3. Integrations.
+4. Audit Log.
+RUNTIME STILL REQUIRED:
+- live Reports data reconciliation against database
+- live date-filter verification
+- live Access denial for unauthorized groups
+- browser/responsive and CSV export verification

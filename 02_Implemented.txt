@@ -305,3 +305,19 @@ VERIFIED IN SOURCE + CI:
 - server-side admin.payouts Access/Modify checks
 - Payouts tests executed in GitHub Actions
 NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+REPORTS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 3a6ed1eea280cfa08a9ce45b682cefa9b570b16c
+CI RUN: 35105176696 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- real operational Reports data from orders/order-items/products/designers/payouts/users/stocks
+- date filtering with parameterized SQL
+- confirmed revenue separated from gross order value
+- read-only Reports API/UI
+- CSV export from returned report datasets
+- server-side admin.reports Access authorization
+- Reports tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.

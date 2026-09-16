@@ -283,3 +283,19 @@ STILL PENDING:
 3. Live approval balance enforcement against real data.
 4. Live paid ledger, notification, history and audit persistence.
 5. Reports remains next implementation dependency.
+
+============================================================
+REPORTS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- real-data report queries and UI
+- date filters
+- order/revenue/product/designer/payout/user/inventory reporting
+- Reports Access guard
+- CSV exports in Admin UI
+STILL PENDING:
+1. Live/browser Reports verification.
+2. Live report totals reconciliation with known database rows.
+3. Live date range boundary checks.
+4. Live CSV export/browser verification.
+5. Promotions remains next implementation dependency.

@@ -507,3 +507,29 @@ DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
 NEXT: Reports full Admin module.
+
+
+DATE/TIME: 2026-09-16T13:57:27Z
+TASK: Implement read-only Admin Reports module.
+SOURCE START: 774827184a4b09c25baa829a3b16d5714ef1c2b5
+SOURCE FINAL: 3a6ed1eea280cfa08a9ce45b682cefa9b570b16c
+FILES ADDED/CHANGED:
+- workers/item-store.ts
+- workers/static-app.ts
+- workers/admin-reports.test.ts
+- .github/workflows/dtf-build-validation.yml
+IMPLEMENTED:
+- date-filtered real-data Admin Reports
+- order counts/status/payment/fulfillment breakdowns
+- gross order value and confirmed-payment revenue
+- daily sales, product quantities, designer earnings, payout, registration and inventory reports
+- client-side CSV exports
+- admin.reports Access authorization
+VALIDATION:
+- GitHub Actions run 35105176696: SUCCESS
+- Install dependencies/typecheck/build: PASS
+- RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts/Reports tests: PASS
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
+NEXT: Promotions full Admin module.

@@ -461,3 +461,24 @@ PAYOUTS SOURCE/CI CHECK — 2026-09-16
 513. GitHub Actions run 35104755254: PASS.
 514. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts tests: PASS.
 515. Payouts browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+REPORTS SOURCE/CI CHECK — 2026-09-16
+============================================================
+516. Reports use real database operational tables: PASS SOURCE/TEST.
+517. Date-from/date-to SQL filters parameterized: PASS SOURCE/TEST.
+518. Gross non-cancelled order value reported: PASS SOURCE/TEST.
+519. Confirmed-payment revenue reported separately: PASS SOURCE/TEST.
+520. Order/payment/fulfillment status breakdowns: PASS SOURCE.
+521. Daily sales/orders report: PASS SOURCE.
+522. Product quantity/order-count report: PASS SOURCE/TEST.
+523. Designer earnings report: PASS SOURCE/TEST.
+524. Payout status/amount report: PASS SOURCE/TEST.
+525. Registrations-by-role report: PASS SOURCE/TEST.
+526. Current inventory summary: PASS SOURCE/TEST.
+527. Reports API is read-only: PASS SOURCE/TEST.
+528. admin.reports GET requires Access: PASS SOURCE/TEST.
+529. Daily/product CSV export controls: PASS SOURCE/TEST.
+530. GitHub Actions run 35105176696: PASS.
+531. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts/Reports tests: PASS.
+532. Reports browser/runtime verification: PENDING RUNTIME.
