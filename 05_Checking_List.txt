@@ -552,3 +552,28 @@ AUDIT LOG SOURCE/CI CHECK — 2026-09-16
 594. install/typecheck/build/all Admin tests through Audit Log: PASS.
 595. Audit Log browser/runtime verification: PENDING RUNTIME.
 596. Admin A–Z source/CI modules through Audit Log: COMPLETE; final integration/runtime QA remains.
+
+============================================================
+CHECKOUT INTEGRATION SOURCE/CI CHECK — 2026-09-16
+============================================================
+597. Cart and auth session cookies separated: PASS SOURCE/TEST.
+598. Authenticated customer required before checkout: PASS SOURCE/TEST.
+599. Customer registration/login return path back to checkout: PASS SOURCE.
+600. Checkout consumes authoritative Settings snapshot: PASS SOURCE/TEST.
+601. Coupon enabled/schedule/max-use/min-spend validation: PASS SOURCE/TEST.
+602. Coupon discount capped at subtotal: PASS SOURCE/TEST.
+603. Promotion redemption tied to successful order: PASS SOURCE/TEST.
+604. Idempotent checkout request key persisted: PASS SOURCE/TEST.
+605. Order checkout/customer/discount/delivery snapshot persisted: PASS SOURCE/TEST.
+606. Tracked stock availability revalidated and reserved: PASS SOURCE/TEST.
+607. Explicit Ready-to-Print Master exact-match enforcement: PASS SOURCE/TEST.
+608. Passing preflight required for design master: PASS SOURCE/TEST.
+609. Payment confirmation consumes tracked stock once: PASS SOURCE/TEST.
+610. Payment confirmation creates production jobs from historical snapshots: PASS SOURCE/TEST.
+611. Cancellation releases pending reservations: PASS SOURCE/TEST.
+612. Cancellation restores previously deducted stock once: PASS SOURCE/TEST.
+613. Successful checkout clears cart items; next additions reopen cart: PASS SOURCE/TEST.
+614. Customer-owned order confirmation view: PASS SOURCE.
+615. GitHub Actions run 35118115500: PASS.
+616. install/typecheck/build/all Admin suites + Checkout Integration: PASS.
+617. Checkout end-to-end browser/runtime acceptance: PENDING RUNTIME.

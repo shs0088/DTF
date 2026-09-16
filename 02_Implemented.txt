@@ -378,3 +378,11 @@ VERIFIED IN SOURCE + CI:
 - admin.audit_log Access enforcement
 - Audit Log tests executed in GitHub Actions
 NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+CHECKOUT INTEGRATION VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+SOURCE SHA: 7c8b8e3db96243d42d2f9e377df5114460803a40
+CI RUN: 35118115500 — SUCCESS.
+Verified database-authoritative customer checkout, coupon redemption, separate cart/auth session handling, stock reservation/consumption/restoration, master/preflight enforcement, live Settings consumption, order confirmation, and checkout regression coverage.
+Runtime/browser acceptance remains pending; no Production Ready claim.

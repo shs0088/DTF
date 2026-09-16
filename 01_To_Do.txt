@@ -536,3 +536,28 @@ NEXT UNFINISHED WORK:
 2. Safe runtime/browser authorization matrix.
 3. End-to-end runtime QA across customer/designer/admin/operator flows.
 4. No merge/deploy until separately authorized.
+
+============================================================
+CHECKOUT / PROMOTION / STOCK INTEGRATION SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 7c8b8e3db96243d42d2f9e377df5114460803a40
+GITHUB ACTIONS RUN: 35118115500 — SUCCESS.
+COMPLETED IN SOURCE/CI:
+- dedicated cart session separated from authenticated customer session
+- legacy guest-cart continuity preserved when possible
+- authenticated database-backed /checkout route
+- customer-owned /order/:orderId confirmation route
+- authoritative business Settings used for reservation/delivery/free-delivery behavior
+- server-side coupon validation: enabled/schedule/max uses/minimum spend/discount cap
+- promotion redemption created only with successful database order
+- order checkout snapshot for customer/contact/subtotal/delivery/discount/promotion/reservation evidence
+- stock availability revalidated at checkout
+- tracked stock reserved without negative availability
+- explicit Ready-to-Print Master and passing preflight enforced for linked designs
+- payment confirmation consumes reserved stock once and creates production jobs from historical snapshots
+- cancellation releases reservations and restores previously deducted stock once
+- checked-out cart cleared only after successful order; new additions reopen cart
+- Login → Create Account → Customer Registration return path preserved back to checkout
+- dedicated Checkout Integration regression suite added to CI
+NEXT: scan remaining source-level storefront/designer integration gaps, then runtime QA.
+RUNTIME STILL REQUIRED: real browser checkout/coupon/auth/payment-confirmation/cancellation/production validation.

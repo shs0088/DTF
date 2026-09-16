@@ -615,3 +615,24 @@ DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 RUNTIME ACCEPTANCE: PENDING.
 NEXT: final storefront/business-flow integration and runtime QA.
+
+
+DATE/TIME: 2026-09-16T15:52:19Z
+TASK: Integrate database-authoritative customer checkout with Promotions, Settings, stock reservations, and production handoff.
+SOURCE START: 6bd84960b728a85a305ce696494ebc07a7219d85
+SOURCE FINAL: 7c8b8e3db96243d42d2f9e377df5114460803a40
+KEY FILES CHANGED/ADDED:
+- workers/item-store.ts
+- app/routes.ts
+- app/routes/cart.tsx
+- app/routes/customize.tsx
+- app/routes/checkout.tsx
+- app/routes/order.tsx
+- app/routes/login.tsx
+- app/routes/account-type.tsx
+- app/routes/register.tsx
+- workers/checkout-integration.test.ts
+- .github/workflows/dtf-build-validation.yml
+VALIDATION: GitHub Actions run 35118115500 — SUCCESS; install/typecheck/build/all Admin tests plus Checkout Integration PASS.
+DEPLOYMENT: NO. MERGE/MAIN CHANGE: NO.
+NEXT: remaining source-level storefront/designer reconciliation, then runtime QA.
