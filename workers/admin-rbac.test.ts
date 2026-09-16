@@ -8,6 +8,13 @@ describe("admin OpenCart-style RBAC contract", () => {
     expect(access.has("admin.settings")).toBe(false);
   });
 
+  test("full Admin resource catalog is represented", async () => {
+    const source = await Bun.file(new URL("./item-store.ts", import.meta.url)).text();
+    for (const resource of ["admin.dashboard","admin.orders","admin.manual_review","admin.production","admin.products","admin.customers","admin.designers","admin.payouts","admin.reports","admin.promotions","admin.settings","admin.integrations","admin.audit_log","admin.users","admin.user_groups"]) {
+      expect(source).toContain(resource);
+    }
+  });
+
   test("Access and Modify remain independent", () => {
     const viewOnly = { access: new Set(["admin.orders"]), modify: new Set<string>() };
     expect(viewOnly.access.has("admin.orders")).toBe(true);

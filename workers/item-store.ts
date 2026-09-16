@@ -888,11 +888,20 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   adminResources(): {resource:string;label:string}[] { return [
     {resource:"admin.dashboard",label:"Dashboard"},
     {resource:"admin.orders",label:"Orders"},
-    {resource:"admin.production",label:"Production"},
-    {resource:"admin.products.printify",label:"Printify Catalog"},
+    {resource:"admin.manual_review",label:"Manual Review"},
+    {resource:"admin.production",label:"Production Queue"},
+    {resource:"admin.products",label:"Products"},
+    {resource:"admin.customers",label:"Customers"},
+    {resource:"admin.designers",label:"Designers"},
+    {resource:"admin.payouts",label:"Payouts"},
+    {resource:"admin.reports",label:"Reports"},
+    {resource:"admin.promotions",label:"Promotions"},
+    {resource:"admin.settings",label:"Settings"},
+    {resource:"admin.integrations",label:"Integrations"},
+    {resource:"admin.audit_log",label:"Audit Log"},
     {resource:"admin.users",label:"Users"},
     {resource:"admin.user_groups",label:"User Groups"},
-    {resource:"admin.settings",label:"Settings"}
+    {resource:"admin.products.printify",label:"Printify Catalog"}
   ]; }
   adminGroupForUser(userId: string): string { this.bootstrapCatalog(); const row=this.ctx.storage.sql.exec<any>("SELECT group_id AS groupId FROM admin_user_group_memberships WHERE user_id=?",userId).toArray()[0]; if(row?.groupId) return String(row.groupId); const user=this.ctx.storage.sql.exec<any>("SELECT role FROM admin_users WHERE id=?",userId).toArray()[0]; return user?.role==="main_admin"?"main_admin":"printing_technician"; }
   adminCanUser(userId: string, resource: string, mode: "access"|"modify"): boolean { this.bootstrapCatalog(); const groupId=this.adminGroupForUser(userId); const group=this.adminGroupRow(groupId); if(!group || Number(group.enabled)!==1) return false; if(Number(group.fullAccess)===1) return true; const row=this.ctx.storage.sql.exec<any>("SELECT can_access AS canAccess,can_modify AS canModify FROM admin_group_permissions WHERE group_id=? AND resource=?",groupId,resource).toArray()[0]; return mode==="access"?Number(row?.canAccess)===1:Number(row?.canModify)===1; }
