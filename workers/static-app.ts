@@ -31,12 +31,66 @@ async function loadPrintifySnapshot(request: Request, env: Env): Promise<any> {
   return snapshot;
 }
 async function adminRbacApi(request: Request, env: Env): Promise<Response | null> {
-  const url=new URL(request.url); if(!url.pathname.startsWith("/api/admin/rbac")) return null; const claims=await getAdminSessionClaims(request,env); const store=env.ITEMS.get(env.ITEMS.idFromName("default")); const identity=claims?await store.adminIdentity(claims.userId):null; if(!identity||identity.role!=="main_admin") return Response.json({ok:false,error:"Forbidden"},{status:403});
-  try { const method=request.method.toUpperCase(); if(method==="GET"&&url.pathname==="/api/admin/rbac/users") return Response.json({ok:true,users:await store.adminUsers()}); if(method==="GET"&&url.pathname==="/api/admin/rbac/groups") return Response.json({ok:true,groups:await store.adminGroups(),permissions:await store.adminPermissionMatrix("printing_technician")}); if(method==="GET"&&url.pathname==="/api/admin/rbac/audit") return Response.json({ok:true,audit:await store.adminAuditList()}); if(method==="POST"&&url.pathname==="/api/admin/rbac/users"){const body=await request.json() as any; return Response.json({ok:true,user:await store.createAdminUserAsync(identity.id,String(body.username||""),String(body.password||""),body.role==="main_admin"?"main_admin":"printing_technician")});} if(method==="PATCH"&&/^\/api\/admin\/rbac\/users\/[^/]+$/.test(url.pathname)){const id=url.pathname.split("/").pop()||"";const body=await request.json() as any;const result=body.role?store.setAdminUserRole(identity.id,id,body.role==="main_admin"?"main_admin":"printing_technician"):store.setAdminUserEnabled(identity.id,id,Boolean(body.enabled));return Response.json({ok:true,user:result});} return Response.json({ok:false,error:"Not found"},{status:404}); } catch(e){return Response.json({ok:false,error:e instanceof Error?e.message:"RBAC request failed"},{status:400});}
+  const url=new URL(request.url);
+  if(!url.pathname.startsWith("/api/admin/rbac")) return null;
+  const claims=await getAdminSessionClaims(request,env);
+  const store=env.ITEMS.get(env.ITEMS.idFromName("default"));
+  const identity=claims?await store.adminIdentity(claims.userId):null;
+  if(!identity) return Response.json({ok:false,error:"Admin authentication required."},{status:401});
+  const method=request.method.toUpperCase();
+  const requirePermission=async(resource:string,mode:"access"|"modify")=>{
+    if(!await store.adminCanUser(identity.id,resource,mode)) return Response.json({ok:false,error:"Permission denied."},{status:403});
+    return null;
+  };
+  try {
+    if(method==="GET"&&url.pathname==="/api/admin/rbac/users"){
+      const denied=await requirePermission("admin.users","access"); if(denied) return denied;
+      return Response.json({ok:true,users:await store.adminUsers(),groups:await store.adminGroups()});
+    }
+    if(method==="POST"&&url.pathname==="/api/admin/rbac/users"){
+      const denied=await requirePermission("admin.users","modify"); if(denied) return denied;
+      const body=await request.json() as any;
+      return Response.json({ok:true,user:await store.createAdminUserAsync(identity.id,String(body.username||""),String(body.password||""),String(body.groupId||"printing_technician"))});
+    }
+    if(method==="PATCH"&&/^\/api\/admin\/rbac\/users\/[^/]+$/.test(url.pathname)){
+      const denied=await requirePermission("admin.users","modify"); if(denied) return denied;
+      const id=url.pathname.split("/").pop()||"";
+      const body=await request.json() as any;
+      const result=body.groupId!==undefined
+        ? store.setAdminUserGroup(identity.id,id,String(body.groupId))
+        : store.setAdminUserEnabled(identity.id,id,Boolean(body.enabled));
+      return Response.json({ok:true,user:result});
+    }
+    if(method==="GET"&&url.pathname==="/api/admin/rbac/groups"){
+      const denied=await requirePermission("admin.user_groups","access"); if(denied) return denied;
+      const groups=await store.adminGroups();
+      const permissions=Object.fromEntries((groups as any[]).map((g:any)=>[String(g.id),store.adminPermissionMatrix(String(g.id))]));
+      return Response.json({ok:true,groups,resources:store.adminResources(),permissions});
+    }
+    if(method==="POST"&&url.pathname==="/api/admin/rbac/groups"){
+      const denied=await requirePermission("admin.user_groups","modify"); if(denied) return denied;
+      const body=await request.json() as any;
+      return Response.json({ok:true,group:store.createAdminGroup(identity.id,String(body.name||""))});
+    }
+    if((method==="PATCH"||method==="DELETE")&&/^\/api\/admin\/rbac\/groups\/[^/]+$/.test(url.pathname)){
+      const denied=await requirePermission("admin.user_groups","modify"); if(denied) return denied;
+      const id=decodeURIComponent(url.pathname.split("/").pop()||"");
+      if(method==="DELETE") return Response.json({ok:true,group:store.deleteAdminGroup(identity.id,id)});
+      const body=await request.json().catch(()=>({})) as any;
+      return Response.json({ok:true,group:store.updateAdminGroup(identity.id,id,{name:body.name,enabled:body.enabled,access:Array.isArray(body.access)?body.access:undefined,modify:Array.isArray(body.modify)?body.modify:undefined})});
+    }
+    if(method==="GET"&&url.pathname==="/api/admin/rbac/audit"){
+      const denied=await requirePermission("admin.user_groups","access"); if(denied) return denied;
+      return Response.json({ok:true,audit:await store.adminAuditList()});
+    }
+    return Response.json({ok:false,error:"Not found"},{status:404});
+  } catch(e){
+    return Response.json({ok:false,error:e instanceof Error?e.message:"RBAC request failed"},{status:400});
+  }
 }
 
 async function adminPrintifyApi(request: Request, env: Env): Promise<Response | null> {
-  const url = new URL(request.url); if (!url.pathname.startsWith("/api/admin/printify")) return null; const claims = await getAdminSessionClaims(request, env); const store = env.ITEMS.get(env.ITEMS.idFromName("default")); const identity = claims ? await store.adminIdentity(claims.userId) : null; if (!claims || !identity) return Response.json({ ok: false, error: "Unauthorized" }, { status: 401, headers: { "content-type": "application/json; charset=utf-8" } }); if (identity.role !== "main_admin") return Response.json({ ok: false, error: "Forbidden" }, { status: 403, headers: { "content-type": "application/json; charset=utf-8" } });
+  const url = new URL(request.url); if (!url.pathname.startsWith("/api/admin/printify")) return null; const claims = await getAdminSessionClaims(request, env); const store = env.ITEMS.get(env.ITEMS.idFromName("default")); const identity = claims ? await store.adminIdentity(claims.userId) : null; if (!claims || !identity) return Response.json({ ok: false, error: "Unauthorized" }, { status: 401, headers: { "content-type": "application/json; charset=utf-8" } }); const permissionMode=request.method.toUpperCase()==="GET"?"access":"modify"; if(!await store.adminCanUser(identity.id,"admin.products.printify",permissionMode)) return Response.json({ ok:false,error:"Forbidden" },{status:403,headers:{"content-type":"application/json; charset=utf-8"}});
   try {
     if (url.pathname === "/api/admin/printify/categories" && request.method === "GET") { const snapshot=await loadPrintifySnapshot(request,env); const categories=Array.isArray(snapshot.categories)?snapshot.categories:buildCatalogCategories(snapshot.products); return Response.json({ok:true,total:snapshot.total,categoryCount:categories.length,categories}); }
     if (url.pathname === "/api/admin/printify/catalog" && request.method === "GET") { const snapshot = await loadPrintifySnapshot(request, env); const local = await store.printifyCatalogLocalState(); const localById = new Map(local.map((row:any) => [String(row.blueprint_id), row])); const search = String(url.searchParams.get("search") ?? "").trim().toLowerCase(); const category = String(url.searchParams.get("category") ?? "").trim().toLowerCase(); const subcategory = String(url.searchParams.get("subcategory") ?? "").trim().toLowerCase(); const imported = url.searchParams.get("imported") ?? ""; const published = url.searchParams.get("published") ?? ""; const categories=Array.isArray(snapshot.categories)?snapshot.categories:buildCatalogCategories(snapshot.products); const filtered = snapshot.products.filter((product:any) => { const row = localById.get(String(product.blueprintId)); const categoryName=String(product.categorySuggestion??"Other"), subcategoryName=String(product.subcategorySuggestion??"Other"), categoryId=String(product.categoryId??catalogSlug(categoryName)), subcategoryId=String(product.subcategoryId??catalogSlug(subcategoryName)); const haystack = [product.blueprintId, product.title, product.brand, product.model, categoryName, subcategoryName].join(" ").toLowerCase(); const categoryMatch=!category||category===categoryId.toLowerCase()||category===categoryName.toLowerCase(); const subcategoryMatch=!subcategory||subcategory===subcategoryId.toLowerCase()||subcategory===subcategoryName.toLowerCase(); return (!search || haystack.includes(search)) && categoryMatch && subcategoryMatch && (imported !== "yes" || !!row?.imported_model_id) && (imported !== "no" || !row?.imported_model_id) && (published !== "yes" || Number(row?.published) === 1) && (published !== "no" || Number(row?.published ?? 0) !== 1); }); const pageSize=Math.max(20,Math.min(100,Math.floor(Number(url.searchParams.get("pageSize")||50)||50))); const matched=filtered.length; const pages=Math.max(1,Math.ceil(matched/pageSize)); const page=Math.min(Math.max(1,Math.floor(Number(url.searchParams.get("page")||1)||1)),pages); const catalog=filtered.slice((page-1)*pageSize,page*pageSize).map((product:any) => ({ ...product, categoryId:String(product.categoryId??catalogSlug(product.categorySuggestion)), subcategoryId:String(product.subcategoryId??catalogSlug(product.subcategorySuggestion)), local: localById.get(String(product.blueprintId)) ?? null })); return Response.json({ ok: true, schemaVersion: snapshot.schemaVersion, generatedAt: snapshot.generatedAt, total: snapshot.total, matched, page, pageSize, pages, categoryCount:categories.length, categories, catalog }); }
