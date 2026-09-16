@@ -111,3 +111,13 @@ OPENCART RBAC REMAINING — CURRENT QC
 - Full professional permission-matrix UI with Access/Modify select-all and clear-all controls.
 - Full runtime authorization matrix evidence.
 - GitHub Actions result for the latest current HEAD.
+
+============================================================
+DOCUMENTATION-ONLY SAFETY + KAMEL CI UPDATE — 2026-09-16
+============================================================
+STILL NOT COMPLETE:
+- Documentation isolation does not itself authorize any application change.
+- No automatic merge from docs/project-records into application branches is allowed.
+- KAMEL OpenCart-style RBAC still requires the full live/runtime HTTP authorization matrix before acceptance.
+- Complete polished User Groups permission-matrix UI and all requested Admin A-Z modules remain subject to independent verification.
+- No deployment or merge is authorized by the successful CI run alone.
