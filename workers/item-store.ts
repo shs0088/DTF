@@ -1105,6 +1105,38 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     this.bootstrapCatalog();const model=String(modelId||"").trim();if(!this.ctx.storage.sql.exec<any>("SELECT id FROM product_models WHERE id=?",model).toArray()[0])throw new Error("Product not found.");const allowed=["T-Shirt","Mug","Cap","T-Shirt+Mug","T-Shirt+Cap","Mug+Cap","T-Shirt+Mug+Cap"];const clean=[...new Set(types.map(x=>String(x)).filter(x=>allowed.includes(x)))];this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("DELETE FROM product_type_eligibility WHERE model_id=?",model);for(const type of clean)this.ctx.storage.sql.exec("INSERT INTO product_type_eligibility (model_id,product_type,enabled) VALUES (?,?,1)",model,type);this.adminAudit(actorId,"admin.product.eligibility.update","product_model",model,"success",{types:clean});});return this.adminProductDetail(model);
   }
 
+  adminCustomersList(filters: { search?:string; status?:string; dateFrom?:string; dateTo?:string; page?:number; pageSize?:number } = {}): unknown {
+    this.bootstrapCatalog(); const conditions:string[]=["r.name='customer'"]; const args:any[]=[];
+    const search=String(filters.search??"").trim().toLowerCase(); if(search){conditions.push("(lower(u.id) LIKE ? OR lower(u.display_name) LIKE ? OR lower(u.email) LIKE ? OR lower(COALESCE(cp.phone,'')) LIKE ?)");const q="%"+search+"%";args.push(q,q,q,q);}
+    const status=String(filters.status??"").trim().toLowerCase(); if(status){conditions.push("lower(u.status)=?");args.push(status);}
+    const dateFrom=String(filters.dateFrom??"").trim();if(/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)){conditions.push("date(u.created_at)>=date(?)");args.push(dateFrom);}
+    const dateTo=String(filters.dateTo??"").trim();if(/^\d{4}-\d{2}-\d{2}$/.test(dateTo)){conditions.push("date(u.created_at)<=date(?)");args.push(dateTo);}
+    const where=" WHERE "+conditions.join(" AND "); const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||20)));
+    const base=" FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id LEFT JOIN customer_profiles cp ON cp.user_id=u.id";
+    const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(DISTINCT u.id) AS count"+base+where,...args).toArray()[0]?.count??0);const pages=Math.max(1,Math.ceil(total/pageSize));const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1)));const offset=(page-1)*pageSize;
+    const items=this.ctx.storage.sql.exec<any>("SELECT u.id AS customerId,u.display_name AS displayName,u.email,u.locale,u.status,u.created_at AS createdAt,cp.phone,(SELECT COUNT(*) FROM orders o WHERE o.user_id=u.id) AS orderCount,(SELECT COALESCE(SUM(o.total_jod),0) FROM orders o WHERE o.user_id=u.id AND lower(o.status)<>'cancelled') AS lifetimeOrderValueJod"+base+where+" GROUP BY u.id ORDER BY u.created_at DESC,u.id LIMIT ? OFFSET ?",...args,pageSize,offset).toArray();
+    return {items,total,page,pageSize,pages};
+  }
+
+  adminCustomerDetail(customerId:string):unknown{
+    this.bootstrapCatalog();const id=String(customerId||"").trim();
+    const customer=this.ctx.storage.sql.exec<any>("SELECT u.id AS customerId,u.display_name AS displayName,u.email,u.locale,u.status,u.created_at AS createdAt,cp.phone,cp.default_address_json AS defaultAddressJson FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id LEFT JOIN customer_profiles cp ON cp.user_id=u.id WHERE u.id=? AND r.name='customer'",id).toArray()[0];if(!customer)return null;
+    const parse=(v:any,f:any)=>{try{return JSON.parse(String(v??""));}catch{return f;}};
+    const orders=this.ctx.storage.sql.exec<any>("SELECT id,status,payment_status AS paymentStatus,fulfillment_mode AS fulfillmentMode,total_jod AS totalJod,currency,created_at AS createdAt,(SELECT COUNT(*) FROM order_items oi WHERE oi.order_id=orders.id) AS itemCount FROM orders WHERE user_id=? ORDER BY created_at DESC,id DESC LIMIT 100",id).toArray();
+    const stats=this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS totalOrders,COALESCE(SUM(CASE WHEN lower(status)<>'cancelled' THEN total_jod ELSE 0 END),0) AS lifetimeValueJod,SUM(CASE WHEN lower(status)='completed' THEN 1 ELSE 0 END) AS completedOrders,SUM(CASE WHEN lower(status)='cancelled' THEN 1 ELSE 0 END) AS cancelledOrders FROM orders WHERE user_id=?",id).toArray()[0]??{};
+    return {...customer,defaultAddress:parse(customer.defaultAddressJson,null),orders,stats};
+  }
+
+  adminUpdateCustomer(actorId:string,customerId:string,input:{displayName?:string;email?:string;phone?:string|null;locale?:string;status?:string;defaultAddress?:unknown}):unknown{
+    this.bootstrapCatalog();const id=String(customerId||"").trim();const current=this.ctx.storage.sql.exec<any>("SELECT u.id,u.display_name AS displayName,u.email,u.locale,u.status FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id WHERE u.id=? AND r.name='customer'",id).toArray()[0];if(!current)throw new Error("Customer not found.");
+    const displayName=String(input.displayName??current.displayName).trim().slice(0,160);if(displayName.length<2)throw new Error("Customer display name is required.");
+    const email=String(input.email??current.email).trim().toLowerCase().slice(0,320);if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error("Enter a valid customer email address.");const duplicate=this.ctx.storage.sql.exec<any>("SELECT id FROM users WHERE email=? AND id<>?",email,id).toArray()[0];if(duplicate)throw new Error("Email is already in use.");
+    const locale=input.locale==="ar"?"ar":"en";const statusRaw=String(input.status??current.status).trim().toLowerCase();const status=["active","suspended","disabled"].includes(statusRaw)?statusRaw:String(current.status||"active");const phone=input.phone===undefined?undefined:(String(input.phone||"").trim().slice(0,60)||null);
+    let addressJson:string|undefined=undefined;if(input.defaultAddress!==undefined){if(input.defaultAddress!==null&&(typeof input.defaultAddress!=="object"||Array.isArray(input.defaultAddress)))throw new Error("Default address must be an object or null.");const encoded=JSON.stringify(input.defaultAddress);if(encoded.length>5000)throw new Error("Default address is too large.");addressJson=encoded;}
+    this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("UPDATE users SET display_name=?,email=?,locale=?,status=? WHERE id=?",displayName,email,locale,status,id);this.ctx.storage.sql.exec("INSERT OR IGNORE INTO customer_profiles (user_id) VALUES (?)",id);if(phone!==undefined)this.ctx.storage.sql.exec("UPDATE customer_profiles SET phone=? WHERE user_id=?",phone,id);if(addressJson!==undefined)this.ctx.storage.sql.exec("UPDATE customer_profiles SET default_address_json=? WHERE user_id=?",addressJson,id);if(status!=="active")this.ctx.storage.sql.exec("DELETE FROM sessions WHERE user_id=?",id);this.adminAudit(actorId,"admin.customer.update","customer",id,"success",{displayName,email,locale,status,phoneChanged:phone!==undefined,addressChanged:addressJson!==undefined});});
+    return this.adminCustomerDetail(id);
+  }
+
   adminManualReviewQueues(): unknown {
     this.bootstrapCatalog();
     const qualifications=this.ctx.storage.sql.exec<any>(`
