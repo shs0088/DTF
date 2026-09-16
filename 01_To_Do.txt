@@ -445,3 +445,32 @@ RUNTIME STILL REQUIRED:
 - live date-filter verification
 - live Access denial for unauthorized groups
 - browser/responsive and CSV export verification
+
+============================================================
+PROMOTIONS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: d8bc5f1bd8ec240f7aadefe4457b7751c2f0a612
+GITHUB ACTIONS RUN: 35105761651 — SUCCESS.
+COMPLETED FOR ADMIN PROMOTIONS SOURCE/CI:
+- real database-backed promotion/coupon definitions
+- percentage and fixed-JOD discount types
+- code uniqueness and normalization
+- minimum spend, maximum uses, start/expiry dates, enabled state
+- active/scheduled/expired/exhausted/disabled operational states
+- redemption history table with unique promotion+order pair
+- used count and total discount derived from redemptions, not Admin-editable
+- historical redemption-preserving enable/disable/update behavior
+- Admin list/search/filter/pagination/detail/create/update
+- admin.promotions Access/Modify authorization
+- promotion change audit logging
+- Promotions regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Settings.
+2. Integrations.
+3. Audit Log.
+4. Final storefront/business-flow integration and runtime QA, including checkout coupon redemption.
+RUNTIME/INTEGRATION STILL REQUIRED:
+- live Promotions CRUD and RBAC verification
+- live operational-state/date behavior
+- checkout coupon validation/redemption integration verification
+- browser/responsive verification

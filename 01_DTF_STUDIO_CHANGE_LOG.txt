@@ -533,3 +533,28 @@ DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
 NEXT: Promotions full Admin module.
+
+
+DATE/TIME: 2026-09-16T14:02:45Z
+TASK: Implement database-backed Admin Promotions/Coupons module.
+SOURCE START: e4a583cdfed47207e01f03c618107741e2790ef6
+SOURCE FINAL: d8bc5f1bd8ec240f7aadefe4457b7751c2f0a612
+FILES ADDED/CHANGED:
+- workers/item-store.ts
+- workers/static-app.ts
+- workers/admin-promotions.test.ts
+- .github/workflows/dtf-build-validation.yml
+IMPLEMENTED:
+- persistent promotion and redemption-history tables
+- percentage/fixed coupon configuration, min spend, max uses, scheduling/expiry, enable/disable
+- system-derived redemption metrics and operational states
+- protected Admin Promotions list/detail/create/update UI/API
+- admin.promotions Access/Modify authorization and audit logging
+VALIDATION:
+- GitHub Actions run 35105761651: SUCCESS
+- Install dependencies/typecheck/build: PASS
+- all Admin regression suites through Promotions: PASS
+BOUNDARY: checkout redemption was not modified in this Admin batch; final storefront/business-flow integration remains required.
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+NEXT: Settings full Admin module.

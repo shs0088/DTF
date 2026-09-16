@@ -482,3 +482,24 @@ REPORTS SOURCE/CI CHECK — 2026-09-16
 530. GitHub Actions run 35105176696: PASS.
 531. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts/Reports tests: PASS.
 532. Reports browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+PROMOTIONS SOURCE/CI CHECK — 2026-09-16
+============================================================
+533. Promotions stored in real database: PASS SOURCE/TEST.
+534. Redemption history uses unique promotion+order relation: PASS SOURCE/TEST.
+535. Percentage and fixed discount types supported: PASS SOURCE.
+536. Percentage >100 blocked: PASS SOURCE/TEST.
+537. Coupon code normalized/unique: PASS SOURCE/TEST.
+538. Start/expiry chronology validated: PASS SOURCE/TEST.
+539. Max uses cannot be reduced below historical redemption count: PASS SOURCE/TEST.
+540. Used count derived from redemption records: PASS SOURCE/TEST.
+541. Operational states active/scheduled/expired/exhausted/disabled: PASS SOURCE/TEST.
+542. Admin Promotions API/UI CRUD and filters: PASS SOURCE.
+543. admin.promotions GET requires Access: PASS SOURCE/TEST.
+544. Promotions mutations require Modify: PASS SOURCE/TEST.
+545. Promotion changes audit logged: PASS SOURCE.
+546. GitHub Actions run 35105761651: PASS.
+547. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts/Reports/Promotions tests: PASS.
+548. Checkout promotion redemption integration: PENDING FINAL BUSINESS-FLOW INTEGRATION.
+549. Promotions browser/runtime verification: PENDING RUNTIME.

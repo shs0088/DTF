@@ -321,3 +321,20 @@ VERIFIED IN SOURCE + CI:
 - server-side admin.reports Access authorization
 - Reports tests executed in GitHub Actions
 NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+PROMOTIONS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: d8bc5f1bd8ec240f7aadefe4457b7751c2f0a612
+CI RUN: 35105761651 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- persistent coupon definitions and redemption-history schema
+- percentage/fixed-JOD discounts, min spend, max uses, schedule/expiry and enabled state
+- system-derived usage/discount totals
+- safe validation for codes, percentages, dates and max-use history
+- operational state evaluation
+- protected Admin Promotions API/UI
+- admin.promotions Access/Modify checks and audit logging
+- Promotions tests executed in GitHub Actions
+NOTE: checkout redemption wiring is intentionally left for final storefront/business-flow integration; Admin source/CI completion does not claim live checkout redemption.

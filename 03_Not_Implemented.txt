@@ -299,3 +299,18 @@ STILL PENDING:
 3. Live date range boundary checks.
 4. Live CSV export/browser verification.
 5. Promotions remains next implementation dependency.
+
+============================================================
+PROMOTIONS REMAINING RUNTIME / CHECKOUT INTEGRATION — 2026-09-16
+============================================================
+RESOLVED IN ADMIN SOURCE/CI:
+- coupon definitions and redemption-history persistence
+- Admin CRUD/filter/pagination/detail
+- operational states and validation
+- Access/Modify guards and audit logging
+STILL PENDING:
+1. Live/browser Promotions verification.
+2. Live Access-only mutation denial.
+3. Checkout coupon validation/application/redemption integration against the authoritative promotions tables.
+4. Atomic used-count/redemption behavior under checkout concurrency.
+5. Settings remains next Admin implementation dependency.
