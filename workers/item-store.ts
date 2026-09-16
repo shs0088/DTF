@@ -2,6 +2,7 @@ import { DurableObject } from "cloudflare:workers";
 import { allowedAdminOrderTransitions, canTransitionAdminOrder, normalizeAdminOrderStatus } from "./admin-orders";
 import { allowedAdminProductionTransitions, canTransitionAdminProduction, normalizeAdminProductionStatus } from "./admin-production";
 import { allowedAdminWithdrawalTransitions, canTransitionAdminWithdrawal, normalizeAdminWithdrawalStatus } from "./admin-payouts";
+import { DESIGN_PRODUCT_TYPES } from "./analyzer";
 
 interface ItemStoreEnv {}
 
@@ -844,6 +845,67 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'customer','customer.checkout.create','order',?,?)",identity.userId,orderId,JSON.stringify({result:"success",metadata:{fulfillmentMode:fulfillment,paymentMethod:payment,promotionApplied:Boolean(promotion),discountJod:Number(preview.discountJod),reservationExpiresAt:expiresAt}}));
     });
     return this.adminOrderDetail(orderId);
+  }
+
+  private authorizedDesigner(sessionId:string):any{
+    const identity=this.sessionIdentity(sessionId);if(!identity||identity.role!=="designer")throw new Error("Designer sign-in is required.");
+    const profile=this.ctx.storage.sql.exec<any>("SELECT authorization_status AS authorizationStatus FROM designer_profiles WHERE user_id=?",identity.userId).toArray()[0];
+    if(!profile||String(profile.authorizationStatus).toLowerCase()!=="authorized")throw new Error("Designer Dashboard is available after qualification approval.");
+    return {...identity,authorizationStatus:profile.authorizationStatus};
+  }
+
+  designerWorkspace(sessionId:string):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const parse=(v:any,f:any)=>{try{return JSON.parse(String(v??""));}catch{return f;}};
+    const designs=this.ctx.storage.sql.exec<any>("SELECT d.id AS designId,d.title_en AS titleEn,d.title_ar AS titleAr,d.description_en AS descriptionEn,d.description_ar AS descriptionAr,d.product_type AS productType,d.status,d.created_at AS createdAt,d.published_at AS publishedAt,c.asset_id AS coverAssetId,m.asset_id AS masterAssetId,m.explicitly_selected AS masterExplicit FROM designs d LEFT JOIN cover_asset_relations c ON c.design_id=d.id LEFT JOIN master_asset_relations m ON m.design_id=d.id WHERE d.designer_id=? ORDER BY d.created_at DESC,d.id DESC",designer.userId).toArray();
+    return {designer,designs:designs.map((d:any)=>{const assets=this.ctx.storage.sql.exec<any>("SELECT a.id AS assetId,a.original_filename AS filename,a.mime_type AS mimeType,a.byte_size AS byteSize,a.asset_kind AS assetKind,a.protected,a.created_at AS createdAt,ar.format,ar.pixel_width AS pixelWidth,ar.pixel_height AS pixelHeight,ar.embedded_dpi AS embeddedDpi,ar.effective_dpi AS effectiveDpi,ar.has_alpha AS hasAlpha,ar.readable,ar.analyzable,ar.previewable,ar.metadata_json AS metadataJson,(SELECT vr.status FROM validation_results vr WHERE vr.asset_id=a.id ORDER BY vr.created_at DESC LIMIT 1) AS preflightStatus,(SELECT vr.errors_json FROM validation_results vr WHERE vr.asset_id=a.id ORDER BY vr.created_at DESC LIMIT 1) AS errorsJson,(SELECT vr.warnings_json FROM validation_results vr WHERE vr.asset_id=a.id ORDER BY vr.created_at DESC LIMIT 1) AS warningsJson FROM assets a LEFT JOIN analyzer_results ar ON ar.id=(SELECT x.id FROM analyzer_results x WHERE x.asset_id=a.id ORDER BY x.created_at DESC LIMIT 1) WHERE a.design_id=? ORDER BY a.created_at DESC,a.id DESC",d.designId).toArray().map((a:any)=>({...a,isCover:String(d.coverAssetId||"")===String(a.assetId),isMaster:String(d.masterAssetId||"")===String(a.assetId),metadata:parse(a.metadataJson,{}),errors:parse(a.errorsJson,[]),warnings:parse(a.warningsJson,[])}));return {...d,assets};})};
+  }
+
+  createDesignerDesign(sessionId:string,input:any):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const required=[["titleAr","Arabic Title"],["titleEn","English Title"],["descriptionAr","Arabic Description"],["descriptionEn","English Description"]] as const;
+    const clean:any={};for(const [key,label] of required){clean[key]=String(input?.[key]??"").trim().slice(0,key.startsWith("description")?5000:240);if(!clean[key])throw new Error("Missing required field: "+label+".");}
+    const productType=String(input?.productType??"").trim();if(!DESIGN_PRODUCT_TYPES.includes(productType as any))throw new Error("Select one of the 7 supported Product Type combinations.");
+    const designId=String(input?.designId??"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,100);if(!designId)throw new Error("Design ID is required.");
+    const assets=Array.isArray(input?.assets)?input.assets.slice(0,20):[];if(!assets.length)throw new Error("Upload at least one design asset.");if(assets.filter((a:any)=>Boolean(a.isMaster)).length!==1)throw new Error("Select exactly one Ready-to-Print Master.");
+    if(assets.filter((a:any)=>Boolean(a.isCover)).length>1)throw new Error("Select only one Main Display Image.");
+    const master=assets.find((a:any)=>Boolean(a.isMaster));if(!master?.preflight?.passed)throw new Error("The selected Ready-to-Print Master must pass preflight.");
+    let cover=assets.find((a:any)=>Boolean(a.isCover));if(!cover)cover=[...assets].reverse().find((a:any)=>Boolean(a?.analysis?.previewable));if(!cover)throw new Error("At least one uploaded asset must be previewable for the Main Display Image.");
+    const expectedPrefix=`designer/${designer.userId}/${designId}/`;for(const a of assets){if(!String(a.storageKey||"").startsWith(expectedPrefix))throw new Error("Asset storage path is outside the designer/design namespace.");if(!a.analysis?.signatureValid)throw new Error("Uploaded asset signature validation failed.");}
+    const ruleId="rule-dtf-preflight-v1.0";
+    this.ctx.storage.transactionSync(()=>{
+      if(this.ctx.storage.sql.exec<any>("SELECT id FROM designs WHERE id=?",designId).toArray()[0])throw new Error("Design ID already exists.");
+      this.ctx.storage.sql.exec("INSERT OR IGNORE INTO rule_versions (id,rule_set,version,definition_json) VALUES (?,'dtf-preflight','1.0',?)",ruleId,JSON.stringify({minEffectiveDpi:300,productTypes:[...DESIGN_PRODUCT_TYPES]}));
+      this.ctx.storage.sql.exec("INSERT INTO designs (id,designer_id,title_ar,title_en,description_ar,description_en,product_type,status) VALUES (?,?,?,?,?,?,?,'pending_review')",designId,designer.userId,clean.titleAr,clean.titleEn,clean.descriptionAr,clean.descriptionEn,productType);
+      for(const raw of assets){const assetId=String(raw.assetId||"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,100);if(!assetId)throw new Error("Asset ID is required.");const filename=String(raw.filename||"asset").replace(/[\\/\0]/g,"_").slice(0,240);const mime=String(raw.mime||raw.analysis?.mime||"application/octet-stream").slice(0,120);const bytes=Math.max(1,Math.floor(Number(raw.byteSize)||0));const kind=raw.isMaster?"master":raw.isCover?"cover":"original";const a=raw.analysis||{},p=raw.preflight||{};
+        this.ctx.storage.sql.exec("INSERT INTO assets (id,design_id,storage_key,original_filename,mime_type,byte_size,asset_kind) VALUES (?,?,?,?,?,?,?)",assetId,designId,String(raw.storageKey),filename,mime,bytes,kind);
+        this.ctx.storage.sql.exec("INSERT INTO analyzer_results (id,asset_id,format,signature,pixel_width,pixel_height,embedded_dpi,effective_dpi,physical_width_in,physical_height_in,has_alpha,readable,analyzable,previewable,metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",crypto.randomUUID(),assetId,String(a.format||""),a.signatureValid?"verified":"invalid",Number(a.pixelWidth||0),Number(a.pixelHeight||0),a.embeddedDpi==null?null:Number(a.embeddedDpi),p.effectiveDpi?.minimum==null?null:Number(p.effectiveDpi.minimum),p.physicalSizeIn?.width==null?null:Number(p.physicalSizeIn.width),p.physicalSizeIn?.height==null?null:Number(p.physicalSizeIn.height),a.hasAlpha==null?null:(a.hasAlpha?1:0),p.readable?1:0,p.analyzable?1:0,p.previewable?1:0,JSON.stringify({scalingRisk:p.scalingRisk??null,placeholderCheck:p.placeholderCheck??null,productType}));
+        this.ctx.storage.sql.exec("INSERT INTO validation_results (id,design_id,asset_id,rule_version_id,status,errors_json,warnings_json) VALUES (?,?,?,?,?,?,?)",crypto.randomUUID(),designId,assetId,ruleId,p.passed?"passed":"failed",JSON.stringify(Array.isArray(p.errors)?p.errors:[]),JSON.stringify(Array.isArray(p.warnings)?p.warnings:[]));
+      }
+      this.ctx.storage.sql.exec("INSERT INTO cover_asset_relations (design_id,asset_id) VALUES (?,?)",designId,String(cover.assetId));
+      this.ctx.storage.sql.exec("INSERT INTO master_asset_relations (design_id,asset_id,explicitly_selected) VALUES (?,?,1)",designId,String(master.assetId));
+      this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'designer','designer.design.create','design',?,?)",designer.userId,designId,JSON.stringify({result:"success",metadata:{productType,assetCount:assets.length,coverAssetId:cover.assetId,masterAssetId:master.assetId}}));
+    });
+    return (this.designerWorkspace(sessionId) as any).designs.find((d:any)=>d.designId===designId)??null;
+  }
+
+  setDesignerAssetRoles(sessionId:string,designId:string,assetId:string,input:{cover?:boolean;master?:boolean}):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const d=String(designId||"").trim(),a=String(assetId||"").trim();const row=this.ctx.storage.sql.exec<any>("SELECT a.id,d.status FROM assets a JOIN designs d ON d.id=a.design_id WHERE a.id=? AND d.id=? AND d.designer_id=?",a,d,designer.userId).toArray()[0];if(!row)throw new Error("Design asset not found.");
+    this.ctx.storage.transactionSync(()=>{if(input.cover===true)this.ctx.storage.sql.exec("INSERT INTO cover_asset_relations (design_id,asset_id) VALUES (?,?) ON CONFLICT(design_id) DO UPDATE SET asset_id=excluded.asset_id",d,a);else if(input.cover===false)this.ctx.storage.sql.exec("DELETE FROM cover_asset_relations WHERE design_id=? AND asset_id=?",d,a);
+      if(input.master===true){const pass=this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM validation_results WHERE design_id=? AND asset_id=? AND status='passed' ORDER BY created_at DESC LIMIT 1",d,a).toArray()[0]?.ok;if(!pass)throw new Error("Ready-to-Print Master must have a passing preflight result.");this.ctx.storage.sql.exec("INSERT INTO master_asset_relations (design_id,asset_id,explicitly_selected) VALUES (?,?,1) ON CONFLICT(design_id) DO UPDATE SET asset_id=excluded.asset_id,explicitly_selected=1,selected_at=CURRENT_TIMESTAMP",d,a);}else if(input.master===false)this.ctx.storage.sql.exec("DELETE FROM master_asset_relations WHERE design_id=? AND asset_id=?",d,a);
+      this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'designer','designer.asset.roles','asset',?,?)",designer.userId,a,JSON.stringify({result:"success",metadata:{designId:d,cover:input.cover,master:input.master}}));});
+    return (this.designerWorkspace(sessionId) as any).designs.find((x:any)=>x.designId===d)??null;
+  }
+
+  designerAssetAccess(sessionId:string,assetId:string):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);return this.ctx.storage.sql.exec<any>("SELECT a.id AS assetId,a.storage_key AS storageKey,a.original_filename AS filename,a.mime_type AS mimeType,a.byte_size AS byteSize,a.protected,d.id AS designId FROM assets a JOIN designs d ON d.id=a.design_id WHERE a.id=? AND d.designer_id=?",String(assetId||""),designer.userId).toArray()[0]??null;
+  }
+
+  deleteDesignerAsset(sessionId:string,assetId:string):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const id=String(assetId||"").trim();const row=this.ctx.storage.sql.exec<any>("SELECT a.id,a.storage_key AS storageKey,a.protected,a.design_id AS designId,d.status FROM assets a JOIN designs d ON d.id=a.design_id WHERE a.id=? AND d.designer_id=?",id,designer.userId).toArray()[0];if(!row)throw new Error("Design asset not found.");const linked=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM order_items WHERE master_asset_id=? LIMIT 1",id).toArray()[0]?.ok)||Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM printing_jobs WHERE master_asset_id=? LIMIT 1",id).toArray()[0]?.ok);if(Number(row.protected)===1||linked)throw new Error("This asset is protected by order/production history and cannot be deleted.");
+    let designDeleted=false;this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("DELETE FROM cover_asset_relations WHERE asset_id=?",id);this.ctx.storage.sql.exec("DELETE FROM master_asset_relations WHERE asset_id=?",id);this.ctx.storage.sql.exec("DELETE FROM assets WHERE id=?",id);const count=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM assets WHERE design_id=?",row.designId).toArray()[0]?.count??0);if(count===0&&String(row.status).toLowerCase()!=="published"){this.ctx.storage.sql.exec("DELETE FROM designs WHERE id=?",row.designId);designDeleted=true;}this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'designer','designer.asset.delete','asset',?,?)",designer.userId,id,JSON.stringify({result:"success",metadata:{designId:row.designId,designDeleted}}));});return {assetId:id,storageKey:row.storageKey,designId:row.designId,designDeleted};
+  }
+
+  deleteDesignerDesign(sessionId:string,designId:string):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const id=String(designId||"").trim();const row=this.ctx.storage.sql.exec<any>("SELECT id,status FROM designs WHERE id=? AND designer_id=?",id,designer.userId).toArray()[0];if(!row)throw new Error("Design not found.");const orderRef=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM order_items WHERE design_id=? LIMIT 1",id).toArray()[0]?.ok);const protectedAsset=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM assets WHERE design_id=? AND protected=1 LIMIT 1",id).toArray()[0]?.ok);if(orderRef||protectedAsset)throw new Error("This design is protected by order/production history and cannot be deleted.");const keys=this.ctx.storage.sql.exec<any>("SELECT storage_key AS storageKey FROM assets WHERE design_id=?",id).toArray().map((x:any)=>String(x.storageKey));this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("DELETE FROM designs WHERE id=?",id);this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'designer','designer.design.delete','design',?,?)",designer.userId,id,JSON.stringify({result:"success",metadata:{assetCount:keys.length}}));});return {designId:id,storageKeys:keys};
   }
 
   designs(): StudioDesign[] {
