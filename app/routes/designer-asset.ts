@@ -25,8 +25,10 @@ export async function loader({request,context,params}:Route.LoaderArgs){
   const headers=new Headers();
   headers.set("content-type",String(asset.mimeType||object.httpMetadata?.contentType||"application/octet-stream"));
   headers.set("content-length",String(asset.byteSize||object.size));
-  headers.set("content-disposition",'inline; filename="'+String(asset.filename||"asset").replace(/["\r\n]/g,"_")+'"');
+  const mime=String(asset.mimeType||object.httpMetadata?.contentType||"application/octet-stream");
+  headers.set("content-disposition",(mime==="application/pdf"?"attachment":"inline")+'; filename="'+String(asset.filename||"asset").replace(/["\r\n]/g,"_")+'"');
   headers.set("cache-control","private, max-age=300");
   headers.set("x-content-type-options","nosniff");
+  if(mime==="image/svg+xml")headers.set("content-security-policy","sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:");
   return new Response(object.body,{headers});
 }
