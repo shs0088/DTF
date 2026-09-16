@@ -142,3 +142,14 @@ T4. Creating or reassigning an Admin user must set exactly one current group and
 T5. Last enabled Main Administrator protection is evaluated by protected Main Administrator group membership, not by stale role text.
 T6. Admin navigation visibility is derived from Access permission; direct URL/API authorization remains server-side.
 T7. Documentation/QC edits remain isolated from runtime source changes and never imply deployment.
+
+
+============================================================
+FINAL CAMEL REFERENCE RULE — 2026-09-16
+============================================================
+- camel-current is the final working and visual reference branch.
+- camel-baseline-da347f preserves the previous protected baseline at da347ffbf928bbd1c80f302c134cd8928255abf8.
+- Visual decisions follow Camel.
+- Business rules, database, security, RBAC, preflight, stock, orders and production follow approved DTF Studio requirements/QC.
+- If a visual request conflicts with verified functional/security behavior, preserve the functional/security behavior and adapt the visual implementation around it.
+- main remains unchanged until explicit merge authorization.

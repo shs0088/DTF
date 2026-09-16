@@ -92,3 +92,19 @@ DOCUMENTATION-ONLY CHANGE SAFETY — 2026-09-16
 6. After the commit, compare changed paths. If any non-documentation application file changed unexpectedly, stop and treat the commit as FAILED; do not deploy or merge it.
 7. Documentation-only commits may trigger validation CI, but they do not authorize deployment.
 8. When implementation is required by a documentation update, create a separate implementation commit/batch after reading the updated requirements; never mix the paper change with the code change.
+
+============================================================
+CAMEL FINAL WORKING REFERENCE DIRECTIVE — 2026-09-16
+============================================================
+USER APPROVAL: Camel is the final visual/front-end reference and the final working source branch.
+
+1. Final working branch: camel-current.
+2. Preserved historical baseline: camel-baseline-da347f at da347ffbf928bbd1c80f302c134cd8928255abf8.
+3. Historical implementation branch: kamel/admin-rbac-foundation. Do not resume new work there unless the user explicitly asks to restore that workflow.
+4. Before every new implementation batch, fetch GitHub and verify branch = camel-current and record the exact HEAD.
+5. Camel governs final visual appearance, layout, spacing, theme, responsive behavior and visual states.
+6. Approved DTF Studio requirements/QC govern backend logic, database, RBAC, security, preflight, orders, stock, production and business rules.
+7. Never sacrifice verified business/security behavior merely to match a visual reference. Implement the Camel visual on top of the authoritative working logic.
+8. Keep main untouched and do not deploy/merge without explicit separate authorization.
+9. Preserve all protected PASS items unless the user explicitly authorizes changing that item.
+10. Continue from the first unfinished requirement; do not restart completed modules.
