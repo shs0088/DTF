@@ -39,3 +39,20 @@ describe("RBAC current-database authority regression", () => {
     expect(source).toContain('store.adminPermission(user.id,"admin.settings","modify")');
   });
 });
+
+
+describe("Admin dashboard real-data contract", () => {
+  test("dashboard summary is database-backed and contains no fake metric literals", async () => {
+    const storeSource=await Bun.file(new URL("./item-store.ts",import.meta.url)).text();
+    expect(storeSource).toContain("adminDashboardSummary()");
+    expect(storeSource).toContain("SELECT COUNT(*) AS count FROM orders");
+    expect(storeSource).toContain("SELECT date(created_at) AS day");
+  });
+  test("dashboard API and page require current group Access", async () => {
+    const worker=await Bun.file(new URL("./static-app.ts",import.meta.url)).text();
+    expect(worker).toContain('url.pathname!=="/api/admin/dashboard"');
+    expect(worker).toContain('store.adminPermission(identity.id,"admin.dashboard","access")');
+    expect(worker).toContain('url.pathname === "/admin/dashboard"');
+    expect(worker).toContain("Live operational data from the project database");
+  });
+});

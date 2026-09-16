@@ -915,6 +915,23 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   adminPermissionMatrix(role: "main_admin"|"printing_technician") { this.bootstrapCatalog(); if (role === "main_admin") return this.ctx.storage.sql.exec("SELECT DISTINCT resource, action, 1 AS allowed FROM admin_permission_assignments ORDER BY resource, action").toArray(); return this.ctx.storage.sql.exec("SELECT resource, action, 1 AS allowed FROM admin_permission_assignments WHERE role=? ORDER BY resource, action", role).toArray(); }
   adminAudit(actorId: string, action: string, resourceType: string, resourceId: string|null, result: string, metadata: unknown = {}) { this.bootstrapCatalog(); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,?,?,?,?,?)", actorId, "admin", action, resourceType, resourceId, JSON.stringify({result, metadata})); }
 
+  adminDashboardSummary(): unknown {
+    this.bootstrapCatalog();
+    const count=(sql:string,...args:any[])=>Number((this.ctx.storage.sql.exec<any>(sql,...args).toArray()[0]?.count)??0);
+    const ordersTotal=count("SELECT COUNT(*) AS count FROM orders");
+    const ordersOpen=count("SELECT COUNT(*) AS count FROM orders WHERE lower(status) NOT IN ('completed','cancelled')");
+    const paymentPending=count("SELECT COUNT(*) AS count FROM orders WHERE lower(payment_status)='pending'");
+    const productionOpen=count("SELECT COUNT(*) AS count FROM printing_jobs WHERE lower(status) NOT IN ('completed','cancelled')");
+    const reviewPending=count("SELECT COUNT(*) AS count FROM designer_applications WHERE lower(status) IN ('submitted','pending','under_review')");
+    const stockOut=count("SELECT COUNT(*) AS count FROM stocks WHERE tracked=1 AND quantity<=0");
+    const stockLow=count("SELECT COUNT(*) AS count FROM stocks WHERE tracked=1 AND quantity BETWEEN 1 AND 5");
+    const payoutPending=count("SELECT COUNT(*) AS count FROM withdrawals WHERE lower(status)='requested'");
+    const recentOrders=this.ctx.storage.sql.exec<any>("SELECT o.id,o.status,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,o.total_jod AS totalJod,o.currency,o.created_at AS createdAt,u.display_name AS customerName,u.email AS customerEmail FROM orders o LEFT JOIN users u ON u.id=o.user_id ORDER BY o.created_at DESC LIMIT 8").toArray();
+    const recentActivity=this.ctx.storage.sql.exec<any>("SELECT id,actor_id AS actorId,action,resource_type AS resourceType,resource_id AS resourceId,metadata_json AS metadata,created_at AS createdAt FROM audit_logs ORDER BY id DESC LIMIT 8").toArray();
+    const dailyOrders=this.ctx.storage.sql.exec<any>("SELECT date(created_at) AS day,COUNT(*) AS orders,COALESCE(SUM(total_jod),0) AS totalJod FROM orders WHERE datetime(created_at)>=datetime('now','-6 days') GROUP BY date(created_at) ORDER BY day").toArray();
+    return { orders:{total:ordersTotal,open:ordersOpen,paymentPending}, production:{open:productionOpen}, reviews:{pending:reviewPending}, stock:{outOfStock:stockOut,lowStock:stockLow,lowStockThreshold:5}, payouts:{requested:payoutPending}, recentOrders, recentActivity, dailyOrders };
+  }
+
   async loginAdmin(username: string, password: string): Promise<{id:string;username:string;role:"main_admin"|"printing_technician"}|null> {
     this.bootstrapCatalog();
     const clean = String(username || "").trim().toLowerCase();
