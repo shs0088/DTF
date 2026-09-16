@@ -1,6 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { allowedAdminOrderTransitions, canTransitionAdminOrder, normalizeAdminOrderStatus } from "./admin-orders";
 import { allowedAdminProductionTransitions, canTransitionAdminProduction, normalizeAdminProductionStatus } from "./admin-production";
+import { allowedAdminWithdrawalTransitions, canTransitionAdminWithdrawal, normalizeAdminWithdrawalStatus } from "./admin-payouts";
 
 interface ItemStoreEnv {}
 
@@ -468,6 +469,17 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         payout_details_json TEXT NOT NULL DEFAULT '{}',
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
+      CREATE TABLE IF NOT EXISTS withdrawal_admin_history (
+        id TEXT PRIMARY KEY,
+        withdrawal_id TEXT NOT NULL REFERENCES withdrawals(id) ON DELETE CASCADE,
+        from_status TEXT NOT NULL,
+        to_status TEXT NOT NULL,
+        note TEXT,
+        admin_actor_id TEXT REFERENCES admin_users(id),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_withdrawal_admin_history ON withdrawal_admin_history(withdrawal_id, created_at);
+      CREATE INDEX IF NOT EXISTS idx_withdrawals_status_created ON withdrawals(status, created_at);
       CREATE TABLE IF NOT EXISTS notifications (
         id TEXT PRIMARY KEY,
         user_id TEXT REFERENCES users(id),
@@ -1165,6 +1177,66 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   adminUpdateDesignerAccount(actorId:string,designerId:string,input:{displayName?:string;email?:string;locale?:string;accountStatus?:string}):unknown{
     this.bootstrapCatalog();const id=String(designerId||"").trim();const current=this.ctx.storage.sql.exec<any>("SELECT u.id,u.display_name AS displayName,u.email,u.locale,u.status AS accountStatus FROM users u JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id WHERE u.id=? AND r.name='designer'",id).toArray()[0];if(!current)throw new Error("Designer not found.");const displayName=String(input.displayName??current.displayName).trim().slice(0,160);if(displayName.length<2)throw new Error("Designer display name is required.");const email=String(input.email??current.email).trim().toLowerCase().slice(0,320);if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error("Enter a valid designer email address.");if(this.ctx.storage.sql.exec<any>("SELECT id FROM users WHERE email=? AND id<>?",email,id).toArray()[0])throw new Error("Email is already in use.");const locale=input.locale==="ar"?"ar":"en";const requested=String(input.accountStatus??current.accountStatus).trim().toLowerCase();const accountStatus=["active","suspended","disabled"].includes(requested)?requested:String(current.accountStatus||"active");
     this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("UPDATE users SET display_name=?,email=?,locale=?,status=? WHERE id=?",displayName,email,locale,accountStatus,id);if(accountStatus!=="active")this.ctx.storage.sql.exec("DELETE FROM sessions WHERE user_id=?",id);this.adminAudit(actorId,"admin.designer.account.update","designer",id,"success",{displayName,email,locale,accountStatus});});return this.adminDesignerDetail(id);
+  }
+
+  adminPayoutsList(filters: { search?:string; status?:string; dateFrom?:string; dateTo?:string; page?:number; pageSize?:number } = {}): unknown {
+    this.bootstrapCatalog(); const conditions:string[]=[]; const args:any[]=[];
+    const search=String(filters.search??"").trim().toLowerCase();
+    if(search){conditions.push("(lower(w.id) LIKE ? OR lower(w.designer_id) LIKE ? OR lower(u.display_name) LIKE ? OR lower(u.email) LIKE ?)");const q="%"+search+"%";args.push(q,q,q,q);}
+    const status=String(filters.status??"").trim().toLowerCase();if(status){conditions.push("lower(w.status)=?");args.push(status);}
+    const dateFrom=String(filters.dateFrom??"").trim();if(/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)){conditions.push("date(w.created_at)>=date(?)");args.push(dateFrom);}
+    const dateTo=String(filters.dateTo??"").trim();if(/^\d{4}-\d{2}-\d{2}$/.test(dateTo)){conditions.push("date(w.created_at)<=date(?)");args.push(dateTo);}
+    const where=conditions.length?" WHERE "+conditions.join(" AND "):"";
+    const base=" FROM withdrawals w JOIN users u ON u.id=w.designer_id JOIN designer_profiles dp ON dp.user_id=w.designer_id";
+    const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||20)));
+    const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count"+base+where,...args).toArray()[0]?.count??0);
+    const pages=Math.max(1,Math.ceil(total/pageSize));const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1)));const offset=(page-1)*pageSize;
+    const items=this.ctx.storage.sql.exec<any>(`SELECT w.id AS withdrawalId,w.designer_id AS designerId,u.display_name AS designerName,u.email AS designerEmail,u.status AS designerAccountStatus,dp.authorization_status AS authorizationStatus,w.amount_jod AS amountJod,w.status,w.created_at AS createdAt,
+      (SELECT COALESCE(SUM(de.amount_jod),0) FROM designer_earnings de WHERE de.designer_id=w.designer_id AND lower(de.status) IN ('available','approved','earned','payable')) AS eligibleEarningsJod,
+      (SELECT COALESCE(SUM(w2.amount_jod),0) FROM withdrawals w2 WHERE w2.designer_id=w.designer_id AND lower(w2.status) IN ('approved','paid')) AS committedOrPaidJod,
+      (SELECT wah.to_status FROM withdrawal_admin_history wah WHERE wah.withdrawal_id=w.id ORDER BY wah.created_at DESC,wah.id DESC LIMIT 1) AS latestAdminStatus
+      ${base}${where} ORDER BY CASE lower(w.status) WHEN 'requested' THEN 0 WHEN 'approved' THEN 1 WHEN 'paid' THEN 2 ELSE 3 END,w.created_at,w.id LIMIT ? OFFSET ?`,...args,pageSize,offset).toArray()
+      .map((x:any)=>({...x,availableForApprovalJod:Math.max(0,Number(x.eligibleEarningsJod||0)-Number(x.committedOrPaidJod||0)),allowedTransitions:[...allowedAdminWithdrawalTransitions(x.status)]}));
+    const summary=this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS total,SUM(CASE WHEN lower(status)='requested' THEN 1 ELSE 0 END) AS requested,SUM(CASE WHEN lower(status)='approved' THEN 1 ELSE 0 END) AS approved,SUM(CASE WHEN lower(status)='paid' THEN 1 ELSE 0 END) AS paid,SUM(CASE WHEN lower(status)='rejected' THEN 1 ELSE 0 END) AS rejected,COALESCE(SUM(CASE WHEN lower(status)='requested' THEN amount_jod ELSE 0 END),0) AS requestedJod,COALESCE(SUM(CASE WHEN lower(status)='approved' THEN amount_jod ELSE 0 END),0) AS approvedJod,COALESCE(SUM(CASE WHEN lower(status)='paid' THEN amount_jod ELSE 0 END),0) AS paidJod FROM withdrawals").toArray()[0]??{};
+    return {items,summary,total,page,pageSize,pages};
+  }
+
+  adminPayoutDetail(withdrawalId:string):unknown{
+    this.bootstrapCatalog();const id=String(withdrawalId||"").trim();
+    const row=this.ctx.storage.sql.exec<any>("SELECT w.id AS withdrawalId,w.designer_id AS designerId,u.display_name AS designerName,u.email AS designerEmail,u.status AS designerAccountStatus,dp.authorization_status AS authorizationStatus,w.amount_jod AS amountJod,w.status,w.payout_details_json AS payoutDetailsJson,w.created_at AS createdAt FROM withdrawals w JOIN users u ON u.id=w.designer_id JOIN designer_profiles dp ON dp.user_id=w.designer_id WHERE w.id=?",id).toArray()[0];
+    if(!row)return null;const parse=(v:any,f:any)=>{try{return JSON.parse(String(v??""));}catch{return f;}};
+    const history=this.ctx.storage.sql.exec<any>("SELECT wah.id,wah.from_status AS fromStatus,wah.to_status AS toStatus,wah.note,wah.admin_actor_id AS adminActorId,au.username AS adminUsername,wah.created_at AS createdAt FROM withdrawal_admin_history wah LEFT JOIN admin_users au ON au.id=wah.admin_actor_id WHERE wah.withdrawal_id=? ORDER BY wah.created_at DESC,wah.id DESC",id).toArray();
+    const earnings=this.ctx.storage.sql.exec<any>("SELECT de.id AS earningId,de.order_item_id AS orderItemId,de.amount_jod AS amountJod,de.status,de.created_at AS createdAt,oi.order_id AS orderId FROM designer_earnings de LEFT JOIN order_items oi ON oi.id=de.order_item_id WHERE de.designer_id=? ORDER BY de.created_at DESC,de.id DESC LIMIT 200",row.designerId).toArray();
+    const ledger=this.ctx.storage.sql.exec<any>("SELECT id AS ledgerId,entry_type AS entryType,amount_jod AS amountJod,reference_id AS referenceId,created_at AS createdAt FROM ledger_entries WHERE designer_id=? ORDER BY created_at DESC,id DESC LIMIT 200",row.designerId).toArray();
+    const eligibleEarningsJod=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(amount_jod),0) AS amount FROM designer_earnings WHERE designer_id=? AND lower(status) IN ('available','approved','earned','payable')",row.designerId).toArray()[0]?.amount??0);
+    const committedOtherJod=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(amount_jod),0) AS amount FROM withdrawals WHERE designer_id=? AND id<>? AND lower(status) IN ('approved','paid')",row.designerId,id).toArray()[0]?.amount??0);
+    const paidJod=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(amount_jod),0) AS amount FROM withdrawals WHERE designer_id=? AND lower(status)='paid'",row.designerId).toArray()[0]?.amount??0);
+    const duplicatePaidLedger=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM ledger_entries WHERE entry_type='withdrawal_paid' AND reference_id=? LIMIT 1",id).toArray()[0]?.ok);
+    return {...row,payoutDetails:parse(row.payoutDetailsJson,{}),history,earnings,ledger,eligibleEarningsJod,committedOtherJod,paidJod,availableForThisWithdrawalJod:Math.max(0,eligibleEarningsJod-committedOtherJod),duplicatePaidLedger,allowedTransitions:[...allowedAdminWithdrawalTransitions(row.status)]};
+  }
+
+  adminPayoutTransition(actorId:string,withdrawalId:string,nextStatus:string,note=""):unknown{
+    this.bootstrapCatalog();const id=String(withdrawalId||"").trim();const next=normalizeAdminWithdrawalStatus(nextStatus);if(!next)throw new Error("Invalid payout status.");const cleanNote=String(note||"").trim().slice(0,2000);
+    this.ctx.storage.transactionSync(()=>{
+      const row=this.ctx.storage.sql.exec<any>("SELECT id,designer_id AS designerId,amount_jod AS amountJod,status FROM withdrawals WHERE id=?",id).toArray()[0];if(!row)throw new Error("Withdrawal not found.");
+      const current=normalizeAdminWithdrawalStatus(row.status);if(!current||!canTransitionAdminWithdrawal(current,next))throw new Error(`Invalid payout transition: ${row.status} → ${next}.`);
+      if(next==="rejected"&&!cleanNote)throw new Error("Rejection reason is required.");
+      if(next==="approved"){
+        const eligible=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(amount_jod),0) AS amount FROM designer_earnings WHERE designer_id=? AND lower(status) IN ('available','approved','earned','payable')",row.designerId).toArray()[0]?.amount??0);
+        const committed=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(amount_jod),0) AS amount FROM withdrawals WHERE designer_id=? AND id<>? AND lower(status) IN ('approved','paid')",row.designerId,id).toArray()[0]?.amount??0);
+        if(Number(row.amountJod)>Math.max(0,eligible-committed))throw new Error("Withdrawal exceeds the designer's currently payoutable balance.");
+      }
+      if(next==="paid"){
+        if(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM ledger_entries WHERE entry_type='withdrawal_paid' AND reference_id=? LIMIT 1",id).toArray()[0]?.ok)throw new Error("This withdrawal already has a paid ledger entry.");
+        this.ctx.storage.sql.exec("INSERT INTO ledger_entries (id,designer_id,entry_type,amount_jod,reference_id) VALUES (?,?,?,?,?)",crypto.randomUUID(),row.designerId,"withdrawal_paid",-Math.abs(Number(row.amountJod)),id);
+      }
+      this.ctx.storage.sql.exec("UPDATE withdrawals SET status=? WHERE id=?",next,id);
+      this.ctx.storage.sql.exec("INSERT INTO withdrawal_admin_history (id,withdrawal_id,from_status,to_status,note,admin_actor_id) VALUES (?,?,?,?,?,?)",crypto.randomUUID(),id,current,next,cleanNote||null,actorId);
+      const titleEn=next==="approved"?"Withdrawal approved":next==="paid"?"Withdrawal paid":"Withdrawal rejected";const titleAr=next==="approved"?"تمت الموافقة على طلب السحب":next==="paid"?"تم دفع طلب السحب":"تم رفض طلب السحب";const bodyEn=next==="approved"?"Your withdrawal request has been approved.":next==="paid"?"Your withdrawal request has been marked paid.":"Your withdrawal request was rejected. Reason: "+cleanNote;const bodyAr=next==="approved"?"تمت الموافقة على طلب السحب الخاص بك.":next==="paid"?"تم تسجيل طلب السحب الخاص بك كمدفوع.":"تم رفض طلب السحب. السبب: "+cleanNote;
+      this.ctx.storage.sql.exec("INSERT INTO notifications (id,user_id,title_ar,title_en,body_ar,body_en) VALUES (?,?,?,?,?,?)",crypto.randomUUID(),row.designerId,titleAr,titleEn,bodyAr,bodyEn);
+      this.adminAudit(actorId,"admin.payout.status_change","withdrawal",id,"success",{designerId:row.designerId,amountJod:row.amountJod,fromStatus:current,toStatus:next,note:cleanNote||null});
+    });
+    return this.adminPayoutDetail(id);
   }
 
   adminManualReviewQueues(): unknown {
