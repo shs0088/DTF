@@ -11,6 +11,7 @@ export default [
   route("login", "routes/login.tsx"),
   route("account-type", "routes/account-type.tsx"),
   route("register", "routes/register.tsx"),
+  route("language/:locale", "routes/language.ts"),
   route("designer-qualification", "routes/designer-qualification.tsx"),
   route("designer", "routes/designer.tsx"),
   route("designer/new-design", "routes/designer-new-design.tsx"),
