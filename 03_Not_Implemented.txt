@@ -160,3 +160,14 @@ STILL PENDING:
 - Production Queue full module.
 - Products/Customers/Designers/Payouts/Reports/Promotions/Settings/Integrations/Audit A–Z completion.
 - No merge/deploy until required runtime evidence passes.
+
+============================================================
+GITHUB ADMIN ORDERS OPENCART-STYLE BATCH — 2026-09-16
+============================================================
+PENDING BEFORE FINAL ACCEPTANCE:
+- Live/browser Orders verification against deployed test runtime.
+- Direct HTTP Access-only/Modify denial tests for Orders.
+- Real-data validation of status history/audit persistence.
+- Real-order validation of master/printing-job references.
+- Production Queue operational UI/API and master download/status workflow.
+- Reconciliation with KAMEL Orders implementation before merge.

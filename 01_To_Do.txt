@@ -188,3 +188,15 @@ NEXT IN DEPENDENCY ORDER:
 3. Manual Review queues.
 4. Remaining Admin modules per Full Admin Dashboard A–Z target.
 Runtime/browser verification remains required before merge/deploy.
+
+============================================================
+GITHUB ADMIN ORDERS OPENCART-STYLE BATCH — 2026-09-16
+============================================================
+SOURCE/CI COMPLETE ON PARALLEL BRANCH: github/admin-orders-opencart.
+NEXT UNFINISHED ITEMS:
+1. Runtime/browser verification of Orders list/detail against a safe test environment.
+2. Runtime authorization checks for Access-only versus Modify on Orders.
+3. Verify status mutations and internal notes create persistent history/audit records.
+4. Verify existing real order items expose the exact Ready-to-Print Master and printing-job relationship.
+5. Continue to Production Queue implementation tied to order items and approved Ready-to-Print Master.
+6. No merge/deploy/main modification until runtime evidence and reconciliation are complete.

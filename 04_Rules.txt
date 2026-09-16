@@ -142,3 +142,18 @@ T4. Creating or reassigning an Admin user must set exactly one current group and
 T5. Last enabled Main Administrator protection is evaluated by protected Main Administrator group membership, not by stale role text.
 T6. Admin navigation visibility is derived from Access permission; direct URL/API authorization remains server-side.
 T7. Documentation/QC edits remain isolated from runtime source changes and never imply deployment.
+
+============================================================
+GITHUB ADMIN ORDERS OPENCART-STYLE BATCH — 2026-09-16
+============================================================
+U. ADMIN ORDERS WORKFLOW
+U1. Orders follow an OpenCart-style Admin list/detail operating pattern, adapted to DTF Studio fields and business rules.
+U2. Read/list/detail access requires admin.orders Access; all mutations require admin.orders Modify.
+U3. Canonical statuses: New → Payment Pending/Payment Confirmed → Under Preparation → Delivery or Pickup path → Completed; Cancelled is allowed only from approved pre-completion states.
+U4. Delivery path: Under Preparation → Ready for Delivery → Given to Delivery → Under Delivery → Completed.
+U5. Pickup path: Under Preparation → Ready for Pickup → Completed.
+U6. Status transitions outside the approved graph are rejected server-side.
+U7. Moving to Payment Confirmed synchronizes payment_status to confirmed.
+U8. Every Admin status change and internal note is preserved in persistent order history and Admin audit log.
+U9. Order detail must expose the exact order-item Ready-to-Print Master reference and related printing job when present.
+U10. Orders are historical business records and are not bulk-deleted from the Admin list.

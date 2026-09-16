@@ -167,3 +167,25 @@ SOURCE SHA: 1bd692923528975d34d9965311b2c79dfadbe064
 GITHUB ACTIONS RUN: 35079512451 — SUCCESS.
 INSTALL/TYPECHECK/BUILD/RBAC TESTS: PASS.
 DEPLOYMENT: NO.
+
+============================================================
+GITHUB ADMIN ORDERS OPENCART-STYLE BATCH — 2026-09-16
+============================================================
+BRANCH: github/admin-orders-opencart
+VERIFIED SOURCE SHA: 695716cadc39e40ad968f05553464f54c5593432
+GITHUB ACTIONS RUN: 35089282368 — SUCCESS
+IMPLEMENTED IN SOURCE:
+- Database-backed Orders list with search, status/payment/fulfillment/date filters, sorting and numbered pagination.
+- Order detail with customer/contact, payment, fulfillment, item, design, Ready-to-Print Master and printing-job references.
+- Persistent order status/note history table.
+- DTF Studio order workflow transition validation.
+- Server-authorized status changes and internal notes requiring admin.orders Modify permission.
+- Audit logging for order status changes and notes.
+- Access-protected Orders list/detail API and Admin pages.
+- OpenCart-style list/detail operational pattern adapted to DTF Studio.
+VALIDATION:
+- npm install: PASS
+- npm run typecheck: PASS
+- npm run build: PASS
+- RBAC + Orders Bun tests: PASS
+DEPLOYMENT: NO. MERGE: NO.

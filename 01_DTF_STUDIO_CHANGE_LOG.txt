@@ -317,3 +317,25 @@ VALIDATION:
 DEPLOYMENT: NO.
 MERGE: NO.
 NEXT: Orders module implementation.
+
+============================================================
+GITHUB ADMIN ORDERS OPENCART-STYLE BATCH — 2026-09-16
+============================================================
+TASK: Begin Full Admin A–Z next dependency after verified RBAC/Dashboard.
+REFERENCE BEHAVIOR:
+- OpenCart Admin Orders list/detail patterns: filters, sorting, pagination, detail/history.
+- DTF Studio business rules remain authoritative for statuses, print master and production.
+IMPLEMENTATION:
+- Created isolated branch github/admin-orders-opencart from KAMEL verified Dashboard head 6476c54204f3168a55d76e450e6d431ac20ff1db.
+- Added database-backed Orders list/detail APIs and pages.
+- Added persistent order status/note history.
+- Added validated DTF order transition policy and direct tests.
+- Added Ready-to-Print Master/printing-job visibility on order detail.
+- Added Access/Modify server authorization and mutation audit logging.
+VALIDATION:
+- Final source SHA before this documentation record: 695716cadc39e40ad968f05553464f54c5593432.
+- GitHub Actions run 35089282368: SUCCESS.
+- install/typecheck/build/RBAC+Orders tests: PASS.
+GOVERNANCE:
+- This QC record is documentation-only and does not alter runtime behavior.
+- No deployment, merge, main change, import or live database execution.

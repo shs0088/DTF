@@ -313,3 +313,23 @@ ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
 393. Dashboard API requires admin.dashboard Access: PASS SOURCE.
 394. GitHub Actions run 35079512451: PASS.
 395. Dashboard browser/runtime visual verification: PENDING RUNTIME.
+
+============================================================
+GITHUB ADMIN ORDERS OPENCART-STYLE BATCH — 2026-09-16
+============================================================
+396. Orders list uses real database records: PASS SOURCE.
+397. Orders search covers order/customer/email/phone: PASS SOURCE.
+398. Status/payment/fulfillment/date filters exist: PASS SOURCE.
+399. Sort and numbered pagination exist: PASS SOURCE.
+400. Order detail loads customer/payment/fulfillment/items: PASS SOURCE.
+401. Exact Ready-to-Print Master reference is exposed per order item: PASS SOURCE.
+402. Printing-job reference/status is exposed per order item: PASS SOURCE.
+403. Approved order transition graph is enforced server-side: PASS SOURCE/TEST.
+404. Status mutation requires admin.orders Modify: PASS SOURCE.
+405. Internal notes require admin.orders Modify: PASS SOURCE.
+406. Persistent order history records status/note events: PASS SOURCE.
+407. Status/note mutations create Admin audit entries: PASS SOURCE.
+408. GitHub Actions run 35089282368 install/typecheck/build/tests: PASS.
+409. Orders browser/runtime behavior: PENDING RUNTIME.
+410. Orders live authorization matrix: PENDING RUNTIME.
+411. KAMEL/GitHub Orders reconciliation: PENDING.
