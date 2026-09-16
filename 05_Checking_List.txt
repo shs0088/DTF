@@ -235,3 +235,19 @@ OPENCART RBAC CHECK STATUS — CURRENT HEAD 1e97148026dcdfbd7e06fa2995d4ff91c51c
 - Source-level group schema and resolver checks: PASS.
 - CI execution for this exact HEAD: PENDING.
 - Runtime authorization matrix: PENDING.
+
+============================================================
+DOCUMENTATION-ONLY SAFETY + KAMEL CI UPDATE — 2026-09-16
+============================================================
+358. docs/project-records exists as a separate documentation-only branch.
+359. docs/project-records was created from camel-current baseline da347ffbf928bbd1c80f302c134cd8928255abf8.
+360. Current QC/requirements papers are copied into docs/project-records without modifying protected application branches.
+361. Documentation-only guard exists and rejects non-documentation file changes.
+362. Documentation-only guard run 35073628049 passes.
+363. camel-current remains da347ffbf928bbd1c80f302c134cd8928255abf8 after documentation separation.
+364. main remains 61ac8f9a9ed97c2899cde198d9e7820f6d699757 after documentation separation.
+365. KAMEL SHA c8a4145e48aab03fcd36874ab67de9e48754ff55 GitHub Actions result is FAILURE at Typecheck.
+366. Typecheck errors were TS18047 on workers/static-app.ts permission checks referencing possibly-null claims.
+367. Narrow correction SHA 0aba6ac42a932b37e5dfe6ae1f2f76f47ff18070 exists on kamel/admin-rbac-foundation.
+368. GitHub Actions run 35073709467 passes install, typecheck, production build, and RBAC tests.
+369. Runtime authorization matrix remains required before merge/deploy.
