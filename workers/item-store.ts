@@ -460,6 +460,9 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         role TEXT NOT NULL CHECK(role IN ('main_admin','printing_technician')), enabled INTEGER NOT NULL DEFAULT 1,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, last_login_at TEXT
       );
+      CREATE TABLE IF NOT EXISTS admin_permission_assignments (role TEXT NOT NULL CHECK(role IN ('main_admin','printing_technician')), resource TEXT NOT NULL, action TEXT NOT NULL, PRIMARY KEY(role, resource, action));
+      INSERT OR IGNORE INTO admin_permission_assignments (role,resource,action) VALUES ('printing_technician','admin.dashboard','access'),('printing_technician','admin.orders','access'),('printing_technician','admin.orders','change_status'),('printing_technician','admin.production','access'),('printing_technician','admin.production','change_status'),('printing_technician','admin.production','download');
+      CREATE INDEX IF NOT EXISTS idx_admin_permission_role ON admin_permission_assignments(role, resource, action);
 
       CREATE TABLE IF NOT EXISTS server_secrets (
         key_name TEXT PRIMARY KEY, secret_value TEXT NOT NULL,
@@ -842,6 +845,12 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     this.ctx.storage.sql.exec("UPDATE admin_users SET username=?,password_salt=?,password_hash=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", clean, this.adminB64(salt), hash, id);
     return { id: String(row.id), username: clean, role: row.role };
   }
+
+  adminCan(role: "main_admin"|"printing_technician", resource: string, action: string): boolean { this.bootstrapCatalog(); if (role === "main_admin") return true; return Boolean(this.ctx.storage.sql.exec<{ok:number}>("SELECT 1 AS ok FROM admin_permission_assignments WHERE role=? AND resource=? AND action=?", role, resource, action).toArray()[0]?.ok); }
+  adminUsers() { this.bootstrapCatalog(); return this.ctx.storage.sql.exec("SELECT id,username,role,enabled,created_at AS createdAt,updated_at AS updatedAt,last_login_at AS lastLoginAt FROM admin_users ORDER BY username").toArray(); }
+  adminGroups() { this.bootstrapCatalog(); return this.ctx.storage.sql.exec("SELECT role AS id, CASE role WHEN 'main_admin' THEN 'Main Administrator' ELSE 'Printing Operator' END AS name, role='main_admin' AS fullAccess, COUNT(*) AS userCount FROM admin_users GROUP BY role").toArray(); }
+  adminPermissionMatrix(role: "main_admin"|"printing_technician") { this.bootstrapCatalog(); if (role === "main_admin") return this.ctx.storage.sql.exec("SELECT DISTINCT resource, action, 1 AS allowed FROM admin_permission_assignments ORDER BY resource, action").toArray(); return this.ctx.storage.sql.exec("SELECT resource, action, 1 AS allowed FROM admin_permission_assignments WHERE role=? ORDER BY resource, action", role).toArray(); }
+  adminAudit(actorId: string, action: string, resourceType: string, resourceId: string|null, result: string, metadata: unknown = {}) { this.bootstrapCatalog(); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,?,?,?,?,?)", actorId, "admin", action, resourceType, resourceId, JSON.stringify({result, metadata})); }
 
   async loginAdmin(username: string, password: string): Promise<{id:string;username:string;role:"main_admin"|"printing_technician"}|null> {
     this.bootstrapCatalog();
