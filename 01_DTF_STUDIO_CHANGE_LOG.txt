@@ -230,3 +230,11 @@ SOURCE: 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5.
 CHANGES: Reconciled React RBAC API with the current database-backed Admin group permission resolver; preserved Worker authorization and Access/Modify group model.
 VALIDATION: Source structure checked; GitHub Actions and runtime authorization results pending.
 DEPLOYMENT: NO. MERGE: NO.
+
+
+RBAC CONTINUATION — 2026-09-16
+- Added active Users/User Groups matrix UI with Access/Modify bulk controls.
+- Added current group data to Users API and connected group reassignment.
+- Added expanded authorization matrix tests.
+- No deployment, merge, or database data changes.
+- Validation remains pending for final GitHub Actions and runtime HTTP behavior.

@@ -144,3 +144,9 @@ OPENCART RBAC QC UPDATE — CURRENT HEAD 1e97148026dcdfbd7e06fa2995d4ff91c51cecd
 ============================================================
 - OpenCart-style group schema, exactly-one group assignment, protected system groups, custom group CRUD, Access/Modify persistence, and server-side resolver are present.
 - Remaining validation requires actual GitHub Actions evidence and runtime authorization matrix execution.
+
+
+RBAC CONTINUATION UPDATE — CURRENT WORK
+- Complete fresh GitHub Actions run for final SHA.
+- Execute runtime HTTP authorization matrix against a test environment.
+- Verify active deployed Worker route behavior without deploying in this task.

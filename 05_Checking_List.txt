@@ -235,3 +235,12 @@ OPENCART RBAC CHECK STATUS — CURRENT HEAD 1e97148026dcdfbd7e06fa2995d4ff91c51c
 - Source-level group schema and resolver checks: PASS.
 - CI execution for this exact HEAD: PENDING.
 - Runtime authorization matrix: PENDING.
+
+
+RBAC CONTINUATION CHECKLIST
+- Matrix UI controls: COMPLETED in source.
+- Current group display and reassignment wiring: COMPLETED in source.
+- Server-side group assignment endpoint: COMPLETED in source.
+- Detailed current-group user query: COMPLETED in source.
+- Runnable authorization coverage: COMPLETED in source; execution NEEDS RETEST.
+- GitHub Actions final SHA: NEEDS RETEST.

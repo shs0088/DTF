@@ -109,3 +109,14 @@ OPENCART RBAC CURRENT IMPLEMENTATION EVIDENCE — 2026-09-16
 - Group management and Access/Modify persistence remain in workers/item-store.ts.
 - CI workflow includes npm install, typecheck, build, and bun test workers/admin-rbac.test.ts.
 - CI result for this exact HEAD is pending retrieval.
+
+
+RBAC CONTINUATION COMPLETED/CORRECTED
+- Active Admin RBAC page now includes Users and User Groups workflows.
+- User Groups matrix includes independent Access and Modify columns.
+- Access Select All/Clear All and Modify Select All/Clear All controls added.
+- Group permission save uses group permissions API.
+- Users page displays current group, enabled state, and group reassignment control.
+- User group assignment route is connected to setAdminUserGroup.
+- Users API returns current group data through adminUsersDetailed.
+- New source-level authorization matrix tests added.

@@ -111,3 +111,10 @@ OPENCART RBAC REMAINING — CURRENT QC
 - Full professional permission-matrix UI with Access/Modify select-all and clear-all controls.
 - Full runtime authorization matrix evidence.
 - GitHub Actions result for the latest current HEAD.
+
+
+RBAC CONTINUATION OPEN ITEMS
+- Fresh GitHub Actions result for final SHA: NEEDS RETEST.
+- Runtime HTTP authorization matrix: NEEDS RETEST.
+- Browser/UI verification: NOT RUN.
+- Full module-by-module navigation verification: NEEDS RETEST.

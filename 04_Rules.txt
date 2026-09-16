@@ -109,3 +109,10 @@ OPENCART RBAC ENFORCEMENT NOTE — 2026-09-16
 - Access and Modify are independent database permissions.
 - Current enabled user, group, and permissions are authoritative for Worker and React RBAC API checks.
 - Client role/group/permission headers are not authorization sources.
+
+
+RBAC CONTINUATION RULES
+- User Group membership and database permissions remain authoritative.
+- Access and Modify remain independent.
+- Protected system-group permissions are not editable.
+- Documentation updates are documentation-only and do not change runtime behavior.
