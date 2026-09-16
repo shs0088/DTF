@@ -109,3 +109,18 @@ OPENCART RBAC CURRENT IMPLEMENTATION EVIDENCE — 2026-09-16
 - Group management and Access/Modify persistence remain in workers/item-store.ts.
 - CI workflow includes npm install, typecheck, build, and bun test workers/admin-rbac.test.ts.
 - CI result for this exact HEAD is pending retrieval.
+
+============================================================
+DOCUMENTATION-ONLY SAFETY + KAMEL CI UPDATE — 2026-09-16
+============================================================
+VERIFIED DOCUMENTATION SAFETY:
+- Dedicated branch docs/project-records created from protected camel-current baseline.
+- Current requirement/QC papers copied to the documentation branch.
+- Documentation-only guard workflow added.
+- Guard run 35073628049: SUCCESS.
+- camel-current and main remained unchanged.
+VERIFIED KAMEL BUILD REPAIR:
+- KAMEL SHA c8a4145e48aab03fcd36874ab67de9e48754ff55 failed Typecheck because permission checks referenced possibly-null session claims after identity resolution.
+- Narrow correction committed as 0aba6ac42a932b37e5dfe6ae1f2f76f47ff18070 using the resolved current Admin identity.
+- GitHub Actions run 35073709467: SUCCESS.
+- npm install, typecheck, production build, and RBAC tests all passed.
