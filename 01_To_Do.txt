@@ -515,3 +515,24 @@ COMPLETED:
 - Integrations regression tests in CI
 NEXT: Audit Log, then final runtime/business-flow QA.
 RUNTIME STILL REQUIRED: live Integrations UI/RBAC/diagnostic verification.
+
+============================================================
+AUDIT LOG SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 1ab487102a0990c9107c38c54b9c768b933b40fe
+GITHUB ACTIONS RUN: 35116639331 — SUCCESS.
+COMPLETED FOR AUDIT LOG SOURCE/CI:
+- existing audit_logs evidence reused as the authoritative audit source
+- searchable/filterable/paginated Admin Audit Log
+- actor/action/resource/result/timestamp context
+- read-only Admin page and API
+- stored metadata parsed and sanitized before browser delivery
+- compatibility retained for legacy adminAuditList callers
+- admin.audit_log Access authorization
+- Audit Log regression tests added to CI
+ADMIN A–Z SOURCE MODULES ARE NOW COMPLETE THROUGH AUDIT LOG.
+NEXT UNFINISHED WORK:
+1. Final storefront/business-flow integration and source reconciliation.
+2. Safe runtime/browser authorization matrix.
+3. End-to-end runtime QA across customer/designer/admin/operator flows.
+4. No merge/deploy until separately authorized.

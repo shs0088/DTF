@@ -335,3 +335,15 @@ INTEGRATIONS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
 ============================================================
 SOURCE/CI COMPLETE.
 PENDING: live UI verification, live Access/Modify denial checks, safe diagnostic verification, then Audit Log and final runtime/business-flow QA.
+
+============================================================
+AUDIT LOG / ADMIN A–Z REMAINING ACCEPTANCE — 2026-09-16
+============================================================
+AUDIT LOG SOURCE/CI: COMPLETE.
+ADMIN A–Z SOURCE/CI: COMPLETE THROUGH AUDIT LOG.
+STILL PENDING:
+1. Live/browser Audit Log verification and unauthorized Access denial.
+2. Final storefront/business-flow integration and reconciliation.
+3. Full runtime RBAC matrix and stale-session/direct-URL/API denial tests.
+4. End-to-end customer/designer/admin/operator workflows.
+5. Deployment/merge remains unauthorized until separate approval.
