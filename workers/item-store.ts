@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import { allowedAdminOrderTransitions, canTransitionAdminOrder, normalizeAdminOrderStatus } from "./admin-orders";
 
 interface ItemStoreEnv {}
 
@@ -399,6 +400,20 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         protected_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
+      CREATE TABLE IF NOT EXISTS order_admin_history (
+        id TEXT PRIMARY KEY,
+        order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+        event_type TEXT NOT NULL CHECK (event_type IN ('status_change','note')),
+        from_status TEXT,
+        to_status TEXT,
+        payment_status TEXT,
+        internal_comment TEXT,
+        admin_actor_id TEXT REFERENCES admin_users(id),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_order_admin_history_order ON order_admin_history(order_id, created_at);
+      CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
+      CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status, payment_status, fulfillment_mode);
       CREATE TABLE IF NOT EXISTS supplier_orders (
         id TEXT PRIMARY KEY,
         order_item_id TEXT NOT NULL REFERENCES order_items(id),
@@ -914,6 +929,53 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   adminGroups() { this.bootstrapCatalog(); return this.ctx.storage.sql.exec("SELECT role AS id, CASE role WHEN 'main_admin' THEN 'Main Administrator' ELSE 'Printing Operator' END AS name, role='main_admin' AS fullAccess, COUNT(*) AS userCount FROM admin_users GROUP BY role").toArray(); }
   adminPermissionMatrix(role: "main_admin"|"printing_technician") { this.bootstrapCatalog(); if (role === "main_admin") return this.ctx.storage.sql.exec("SELECT DISTINCT resource, action, 1 AS allowed FROM admin_permission_assignments ORDER BY resource, action").toArray(); return this.ctx.storage.sql.exec("SELECT resource, action, 1 AS allowed FROM admin_permission_assignments WHERE role=? ORDER BY resource, action", role).toArray(); }
   adminAudit(actorId: string, action: string, resourceType: string, resourceId: string|null, result: string, metadata: unknown = {}) { this.bootstrapCatalog(); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,?,?,?,?,?)", actorId, "admin", action, resourceType, resourceId, JSON.stringify({result, metadata})); }
+
+  adminOrdersList(filters: { search?:string; status?:string; paymentStatus?:string; fulfillmentMode?:string; dateFrom?:string; dateTo?:string; sort?:string; direction?:string; page?:number; pageSize?:number } = {}): unknown {
+    this.bootstrapCatalog();
+    const conditions:string[]=[]; const args:any[]=[];
+    const search=String(filters.search??"").trim().toLowerCase();
+    if(search){conditions.push("(lower(o.id) LIKE ? OR lower(COALESCE(u.display_name,'')) LIKE ? OR lower(COALESCE(u.email,'')) LIKE ? OR lower(COALESCE(cp.phone,'')) LIKE ?)"); const q="%"+search+"%"; args.push(q,q,q,q);}
+    const status=String(filters.status??"").trim().toLowerCase(); if(status){conditions.push("lower(o.status)=?");args.push(status);}
+    const paymentStatus=String(filters.paymentStatus??"").trim().toLowerCase(); if(paymentStatus){conditions.push("lower(o.payment_status)=?");args.push(paymentStatus);}
+    const fulfillmentMode=String(filters.fulfillmentMode??"").trim().toLowerCase(); if(fulfillmentMode){conditions.push("lower(o.fulfillment_mode)=?");args.push(fulfillmentMode);}
+    const dateFrom=String(filters.dateFrom??"").trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)){conditions.push("date(o.created_at)>=date(?)");args.push(dateFrom);}
+    const dateTo=String(filters.dateTo??"").trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(dateTo)){conditions.push("date(o.created_at)<=date(?)");args.push(dateTo);}
+    const where=conditions.length?" WHERE "+conditions.join(" AND "):"";
+    const sortMap:Record<string,string>={date:"o.created_at",id:"o.id",customer:"COALESCE(u.display_name,u.email,o.user_id,'')",status:"o.status",payment:"o.payment_status",total:"o.total_jod"};
+    const sortColumn=sortMap[String(filters.sort??"date")]??sortMap.date;
+    const direction=String(filters.direction??"desc").toLowerCase()==="asc"?"ASC":"DESC";
+    const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||20)));
+    const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM orders o LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id"+where,...args).toArray()[0]?.count??0);
+    const pages=Math.max(1,Math.ceil(total/pageSize)); const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1))); const offset=(page-1)*pageSize;
+    const items=this.ctx.storage.sql.exec<any>(`SELECT o.id,o.status,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,o.total_jod AS totalJod,o.currency,o.created_at AS createdAt,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,(SELECT COUNT(*) FROM order_items oi WHERE oi.order_id=o.id) AS itemCount FROM orders o LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id${where} ORDER BY ${sortColumn} ${direction} LIMIT ? OFFSET ?`,...args,pageSize,offset).toArray();
+    return {items,total,page,pageSize,pages,sort:String(filters.sort??"date"),direction:direction.toLowerCase()};
+  }
+
+  adminOrderDetail(orderId: string): unknown {
+    this.bootstrapCatalog(); const id=String(orderId||"").trim();
+    const order=this.ctx.storage.sql.exec<any>("SELECT o.id,o.user_id AS userId,o.status,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,o.total_jod AS totalJod,o.currency,o.exchange_rate_json AS exchangeRateJson,o.created_at AS createdAt,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,cp.default_address_json AS defaultAddressJson FROM orders o LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id WHERE o.id=?",id).toArray()[0];
+    if(!order) return null;
+    const parse=(value:any,fallback:any)=>{try{return JSON.parse(String(value??""));}catch{return fallback;}};
+    const items=this.ctx.storage.sql.exec<any>("SELECT oi.id,oi.quantity,oi.variant_id AS variantId,v.sku,v.color,v.size,v.options_json AS variantOptionsJson,v.retail_price_jod AS currentRetailPriceJod,pm.id AS modelId,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,oi.design_id AS designId,d.title_en AS designTitleEn,d.title_ar AS designTitleAr,oi.master_asset_id AS masterAssetId,a.original_filename AS masterFilename,a.mime_type AS masterMimeType,a.storage_key AS masterStorageKey,a.protected AS masterProtected,oi.print_spec_json AS printSpecJson,oi.price_snapshot_json AS priceSnapshotJson,(SELECT pj.id FROM printing_jobs pj WHERE pj.order_item_id=oi.id ORDER BY pj.created_at DESC LIMIT 1) AS printingJobId,(SELECT pj.status FROM printing_jobs pj WHERE pj.order_item_id=oi.id ORDER BY pj.created_at DESC LIMIT 1) AS printingJobStatus,(SELECT pj.master_asset_id FROM printing_jobs pj WHERE pj.order_item_id=oi.id ORDER BY pj.created_at DESC LIMIT 1) AS printingJobMasterAssetId FROM order_items oi JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id LEFT JOIN designs d ON d.id=oi.design_id LEFT JOIN assets a ON a.id=oi.master_asset_id WHERE oi.order_id=? ORDER BY oi.id",id).toArray().map((row:any)=>({...row,variantOptions:parse(row.variantOptionsJson,{}),printSpec:parse(row.printSpecJson,{}),priceSnapshot:parse(row.priceSnapshotJson,{})}));
+    const payments=this.ctx.storage.sql.exec<any>("SELECT id,method,status,proof_storage_key AS proofStorageKey,confirmed_by AS confirmedBy,created_at AS createdAt FROM payments WHERE order_id=? ORDER BY created_at",id).toArray();
+    const history=this.ctx.storage.sql.exec<any>("SELECT h.id,h.event_type AS eventType,h.from_status AS fromStatus,h.to_status AS toStatus,h.payment_status AS paymentStatus,h.internal_comment AS internalComment,h.admin_actor_id AS adminActorId,a.username AS adminUsername,h.created_at AS createdAt FROM order_admin_history h LEFT JOIN admin_users a ON a.id=h.admin_actor_id WHERE h.order_id=? ORDER BY h.created_at DESC,h.id DESC",id).toArray();
+    return {...order,exchangeRate:parse(order.exchangeRateJson,null),defaultAddress:parse(order.defaultAddressJson,null),items,payments,history,allowedTransitions:[...allowedAdminOrderTransitions(order.status)]};
+  }
+
+  adminOrderUpdateStatus(actorId: string, orderId: string, nextStatus: string, comment = ""): unknown {
+    this.bootstrapCatalog(); const id=String(orderId||"").trim(); const row=this.ctx.storage.sql.exec<any>("SELECT id,status,payment_status AS paymentStatus FROM orders WHERE id=?",id).toArray()[0]; if(!row) throw new Error("Order not found.");
+    const next=normalizeAdminOrderStatus(nextStatus); if(!next) throw new Error("Invalid order status."); if(!canTransitionAdminOrder(row.status,next)) throw new Error(`Invalid status transition: ${row.status} → ${next}.`);
+    const note=String(comment||"").trim().slice(0,2000); const paymentStatus=next==="payment_confirmed"?"confirmed":String(row.paymentStatus||"pending");
+    const historyId=crypto.randomUUID();
+    this.ctx.storage.transactionSync(()=>{ this.ctx.storage.sql.exec("UPDATE orders SET status=?,payment_status=? WHERE id=?",next,paymentStatus,id); if(next==="payment_confirmed") this.ctx.storage.sql.exec("UPDATE payments SET status='confirmed',confirmed_by=? WHERE order_id=? AND status<>'confirmed'",actorId,id); this.ctx.storage.sql.exec("INSERT INTO order_admin_history (id,order_id,event_type,from_status,to_status,payment_status,internal_comment,admin_actor_id) VALUES (?,?,'status_change',?,?,?,?,?)",historyId,id,String(row.status),next,paymentStatus,note||null,actorId); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.order.status_change','order',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{fromStatus:row.status,toStatus:next,paymentStatus,comment:note}})); });
+    return this.adminOrderDetail(id);
+  }
+
+  adminOrderAddNote(actorId: string, orderId: string, comment: string): unknown {
+    this.bootstrapCatalog(); const id=String(orderId||"").trim(); const row=this.ctx.storage.sql.exec<any>("SELECT id,status,payment_status AS paymentStatus FROM orders WHERE id=?",id).toArray()[0]; if(!row) throw new Error("Order not found."); const note=String(comment||"").trim().slice(0,2000); if(!note) throw new Error("Internal note is required."); const historyId=crypto.randomUUID();
+    this.ctx.storage.transactionSync(()=>{ this.ctx.storage.sql.exec("INSERT INTO order_admin_history (id,order_id,event_type,from_status,to_status,payment_status,internal_comment,admin_actor_id) VALUES (?,?,'note',?,?,?, ?,?)",historyId,id,String(row.status),String(row.status),String(row.paymentStatus||"pending"),note,actorId); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.order.note','order',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{comment:note}})); });
+    return this.adminOrderDetail(id);
+  }
 
   adminDashboardSummary(): unknown {
     this.bootstrapCatalog();
