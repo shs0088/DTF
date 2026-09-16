@@ -733,3 +733,39 @@ NO
 
 MERGE:
 NO
+
+============================================================
+WORKER ADMIN FOUNDATION — KAMEL REPORT / QC CLASSIFICATION — 2026-09-17
+============================================================
+ACTIVE PROJECT: dtf-studio-v48-safe-frontend
+ARCHITECTURE: Worker-backed Admin selected as canonical authority.
+KAMEL REPORTED SOURCE CHANGES:
+- workers/item-store.ts
+- workers/static-app.ts
+REPORTED DATABASE ADDITIONS:
+- admin_user_groups
+- admin_user_group_memberships
+- admin_group_permissions
+REPORTED FUNCTIONAL ADDITIONS:
+- database-backed Access/Modify permissions
+- adminPermission()
+- enabled-user/enabled-group identity resolution
+- GET /api/admin/dashboard
+- database-derived Dashboard summary
+REPORTED PROTECTED AREAS UNCHANGED:
+- app/routes/admin.tsx
+- V48.22E static frontend
+- Printify catalog data/persistence
+- main/deployment
+
+QC CLASSIFICATION:
+PARTIAL / CORRECTION REQUIRED.
+Reasons:
+- Protected operator group was reported as "Printing Technician" instead of approved "Printing Operator".
+- Manual Review was granted by default to the operator group, contrary to the current least-privilege baseline.
+- Only analyzer tests were run; no dedicated RBAC/Dashboard tests were reported.
+- Typecheck was blocked by missing react-router CLI dependency and build was not run.
+
+NEXT:
+Correct foundation, add targeted tests, restore dependency validation, then continue Admin A-Z automatically.
+APPLICATION SOURCE CHANGED BY THIS DOCUMENTATION UPDATE: NO.
