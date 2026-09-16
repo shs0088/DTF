@@ -419,3 +419,23 @@ CUSTOMERS SOURCE/CI CHECK — 2026-09-16
 479. GitHub Actions run 35103272968: PASS.
 480. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers tests: PASS.
 481. Customers browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+DESIGNERS SOURCE/CI CHECK — 2026-09-16
+============================================================
+482. Designers list scoped to designer role: PASS SOURCE/TEST.
+483. Search/account-status/authorization-status filters + pagination: PASS SOURCE.
+484. Designer profile and qualification applications: PASS SOURCE/TEST.
+485. Designs + latest preflight status: PASS SOURCE/TEST.
+486. Linked order/design activity: PASS SOURCE/TEST.
+487. Earnings/ledger/withdrawal history: PASS SOURCE/TEST.
+488. Authorization cannot be changed from Designers page: PASS SOURCE/TEST.
+489. Account active/suspended/disabled + session revocation: PASS SOURCE/TEST.
+490. Designer account update audit logged: PASS SOURCE.
+491. admin.designers GET requires Access: PASS SOURCE.
+492. Designers mutation requires Modify: PASS SOURCE.
+493. Run 35103673377: FAIL Designers test only due invalid test page-boundary slice; implementation/typecheck/build/prior tests passed.
+494. Test boundary corrected in ee051a6b903e1bece8e71dcf90c22c5d3053abd4: PASS CORRECTION.
+495. GitHub Actions run 35103920821: PASS.
+496. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers tests: PASS.
+497. Designers browser/runtime verification: PENDING RUNTIME.

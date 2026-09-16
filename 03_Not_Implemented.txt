@@ -250,3 +250,19 @@ STILL PENDING:
 3. Live suspend/disable session revocation verification.
 4. Live customer update/order-history persistence checks.
 5. Designers remains next implementation dependency.
+
+============================================================
+DESIGNERS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- designer list/detail/filter/pagination
+- qualification/design/order/financial history views
+- account update/session revocation
+- Manual Review authorization separation
+- Access/Modify guards and audit logging
+STILL PENDING:
+1. Live/browser Designers verification.
+2. Live Access-only mutation denial.
+3. Live suspend/disable session revocation.
+4. Live financial/order/qualification-history data verification.
+5. Payouts remains next implementation dependency.

@@ -345,3 +345,37 @@ RUNTIME STILL REQUIRED:
 - live Access-only/Modify denial
 - live session revocation after suspend/disable
 - browser/responsive verification
+
+============================================================
+DESIGNERS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+FEATURE SOURCE HEAD: e804711ac0340aff2ab8fd5f1a41eed37bd47658
+VERIFIED HEAD: ee051a6b903e1bece8e71dcf90c22c5d3053abd4
+GITHUB ACTIONS RUN: 35103920821 — SUCCESS.
+COMPLETED FOR DESIGNERS SOURCE/CI:
+- designer-role list/search/account-status/authorization-status filters/pagination
+- designer profile and qualification application visibility
+- design list with latest preflight status
+- linked order/design activity
+- earnings, ledger and withdrawal history visibility
+- safe account updates for name/email/locale/account status
+- suspended/disabled designer session revocation
+- qualification authorization remains exclusively controlled by Manual Review
+- admin.designers Access/Modify authorization
+- audit logging
+- Designers regression tests
+VALIDATION NOTE:
+- run 35103673377 passed install/typecheck/build and all prior module tests, but Designers test had an invalid source-slice boundary; implementation was not the failing behavior.
+- corrected test boundary in ee051a6b... and reran full chain to SUCCESS.
+NEXT UNFINISHED DEPENDENCY:
+1. Payouts.
+2. Reports.
+3. Promotions.
+4. Settings.
+5. Integrations.
+6. Audit Log.
+RUNTIME STILL REQUIRED:
+- live Designers list/detail/account update
+- live Access-only/Modify denial
+- live session revocation after suspend/disable
+- live qualification/financial-history display verification

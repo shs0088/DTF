@@ -449,3 +449,32 @@ DEPLOYMENT: NO.
 MERGE/MAIN CHANGE: NO.
 RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
 NEXT: Designers full Admin module.
+
+
+DATE/TIME: 2026-09-16T13:45:46Z
+TASK: Implement Admin Designers module and verify qualification-rule separation.
+SOURCE START: e4f35eeed28f7d96c87ab8523fdc112793378aae
+FEATURE SOURCE: e804711ac0340aff2ab8fd5f1a41eed37bd47658
+VERIFIED FINAL: ee051a6b903e1bece8e71dcf90c22c5d3053abd4
+FILES ADDED/CHANGED:
+- workers/item-store.ts
+- workers/static-app.ts
+- workers/admin-designers.test.ts
+- .github/workflows/dtf-build-validation.yml
+IMPLEMENTED:
+- Designers list/detail/filter/pagination
+- qualification application and design/preflight visibility
+- linked order activity
+- earnings/ledger/withdrawal history visibility
+- safe account update and session revocation
+- authorization decisions kept in Manual Review only
+- admin.designers Access/Modify authorization and audit logging
+VALIDATION HISTORY:
+- run 35103673377: implementation compiled/built and prior tests passed; Designers test failed because its test slice ended at an earlier page constant and therefore inspected an empty string.
+- corrected test boundary only in ee051a6b...
+- GitHub Actions run 35103920821: SUCCESS
+- Install dependencies/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers tests: PASS
+DEPLOYMENT: NO.
+MERGE/MAIN CHANGE: NO.
+RUNTIME ACCEPTANCE: PENDING safe runtime/browser verification.
+NEXT: Payouts full Admin module.

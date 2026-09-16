@@ -267,3 +267,23 @@ VERIFIED IN SOURCE + CI:
 - customer update audit logging
 - Customers tests executed in GitHub Actions
 NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+DESIGNERS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+VERIFIED HEAD: ee051a6b903e1bece8e71dcf90c22c5d3053abd4
+CI RUN: 35103920821 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- role-scoped designer list/detail
+- account/authorization filters and pagination
+- qualification applications and rejection/replacement/escalation visibility
+- designs and latest preflight status
+- order activity linked through designer designs
+- earnings, ledger and withdrawal history
+- safe account status handling and session revocation
+- no authorization bypass from Designers page; Manual Review remains authoritative
+- server-side admin.designers Access/Modify checks
+- designer account audit logging
+- Designers tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
