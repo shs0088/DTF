@@ -177,3 +177,22 @@ QC ACTION:
 - Requirement/QC records 01_To_Do, 02_Implemented, 03_Not_Implemented, 04_Rules and 05_Checking_List updated.
 - CI must run RBAC tests in addition to install/typecheck/build.
 - No deployment/merge to main authorized by this record.
+
+============================================================
+GITHUB PARALLEL OPENCART RBAC IMPLEMENTATION — 2026-09-16
+============================================================
+PARALLEL GITHUB IMPLEMENTATION:
+- Created branch github/admin-opencart-rbac from QC-updated RBAC foundation.
+- Added OpenCart-style User → User Group → Access/Modify permission architecture without altering main.
+- Added protected system groups and custom group CRUD primitives.
+- Added user-to-group membership and database-backed authorization resolver.
+- Updated active Admin RBAC/Printify/page authorization paths to use database group permissions.
+- Added OpenCart-style Access/Modify matrix UI.
+- CI expanded to execute Bun RBAC regression tests.
+VALIDATION:
+- GitHub Actions run 35068563708: SUCCESS.
+- Install/typecheck/build/RBAC regression tests: PASS.
+DEPLOYMENT: NO.
+MERGE: NO.
+RUNTIME AUTHORIZATION MATRIX: PENDING.
+NEXT: CAMEL must update its implementation independently to the same functional target, then compare/reconcile before merge.

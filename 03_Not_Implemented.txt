@@ -58,3 +58,15 @@ NOT YET COMPLETE:
 10. Full authorization matrix executed in CI/runtime.
 11. Current workers/admin-rbac.test.ts must be made runnable and CI must execute it.
 12. Current duplicate RBAC route/auth implementations must be reconciled so stale session role data is never treated as the authorization source.
+
+============================================================
+GITHUB PARALLEL OPENCART RBAC IMPLEMENTATION — 2026-09-16
+============================================================
+STILL REQUIRES BEFORE FINAL ACCEPTANCE:
+- Full live/runtime authorization matrix against a deployed test environment.
+- Verify every Admin module/API beyond current active routes uses Access for read and Modify for mutation.
+- Verify custom-group delegated user/group management at runtime, including negative cases.
+- Verify stale-session behavior after group/permission change.
+- Verify UI behavior and responsive presentation against the approved DTF Studio Admin theme.
+- Independent comparison/reconciliation with CAMEL implementation before merge.
+- No Production Ready / merge / deploy claim until runtime authorization tests pass.

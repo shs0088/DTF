@@ -147,3 +147,24 @@ OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
 303. CI executes RBAC regression tests, not only typecheck/build.
 304. Full authorization matrix passes before merge/deploy.
 305. OpenCart-style RBAC is not marked complete until items 275–304 are evidenced.
+
+============================================================
+GITHUB PARALLEL OPENCART RBAC IMPLEMENTATION — 2026-09-16
+============================================================
+306. GitHub parallel branch exists from updated QC baseline.
+307. admin_user_groups schema exists.
+308. admin_user_group_memberships schema exists and user_id is unique/primary, supporting exactly one group per Admin user.
+309. admin_group_permissions stores separate Access and Modify flags.
+310. Main Administrator and Printing Operator system groups are seeded.
+311. Existing users are backfilled into system groups.
+312. Custom group create/update/delete backend exists.
+313. System-group deletion is blocked.
+314. Assigned custom-group deletion is blocked.
+315. User-to-group reassignment backend exists.
+316. Last enabled Main Administrator move/disable protection exists.
+317. Active permission resolver reads current DB user/group state.
+318. Users/User Groups UI exposes Access and Modify independently.
+319. Printify GET uses Access and Printify mutations use Modify.
+320. GitHub CI installs dependencies, typechecks, builds, and executes RBAC regression tests.
+321. GitHub Actions run 35068563708 passed all configured steps.
+322. Runtime deployed authorization matrix remains PENDING.

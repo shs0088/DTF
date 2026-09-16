@@ -58,3 +58,29 @@ FOUNDATION VERIFIED:
 IMPORTANT:
 - This is IMPLEMENTED FOUNDATION ONLY.
 - Do NOT mark OpenCart-style RBAC complete until custom groups + Access/Modify matrix + server-side permission enforcement + full CI/runtime authorization matrix are verified.
+
+============================================================
+GITHUB PARALLEL OPENCART RBAC IMPLEMENTATION — 2026-09-16
+============================================================
+BRANCH: github/admin-opencart-rbac
+LATEST VERIFIED SHA: 5ccdda8348aa230e19d2746353ecceb5c4de77eb
+GITHUB ACTIONS RUN: 35068563708 — SUCCESS
+VERIFIED CI STEPS:
+- npm install: PASS
+- Typecheck: PASS
+- Production build: PASS
+- RBAC regression tests: PASS
+IMPLEMENTED IN THIS PARALLEL BRANCH:
+- admin_user_groups table with protected Main Administrator and Printing Operator system groups.
+- admin_user_group_memberships enforcing one group mapping per Admin user.
+- admin_group_permissions with separate can_access and can_modify flags per resource.
+- Existing Admin users are backfilled to their matching system group.
+- Custom User Group create/update/delete backend operations.
+- Safe deletion blocks protected system groups and groups that still have assigned users.
+- Admin users can be assigned/moved to a group.
+- Last enabled Main Administrator cannot be disabled or moved out of the Main Administrator group.
+- Server-side adminCanUser(userId, resource, access|modify) resolver uses current database state.
+- Admin Users and User Groups page includes OpenCart-style Access/Modify permission matrix controls.
+- Printify Admin API now uses group Access for GET and group Modify for mutations.
+- Active Admin pages for Users/User Groups/Printify/Settings/Dashboard/Orders/Production enforce database-backed Access permission.
+STATUS: IMPLEMENTED IN PARALLEL GITHUB BRANCH; NOT MERGED OR DEPLOYED.
