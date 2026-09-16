@@ -40,3 +40,21 @@ Cross-system conclusion:
 - No Production Ready claim is permitted from these findings alone.
 - The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
 
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+VERIFIED ON BRANCH: kamel/admin-rbac-foundation
+VERIFIED SHA AT REVIEW: c4124deafd8962206f6550e5070bb1f3b531d7a6
+FOUNDATION VERIFIED:
+- Persistent admin_users identities exist.
+- Signed Admin session plus server-side enabled-user lookup exists in active Worker Admin flow.
+- Main Administrator and Printing Operator system roles exist.
+- admin_permission_assignments foundation exists and Printing Operator defaults are seeded.
+- Audit primitives and management audit records exist.
+- Protected RBAC inspection/user-management API endpoints exist.
+- Users and User Groups Admin navigation/pages exist.
+- Last Main Administrator disable/demotion protection exists.
+- GitHub Actions build validation for c4124deafd8962206f6550e5070bb1f3b531d7a6 completed SUCCESS (install, typecheck, production build).
+IMPORTANT:
+- This is IMPLEMENTED FOUNDATION ONLY.
+- Do NOT mark OpenCart-style RBAC complete until custom groups + Access/Modify matrix + server-side permission enforcement + full CI/runtime authorization matrix are verified.

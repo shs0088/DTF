@@ -42,3 +42,19 @@ Cross-system conclusion:
 - No Production Ready claim is permitted from these findings alone.
 - The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
 
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+NOT YET COMPLETE:
+1. Custom Admin User Group CRUD comparable to OpenCart.
+2. Exactly-one-group assignment model for each Admin user.
+3. Separate Access and Modify permission sets for every Admin resource/page.
+4. OpenCart-style permission matrix editor UI with Access/Modify columns and select-all/clear behavior.
+5. Group assignment editor for Admin users beyond the two fixed system roles.
+6. Consistent server-side Access enforcement for reads/pages and Modify enforcement for mutations across Admin.
+7. One authoritative permission resolver shared by Worker and React route implementations.
+8. Menu/navigation filtering derived from Access permissions for all groups.
+9. Safe custom-group deletion rules (deny deletion while assigned, or require reassignment).
+10. Full authorization matrix executed in CI/runtime.
+11. Current workers/admin-rbac.test.ts must be made runnable and CI must execute it.
+12. Current duplicate RBAC route/auth implementations must be reconciled so stale session role data is never treated as the authorization source.

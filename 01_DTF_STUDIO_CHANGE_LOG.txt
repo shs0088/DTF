@@ -163,3 +163,17 @@ BUILD: PASS.
 DEPLOYMENT: Current source deployed once.
 SOURCE BEFORE: 1a44754e68c336e2598178c69ee0db2d332a65b21e7a60b906c3339d28cd85b5
 SOURCE AFTER: 64860a42a8f05e6e3c1db1ab6e6b5ddc81e8548fcab8cbbf16f6b5a93d894587
+
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+REVIEW/DECISION:
+- Existing RBAC branch is accepted as a foundation only.
+- Authoritative target changed/clarified to OpenCart-style functional behavior: Admin Users belong to User Groups; User Groups own separate Access and Modify permission sets.
+- Fixed two-role implementation alone is not sufficient for final completion.
+- Main Administrator and Printing Operator remain protected system groups; additional custom groups are required.
+- Authorization must be enforced server-side using current database state.
+QC ACTION:
+- Requirement/QC records 01_To_Do, 02_Implemented, 03_Not_Implemented, 04_Rules and 05_Checking_List updated.
+- CI must run RBAC tests in addition to install/typecheck/build.
+- No deployment/merge to main authorized by this record.

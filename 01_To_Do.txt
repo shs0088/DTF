@@ -51,3 +51,24 @@ Cross-system conclusion:
 - No Production Ready claim is permitted from these findings alone.
 - The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
 
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+STATUS: REQUIRED — CURRENT FOUNDATION IS PARTIAL, NOT FINAL.
+1. Replace fixed-role-only Admin authorization with an OpenCart-style User → User Group → Permissions operating model.
+2. Every Admin user must belong to exactly one Admin User Group.
+3. Preserve protected system groups: Main Administrator and Printing Operator.
+4. Support creation, rename, enable/disable and safe deletion of additional custom Admin User Groups.
+5. User Group permissions must expose TWO independent permission sets per Admin resource/page:
+   - Access: page/route/API read access.
+   - Modify: create/update/delete/status-change and other mutating actions.
+6. Main Administrator has full Access + Modify and the last enabled Main Administrator must remain protected.
+7. Printing Operator default group keeps least privilege: Dashboard/Orders/Production only unless explicitly expanded by Main Administrator.
+8. Admin Users page must assign/move a user to a User Group and enable/disable the user.
+9. User Groups page must provide an OpenCart-style Access/Modify permission matrix with select-all/clear controls.
+10. Menu visibility must follow Access permission, but server-side authorization remains authoritative.
+11. All protected GET/page/API reads require Access permission. POST/PATCH/PUT/DELETE and mutating actions require Modify permission.
+12. Client-controlled role/group/permission headers are never authoritative.
+13. Permission/group/user changes must be audit logged.
+14. Preserve existing Printify/customer/designer/cart/stock/order/checkout behavior.
+15. Add and execute authorization regression tests in CI, including disabled admin, fake-header escalation, direct URL/API access, view-only modify attempt, Printing Operator Users/User Groups denial, custom group behavior, self-escalation denial, and last Main Administrator protection.

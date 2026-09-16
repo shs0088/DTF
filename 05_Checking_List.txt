@@ -112,3 +112,38 @@ ADDED AUDIT REGRESSION TESTS — 2026-09-02
 272. Backup/restore verification evidence exists.
 273. GitHub/runtime/database schema reconciliation passes before Production Ready.
 274. No requirement is marked Implemented solely from an AI-agent completion statement.
+
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+275. Admin Users page lists persistent Admin identities from database.
+276. Every Admin user resolves to exactly one User Group.
+277. Main Administrator system group exists and cannot be deleted.
+278. Printing Operator system group exists and cannot be deleted.
+279. Main Administrator has full Access + Modify.
+280. Printing Operator default Access is limited to Dashboard/Orders/Production.
+281. Printing Operator cannot access Users/User Groups/Settings by default.
+282. Custom User Group can be created.
+283. Custom User Group can be renamed/updated.
+284. Custom User Group safe deletion behavior is enforced.
+285. User can be assigned/moved to a custom User Group.
+286. User Groups editor exposes separate Access and Modify permission sets.
+287. Access checkbox enables page/route/API-read access.
+288. Modify checkbox controls create/update/delete/status-change operations.
+289. View-only group can open an allowed page but receives 403 on mutation.
+290. No-access group receives 403 on direct protected URL.
+291. No-access group receives 403 on direct protected API read.
+292. Fake client role/group/permission headers cannot escalate authorization.
+293. Disabled Admin session is rejected after database revalidation.
+294. Changed group/permissions take effect from current database state, not stale cookie claims.
+295. Printing Operator cannot manage Users or User Groups without explicit permission.
+296. Self-escalation to Main Administrator is denied unless policy explicitly authorizes a separate Main Administrator actor.
+297. Last enabled Main Administrator cannot be disabled.
+298. Last enabled Main Administrator cannot be moved/demoted out of full-access group.
+299. Group/user/permission changes create audit records.
+300. Admin navigation hides resources without Access permission.
+301. Hidden navigation cannot replace server-side authorization.
+302. Worker and React/Admin route layers use the same authoritative database-backed permission resolver.
+303. CI executes RBAC regression tests, not only typecheck/build.
+304. Full authorization matrix passes before merge/deploy.
+305. OpenCart-style RBAC is not marked complete until items 275–304 are evidenced.
