@@ -80,3 +80,15 @@ THIS DIRECTIVE IS MANDATORY FOR KAMEL/CAMEL WORK ON THIS BRANCH.
    - no known test failure is hidden.
 
 DO NOT PAUSE MERELY TO ASK "SHOULD I CONTINUE?". CONTINUE UNTIL COMPLETE OR TRULY BLOCKED.
+
+============================================================
+DOCUMENTATION-ONLY CHANGE SAFETY — 2026-09-16
+============================================================
+1. A documentation/QC-only request may modify only documentation/status files (*.md, *.txt) explicitly in scope.
+2. Documentation/QC-only work MUST NOT modify application source, schemas, workflows, package files, generated assets, or deployment configuration.
+3. Documentation text is descriptive/authoritative project control data; editing it must never itself execute migrations, change runtime data, deploy, publish, import, or alter application behavior.
+4. Keep documentation-only commits separate from source-code commits.
+5. Before every documentation-only commit, record the branch HEAD and verify it again before push.
+6. After the commit, compare changed paths. If any non-documentation application file changed unexpectedly, stop and treat the commit as FAILED; do not deploy or merge it.
+7. Documentation-only commits may trigger validation CI, but they do not authorize deployment.
+8. When implementation is required by a documentation update, create a separate implementation commit/batch after reading the updated requirements; never mix the paper change with the code change.

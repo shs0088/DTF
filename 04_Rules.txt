@@ -120,3 +120,13 @@ RBAC CONTINUATION RULES
 
 RBAC BATCH RULE
 - Permission matrix resource identifiers must match authoritative database admin.* keys; display labels remain human-readable.
+
+============================================================
+DOCUMENTATION-ONLY CHANGE SAFETY — 2026-09-16
+============================================================
+S. PROJECT PAPER / QC ISOLATION
+S1. Updating requirement, QC, rules, checking-list, change-log, or prompt documents is a documentation-only operation unless implementation is explicitly requested.
+S2. Documentation-only changes cannot change runtime application code, database schema/data, deployment state, integrations, or production behavior.
+S3. Implementation caused by a new/changed requirement must be performed in a separate source-code change and validated independently.
+S4. No deployment is implied or authorized by a documentation-only commit.
+S5. Every documentation-only commit must be checked for unexpected non-document changes before acceptance.

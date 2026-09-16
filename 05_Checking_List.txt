@@ -266,3 +266,12 @@ RBAC BATCH CHECK
 - Prior batch CI run 35077216041: PASS.
 - Final batch CI run 35077310054: NEEDS RETEST / IN PROGRESS.
 - Runtime authorization matrix: BLOCKED pending test environment.
+
+============================================================
+DOCUMENTATION-ONLY CHANGE SAFETY — 2026-09-16
+============================================================
+323. Documentation-only update changes only intended *.md/*.txt project-control files.
+324. Documentation-only update does not change workers/, app/, src/, server/, package files, workflow logic, schema, or deployment configuration unless separately authorized.
+325. Documentation-only commit causes no deployment/import/publish/database execution.
+326. Any implementation required by changed paperwork is performed as a separate implementation commit.
+327. Changed-path review confirms no accidental application-source changes in documentation-only commits.
