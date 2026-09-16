@@ -75,7 +75,7 @@ export function analyzeAsset(input: AnalyzerInput): AnalyzerResult {
   if (!input.previewable) errors.push("Asset cannot produce a preview.");
   if (!analyzable) errors.push("Asset is not readable/analyzable for preflight.");
   if (!productTypeValid) errors.push("Selected product type is not one of the 7 supported combinations.");
-  if (dpi && dpi.minimum < minimumDpi) warnings.push(`Effective DPI is ${dpi.minimum}; minimum recommended DPI is ${minimumDpi}.`);
+  if (dpi && dpi.minimum < minimumDpi) { warnings.push(`Effective DPI is ${dpi.minimum}; minimum configured DPI is ${minimumDpi}.`); errors.push("Effective DPI is below the configured minimum for final print."); }
   if (!dpi && !vectorLike) errors.push("Physical print size and pixel dimensions are required to calculate effective DPI.");
   if (vectorLike) warnings.push("Vector/document artwork does not use raster effective-DPI validation.");
 
