@@ -3,16 +3,23 @@ import type { Route } from "./+types/customize";
 import type { ItemStore } from "../../workers/item-store";
 import { ArrowLeft, Check, Copy, FlipHorizontal2, Layers3, Minus, Move, Plus, Redo2, RotateCw, Ruler, ShoppingBag, Trash2, Undo2, Upload, ZoomIn } from "lucide-react";
 
+function cookieValue(request: Request, name: string): string {
+  const cookie=request.headers.get("cookie")??"";
+  const part=cookie.split(";").map((x)=>x.trim()).find((x)=>x.startsWith(name+"="));
+  return (part?.slice(name.length+1)??"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,120);
+}
+
 export async function action({ request, context }: Route.ActionArgs) {
   const form = await request.formData();
   if (form.get("intent") !== "add-to-cart") return null;
-  const cookie = request.headers.get("cookie") ?? "";
-  const match = cookie.match(/(?:^|; )dtf_session=([^;]+)/);
-  const sessionKey = match?.[1]?.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) || crypto.randomUUID().replaceAll("-", "");
   const namespace = context.cloudflare.env.ITEMS as DurableObjectNamespace<ItemStore>;
   const store = namespace.get(namespace.idFromName("default"));
+  const existingCart=cookieValue(request,"dtf_cart_session");
+  const legacy=cookieValue(request,"dtf_session");
+  const legacyIsAuth=legacy?Boolean(await store.sessionIdentity(legacy)):false;
+  const sessionKey=existingCart||(!legacyIsAuth&&legacy?legacy:crypto.randomUUID().replaceAll("-",""));
   await store.addCartItem({ sessionKey, variantId: String(form.get("variantId") ?? "variant-tshirt-white-m"), printSpecJson: JSON.stringify({ position: "front", widthCm: 25, heightCm: 30, xCm: 5, yCm: 10, rotation: 0 }) });
-  return redirect(`/cart?session=${sessionKey}`, { headers: { "Set-Cookie": `dtf_session=${sessionKey}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000` } });
+  return redirect("/cart", { headers: { "Set-Cookie": `dtf_cart_session=${sessionKey}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000` } });
 }
 
 export default function Customize() {
