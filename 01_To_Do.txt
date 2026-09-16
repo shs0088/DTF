@@ -165,3 +165,15 @@ MANDATORY EXECUTION MODE:
 RBAC BATCH — 2026-09-16
 - Professional User Groups controls and complete 15-resource matrix were implemented.
 - Final SHA CI validation and runtime authorization matrix remain required before acceptance.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+CURRENT SOURCE SHA: 7b552a84a23814ce5b2622b2cef8ab19a433c16f
+CI RUN: 35079037333 — SUCCESS.
+RBAC SOURCE/CI WORK NOW COMPLETE FOR THIS BATCH.
+NEXT UNFINISHED ITEMS:
+1. Execute the live/runtime authorization matrix in a safe test environment when runtime access is available.
+2. Verify direct URL/API denial, view-only mutation denial, disabled-user/stale-session behavior, fake-header escalation resistance, custom-group permission changes, and last Main Administrator behavior at runtime.
+3. Continue Full Admin Dashboard A–Z implementation from the current verified branch after RBAC runtime evidence is available or while independently unblocked.
+4. Do not merge/deploy/main-update without separate authorization.

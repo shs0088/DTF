@@ -270,3 +270,30 @@ GOVERNANCE UPDATE:
 - Any implementation resulting from a changed requirement must occur in a separate validated source-code batch.
 APPLICATION SOURCE CHANGED BY THIS GOVERNANCE UPDATE: NO.
 DEPLOYMENT: NO.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+TASK: Independently reconcile KAMEL RBAC against the OpenCart-style functional target and remove remaining fixed-role authority.
+SOURCE BEFORE: da22f3af88a67b57df8ed5bb89bfe97c982b6c8f
+SOURCE IMPLEMENTATION COMMIT: 7b552a84a23814ce5b2622b2cef8ab19a433c16f
+CORRECTIONS:
+- Main Administrator authority now derives from protected User Group membership, not the legacy role field.
+- Main Administrator permission resolver now grants full Access/Modify for current/future Admin resources.
+- Admin creation accepts direct User Group assignment.
+- User reassignment synchronizes compatibility role and authoritative group.
+- Last-Main-Administrator protection now counts enabled protected-group members.
+- Removed remaining fixed main-role page gates after group Access checks.
+- Settings read/write authorization now follows Access/Modify.
+- Permission-aware Admin navigation added.
+- Printify Catalog added as explicit matrix resource.
+VALIDATION:
+- GitHub Actions run 35079037333: SUCCESS.
+- npm install: PASS.
+- typecheck: PASS.
+- build: PASS.
+- RBAC tests: PASS.
+DEPLOYMENT: NO.
+MERGE: NO.
+RUNTIME AUTHORIZATION MATRIX: PENDING.
+GOVERNANCE: This QC update is a separate documentation-only commit and has no runtime effect.

@@ -275,3 +275,26 @@ DOCUMENTATION-ONLY CHANGE SAFETY — 2026-09-16
 325. Documentation-only commit causes no deployment/import/publish/database execution.
 326. Any implementation required by changed paperwork is performed as a separate implementation commit.
 327. Changed-path review confirms no accidental application-source changes in documentation-only commits.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+366. Main Administrator authority resolves from group-main-admin membership: SOURCE PASS.
+367. Main Administrator full Access/Modify is future-proof and not limited to old seed rows: SOURCE PASS.
+368. New Admin can be created directly in any enabled User Group: SOURCE PASS.
+369. Reassigning a user synchronizes group and legacy compatibility role: SOURCE PASS.
+370. Last enabled Main Administrator check uses protected-group membership: SOURCE PASS.
+371. Users/User Groups pages no longer require a fixed main role after Access permission passes: SOURCE PASS.
+372. Settings GET requires Access; Settings credential mutation requires Modify: SOURCE PASS.
+373. Printify Catalog has an explicit permission resource in the matrix: SOURCE PASS.
+374. Admin navigation is generated from current Access permissions: SOURCE PASS.
+375. GitHub Actions run 35079037333: PASS.
+376. npm install/typecheck/build/RBAC tests on SHA 7b552a84...: PASS.
+377. Live direct restricted API test: PENDING RUNTIME.
+378. Live protected URL test: PENDING RUNTIME.
+379. Live fake-header escalation test: PENDING RUNTIME.
+380. Live view-only mutation attempt: PENDING RUNTIME.
+381. Live Printing Operator Users/User Groups denial: PENDING RUNTIME.
+382. Live disabled Admin/stale-session test: PENDING RUNTIME.
+383. Live custom-group permission change taking effect: PENDING RUNTIME.
+384. Live last Main Administrator protection: PENDING RUNTIME.

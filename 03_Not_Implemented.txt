@@ -132,3 +132,19 @@ RBAC BATCH STILL PENDING
 - Final SHA fc9f76b016ffb94036cb3bc6c63da47c2e2b89f3 GitHub Actions result: NEEDS RETEST while run 35077310054 is in progress.
 - Runtime HTTP authorization matrix: BLOCKED pending a running test environment without deployment.
 - Browser verification: NOT RUN.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+REMAINING / NOT YET VERIFIED:
+1. Live/runtime authorization matrix has not yet been executed against a safe deployed/test runtime.
+2. Browser/UI verification of all group combinations and responsive states remains pending.
+3. Full Admin Dashboard A–Z modules beyond the RBAC foundation remain to be implemented/verified per 01_To_Do.
+4. No merge/deploy/Production Ready claim is authorized from source/CI evidence alone.
+RESOLVED FROM EARLIER BLOCKERS:
+- Full Access/Modify matrix UI: resolved in source.
+- Access/Modify Select All/Clear: resolved in source.
+- Full Admin permission resource catalog plus Printify-specific resource: resolved in source.
+- Fixed role-based Admin page gates: removed/replaced by current DB group Access checks.
+- Direct group assignment on user creation: resolved in source.
+- Main Administrator stale-role authority issue: resolved in source.

@@ -128,3 +128,26 @@ RBAC BATCH VERIFIED IN SOURCE
 - Current user group is selected in the Admin Users assignment control.
 - Direct page mapper covers all required Admin resources.
 - GitHub Actions run 35077216041 passed for the prior batch commit be386f5; final batch run 35077310054 is in progress.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+VERIFIED IMPLEMENTED ON kamel/admin-rbac-foundation:
+- User Group membership is authoritative for Admin authorization; stale legacy role is no longer the management authority.
+- Main Administrator authority is tied to protected group-main-admin membership.
+- Main Administrator group receives future-proof full Access/Modify through the database-backed resolver.
+- Admin user creation supports direct assignment to any enabled User Group.
+- User reassignment synchronizes the compatibility role field with the authoritative User Group.
+- Last enabled Main Administrator protection uses current protected-group membership.
+- Admin Users/User Groups/Settings/Printify/direct Admin pages use current database group Access/Modify instead of fixed main-role page gates.
+- Admin navigation is generated from current Access permissions.
+- Permission matrix includes the dedicated Printify Catalog resource in addition to the Admin module catalog.
+- Documentation-only governance remains isolated from application source changes.
+VALIDATION:
+- Source commit: 7b552a84a23814ce5b2622b2cef8ab19a433c16f
+- GitHub Actions run 35079037333: SUCCESS.
+- npm install: PASS.
+- typecheck: PASS.
+- production build: PASS.
+- RBAC tests: PASS.
+STATUS: SOURCE + CI VERIFIED. Runtime HTTP/browser authorization matrix remains pending.

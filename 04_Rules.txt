@@ -130,3 +130,15 @@ S2. Documentation-only changes cannot change runtime application code, database 
 S3. Implementation caused by a new/changed requirement must be performed in a separate source-code change and validated independently.
 S4. No deployment is implied or authorized by a documentation-only commit.
 S5. Every documentation-only commit must be checked for unexpected non-document changes before acceptance.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+T. CURRENT ADMIN AUTHORIZATION AUTHORITY
+T1. Current enabled Admin User Group membership is the authoritative authorization identity; legacy role exists only for compatibility.
+T2. group-main-admin is the protected Main Administrator group and has full Access/Modify for present and future Admin resources.
+T3. Every other group is authorized by explicit database Access/Modify permissions.
+T4. Creating or reassigning an Admin user must set exactly one current group and keep any compatibility role synchronized.
+T5. Last enabled Main Administrator protection is evaluated by protected Main Administrator group membership, not by stale role text.
+T6. Admin navigation visibility is derived from Access permission; direct URL/API authorization remains server-side.
+T7. Documentation/QC edits remain isolated from runtime source changes and never imply deployment.
