@@ -23,6 +23,7 @@ export interface AnalyzerInput {
   hasAlpha?: boolean | null;
   previewable: boolean;
   productType?: string | null;
+  minDpi?: number | null;
   placeholderWidthPx?: number | null;
   placeholderHeightPx?: number | null;
 }
@@ -59,6 +60,7 @@ export function analyzeAsset(input: AnalyzerInput): AnalyzerResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   const normalizedFormat = input.format.toLowerCase().replace(".", "");
+  const minimumDpi = Number.isFinite(Number(input.minDpi)) ? Math.max(72, Math.min(1200, Number(input.minDpi))) : MIN_DPI;
   const dpi = effectiveDpi(input.pixelWidth, input.pixelHeight, input.intendedWidthIn, input.intendedHeightIn);
   const physicalSizeIn = input.intendedWidthIn > 0 && input.intendedHeightIn > 0 ? { width: round(input.intendedWidthIn), height: round(input.intendedHeightIn) } : null;
   const readable = input.signatureValid && input.byteSize > 0 && input.byteSize <= MAX_BYTES;
@@ -73,7 +75,7 @@ export function analyzeAsset(input: AnalyzerInput): AnalyzerResult {
   if (!input.previewable) errors.push("Asset cannot produce a preview.");
   if (!analyzable) errors.push("Asset is not readable/analyzable for preflight.");
   if (!productTypeValid) errors.push("Selected product type is not one of the 7 supported combinations.");
-  if (dpi && dpi.minimum < minimumDpi) warnings.push(`Effective DPI is ${dpi.minimum}; minimum recommended DPI is ${MIN_DPI}.`);
+  if (dpi && dpi.minimum < minimumDpi) warnings.push(`Effective DPI is ${dpi.minimum}; minimum recommended DPI is ${minimumDpi}.`);
   if (!dpi && !vectorLike) errors.push("Physical print size and pixel dimensions are required to calculate effective DPI.");
   if (vectorLike) warnings.push("Vector/document artwork does not use raster effective-DPI validation.");
 
