@@ -167,3 +167,25 @@ SOURCE SHA: 1bd692923528975d34d9965311b2c79dfadbe064
 GITHUB ACTIONS RUN: 35079512451 — SUCCESS.
 INSTALL/TYPECHECK/BUILD/RBAC TESTS: PASS.
 DEPLOYMENT: NO.
+
+============================================================
+ADMIN ORDERS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 6d1897955180a11737a092b8e7a71178d5c6f0aa
+CI RUN: 35096692301 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- database-backed Admin Orders list/detail
+- search/filter/sort/numbered pagination
+- customer/contact/payment/fulfillment display
+- order items/variants/design data
+- explicit order-item Ready-to-Print Master linkage
+- printing-job linkage/status display
+- canonical DTF Studio order status workflow
+- server-side invalid-transition rejection
+- payment confirmation synchronization
+- persistent Admin order history/internal notes
+- audit logging
+- admin.orders Access/Modify authorization
+- Orders tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.

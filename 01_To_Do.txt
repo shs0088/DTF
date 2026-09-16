@@ -188,3 +188,32 @@ NEXT IN DEPENDENCY ORDER:
 3. Manual Review queues.
 4. Remaining Admin modules per Full Admin Dashboard A–Z target.
 Runtime/browser verification remains required before merge/deploy.
+
+============================================================
+ADMIN ORDERS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 6d1897955180a11737a092b8e7a71178d5c6f0aa
+GITHUB ACTIONS RUN: 35096692301 — SUCCESS.
+COMPLETED FOR ADMIN ORDERS SOURCE/CI:
+- real database-backed Orders list
+- search by order ID/customer/email/phone
+- status/payment/fulfillment/date filters
+- sorting and numbered pagination
+- order detail with customer/payment/fulfillment/items
+- exact order-item Ready-to-Print Master reference
+- printing-job reference/status
+- internal Admin note history
+- authoritative status-transition enforcement
+- payment synchronization on payment_confirmed
+- admin.orders Access/Modify server authorization
+- audit logging for status changes and internal notes
+- Orders-specific regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Production Queue full module tied to order items and approved Ready-to-Print Master.
+2. Manual Review queues.
+3. Remaining Admin A–Z modules.
+RUNTIME STILL REQUIRED:
+- live Access-only/Modify denial
+- live status mutation/note persistence/audit persistence
+- live exact master/printing-job relationship verification
+- browser/responsive verification

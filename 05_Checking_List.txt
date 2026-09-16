@@ -313,3 +313,26 @@ ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
 393. Dashboard API requires admin.dashboard Access: PASS SOURCE.
 394. GitHub Actions run 35079512451: PASS.
 395. Dashboard browser/runtime visual verification: PENDING RUNTIME.
+
+============================================================
+ADMIN ORDERS SOURCE/CI CHECK — 2026-09-16
+============================================================
+396. Admin Orders list uses real database records: PASS SOURCE.
+397. Search by order ID/customer/email/phone: PASS SOURCE.
+398. Status/payment/fulfillment/date filters: PASS SOURCE.
+399. Sort + numbered pagination: PASS SOURCE.
+400. Order detail customer/payment/fulfillment/items: PASS SOURCE.
+401. Exact order-item Ready-to-Print Master reference: PASS SOURCE.
+402. Printing-job reference/status: PASS SOURCE.
+403. Canonical DTF status transition map: PASS SOURCE/TEST.
+404. Invalid transition rejected server-side: PASS SOURCE/TEST.
+405. payment_confirmed synchronizes order/payment state: PASS SOURCE.
+406. Internal notes/history persistence layer: PASS SOURCE.
+407. Status/note actions audit logged: PASS SOURCE.
+408. admin.orders GET requires Access: PASS SOURCE.
+409. admin.orders mutation requires Modify: PASS SOURCE.
+410. GitHub Actions run 35096692301: PASS.
+411. npm install/typecheck/build/RBAC tests/Orders tests: PASS.
+412. Orders browser/runtime verification: PENDING RUNTIME.
+413. Live Access-only mutation denial: PENDING RUNTIME.
+414. Live master/printing-job relationship verification: PENDING RUNTIME.

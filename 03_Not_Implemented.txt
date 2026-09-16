@@ -160,3 +160,21 @@ STILL PENDING:
 - Production Queue full module.
 - Products/Customers/Designers/Payouts/Reports/Promotions/Settings/Integrations/Audit A–Z completion.
 - No merge/deploy until required runtime evidence passes.
+
+============================================================
+ADMIN ORDERS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- Orders list/detail/search/filter/sort/pagination
+- order status workflow and notes
+- master/printing-job data linkage
+- server-side Access/Modify guards
+- audit/history persistence code
+- Orders regression tests in CI
+STILL PENDING:
+1. Live/browser Admin Orders verification against a safe runtime.
+2. Live Access-only group read + Modify denial.
+3. Live status transition persistence and payment synchronization.
+4. Live internal note and audit persistence.
+5. Live exact Ready-to-Print Master and printing-job relation verification.
+6. Production Queue full module remains next implementation dependency.
