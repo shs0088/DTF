@@ -567,6 +567,18 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         expires_at INTEGER NOT NULL,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
+      CREATE TABLE IF NOT EXISTS order_status_history (
+        id TEXT PRIMARY KEY,
+        order_id TEXT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+        event_type TEXT NOT NULL DEFAULT 'status' CHECK(event_type IN ('status','note')),
+        from_status TEXT,
+        to_status TEXT,
+        payment_status TEXT,
+        comment TEXT NOT NULL DEFAULT '',
+        actor_id TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_order_status_history_order ON order_status_history(order_id, created_at);
       INSERT OR IGNORE INTO roles (id, name) VALUES
         ('role-customer', 'customer'), ('role-designer', 'designer'), ('role-admin', 'admin'), ('role-operator', 'operator');
       INSERT OR IGNORE INTO site_categories (id, name_ar, name_en, show_category_name, enabled, home_featured, home_order, mockup_mode) VALUES
@@ -914,6 +926,99 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   adminGroups() { this.bootstrapCatalog(); return this.ctx.storage.sql.exec("SELECT role AS id, CASE role WHEN 'main_admin' THEN 'Main Administrator' ELSE 'Printing Operator' END AS name, role='main_admin' AS fullAccess, COUNT(*) AS userCount FROM admin_users GROUP BY role").toArray(); }
   adminPermissionMatrix(role: "main_admin"|"printing_technician") { this.bootstrapCatalog(); if (role === "main_admin") return this.ctx.storage.sql.exec("SELECT DISTINCT resource, action, 1 AS allowed FROM admin_permission_assignments ORDER BY resource, action").toArray(); return this.ctx.storage.sql.exec("SELECT resource, action, 1 AS allowed FROM admin_permission_assignments WHERE role=? ORDER BY resource, action", role).toArray(); }
   adminAudit(actorId: string, action: string, resourceType: string, resourceId: string|null, result: string, metadata: unknown = {}) { this.bootstrapCatalog(); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,?,?,?,?,?)", actorId, "admin", action, resourceType, resourceId, JSON.stringify({result, metadata})); }
+
+  adminOrderStatuses(): Array<{id:string;label:string}> {
+    return [
+      {id:"new",label:"New"},
+      {id:"payment_pending",label:"Payment Pending"},
+      {id:"payment_confirmed",label:"Payment Confirmed"},
+      {id:"under_preparation",label:"Under Preparation"},
+      {id:"ready_for_delivery",label:"Ready for Delivery"},
+      {id:"given_to_delivery",label:"Given to Delivery"},
+      {id:"under_delivery",label:"Under Delivery"},
+      {id:"ready_for_pickup",label:"Ready for Pickup"},
+      {id:"completed",label:"Completed"},
+      {id:"cancelled",label:"Cancelled"}
+    ];
+  }
+
+  private adminOrderAllowedNext(status: string): string[] {
+    const map: Record<string,string[]> = {
+      new:["payment_pending","payment_confirmed","cancelled"],
+      payment_pending:["payment_confirmed","cancelled"],
+      payment_confirmed:["under_preparation","cancelled"],
+      under_preparation:["ready_for_delivery","ready_for_pickup","cancelled"],
+      ready_for_delivery:["given_to_delivery","cancelled"],
+      given_to_delivery:["under_delivery"],
+      under_delivery:["completed"],
+      ready_for_pickup:["completed"],
+      completed:[],
+      cancelled:[]
+    };
+    return map[String(status||"").toLowerCase()] ?? [];
+  }
+
+  adminOrdersList(input: {search?:string;status?:string;paymentStatus?:string;fulfillmentMode?:string;dateFrom?:string;dateTo?:string;sort?:string;direction?:string;page?:number;pageSize?:number} = {}): unknown {
+    this.bootstrapCatalog();
+    const where:string[]=["1=1"], args:any[]=[];
+    const search=String(input.search||"").trim().toLowerCase();
+    if(search){const like="%"+search+"%";where.push("(lower(o.id) LIKE ? OR lower(COALESCE(u.display_name,'')) LIKE ? OR lower(COALESCE(u.email,'')) LIKE ? OR lower(COALESCE(cp.phone,'')) LIKE ?)");args.push(like,like,like,like);}
+    if(input.status){where.push("lower(o.status)=?");args.push(String(input.status).toLowerCase());}
+    if(input.paymentStatus){where.push("lower(o.payment_status)=?");args.push(String(input.paymentStatus).toLowerCase());}
+    if(input.fulfillmentMode){where.push("lower(o.fulfillment_mode)=?");args.push(String(input.fulfillmentMode).toLowerCase());}
+    if(input.dateFrom){where.push("date(o.created_at)>=date(?)");args.push(String(input.dateFrom));}
+    if(input.dateTo){where.push("date(o.created_at)<=date(?)");args.push(String(input.dateTo));}
+    const pageSize=Math.max(20,Math.min(100,Math.floor(Number(input.pageSize)||25)));
+    const matched=Number(this.ctx.storage.sql.exec<any>(`SELECT COUNT(*) AS count FROM orders o LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id WHERE ${where.join(" AND ")}`,...args).one().count);
+    const pages=Math.max(1,Math.ceil(matched/pageSize));
+    const page=Math.min(Math.max(1,Math.floor(Number(input.page)||1)),pages);
+    const sortMap:Record<string,string>={id:"o.id",customer:"u.display_name",status:"o.status",payment:"o.payment_status",total:"o.total_jod",date:"o.created_at"};
+    const sortSql=sortMap[String(input.sort||"date")]||"o.created_at";
+    const direction=String(input.direction||"desc").toLowerCase()==="asc"?"ASC":"DESC";
+    const rows=this.ctx.storage.sql.exec<any>(`SELECT o.id,o.status,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,o.total_jod AS totalJod,o.currency,o.created_at AS createdAt,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,(SELECT COUNT(*) FROM order_items oi WHERE oi.order_id=o.id) AS itemCount FROM orders o LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id WHERE ${where.join(" AND ")} ORDER BY ${sortSql} ${direction} LIMIT ? OFFSET ?`,...args,pageSize,(page-1)*pageSize).toArray();
+    return {rows,matched,page,pageSize,pages,sort:String(input.sort||"date"),direction:direction.toLowerCase(),statuses:this.adminOrderStatuses()};
+  }
+
+  adminOrderDetail(orderId: string): unknown | null {
+    this.bootstrapCatalog();
+    const order=this.ctx.storage.sql.exec<any>("SELECT o.id,o.user_id AS userId,o.status,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,o.total_jod AS totalJod,o.currency,o.exchange_rate_json AS exchangeRateJson,o.created_at AS createdAt,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,cp.default_address_json AS defaultAddressJson FROM orders o LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id WHERE o.id=?",orderId).toArray()[0];
+    if(!order) return null;
+    const items=this.ctx.storage.sql.exec<any>("SELECT oi.id,oi.variant_id AS variantId,oi.design_id AS designId,oi.master_asset_id AS masterAssetId,oi.print_spec_json AS printSpecJson,oi.price_snapshot_json AS priceSnapshotJson,oi.quantity,v.sku,v.color,v.size,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,d.title_en AS designTitleEn,d.title_ar AS designTitleAr,a.original_filename AS masterFilename,a.storage_key AS masterStorageKey,pj.id AS printingJobId,pj.status AS printingStatus,pj.preflight_snapshot_json AS preflightSnapshotJson FROM order_items oi LEFT JOIN variants v ON v.id=oi.variant_id LEFT JOIN product_models pm ON pm.id=v.model_id LEFT JOIN designs d ON d.id=oi.design_id LEFT JOIN assets a ON a.id=oi.master_asset_id LEFT JOIN printing_jobs pj ON pj.order_item_id=oi.id WHERE oi.order_id=? ORDER BY oi.id",orderId).toArray();
+    const payments=this.ctx.storage.sql.exec<any>("SELECT id,method,status,proof_storage_key AS proofStorageKey,confirmed_by AS confirmedBy,created_at AS createdAt FROM payments WHERE order_id=? ORDER BY created_at DESC",orderId).toArray();
+    const history=this.ctx.storage.sql.exec<any>("SELECT id,event_type AS eventType,from_status AS fromStatus,to_status AS toStatus,payment_status AS paymentStatus,comment,actor_id AS actorId,created_at AS createdAt FROM order_status_history WHERE order_id=? ORDER BY created_at DESC",orderId).toArray();
+    return {order,items,payments,history,allowedNext:this.adminOrderAllowedNext(String(order.status)),statuses:this.adminOrderStatuses()};
+  }
+
+  adminUpdateOrderStatus(actorId: string, orderId: string, nextStatus: string, comment = ""): unknown {
+    this.bootstrapCatalog();
+    if(!this.adminPermission(actorId,"admin.orders","modify")) throw new Error("Order Modify permission required.");
+    const current=this.ctx.storage.sql.exec<any>("SELECT id,status,payment_status AS paymentStatus FROM orders WHERE id=?",orderId).toArray()[0];
+    if(!current) throw new Error("Order not found.");
+    const next=String(nextStatus||"").trim().toLowerCase();
+    if(!this.adminOrderStatuses().some(x=>x.id===next)) throw new Error("Invalid order status.");
+    const allowed=this.adminOrderAllowedNext(String(current.status));
+    if(!allowed.includes(next)) throw new Error(`Invalid order status transition from ${current.status} to ${next}.`);
+    const nextPayment=next==="payment_confirmed"?"confirmed":String(current.paymentStatus||"pending");
+    const historyId=crypto.randomUUID();
+    this.ctx.storage.transactionSync(()=>{
+      this.ctx.storage.sql.exec("UPDATE orders SET status=?,payment_status=? WHERE id=?",next,nextPayment,orderId);
+      this.ctx.storage.sql.exec("INSERT INTO order_status_history (id,order_id,event_type,from_status,to_status,payment_status,comment,actor_id) VALUES (?,?,?,?,?,?,?,?)",historyId,orderId,"status",String(current.status),next,nextPayment,String(comment||"").slice(0,2000),actorId);
+    });
+    this.adminAudit(actorId,"admin.order.status_change","order",orderId,"success",{fromStatus:current.status,toStatus:next,paymentStatus:nextPayment,comment:String(comment||"").slice(0,500)});
+    return this.adminOrderDetail(orderId);
+  }
+
+  adminAddOrderNote(actorId: string, orderId: string, comment: string): unknown {
+    this.bootstrapCatalog();
+    if(!this.adminPermission(actorId,"admin.orders","modify")) throw new Error("Order Modify permission required.");
+    const current=this.ctx.storage.sql.exec<any>("SELECT id,status,payment_status AS paymentStatus FROM orders WHERE id=?",orderId).toArray()[0];
+    if(!current) throw new Error("Order not found.");
+    const clean=String(comment||"").trim();
+    if(!clean) throw new Error("Order note is required.");
+    this.ctx.storage.sql.exec("INSERT INTO order_status_history (id,order_id,event_type,from_status,to_status,payment_status,comment,actor_id) VALUES (?,?,?,?,?,?,?,?)",crypto.randomUUID(),orderId,"note",String(current.status),String(current.status),String(current.paymentStatus||""),clean.slice(0,2000),actorId);
+    this.adminAudit(actorId,"admin.order.note","order",orderId,"success",{comment:clean.slice(0,500)});
+    return this.adminOrderDetail(orderId);
+  }
 
   adminDashboardSummary(): unknown {
     this.bootstrapCatalog();
