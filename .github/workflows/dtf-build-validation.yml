@@ -53,3 +53,5 @@ jobs:
         run: bun test workers/admin-integrations.test.ts
       - name: Audit Log tests
         run: bun test workers/admin-audit-log.test.ts
+      - name: Checkout Integration tests
+        run: bun test workers/checkout-integration.test.ts
