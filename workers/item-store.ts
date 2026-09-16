@@ -839,6 +839,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       this.ctx.storage.sql.exec("INSERT INTO payments (id,order_id,method,status) VALUES (?,?,?,'pending')",crypto.randomUUID(),orderId,payment);
       if(promotion)this.ctx.storage.sql.exec("INSERT INTO promotion_redemptions (id,promotion_id,order_id,customer_id,discount_jod) VALUES (?,?,?,?,?)",crypto.randomUUID(),promotion.id,orderId,identity.userId,Number(preview.discountJod));
       this.ctx.storage.sql.exec("UPDATE carts SET user_id=?,status='checked_out' WHERE id=?",identity.userId,cartId);
+      this.ctx.storage.sql.exec("DELETE FROM cart_items WHERE cart_id=?",cartId);
       this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'customer','customer.checkout.create','order',?,?)",identity.userId,orderId,JSON.stringify({result:"success",metadata:{fulfillmentMode:fulfillment,paymentMethod:payment,promotionApplied:Boolean(promotion),discountJod:Number(preview.discountJod),reservationExpiresAt:expiresAt}}));
     });
     return this.adminOrderDetail(orderId);
@@ -1021,6 +1022,15 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       WHERE s.id=? AND s.expires_at>? AND u.status='active' AND r.name IN ('customer','designer')
       ORDER BY CASE r.name WHEN 'customer' THEN 0 ELSE 1 END LIMIT 1`,id,now).toArray()[0];
     return row?{userId:String(row.userId),role:row.role==="designer"?"designer":"customer",displayName:String(row.displayName||""),email:String(row.email||"")}:null;
+  }
+
+  customerOrderSummary(sessionId:string,orderId:string):unknown{
+    this.bootstrapCatalog();const identity=this.sessionIdentity(sessionId);if(!identity)throw new Error("Customer sign-in is required.");const id=String(orderId||"").trim();
+    const order=this.ctx.storage.sql.exec<any>("SELECT o.id,o.status,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,o.total_jod AS totalJod,o.currency,o.created_at AS createdAt,ocd.subtotal_jod AS subtotalJod,ocd.delivery_fee_jod AS deliveryFeeJod,ocd.discount_jod AS discountJod,ocd.promotion_code AS promotionCode,ocd.customer_name AS customerName,ocd.customer_phone AS customerPhone,ocd.city,ocd.address,ocd.reservation_expires_at AS reservationExpiresAt FROM orders o LEFT JOIN order_checkout_details ocd ON ocd.order_id=o.id WHERE o.id=? AND o.user_id=?",id,identity.userId).toArray()[0];
+    if(!order)return null;
+    const items=this.ctx.storage.sql.exec<any>("SELECT oi.id,oi.quantity,oi.variant_id AS variantId,v.sku,v.color,v.size,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,oi.design_id AS designId,d.title_en AS designTitleEn,d.title_ar AS designTitleAr,oi.master_asset_id AS masterAssetId,oi.price_snapshot_json AS priceSnapshotJson FROM order_items oi JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id LEFT JOIN designs d ON d.id=oi.design_id WHERE oi.order_id=? ORDER BY oi.id",id).toArray().map((x:any)=>{let p:any={};try{p=JSON.parse(String(x.priceSnapshotJson||"{}"));}catch{}return {id:x.id,quantity:Number(x.quantity),variantId:x.variantId,sku:x.sku,color:x.color,size:x.size,productNameEn:x.productNameEn,productNameAr:x.productNameAr,designId:x.designId,designTitleEn:x.designTitleEn,designTitleAr:x.designTitleAr,masterAssetId:x.masterAssetId,unitPriceJod:Number(p.unitPriceJod||0)};});
+    const payment=this.ctx.storage.sql.exec<any>("SELECT method,status,created_at AS createdAt FROM payments WHERE order_id=? ORDER BY created_at DESC LIMIT 1",id).toArray()[0]??null;
+    return {...order,items,payment};
   }
 
   private async adminPasswordHash(password: string, salt: Uint8Array): Promise<string> {
