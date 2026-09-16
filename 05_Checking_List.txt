@@ -612,3 +612,25 @@ DESIGNER NEW DESIGN UPLOAD SOURCE/CI CHECK — 2026-09-16
 646. GitHub Actions run 35121193690: PASS.
 647. install/typecheck/build/all Admin/Checkout/Designer Upload tests: PASS.
 648. Live R2/browser Designer upload verification: PENDING RUNTIME.
+
+============================================================
+V48.22E BASELINE / WRONG-PROJECT REGRESSION CHECKS — 2026-09-17
+============================================================
+358. Active Camel implementation project is verified as dtf-studio-v48-safe-frontend before code changes.
+359. Project ID is verified as ca-4ae996677c654c02a0fc8e115bca8889-dtf-studio-v48-1l5d.
+360. public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html exists in the active implementation project.
+361. V48.22E is treated as the accepted frontend baseline.
+362. Working Printify catalog/products functionality is present before any Admin integration.
+363. dtf-studio-current-github-sync is treated only as reconciliation/verification, not the implementation baseline.
+364. Today's Admin/OpenCart/RBAC/Orders work is not marked Implemented solely because it exists in reference branches or passed isolated source tests.
+365. Existing-file reuse begins by opening the current V48.22E file and the exact reference file and reviewing the exact diff.
+366. Only the approved code block is inserted; unrelated accepted current code remains unchanged.
+367. New reference files are checked for duplicate/equivalent V48.22E functionality before creation.
+368. Every new-file candidate is classified USE / ADAPT / MERGE INTO EXISTING / DISCARD.
+369. Whole-file replacement and whole-branch merge are not used for today's candidate Admin work without separate explicit approval.
+370. High-risk shared files such as workers/item-store.ts and workers/static-app.ts receive narrow-slice review and regression testing.
+371. Printify/catalog behavior is regression-tested after any change touching shared Product/Admin/Worker code.
+372. Resulting diff is reviewed after each file-level integration.
+373. Targeted test is run before proceeding to the next logical file/change.
+374. Reference-only code remains Not Implemented/Unverified until integrated into dtf-studio-v48-safe-frontend and evidenced.
+375. All eight project records are synchronized after accepted integration batches.
