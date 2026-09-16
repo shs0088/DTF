@@ -66,3 +66,18 @@ LATEST AUDIT CORRECTIONS
 DESIGN PRIORITY
 All seven files must reflect these controls.
 P2/P3 implementation delays are acceptable only when their full design, data model and future integration are already specified.
+
+============================================================
+OPTIONAL REUSE STRATEGY CLARIFICATION — 2026-09-17
+============================================================
+OPTIONAL / NON-AUTHORITATIVE:
+- Today's Admin/OpenCart/RBAC/Orders source may be harvested as reusable reference code where it improves the accepted V48.22E project.
+- Reuse is optional per code block/file; no requirement exists to adopt an entire reference branch or module.
+- Preferred evaluation labels for candidate code:
+  KEEP — already compatible and useful.
+  ADAPT — useful behavior but must be fitted to current V48.22E architecture.
+  MERGE INTO EXISTING — new reference file duplicates functionality that should remain centralized in an existing V48.22E module.
+  DISCARD — obsolete, duplicated, conflicting, or unnecessary.
+- New files should be created only when current V48.22E has no equivalent source of truth.
+- Optional reference code must never be allowed to regress accepted Printify/catalog or other protected V48.22E behavior.
+- These suggestions do not change mandatory business requirements; they define a safe reuse method only.
