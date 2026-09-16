@@ -794,7 +794,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       FROM cart_items ci JOIN variants v ON v.id=ci.variant_id JOIN product_models pm ON pm.id=v.model_id WHERE ci.cart_id=? ORDER BY ci.id`,cartId).toArray();
     if(!lines.length)throw new Error("Cart is empty.");
     const subtotalJod=lines.reduce((sum:number,x:any)=>sum+Number(x.unitPriceJod||0)*Number(x.quantity||0),0);
-    const settings=this.businessSettingsSnapshot() as any;
+    const settings=(this.businessSettingsSnapshot() as any).settings;
     const deliveryFeeJod=fulfillmentMode==="store_pickup"?0:(subtotalJod>=Math.round(Number(settings.freeDeliveryThreshold||0)*100)?0:Math.round(Number(settings.standardDeliveryFee||0)*100));
     const promotion=this.checkoutPromotion(couponCode,subtotalJod);
     const discountJod=Number(promotion?.discountJod||0);const totalJod=Math.max(0,subtotalJod+deliveryFeeJod-discountJod);
@@ -823,7 +823,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const preview=this.checkoutPreview(cartKey,input.couponCode||"",fulfillment) as any;if(!preview.canCheckout)throw new Error(String(preview.issues?.[0]||"Cart is not ready for checkout."));
     const customerName=String(input.customerName||"").trim().slice(0,160);const customerPhone=String(input.customerPhone||"").trim().slice(0,60);if(customerName.length<2||customerPhone.length<5)throw new Error("Customer name and phone are required.");
     const city=String(input.city||"").trim().slice(0,120),address=String(input.address||"").trim().slice(0,1000),notes=String(input.notes||"").trim().slice(0,2000);if(fulfillment==="delivery"&&!address)throw new Error("Delivery address is required.");
-    const settings=this.businessSettingsSnapshot() as any;const reservationMinutes=Math.max(5,Math.min(120,Number(settings.bankTransferReservationMinutes||30)));const expiresAt=new Date(Date.now()+reservationMinutes*60000).toISOString();const orderId=crypto.randomUUID();const initialStatus=payment==="bank_transfer"?"payment_pending":"new";
+    const settings=(this.businessSettingsSnapshot() as any).settings;const reservationMinutes=Math.max(5,Math.min(120,Number(settings.bankTransferReservationMinutes||30)));const expiresAt=new Date(Date.now()+reservationMinutes*60000).toISOString();const orderId=crypto.randomUUID();const initialStatus=payment==="bank_transfer"?"payment_pending":"new";
     this.ctx.storage.transactionSync(()=>{
       const promotion=preview.promotion?this.checkoutPromotion(String(preview.promotion.code),Number(preview.subtotalJod)):null;
       this.ctx.storage.sql.exec("UPDATE reservations SET status='expired' WHERE status='pending' AND datetime(expires_at)<=datetime('now')");
