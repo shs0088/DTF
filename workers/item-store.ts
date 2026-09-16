@@ -1331,6 +1331,25 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     return this.ctx.storage.sql.exec<any>("SELECT id AS designId,designer_id AS designerId,title_en AS titleEn,title_ar AS titleAr,status,created_at AS createdAt FROM designs WHERE id=?",id).toArray()[0];
   }
 
+  adminIntegrationsStatus():unknown{
+    this.bootstrapCatalog();
+    const parse=(value:any,fallback:any)=>{try{return JSON.parse(String(value??""));}catch{return fallback;}};
+    const lastSyncRow=this.ctx.storage.sql.exec<any>("SELECT value_json AS valueJson,updated_at AS updatedAt FROM business_settings WHERE key='printify_last_sync'").toArray()[0];
+    const printify={
+      localCatalogItems:Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM printify_catalog_items").toArray()[0]?.count??0),
+      sourceAvailableItems:Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM printify_catalog_items WHERE source_available=1").toArray()[0]?.count??0),
+      importedProducts:Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM product_models WHERE source='printify'").toArray()[0]?.count??0),
+      publishedProducts:Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM printify_product_data WHERE published=1").toArray()[0]?.count??0),
+      enabledVariants:Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM printify_variant_settings WHERE enabled=1").toArray()[0]?.count??0),
+      supplierOrders:Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM supplier_orders WHERE lower(provider)='printify'").toArray()[0]?.count??0),
+      supplierOrdersSubmitted:Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM supplier_orders WHERE lower(provider)='printify' AND lower(status)<>'not_submitted'").toArray()[0]?.count??0),
+      lastSync:lastSyncRow?parse(lastSyncRow.valueJson,null):null,
+      lastSyncUpdatedAt:lastSyncRow?.updatedAt??null
+    };
+    const secretRows=this.ctx.storage.sql.exec<any>("SELECT key_name AS keyName,updated_at AS updatedAt FROM server_secrets WHERE key_name<>'ADMIN_WEB_KEY' ORDER BY key_name").toArray();
+    return {printify,serverManagedSecretMetadata:secretRows.map((row:any)=>({keyName:String(row.keyName),configured:true,updatedAt:row.updatedAt})),internalSessionSecretHidden:true,payments:{provider:null,status:"not_configured"},courier:{provider:null,status:"not_configured"}};
+  }
+
   businessSettingsSnapshot():unknown{
     this.bootstrapCatalog();const rows=this.ctx.storage.sql.exec<any>("SELECT key,value_json AS valueJson,updated_at AS updatedAt FROM business_settings").toArray();const map=new Map<string,any>();const updated:Record<string,string>={};for(const row of rows){try{map.set(String(row.key),JSON.parse(String(row.valueJson)));}catch{map.set(String(row.key),row.valueJson);}updated[String(row.key)]=String(row.updatedAt||"");}
     const stored=(map.get("storefront_config")&&typeof map.get("storefront_config")==="object"&&!Array.isArray(map.get("storefront_config")))?map.get("storefront_config"):{};
