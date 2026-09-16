@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import { ADMIN_ORDER_STATUSES, allowedAdminOrderTransitions } from "./admin-order-policy";
 
 interface ItemStoreEnv {}
 
@@ -927,36 +928,8 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   adminPermissionMatrix(role: "main_admin"|"printing_technician") { this.bootstrapCatalog(); if (role === "main_admin") return this.ctx.storage.sql.exec("SELECT DISTINCT resource, action, 1 AS allowed FROM admin_permission_assignments ORDER BY resource, action").toArray(); return this.ctx.storage.sql.exec("SELECT resource, action, 1 AS allowed FROM admin_permission_assignments WHERE role=? ORDER BY resource, action", role).toArray(); }
   adminAudit(actorId: string, action: string, resourceType: string, resourceId: string|null, result: string, metadata: unknown = {}) { this.bootstrapCatalog(); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,?,?,?,?,?)", actorId, "admin", action, resourceType, resourceId, JSON.stringify({result, metadata})); }
 
-  adminOrderStatuses(): Array<{id:string;label:string}> {
-    return [
-      {id:"new",label:"New"},
-      {id:"payment_pending",label:"Payment Pending"},
-      {id:"payment_confirmed",label:"Payment Confirmed"},
-      {id:"under_preparation",label:"Under Preparation"},
-      {id:"ready_for_delivery",label:"Ready for Delivery"},
-      {id:"given_to_delivery",label:"Given to Delivery"},
-      {id:"under_delivery",label:"Under Delivery"},
-      {id:"ready_for_pickup",label:"Ready for Pickup"},
-      {id:"completed",label:"Completed"},
-      {id:"cancelled",label:"Cancelled"}
-    ];
-  }
-
-  private adminOrderAllowedNext(status: string): string[] {
-    const map: Record<string,string[]> = {
-      new:["payment_pending","payment_confirmed","cancelled"],
-      payment_pending:["payment_confirmed","cancelled"],
-      payment_confirmed:["under_preparation","cancelled"],
-      under_preparation:["ready_for_delivery","ready_for_pickup","cancelled"],
-      ready_for_delivery:["given_to_delivery","cancelled"],
-      given_to_delivery:["under_delivery"],
-      under_delivery:["completed"],
-      ready_for_pickup:["completed"],
-      completed:[],
-      cancelled:[]
-    };
-    return map[String(status||"").toLowerCase()] ?? [];
-  }
+  adminOrderStatuses(): Array<{id:string;label:string}> { return ADMIN_ORDER_STATUSES.map(x=>({...x})); }
+  private adminOrderAllowedNext(status: string): string[] { return allowedAdminOrderTransitions(status); }
 
   adminOrdersList(input: {search?:string;status?:string;paymentStatus?:string;fulfillmentMode?:string;dateFrom?:string;dateTo?:string;sort?:string;direction?:string;page?:number;pageSize?:number} = {}): unknown {
     this.bootstrapCatalog();
