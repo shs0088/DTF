@@ -183,3 +183,16 @@ CANONICAL PROJECT / INTEGRATION RULES — 2026-09-17
    After each approved change, update To Do, Implemented, Not Implemented, Rules, Checking List, Change Log, and other affected requirement records.
 12. PROJECT-IDENTITY CHECK:
    Before any future implementation task, confirm the active Camel project name and baseline file. If the project is not dtf-studio-v48-safe-frontend, stop instead of silently switching workspaces.
+
+============================================================
+CANONICAL WORKER ADMIN RBAC CORRECTION RULES — 2026-09-17
+============================================================
+1. Canonical Admin security/routing authority is Worker-backed Admin; legacy app/routes/admin.tsx is not extended as a competing Admin authority.
+2. Protected system group display/name is "Main Administrator" and "Printing Operator". Do not substitute "Printing Technician" as the canonical protected group.
+3. Printing Operator default least privilege is Dashboard Access, Orders Access/Modify, Production Access/Modify only. Manual Review is not granted by default.
+4. Each enabled Admin belongs to exactly one Admin User Group; enforce uniqueness in persistent data, not only UI/bootstrap logic.
+5. Main Administrator has full Access + Modify for all Admin resources and last-enabled-main-admin safety remains mandatory.
+6. Access and Modify remain independently stored permissions; server-side checks are authoritative.
+7. Every request must resolve current enabled Admin identity/group/permissions from persistent state where applicable; stale client role/group headers are never authority.
+8. Analyzer tests are not evidence for RBAC/dashboard correctness. Each Admin batch requires targeted tests for the feature changed.
+9. Dependency/environment failures must be repaired using the project's existing dependency model before a batch is accepted. Do not alter architecture merely to make validation pass.
