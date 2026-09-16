@@ -109,3 +109,16 @@ OPENCART RBAC ENFORCEMENT NOTE — 2026-09-16
 - Access and Modify are independent database permissions.
 - Current enabled user, group, and permissions are authoritative for Worker and React RBAC API checks.
 - Client role/group/permission headers are not authorization sources.
+
+============================================================
+DOCUMENTATION-ONLY SAFETY + KAMEL CI UPDATE — 2026-09-16
+============================================================
+T. DOCUMENTATION / APPLICATION SEPARATION RULE
+T1. docs/project-records is the authoritative documentation/QC branch.
+T2. Documentation-only work must not modify application source, database schema, runtime assets, package/deployment files, camel-current, or main.
+T3. Documentation records may describe future requirements, but they do not authorize implementation, deployment, migration, import, publish, or merge.
+T4. Application implementation must occur on a separately named implementation branch with an exact recorded starting SHA.
+T5. CAMEL/GitHub may read approved requirements from docs/project-records but must write application code only to the explicitly authorized implementation branch.
+T6. After implementation, evidence-backed QC updates return to docs/project-records.
+T7. The documentation-only guard must fail if a documentation commit includes non-approved application files.
+T8. CI success is necessary but does not replace runtime authorization/business-flow evidence.
