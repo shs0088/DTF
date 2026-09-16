@@ -600,3 +600,31 @@ RUNTIME BLOCKER:
 - DESIGN_ASSETS R2 bucket must exist in the deployment environment before real uploads can run live.
 DEPLOYMENT: NOT PERFORMED.
 MERGE/MAIN CHANGE: NONE.
+
+============================================================
+CANONICAL WORKING-BASELINE CORRECTION — 2026-09-17
+============================================================
+STATUS: ACTIVE REQUIREMENT / EXECUTION PRIORITY.
+
+1. The accepted Camel implementation project is:
+   dtf-studio-v48-safe-frontend
+   Project ID: ca-4ae996677c654c02a0fc8e115bca8889-dtf-studio-v48-1l5d
+2. The accepted frontend baseline is DTF Studio V48.22E:
+   public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html
+3. The last accepted functional point before today's Admin/OpenCart experiments is the V48.22E project with the working Printify catalog/products functionality preserved.
+4. dtf-studio-current-github-sync is a reconciliation/verification workspace only. It is NOT the implementation baseline and must not replace the V48.22E project.
+5. Today's Admin/OpenCart/RBAC/Orders work is NOT accepted as completed implementation. Preserve it only as reference/candidate code.
+6. Reuse today's candidate code only by controlled file-by-file integration into the V48.22E project:
+   - open current V48.22E file;
+   - open exact reference file/commit;
+   - compare exact diff;
+   - classify KEEP / ADAPT / DISCARD;
+   - insert only required code;
+   - preserve unrelated accepted code;
+   - review resulting diff;
+   - run targeted test;
+   - then proceed to the next file.
+7. If a candidate reference file is new, do not copy it blindly. First check for duplicate/equivalent functionality in V48.22E; then USE / ADAPT / MERGE INTO EXISTING / DISCARD.
+8. Whole-file replacement, whole-branch merge, rebuild-from-scratch, and automatic acceptance of today's Admin/OpenCart work are prohibited unless separately approved.
+9. Printify/catalog functionality in V48.22E is protected from regression during future Admin integration.
+10. Update all QC/requirement records after every approved integration batch so no reference-only code is marked Implemented without evidence.
