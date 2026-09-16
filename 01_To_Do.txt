@@ -628,3 +628,24 @@ STATUS: ACTIVE REQUIREMENT / EXECUTION PRIORITY.
 8. Whole-file replacement, whole-branch merge, rebuild-from-scratch, and automatic acceptance of today's Admin/OpenCart work are prohibited unless separately approved.
 9. Printify/catalog functionality in V48.22E is protected from regression during future Admin integration.
 10. Update all QC/requirement records after every approved integration batch so no reference-only code is marked Implemented without evidence.
+
+============================================================
+CANONICAL WORKER ADMIN FOUNDATION — NEXT ACTIONS — 2026-09-17
+============================================================
+STATUS: PARTIAL / CORRECTION REQUIRED BEFORE CONTINUING MODULE BUILD.
+Reported KAMEL changes in dtf-studio-v48-safe-frontend:
+- Added admin_user_groups, admin_user_group_memberships, admin_group_permissions.
+- Existing admin_users remains authoritative.
+- Added database-backed Access/Modify permissions and adminPermission().
+- Added GET /api/admin/dashboard and database-derived dashboard summary.
+- No Printify/storefront/Admin React baseline files reported changed.
+
+MANDATORY CORRECTIONS / VALIDATION BEFORE ACCEPTANCE:
+1. Protected system group name must be exactly "Printing Operator", not "Printing Technician".
+2. Printing Operator default permissions must follow the approved least-privilege baseline: Dashboard + Orders + Production only. Manual Review is NOT a default permission unless explicitly granted later by Main Administrator.
+3. Enforce exactly one Admin User Group per Admin at database level (unique membership per admin user), not only bootstrap convention.
+4. Main Administrator must have full Access + Modify across all current Admin resources and remain protected.
+5. Disabled Admin user or disabled group must fail authorization from current DB state.
+6. Add dedicated RBAC/Dashboard tests. Analyzer tests do not validate this batch.
+7. Restore/install the existing project dependencies without changing architecture merely to bypass validation; then run typecheck/build.
+8. Continue Admin A-Z only after the corrected foundation passes targeted tests; then proceed automatically module-by-module.
