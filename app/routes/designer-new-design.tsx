@@ -154,7 +154,7 @@ export default function NewDesign(){
             <label className="designer-auto-cover"><input type="radio" name="coverIndex" value="-1" checked={cover===-1} onChange={()=>setCover(-1)}/> Auto-select suitable cover if none chosen</label>
             {selected.map((x,index)=><div className="designer-selected-row" key={index}>
               <div className="designer-selected-preview">{x.url?<img src={x.url} alt={x.file.name}/>:<FileImage size={30}/>}<div><b>{x.file.name}</b><small>{(x.file.size/1024/1024).toFixed(2)} MB · {x.file.type||"signature-detected"}</small></div></div>
-              <label className="designer-radio"><input type="radio" name="coverIndex" value={index} checked={cover===index} onChange={()=>setCover(index)}/><span>Cover</span></label>
+              <label className="designer-radio"><input type="radio" name="coverIndex" value={index} disabled={!x.file.type.startsWith("image/")} checked={cover===index} onChange={()=>setCover(index)}/><span>{x.file.type.startsWith("image/")?"Cover":"Image only"}</span></label>
               <label className="designer-radio master"><input type="radio" name="masterIndex" value={index} required checked={master===index} onChange={()=>setMaster(index)}/><span>Master</span></label>
             </div>)}
           </div>}
