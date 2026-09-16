@@ -634,3 +634,28 @@ V48.22E BASELINE / WRONG-PROJECT REGRESSION CHECKS — 2026-09-17
 373. Targeted test is run before proceeding to the next logical file/change.
 374. Reference-only code remains Not Implemented/Unverified until integrated into dtf-studio-v48-safe-frontend and evidenced.
 375. All eight project records are synchronized after accepted integration batches.
+
+============================================================
+CANONICAL WORKER ADMIN FOUNDATION QC — 2026-09-17
+============================================================
+376. Worker-backed Admin is the single canonical Admin security/routing authority.
+377. Protected group is named Main Administrator exactly.
+378. Protected operator group is named Printing Operator exactly.
+379. Printing Operator default permissions are Dashboard Access, Orders Access/Modify, Production Access/Modify only.
+380. Printing Operator has no default Manual Review permission.
+381. Each Admin has exactly one persistent User Group membership; duplicate memberships are prevented.
+382. Disabled Admin identity is rejected.
+383. Disabled Admin group is rejected.
+384. Main Administrator has full Access + Modify for all Admin resources.
+385. Last enabled Main Administrator protection is preserved.
+386. Access and Modify server-side enforcement is tested independently.
+387. GET /api/admin/dashboard requires admin.dashboard Access.
+388. Dashboard values are database-derived; no fake KPI values.
+389. Dashboard revenue definition is documented and verified against real persisted payment/order data.
+390. Dedicated RBAC tests pass for the foundation.
+391. Dedicated Dashboard API/data tests pass for the foundation.
+392. Analyzer-only tests do not count as Admin foundation validation.
+393. Existing dependency set is restored and typecheck passes.
+394. Production build passes.
+395. Existing Printify catalog/product behavior remains unchanged after foundation changes.
+396. No Admin A-Z module is marked complete until its own targeted tests and evidence pass.
