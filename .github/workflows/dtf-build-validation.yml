@@ -26,11 +26,11 @@ jobs:
       - name: Confirm Bun version
         run: bun --version
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: npm install
       - name: Typecheck
-        run: bun run typecheck
+        run: npm run typecheck
       - name: Production build
-        run: bun run build
+        run: npm run build
       - name: RBAC tests
         run: bun test workers/admin-rbac.test.ts
       - name: Orders tests
