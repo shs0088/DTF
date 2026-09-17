@@ -12,6 +12,27 @@ describe("ItemStore initialization regression", () => {
     expect(source).not.toMatch(/this\.ctx\.storage\.sql\.exec\(`\s*\n\s*INSERT OR REPLACE INTO schema_meta/);
   });
 
+  test("protects bounded Main Administrator permission bootstrap for Cloudflare SQLite", () => {
+    expect(source).not.toContain("CROSS JOIN (SELECT 'access' AS permission UNION SELECT 'modify')");
+    expect(source).toContain("INSERT OR IGNORE INTO admin_group_permissions (group_id,resource,permission) VALUES");
+
+    const resources = [
+      "admin.dashboard",
+      "admin.orders",
+      "admin.production",
+      "admin.products.printify",
+      "admin.users",
+      "admin.user_groups",
+      "admin.settings",
+    ];
+    for (const resource of resources) {
+      expect(source).toContain(`('group-main-admin','${resource}','access')`);
+      expect(source).toContain(`('group-main-admin','${resource}','modify')`);
+    }
+
+    const mainAdminPermissionRows = [...source.matchAll(/\('group-main-admin','admin\.(?:dashboard|orders|production|products\.printify|users|user_groups|settings)','(?:access|modify)'\)/g)];
+    expect(mainAdminPermissionRows).toHaveLength(14);
+  });
 
   test("does not place TypeScript control flow inside initialization SQL", () => {
     const sqlTemplates = [...source.matchAll(/execSqlScript\(this\.ctx\.storage\.sql, `([\s\S]*?)`\);/g)].map((match) => match[1]);
