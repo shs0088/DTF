@@ -341,7 +341,7 @@ async function run() {
   assert.ok(arabicHtml.includes("إجمالي الطلبات"));
   assert.ok(arabicHtml.includes("ar-JO"));
   console.log("PASS [DASHBOARD-RUNTIME] Arabic RTL HTTP locale");
-  console.log("ADMIN ORDERS LOCAL RUNTIME: PASS");
+  console.log("ADMIN ORDERS STATUS WORKFLOW RUNTIME: PASS");
   console.log("ADMIN DASHBOARD LOCAL RUNTIME: PASS");
 }
 
