@@ -131,7 +131,7 @@ async function run() {
     assert.ok([400, 403].includes(result.response.status), `self escalation must be rejected, got ${result.response.status}`);
     const users = await request("/api/admin/rbac/users", { headers: { cookie: mainCookie } });
     const current = users.data.users.find((user) => user.id === securityUser.id);
-    assert.notEqual(current?.groupId, "group-main-admin");
+    assert.equal(current?.group_id, securityGroup.id, "self-escalation must preserve the original Admin group");
   });
 
   await scenario("protected system groups", async () => {
@@ -144,15 +144,22 @@ async function run() {
   });
 
   await scenario("last Main Administrator", async () => {
-    const disable = await request(`/api/admin/rbac/users/${encodeURIComponent(mainUser.id)}`, json("PATCH", { enabled: false }, mainCookie));
+    const before = await request("/api/admin/rbac/users", { headers: { cookie: mainCookie } });
+    assert.equal(before.response.status, 200);
+    const activeMainAdmins = before.data.users.filter((user) => user.group_id === "group-main-admin" && Number(user.enabled) === 1);
+    assert.equal(activeMainAdmins.length, 1, "last-main-admin test requires exactly one active Main Administrator");
+    const onlyMain = activeMainAdmins[0];
+    const disable = await request(`/api/admin/rbac/users/${encodeURIComponent(onlyMain.id)}`, json("PATCH", { enabled: false }, mainCookie));
     assert.ok([400, 403].includes(disable.response.status));
-    const move = await request(`/api/admin/rbac/users/${encodeURIComponent(mainUser.id)}/group`, json("PATCH", { groupId: viewGroup.id }, mainCookie));
+    const move = await request(`/api/admin/rbac/users/${encodeURIComponent(onlyMain.id)}/group`, json("PATCH", { groupId: viewGroup.id }, mainCookie));
     assert.ok([400, 403].includes(move.response.status));
     const stillWorks = await request("/api/admin/rbac/users", { headers: { cookie: mainCookie } });
     assert.equal(stillWorks.response.status, 200);
-    const finalMain = stillWorks.data.users.find((user) => user.id === mainUser.id);
-    assert.equal(finalMain?.enabled, true);
-    assert.equal(finalMain?.groupId, "group-main-admin");
+    const finalMain = stillWorks.data.users.find((user) => user.id === onlyMain.id);
+    assert.equal(Number(finalMain?.enabled), 1, "last Main Administrator must remain enabled");
+    assert.equal(finalMain?.group_id, "group-main-admin", "last Main Administrator must remain in protected group");
+    const finalActiveMainAdmins = stillWorks.data.users.filter((user) => user.group_id === "group-main-admin" && Number(user.enabled) === 1);
+    assert.equal(finalActiveMainAdmins.length, 1);
   });
 
   console.log("FULL RBAC LOCAL RUNTIME MATRIX: PASS");
