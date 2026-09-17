@@ -390,3 +390,14 @@ CI DEV-VARS CORRECTION REQUIRED — 2026-09-17
 FAILED / CORRECTION REQUIRED: CI-only Worker starts, but temporary variables written at repository-root .dev.vars were not loaded by the config under scripts/. Run 35276755988 failed 401 at Admin bootstrap.
 RETEST PENDING after workflow writes scripts/.dev.vars and cleans that file.
 STILL PENDING: stock, reservation, exact Master, preflight, Printing Job, duplicate-job, and complete Orders runtime evidence.
+
+
+============================================================
+ORDERS INTEGRITY GATE REMAINING — 2026-09-17
+============================================================
+- PENDING: actual stock before/after confirmation/repeat/cancellation/repeat.
+- PENDING: reservation lifecycle actual values.
+- PENDING: Order Item exact approved Ready-to-Print Master and historical passing preflight.
+- PENDING: Printing Job count and exact Order/Item/Master relationships; duplicate-job prevention.
+- PENDING: final Orders gate and exact-head CI after integrity assertions.
+- Production runtime remains NOT STARTED.
