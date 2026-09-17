@@ -98,25 +98,6 @@ jobs:
 
           trap cleanup EXIT
 
-          # Diagnose the exact failing initialization statement without committing
-          # any change to the protected ItemStore source. This edit exists only
-          # inside the disposable GitHub Actions checkout.
-          python3 - <<'PY'
-          from pathlib import Path
-          path = Path('workers/item-store.ts')
-          text = path.read_text(encoding='utf-8')
-          old = 'if (ch === ";") { const statement = script.slice(start, i).trim(); if (statement) storage.exec(statement); start = i + 1; }'
-          new = 'if (ch === ";") { const statement = script.slice(start, i).trim(); if (statement) { try { storage.exec(statement); } catch (error) { console.error("ITEMSTORE_SQL_FAILURE", statement.slice(0, 1200)); throw error; } } start = i + 1; }'
-          if old not in text:
-              raise SystemExit('execSqlScript statement pattern not found')
-          text = text.replace(old, new, 1)
-          old_tail = 'const tail = script.slice(start).trim();\n  if (tail) storage.exec(tail);'
-          new_tail = 'const tail = script.slice(start).trim();\n  if (tail) { try { storage.exec(tail); } catch (error) { console.error("ITEMSTORE_SQL_FAILURE", tail.slice(0, 1200)); throw error; } }'
-          if old_tail not in text:
-              raise SystemExit('execSqlScript tail pattern not found')
-          path.write_text(text.replace(old_tail, new_tail, 1), encoding='utf-8')
-          PY
-
           ./node_modules/.bin/wrangler dev \
             --local \
             --ip 127.0.0.1 \
