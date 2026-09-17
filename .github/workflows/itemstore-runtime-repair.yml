@@ -1,0 +1,145 @@
+name: ItemStore runtime repair
+
+on:
+  push:
+    branches:
+      - integrate/v48-camel-final-20260917
+    paths:
+      - scripts/fix-itemstore-sql.py
+      - .github/workflows/itemstore-runtime-repair.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: integrate/v48-camel-final-20260917
+          fetch-depth: 0
+
+      - name: Verify branch
+        run: |
+          set -e
+          test "$(git branch --show-current)" = "integrate/v48-camel-final-20260917"
+
+      - name: Patch ItemStore
+        run: |
+          set -e
+          python3 scripts/fix-itemstore-sql.py
+
+      - name: Verify only ItemStore changed
+        run: |
+          set -e
+          git diff --check
+          test "$(git diff --name-only)" = "workers/item-store.ts"
+          git diff --stat
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.12"
+
+      - name: Install
+        run: npm install
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: ItemStore regression
+        run: bun test item-store-initialization.test.ts
+
+      - name: Existing Bun tests
+        run: |
+          bun test \
+            workers/admin-rbac.test.ts \
+            workers/admin-orders.test.ts \
+            workers/admin-production.test.ts \
+            workers/admin-manual-review.test.ts \
+            workers/admin-products.test.ts \
+            workers/admin-customers.test.ts \
+            workers/admin-designers.test.ts \
+            workers/admin-payouts.test.ts \
+            workers/admin-reports.test.ts \
+            workers/admin-promotions.test.ts \
+            workers/admin-settings.test.ts \
+            workers/admin-integrations.test.ts \
+            workers/admin-i18n.test.ts \
+            workers/admin-audit-log.test.ts \
+            workers/checkout-integration.test.ts \
+            workers/analyzer.test.ts \
+            workers/designer-upload.test.ts
+
+      - name: Check smoke script
+        run: node --check scripts/rbac-local-smoke.mjs
+
+      - name: Local Cloudflare runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./node_modules/.bin/wrangler --version | grep -q "4.97.0"
+          TEST_TOKEN="dtf-ci-bootstrap-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          TEST_HASH="$(printf "%s" "$TEST_TOKEN" | sha256sum | awk '{print $1}')"
+          printf "%s\n" 'ADMIN_WEB_KEY="dtf-ci-local-session-key-0123456789012345678901234567890123456789"' "ADMIN_BOOTSTRAP_TOKEN_SHA256="$TEST_HASH"" > .dev.vars
+          STATE_DIR="/tmp/dtf-rbac-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          cleanup() {
+            if [ -n "${WRANGLER_PID:-}" ]; then
+              kill "$WRANGLER_PID" 2>/dev/null || true
+              wait "$WRANGLER_PID" 2>/dev/null || true
+            fi
+            rm -f .dev.vars
+            rm -rf "$STATE_DIR"
+          }
+          trap cleanup EXIT
+          rm -rf "$STATE_DIR"
+          ./node_modules/.bin/wrangler dev \
+            --local \
+            --ip 127.0.0.1 \
+            --port 8787 \
+            --persist-to "$STATE_DIR" \
+            >/tmp/dtf-wrangler.log 2>&1 &
+          WRANGLER_PID=$!
+          READY=0
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8787/api/studio/health >/dev/null 2>&1; then
+              READY=1
+              break
+            fi
+            if ! kill -0 "$WRANGLER_PID" 2>/dev/null; then
+              cat /tmp/dtf-wrangler.log
+              exit 1
+            fi
+            sleep 1
+          done
+          if [ "$READY" != "1" ]; then
+            cat /tmp/dtf-wrangler.log
+            exit 1
+          fi
+          DTF_RBAC_BOOTSTRAP_TOKEN="$TEST_TOKEN" \
+            node scripts/rbac-local-smoke.mjs
+
+      - name: Commit proven ItemStore repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git diff --name-only)" = "workers/item-store.ts"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add workers/item-store.ts
+          git commit -m "Fix ItemStore permission bootstrap for Cloudflare SQLite runtime"
+          echo "REPAIR_COMMIT=$(git rev-parse HEAD)"
+          echo "ITEMSTORE_BLOB=$(git hash-object workers/item-store.ts)"
+          echo "ITEMSTORE_SHA256=$(sha256sum workers/item-store.ts | awk '{print $1}')"
+          git push origin HEAD:integrate/v48-camel-final-20260917
