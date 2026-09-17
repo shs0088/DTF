@@ -642,3 +642,13 @@ CLASSIFICATION: CI LOCAL ENVIRONMENT / DEV-VARS LOCATION FAILURE.
 ORDERS FIXTURE: NOT REACHED.
 STOCK/MASTER/JOB RUNTIME: NOT EXECUTED.
 CORRECTION COMMITTED: workflow now writes/cleans scripts/.dev.vars for the scripts-relative Wrangler config.
+
+
+============================================================
+GREEN REAL-ORDER STATUS WORKFLOW — 2026-09-17
+============================================================
+SHA: 49a89a975f9b4baf6daf4ffa7dcbefc29a856c23
+RUN: 35277143032
+RESULT: SUCCESS
+PASS: install; typecheck; build; ItemStore initialization; all Bun suites; Wrangler startup; dev-vars loading; Admin bootstrap; RBAC; Dashboard; EN/LTR; AR/RTL; real non-design Order creation/detail; unknown status denial; payment/repeated-payment status behavior; reverse denial; cancellation/repeated-cancellation status behavior; Operator baseline access.
+FINAL ORDERS INTEGRITY GATE: PENDING. Stock/reservation/Master/preflight/Printing Job values were not asserted.
