@@ -616,3 +616,18 @@ CI FIXTURE STATUS:
 - CI-only Orders fixture architecture exists.
 - Run 35276232224 at bc1007d77bb5baa20ee39957a65f943f882ef5b5 failed before runtime because the fixture Wrangler main path was config-relative and unresolved.
 - Correction committed in f14b9d1302d7151f3d7abd083c2b6745457516f4; exact-head retest pending.
+
+
+============================================================
+CI DEV-VARS LOADING FAILURE — 2026-09-17
+============================================================
+RUN: 35276755988
+SHA: 8227e13f018c541f12004736b0e0aaea8cc281
+- Wrangler 4.97.0 startup: VERIFIED.
+- /api/studio/health: PASS.
+- anonymous/no-session RBAC check: PASS.
+- Main Administrator bootstrap: FAIL, expected 200, actual 401.
+CLASSIFICATION: CI LOCAL ENVIRONMENT / DEV-VARS LOCATION FAILURE.
+ORDERS BUSINESS RUNTIME: NOT EXECUTED.
+NEXT ACTION: load temporary vars at scripts/.dev.vars for scripts/wrangler.orders-runtime.jsonc.
+PRODUCTION REMAINS BLOCKED.
