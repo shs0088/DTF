@@ -371,3 +371,14 @@ STILL PENDING:
 4. Live protected deletion behavior when cart/order/production references exist.
 5. Global Arabic/English switching with RTL/LTR across active routes remains the next source-level requirement.
 6. Final deployed runtime/business-flow QA remains pending.
+
+
+============================================================
+CURRENT ORDERS / FIXTURE REMAINING WORK — 2026-09-17
+============================================================
+- FAILED / CORRECTION REQUIRED: CI-only Wrangler config path caused run 35276232224 to fail before Worker readiness.
+- RETEST PENDING: corrected fixture Worker startup and smoke execution.
+- PENDING: stock before/after confirmation and cancellation; repeated-operation safety; reservation lifecycle.
+- PENDING: exact Order Item to approved Ready-to-Print Master; passing historical preflight; Order Item to Printing Job; Job to exact Master; duplicate-job prevention.
+- PENDING: complete Orders runtime gate and exact-head green CI.
+- PENDING: browser/visual verification where not executed.
