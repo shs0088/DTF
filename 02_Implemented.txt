@@ -416,3 +416,11 @@ CURRENT VERIFIED CONTROL STATE — 2026-09-17
 - Orders authorization: REQUEST-LEVEL RUNTIME VERIFIED; complete business workflow remains pending.
 - CI-only Orders fixture wrapper/config: SOURCE VERIFIED; runtime execution after path correction pending.
 - Production: NOT STARTED; blocked until complete Orders gate.
+
+
+============================================================
+CI-ONLY WRANGLER STARTUP VERIFIED — 2026-09-17
+============================================================
+- CI-only Wrangler path correction is RUNTIME VERIFIED: Wrangler 4.97.0 starts and health/no-session checks pass on run 35276755988.
+- Bootstrap environment loading is not verified; run 35276755988 failed at bootstrap with 401.
+- Admin Orders business runtime remains pending.
