@@ -102,6 +102,25 @@ export interface PrintifyCatalogLocalStateRow extends Record<string, SqlStorageV
 function bytesToBase64(bytes: Uint8Array): string { return btoa(String.fromCharCode(...bytes)); }
 function base64ToBytes(value: string): Uint8Array { return Uint8Array.from(atob(value), (char) => char.charCodeAt(0)); }
 
+function execSqlScript(storage: SqlStorage, script: string): void {
+  let start = 0;
+  let quote: string | null = null;
+  let lineComment = false;
+  let blockComment = false;
+  for (let i = 0; i < script.length; i++) {
+    const ch = script[i], next = script[i + 1];
+    if (lineComment) { if (ch === "\n") lineComment = false; continue; }
+    if (blockComment) { if (ch === "*" && next === "/") { blockComment = false; i++; } continue; }
+    if (!quote && ch === "-" && next === "-") { lineComment = true; i++; continue; }
+    if (!quote && ch === "/" && next === "*") { blockComment = true; i++; continue; }
+    if (quote) { if (ch === quote) { if (next === quote) i++; else quote = null; } continue; }
+    if (ch === "'" || ch === '"' || ch === "`") { quote = ch; continue; }
+    if (ch === ";") { const statement = script.slice(start, i).trim(); if (statement) storage.exec(statement); start = i + 1; }
+  }
+  const tail = script.slice(start).trim();
+  if (tail) storage.exec(tail);
+}
+
 async function hashPassword(password: string, salt: Uint8Array): Promise<string> {
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
   const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: salt.buffer as ArrayBuffer, iterations: 100000, hash: "SHA-256" }, key, 256);
@@ -140,7 +159,7 @@ function sanitizeAuditMetadataValue(value: unknown, depth = 0): unknown {
 export class ItemStore extends DurableObject<ItemStoreEnv> {
   constructor(ctx: DurableObjectState, env: ItemStoreEnv) {
     super(ctx, env);
-    this.ctx.storage.sql.exec(`
+    execSqlScript(this.ctx.storage.sql, `
       PRAGMA foreign_keys = ON;
       CREATE TABLE IF NOT EXISTS items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -578,10 +597,6 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       INSERT OR IGNORE INTO admin_user_groups (id,name,is_system,protected) VALUES ('group-main-admin','Main Administrator',1,1),('group-printing-operator','Printing Operator',1,1);
       INSERT OR IGNORE INTO admin_group_permissions (group_id,resource,permission) SELECT 'group-main-admin',resource,permission FROM (SELECT 'admin.dashboard' AS resource UNION SELECT 'admin.orders' UNION SELECT 'admin.production' UNION SELECT 'admin.products.printify' UNION SELECT 'admin.users' UNION SELECT 'admin.user_groups' UNION SELECT 'admin.settings') CROSS JOIN (SELECT 'access' AS permission UNION SELECT 'modify');
       INSERT OR IGNORE INTO admin_group_permissions (group_id,resource,permission) VALUES ('group-printing-operator','admin.dashboard','access'),('group-printing-operator','admin.orders','access'),('group-printing-operator','admin.orders','modify'),('group-printing-operator','admin.production','access'),('group-printing-operator','admin.production','modify');
-      try { this.ctx.storage.sql.exec("ALTER TABLE admin_users ADD COLUMN group_id TEXT"); } catch {}
-
-      UPDATE admin_users SET group_id=CASE WHEN role='main_admin' THEN 'group-main-admin' ELSE 'group-printing-operator' END WHERE group_id IS NULL;
-
       INSERT OR IGNORE INTO admin_permission_assignments (role,resource,action) VALUES ('printing_technician','admin.dashboard','access'),('printing_technician','admin.orders','access'),('printing_technician','admin.orders','change_status'),('printing_technician','admin.production','access'),('printing_technician','admin.production','change_status'),('printing_technician','admin.production','download');
       CREATE INDEX IF NOT EXISTS idx_admin_permission_role ON admin_permission_assignments(role, resource, action);
 
@@ -665,8 +680,15 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
   }
 
   private bootstrapCatalog(): void {
-    this.ctx.storage.sql.exec(`
+    try {
+      this.ctx.storage.sql.exec("ALTER TABLE admin_users ADD COLUMN group_id TEXT");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!/already exists|duplicate column name/i.test(message)) throw error;
+    }
+    execSqlScript(this.ctx.storage.sql, `
       INSERT OR REPLACE INTO schema_meta (key, value) VALUES ('schema_version', 'phase-1.3');
+      UPDATE admin_users SET group_id=CASE WHEN role='main_admin' THEN 'group-main-admin' ELSE 'group-printing-operator' END WHERE group_id IS NULL;
       CREATE TABLE IF NOT EXISTS auth_credentials (
         user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
         password_salt TEXT NOT NULL,
