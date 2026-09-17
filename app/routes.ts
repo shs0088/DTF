@@ -15,7 +15,7 @@ export default [
   route("designer/assets/:assetId", "routes/designer-asset.ts"),
   route("designer-qualification", "routes/designer-qualification.tsx"),
   route("order/:orderId", "routes/order.tsx"),
-  route("language", "routes/language.ts"),
+  route("language/:locale", "routes/language.ts"),
   route("api/admin/rbac", "routes/api.admin.rbac.ts"),
   route("api/studio/health", "routes/api.studio.health.ts"),
   route("api/studio/categories", "routes/api.studio.categories.ts"),
