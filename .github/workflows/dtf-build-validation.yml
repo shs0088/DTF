@@ -85,7 +85,7 @@ jobs:
           printf 'ADMIN_WEB_KEY="%s"\nADMIN_BOOTSTRAP_TOKEN_SHA256="%s"\nORDERS_FIXTURE_TOKEN="%s"\n' \
             'dtf-ci-local-session-key-0123456789012345678901234567890123456789' \
             "$TEST_HASH" \
-            "$FIXTURE_TOKEN" > .dev.vars
+            "$FIXTURE_TOKEN" > scripts/.dev.vars
 
           STATE_DIR="/tmp/dtf-rbac-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           rm -rf "$STATE_DIR"
@@ -95,7 +95,7 @@ jobs:
               kill "$WRANGLER_PID" 2>/dev/null || true
               wait "$WRANGLER_PID" 2>/dev/null || true
             fi
-            rm -f .dev.vars
+            rm -f scripts/.dev.vars
             rm -rf "$STATE_DIR"
           }
 
