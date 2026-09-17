@@ -144,8 +144,10 @@ async function run() {
   assert.equal(revokedOrders.response.status, 403);
   console.log("PASS [ORDERS-RUNTIME] current database authority");
 
-  const ordersDetailMissing = await request("/api/admin/orders/ci-missing-order");
-  assert.equal(ordersDetailMissing.response.status, 404);
+  const anonymousOrderDetail = await request("/api/admin/orders/ci-missing-order");
+  assert.equal(anonymousOrderDetail.response.status, 401, "anonymous order detail must fail authentication before lookup");
+  const ordersDetailMissing = await request("/api/admin/orders/ci-missing-order", { headers: { cookie: mainCookie } });
+  assert.equal(ordersDetailMissing.response.status, 404, "authenticated missing order must return 404");
   const invalidOrderMutation = await request("/api/admin/orders/ci-missing-order/status", json("PATCH", { status: "unknown_status" }, mainCookie));
   assert.equal(invalidOrderMutation.response.status, 400);
   console.log("PASS [ORDERS-RUNTIME] fail-closed invalid order mutation");
