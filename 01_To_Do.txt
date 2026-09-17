@@ -600,3 +600,19 @@ RUNTIME BLOCKER:
 - DESIGN_ASSETS R2 bucket must exist in the deployment environment before real uploads can run live.
 DEPLOYMENT: NOT PERFORMED.
 MERGE/MAIN CHANGE: NONE.
+
+
+============================================================
+CURRENT INTEGRATION STATE — ORDERS FIXTURE PATH RETEST — 2026-09-17
+============================================================
+VERIFIED PRIOR STATE:
+- Admin RBAC source/runtime verification complete on prior exact-head green CI.
+- Admin Dashboard functional/runtime/i18n verification complete on prior exact-head green CI.
+- Orders authorization runtime complete on prior exact-head green CI.
+CURRENTLY PENDING:
+- Complete real Orders business runtime: stock/reservation, payment idempotency, cancellation restoration, exact Ready-to-Print Master, preflight, Printing Job relationships, and duplicate-job prevention.
+- Production runtime must not start until the Orders gate is green.
+CI FIXTURE STATUS:
+- CI-only Orders fixture architecture exists.
+- Run 35276232224 at bc1007d77bb5baa20ee39957a65f943f882ef5b5 failed before runtime because the fixture Wrangler main path was config-relative and unresolved.
+- Correction committed in f14b9d1302d7151f3d7abd083c2b6745457516f4; exact-head retest pending.
