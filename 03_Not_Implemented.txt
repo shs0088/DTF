@@ -382,3 +382,11 @@ CURRENT ORDERS / FIXTURE REMAINING WORK — 2026-09-17
 - PENDING: exact Order Item to approved Ready-to-Print Master; passing historical preflight; Order Item to Printing Job; Job to exact Master; duplicate-job prevention.
 - PENDING: complete Orders runtime gate and exact-head green CI.
 - PENDING: browser/visual verification where not executed.
+
+
+============================================================
+CI DEV-VARS CORRECTION REQUIRED — 2026-09-17
+============================================================
+FAILED / CORRECTION REQUIRED: CI-only Worker starts, but temporary variables written at repository-root .dev.vars were not loaded by the config under scripts/. Run 35276755988 failed 401 at Admin bootstrap.
+RETEST PENDING after workflow writes scripts/.dev.vars and cleans that file.
+STILL PENDING: stock, reservation, exact Master, preflight, Printing Job, duplicate-job, and complete Orders runtime evidence.
