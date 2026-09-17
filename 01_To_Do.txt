@@ -641,3 +641,14 @@ SHA: 49a89a975f9b4baf6daf4ffa7dcbefc29a856c23
 - Exact-head CI SUCCESS. Install/typecheck/build/ItemStore/Bun/RBAC/Dashboard/local Wrangler/dev-vars/real non-design Order/status workflow/Operator baseline all verified.
 - Complete Orders integrity remains pending: stock quantities, reservation lifecycle, exact Master/preflight, Printing Job relationships, duplicate-job prevention.
 - Production remains blocked until the complete Orders gate is green.
+
+
+============================================================
+EXACT-HEAD GREEN MARKER-CORRECTION RUN — 2026-09-17
+============================================================
+RUN: 35277518428
+SHA: 12d5448f86d8c1012042ce08b697168ad1a1fa98
+- Exact-head CI SUCCESS. Marker correction is verified. RBAC, Dashboard, local Wrangler/bootstrap, locale checks, real non-design Order/status workflow, and Printing Operator baseline remain green.
+- ADMIN ORDERS STATUS WORKFLOW RUNTIME: PASS.
+- FINAL ORDERS INTEGRITY GATE: PENDING. Stock, reservations, exact Master/preflight, Printing Job relationships, unpaid reservation release, and production queue cross-check remain unasserted.
+- Production remains blocked.
