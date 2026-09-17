@@ -153,3 +153,11 @@ FINAL CAMEL REFERENCE RULE — 2026-09-16
 - Business rules, database, security, RBAC, preflight, stock, orders and production follow approved DTF Studio requirements/QC.
 - If a visual request conflicts with verified functional/security behavior, preserve the functional/security behavior and adapt the visual implementation around it.
 - main remains unchanged until explicit merge authorization.
+
+
+============================================================
+ARCHITECTURE REFERENCE CLARIFICATION — 2026-09-17
+============================================================
+- OpenCart is limited to functional/UX structural reference for the Admin Dashboard and Admin management experience.
+- OpenCart is not the architecture authority for customer, designer, checkout, Orders, Production, Printing Operator, Ready-to-Print Master, preflight, stock/reservation, publishing, or DTF-specific relationships.
+- Existing approved DTF Studio business rules and current V48 architecture remain authoritative for those areas.
