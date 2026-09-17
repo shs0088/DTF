@@ -61,3 +61,12 @@ FAILED RUN: 35276232224 — Worker entry path not found before readiness.
 CHANGE: scripts/wrangler.orders-runtime.jsonc main changed from ./scripts/orders-runtime-worker.ts to ./orders-runtime-worker.ts; assets changed from ./public/ to ../public/.
 RESULT: Source correction committed at f14b9d1302d7151f3d7abd083c2b6745457516f4; exact-head runtime/CI retest pending.
 PRODUCTION SOURCE CHANGED: NO. ITEMSTORE CHANGED: NO. DEPLOYMENT: NO.
+
+
+DATE/TIME: 2026-09-17T21:31:00Z
+TASK: Correct CI local dev-vars loading for isolated Orders Wrangler config.
+BRANCH: integrate/v48-camel-final-20260917
+FAILED RUN: 35276755988; SHA 8227e13f018c541f12004736b0e0aaea8cc281.
+EVIDENCE: Wrangler 4.97.0 started; health and no-session checks passed; Admin bootstrap returned 401 because vars were written at root while config is under scripts/.
+CORRECTION: .github/workflows/dtf-build-validation.yml writes temporary vars to scripts/.dev.vars and cleans scripts/.dev.vars.
+PRODUCTION SOURCE CHANGED: NO. ITEMSTORE CHANGED: NO. DEPLOYMENT: NO.
