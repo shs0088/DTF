@@ -70,3 +70,12 @@ FAILED RUN: 35276755988; SHA 8227e13f018c541f12004736b0e0aaea8cc281.
 EVIDENCE: Wrangler 4.97.0 started; health and no-session checks passed; Admin bootstrap returned 401 because vars were written at root while config is under scripts/.
 CORRECTION: .github/workflows/dtf-build-validation.yml writes temporary vars to scripts/.dev.vars and cleans scripts/.dev.vars.
 PRODUCTION SOURCE CHANGED: NO. ITEMSTORE CHANGED: NO. DEPLOYMENT: NO.
+
+
+DATE/TIME: 2026-09-17T21:35:00Z
+TASK: Record first green isolated real-Order status workflow and keep final integrity marker honest.
+BRANCH: integrate/v48-camel-final-20260917
+SHA: 49a89a975f9b4baf6daf4ffa7dcbefc29a856c23
+RUN: 35277143032 — SUCCESS.
+RESULT: Wrangler/config/dev-vars and real non-design Order/status workflow verified; stock/reservation/Master/preflight/Printing Job integrity not yet asserted.
+CODE: Orders marker changed from premature final PASS to partial STATUS WORKFLOW PASS. Production source and ItemStore unchanged. DEPLOYMENT: NO.
