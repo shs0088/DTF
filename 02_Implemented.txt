@@ -433,3 +433,12 @@ ORDERS STATUS WORKFLOW RUNTIME VERIFIED — 2026-09-17
 - Real local non-design Order creation, Admin detail, unknown-status denial, payment/repeated-payment behavior, reverse denial, cancellation/repeated-cancellation behavior, and Operator baseline access verified.
 - Evidence class: GITHUB CI VERIFIED / REQUEST-LEVEL RUNTIME VERIFIED.
 - FINAL ORDERS INTEGRITY GATE: PENDING.
+
+
+============================================================
+EXACT-HEAD MARKER CORRECTION VERIFIED — 2026-09-17
+============================================================
+- Run 35277518428 / SHA 12d5448f86d8c1012042ce08b697168ad1a1fa98 SUCCESS.
+- ADMIN ORDERS STATUS WORKFLOW RUNTIME: PASS is verified.
+- The premature ADMIN ORDERS LOCAL RUNTIME: PASS marker remains removed.
+- Complete Orders integrity gate remains pending.
