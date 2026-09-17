@@ -25,6 +25,12 @@ function json(method, payload, cookie, headers = {}) {
   return { method, headers: { "content-type": "application/json", ...(cookie ? { cookie } : {}), ...headers }, body: JSON.stringify(payload) };
 }
 
+function namedCookie(response, name) {
+  const value = response.headers.get("set-cookie") || "";
+  const match = value.match(new RegExp(`(?:^|,\s*)${name}=([^;]+)`));
+  assert.ok(match?.[1], `${name} cookie missing`);
+  return `${name}=${match[1]}`;
+}
 async function login(username, password) {
   const form = new URLSearchParams({ username, password });
   const result = await request("/admin", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: form });
