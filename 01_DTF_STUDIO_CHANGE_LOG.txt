@@ -79,3 +79,11 @@ SHA: 49a89a975f9b4baf6daf4ffa7dcbefc29a856c23
 RUN: 35277143032 — SUCCESS.
 RESULT: Wrangler/config/dev-vars and real non-design Order/status workflow verified; stock/reservation/Master/preflight/Printing Job integrity not yet asserted.
 CODE: Orders marker changed from premature final PASS to partial STATUS WORKFLOW PASS. Production source and ItemStore unchanged. DEPLOYMENT: NO.
+
+
+DATE/TIME: 2026-09-17T21:40:00Z
+TASK: Synchronize QC to exact-head green marker-correction run.
+BRANCH: integrate/v48-camel-final-20260917
+SHA: 12d5448f86d8c1012042ce08b697168ad1a1fa98
+RUN: 35277518428 — SUCCESS.
+RESULT: Marker correction exact-head verified; status workflow remains green. Complete Orders integrity assertions have not executed. Production source, production wrangler, ItemStore, package manifests, and lockfile unchanged. DEPLOYMENT: NO.
