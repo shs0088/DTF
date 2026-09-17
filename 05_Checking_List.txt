@@ -628,3 +628,17 @@ ISOLATED FIXTURE ATTEMPT: SHA bc1007d77bb5baa20ee39957a65f943f882ef5b5; RUN 3527
 - CLASSIFICATION: CI FIXTURE CONFIGURATION FAILURE; Orders business runtime NOT EXECUTED.
 CORRECTION: CI-only config now uses main ./orders-runtime-worker.ts and assets ../public/. Commit f14b9d1302d7151f3d7abd083c2b6745457516f4.
 RETEST STATUS: PENDING.
+
+
+============================================================
+CI DEV-VARS LOADING FAILURE — 2026-09-17
+============================================================
+SHA: 8227e13f018c541f12004736b0e0aaea8cc281
+RUN: 35276755988
+RESULT: FAIL
+PASS: npm install; typecheck; build; ItemStore initialization; all Bun suites; Wrangler startup; health; unauthenticated RBAC check.
+FAIL: Main Administrator bootstrap; expected 200; actual 401.
+CLASSIFICATION: CI LOCAL ENVIRONMENT / DEV-VARS LOCATION FAILURE.
+ORDERS FIXTURE: NOT REACHED.
+STOCK/MASTER/JOB RUNTIME: NOT EXECUTED.
+CORRECTION COMMITTED: workflow now writes/cleans scripts/.dev.vars for the scripts-relative Wrangler config.
