@@ -3,7 +3,6 @@ import type { ItemStore } from "./item-store";
 import { normalizePrintifyVariant } from "./item-store";
 import { createConnections } from "../app/lib/connections";
 import { bootstrapTokenMatches, createAdminSession, getAdminSessionClaims, getConfiguredBootstrapVerifier } from "./admin-auth";
-import { localizeAdminHtml, adminLocaleCookie } from "./admin-i18n";
 export { ItemStore } from "./item-store";
 
 interface Env { ASSETS?: { fetch(request: Request): Promise<Response> | Response }; ITEMS: DurableObjectNamespace<ItemStore>; CONNECTIONS?: unknown; ADMIN_WEB_KEY?: string; ADMIN_BOOTSTRAP_TOKEN_SHA256?: string; }
@@ -203,4 +202,4 @@ async function adminPrintifyApi(request: Request, env: Env): Promise<Response | 
 const ADMIN_DASHBOARD_PAGE = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>DTF Studio — Dashboard</title><style>
 body{margin:0;background:#050b14;color:#eef7ff;font:14px Arial,sans-serif}.wrap{max-width:1240px;margin:auto;padding:28px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}.top h1{margin:0}.muted{color:#91a8bf}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:22px 0}.card{background:#0b1726;border:1px solid #263f5b;border-radius:10px;padding:18px}.value{font-size:30px;font-weight:700;color:#63bfff;margin-top:8px}.alert{font-size:12px;margin-top:5px;color:#9fb6cc}.two{display:grid;grid-template-columns:1.25fr .75fr;gap:14px}.bars{display:flex;align-items:end;gap:10px;height:190px;padding-top:16px}.barcol{flex:1;min-width:28px;text-align:center}.bar{background:#1689e8;border-radius:5px 5px 0 0;min-height:2px}.barlabel{font-size:11px;color:#91a8bf;margin-top:6px}.quick{display:flex;gap:8px;flex-wrap:wrap}.quick a{color:#dff2ff;text-decoration:none;border:1px solid #31506d;background:#0f2135;border-radius:6px;padding:8px 10px}table{width:100%;border-collapse:collapse}th,td{padding:9px;border-bottom:1px solid #22384f;text-align:left}.table{overflow:auto}.activity{list-style:none;padding:0;margin:0}.activity li{padding:9px 0;border-bottom:1px solid #22384f}.bad{color:#ffb0b0}.good{color:#86e39b}@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}@media(max-width:560px){.wrap{padding:14px}.grid{grid-template-columns:1fr}}
 
-[Showing lines 1-204 of 463. Use offset=205 to continue.]
+[Showing lines 1-203 of 462. Use offset=204 to continue.]

@@ -32,3 +32,22 @@ VALIDATION:
 DEPLOYMENT: NOT RUN.
 GITHUB: Verification branch only; main, camel-current, and kamel/admin-rbac-foundation were not modified.
 DELETION: Neither project deleted.
+
+DATE/TIME: 2026-09-17T00:00:00Z
+TASK: Two-file Worker integrity recovery for GitHub verification branch.
+ACTIONS:
+- Preserved the known-good dependency correction: TypeScript ^6.0.1, Vite 8.0.16, Wrangler 4.97.0.
+- Preserved bun.lock unchanged.
+- Confirmed GitHub npm install passed independently before this recovery.
+- Identified consolidation file-integrity failure: workers/item-store.ts and workers/static-app.ts contained tool-output truncation markers and incomplete source.
+- Recovered only these two files from the authoritative GitHub blob API using exact binary bytes; no src/ tree, homepage, or other application files were copied.
+- Verified workers/item-store.ts Git blob SHA-1 3ca5d5a278f059eac07c27ed4d4918353ebe0f38 and size 216955 bytes.
+- Verified workers/static-app.ts Git blob SHA-1 657923931136e1c44d37d9ba82709c8a9b7a8190 and size 204725 bytes.
+- Verified neither recovered file contains [Showing lines, Use offset=, or No newline at end of file markers.
+- No other application or frontend file was changed by this recovery.
+VALIDATION:
+- Canonical Worker writes completed with exact source blob hash and byte-size verification.
+- Full Camel test and build validation remain pending/blocked by sandbox execution limits; no green claim made.
+DEPLOYMENT: NOT RUN.
+GITHUB: Correction is limited to the verification branch verify/v48-consolidated-20260917.
+DELETION: Neither project deleted.

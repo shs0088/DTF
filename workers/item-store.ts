@@ -700,15 +700,6 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         ('area-cap-front', 'model-cap', 'front', 12, 6, 1417, 709);
     `);
     try { this.ctx.storage.sql.exec("ALTER TABLE printify_product_data ADD COLUMN selected_provider_id TEXT"); } catch {}
-    try { this.ctx.storage.sql.exec("ALTER TABLE designer_profiles ADD COLUMN compensation_source TEXT NOT NULL DEFAULT 'global'"); } catch {}
-    try { this.ctx.storage.sql.exec("ALTER TABLE designer_profiles ADD COLUMN compensation_method TEXT"); } catch {}
-    try { this.ctx.storage.sql.exec("ALTER TABLE designer_profiles ADD COLUMN compensation_value REAL"); } catch {}
-    try { this.ctx.storage.sql.exec("ALTER TABLE designer_earnings ADD COLUMN compensation_source TEXT"); } catch {}
-    try { this.ctx.storage.sql.exec("ALTER TABLE designer_earnings ADD COLUMN compensation_method TEXT"); } catch {}
-    try { this.ctx.storage.sql.exec("ALTER TABLE designer_earnings ADD COLUMN compensation_value REAL"); } catch {}
-    try { this.ctx.storage.sql.exec("ALTER TABLE designer_earnings ADD COLUMN calculation_base_jod INTEGER"); } catch {}
-    try { this.ctx.storage.sql.exec("ALTER TABLE designer_earnings ADD COLUMN quantity INTEGER"); } catch {}
-    try { this.ctx.storage.sql.exec("ALTER TABLE designer_earnings ADD COLUMN calculated_amount_jod INTEGER"); } catch {}
   }
 
   list(): Item[] {
@@ -837,5 +828,10 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const settings=(this.businessSettingsSnapshot() as any).settings;const reservationMinutes=Math.max(5,Math.min(120,Number(settings.bankTransferReservationMinutes||30)));const expiresAt=new Date(Date.now()+reservationMinutes*60000).toISOString();const orderId=crypto.randomUUID();const initialStatus=payment==="bank_transfer"?"payment_pending":"new";
     this.ctx.storage.transactionSync(()=>{
       const promotion=preview.promotion?this.checkoutPromotion(String(preview.promotion.code),Number(preview.subtotalJod)):null;
+      this.ctx.storage.sql.exec("UPDATE reservations SET status='expired' WHERE status='pending' AND datetime(expires_at)<=datetime('now')");
+      for(const line of preview.lines){
+        const stock=this.ctx.storage.sql.exec<any>("SELECT quantity,tracked FROM stocks WHERE variant_id=?",line.variantId).toArray()[0];if(stock&&Number(stock.tracked)===1){const reserved=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(quantity),0) AS qty FROM reservations WHERE variant_id=? AND status='pending' AND datetime(expires_at)>datetime('now') AND cart_id<>?",line.variantId,cartId).toArray()[0]?.qty??0);if(Number(stock.quantity)-reserved<Number(line.quantity))throw new Error(`${line.sku}: stock changed before checkout; please review the cart.`);}
+      }
+      this.ctx.storage.sql.exec("INSERT INTO orders (id,user_id,status,payment_status,fulfillment_mode,total_jod,currency) VALUES (?,?,?,?,?,?,?)",orderId,identity.userId,initialStatus,"pending",fulfillment,Number(preview.totalJod),"JOD");
 
-[Showing lines 1-839 of 1756. Use offset=840 to continue.]
+[Showing lines 1-835 of 1725. Use offset=836 to continue.]
