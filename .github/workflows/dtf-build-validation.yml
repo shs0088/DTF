@@ -80,9 +80,12 @@ jobs:
           TEST_TOKEN="dtf-ci-bootstrap-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           TEST_HASH="$(printf '%s' "$TEST_TOKEN" | sha256sum | awk '{print $1}')"
 
-          printf 'ADMIN_WEB_KEY="%s"\nADMIN_BOOTSTRAP_TOKEN_SHA256="%s"\n' \
+          FIXTURE_TOKEN="dtf-ci-orders-fixture-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+
+          printf 'ADMIN_WEB_KEY="%s"\nADMIN_BOOTSTRAP_TOKEN_SHA256="%s"\nORDERS_FIXTURE_TOKEN="%s"\n' \
             'dtf-ci-local-session-key-0123456789012345678901234567890123456789' \
-            "$TEST_HASH" > .dev.vars
+            "$TEST_HASH" \
+            "$FIXTURE_TOKEN" > .dev.vars
 
           STATE_DIR="/tmp/dtf-rbac-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           rm -rf "$STATE_DIR"
@@ -99,6 +102,7 @@ jobs:
           trap cleanup EXIT
 
           ./node_modules/.bin/wrangler dev \
+            --config scripts/wrangler.orders-runtime.jsonc \
             --local \
             --ip 127.0.0.1 \
             --port 8787 \
@@ -129,4 +133,4 @@ jobs:
             exit 1
           fi
 
-          DTF_RBAC_BOOTSTRAP_TOKEN="$TEST_TOKEN" node scripts/rbac-local-smoke.mjs
+          DTF_RBAC_BOOTSTRAP_TOKEN="$TEST_TOKEN" DTF_ORDERS_FIXTURE_TOKEN="$FIXTURE_TOKEN" node scripts/rbac-local-smoke.mjs
