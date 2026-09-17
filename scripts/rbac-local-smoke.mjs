@@ -230,6 +230,17 @@ async function run() {
     assert.ok([401, 403].includes(page.response.status));
   });
   console.log("PASS [DASHBOARD-RUNTIME] current database authority");
+  const englishPage = await request("/admin/dashboard?lang=en", { headers: { cookie: mainCookie } });
+  assert.equal(englishPage.response.status, 200);
+  assert.ok(String(englishPage.data?.raw ?? "").includes('<html lang="en" dir="ltr">'));
+  console.log("PASS [DASHBOARD-RUNTIME] English LTR HTTP locale");
+  const arabicPage = await request("/admin/dashboard?lang=ar", { headers: { cookie: mainCookie } });
+  assert.equal(arabicPage.response.status, 200);
+  const arabicHtml = String(arabicPage.data?.raw ?? "");
+  assert.ok(arabicHtml.includes('<html lang="ar" dir="rtl">'));
+  assert.ok(arabicHtml.includes("إجمالي الطلبات"));
+  assert.ok(arabicHtml.includes("ar-JO"));
+  console.log("PASS [DASHBOARD-RUNTIME] Arabic RTL HTTP locale");
   console.log("ADMIN DASHBOARD LOCAL RUNTIME: PASS");
 }
 
