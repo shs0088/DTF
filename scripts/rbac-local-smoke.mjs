@@ -163,6 +163,74 @@ async function run() {
   });
 
   console.log("FULL RBAC LOCAL RUNTIME MATRIX: PASS");
+
+  const anonymousDashboardApi = await request("/api/admin/dashboard");
+  assert.equal(anonymousDashboardApi.response.status, 401);
+  console.log("PASS [DASHBOARD-RUNTIME] unauthenticated API");
+
+  const anonymousDashboardPage = await request("/admin/dashboard");
+  assert.ok([200, 302, 303, 307, 308, 401, 403].includes(anonymousDashboardPage.response.status));
+  const anonymousPageText = String(anonymousDashboardPage.data?.raw ?? "");
+  assert.ok(!anonymousPageText.includes("Total Orders"), "anonymous page must not expose dashboard content");
+  console.log(`PASS [DASHBOARD-RUNTIME] unauthenticated page status ${anonymousDashboardPage.response.status}`);
+
+  await scenario("dashboard Main Administrator", async () => {
+    const api = await request("/api/admin/dashboard", { headers: { cookie: mainCookie } });
+    assert.equal(api.response.status, 200);
+    assert.equal(api.data?.ok, true);
+    assert.ok(api.data?.summary);
+    for (const key of ["orders", "production", "reviews", "stock", "payouts"]) assert.ok(api.data.summary[key]);
+    const page = await request("/admin/dashboard", { headers: { cookie: mainCookie } });
+    assert.equal(page.response.status, 200);
+  });
+
+  await scenario("dashboard Printing Operator", async () => {
+    const api = await request("/api/admin/dashboard", { headers: { cookie: operatorCookie } });
+    assert.equal(api.response.status, 200);
+    assert.equal(api.data?.ok, true);
+    assert.equal(api.data?.access?.orders, true);
+    assert.equal(api.data?.access?.production, true);
+    const page = await request("/admin/dashboard", { headers: { cookie: operatorCookie } });
+    assert.equal(page.response.status, 200);
+    const html = String(page.data?.raw ?? "");
+    for (const forbidden of ["/admin/users", "/admin/user-groups", "/admin/settings"]) assert.ok(!html.includes(forbidden), `operator navigation must hide ${forbidden}`);
+  });
+
+  await scenario("dashboard database-backed metrics", async () => {
+    const api = await request("/api/admin/dashboard", { headers: { cookie: mainCookie } });
+    assert.equal(api.response.status, 200);
+    const s = api.data.summary;
+    for (const value of [s.orders?.total, s.orders?.open, s.orders?.paymentPending, s.production?.open, s.reviews?.pending, s.stock?.outOfStock, s.stock?.lowStock, s.payouts?.requested]) assert.equal(typeof value, "number");
+    assert.ok(Array.isArray(s.dailyOrders));
+    assert.ok(Array.isArray(s.recentOrders));
+    assert.ok(Array.isArray(s.recentActivity));
+  });
+
+  const dashboardGroupResult = await request("/api/admin/rbac/groups", json("POST", { name: "CI Dashboard Access" }, mainCookie));
+  assert.equal(dashboardGroupResult.response.status, 200);
+  const dashboardGroup = dashboardGroupResult.data.group;
+  assert.ok(dashboardGroup?.id);
+  const dashboardPerms = await request(`/api/admin/rbac/groups/${encodeURIComponent(dashboardGroup.id)}/permissions`, json("PUT", { permissions: [{ resource: "admin.dashboard", access: true, modify: false }] }, mainCookie));
+  assert.equal(dashboardPerms.response.status, 200);
+  const dashboardUserResult = await request("/api/admin/rbac/users", json("POST", { username: "ci-dashboard-user", password: "CI-Dashboard-Password-2026!", groupId: dashboardGroup.id }, mainCookie));
+  assert.equal(dashboardUserResult.response.status, 200);
+  const dashboardCookie = await login("ci-dashboard-user", "CI-Dashboard-Password-2026!");
+  await scenario("dashboard custom access", async () => {
+    const api = await request("/api/admin/dashboard", { headers: { cookie: dashboardCookie } });
+    assert.equal(api.response.status, 200);
+    const page = await request("/admin/dashboard", { headers: { cookie: dashboardCookie } });
+    assert.equal(page.response.status, 200);
+  });
+  await scenario("dashboard unauthorized custom group", async () => {
+    const revoke = await request(`/api/admin/rbac/groups/${encodeURIComponent(dashboardGroup.id)}/permissions`, json("PUT", { permissions: [] }, mainCookie));
+    assert.equal(revoke.response.status, 200);
+    const api = await request("/api/admin/dashboard", { headers: { cookie: dashboardCookie } });
+    assert.equal(api.response.status, 403);
+    const page = await request("/admin/dashboard", { headers: { cookie: dashboardCookie } });
+    assert.ok([401, 403].includes(page.response.status));
+  });
+  console.log("PASS [DASHBOARD-RUNTIME] current database authority");
+  console.log("ADMIN DASHBOARD LOCAL RUNTIME: PASS");
 }
 
 run().catch((error) => {
