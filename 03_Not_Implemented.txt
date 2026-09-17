@@ -401,3 +401,13 @@ ORDERS INTEGRITY GATE REMAINING — 2026-09-17
 - PENDING: Printing Job count and exact Order/Item/Master relationships; duplicate-job prevention.
 - PENDING: final Orders gate and exact-head CI after integrity assertions.
 - Production runtime remains NOT STARTED.
+
+
+============================================================
+ORDERS INTEGRITY REMAINS PENDING — 2026-09-17
+============================================================
+- PENDING: actual stock/movement evidence and negative-inventory checks.
+- PENDING: paid reservation consumed lifecycle and unpaid reservation released lifecycle.
+- PENDING: exact approved Master, persisted Order Item Master, and historical passing preflight snapshot.
+- PENDING: Printing Job counts, exact Order/Item/Master joins, duplicate prevention, and production queue cross-check.
+- PENDING: complete exact-head Orders gate and Production runtime.
