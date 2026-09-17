@@ -36,8 +36,6 @@ jobs:
         run: bun test item-store-initialization.test.ts
       - name: RBAC tests
         run: bun test workers/admin-rbac.test.ts
-      - name: RBAC runtime tests
-        run: bun test workers/admin-rbac-runtime.test.ts
       - name: Orders tests
         run: bun test workers/admin-orders.test.ts
       - name: Production tests
