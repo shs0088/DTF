@@ -51,3 +51,13 @@ VALIDATION:
 DEPLOYMENT: NOT RUN.
 GITHUB: Correction is limited to the verification branch verify/v48-consolidated-20260917.
 DELETION: Neither project deleted.
+
+
+DATE/TIME: 2026-09-17T21:27:00Z
+TASK: Correct isolated Orders runtime Wrangler config path.
+BRANCH: integrate/v48-camel-final-20260917
+PREVIOUS SHA: bc1007d77bb5baa20ee39957a65f943f882ef5b5
+FAILED RUN: 35276232224 — Worker entry path not found before readiness.
+CHANGE: scripts/wrangler.orders-runtime.jsonc main changed from ./scripts/orders-runtime-worker.ts to ./orders-runtime-worker.ts; assets changed from ./public/ to ../public/.
+RESULT: Source correction committed at f14b9d1302d7151f3d7abd083c2b6745457516f4; exact-head runtime/CI retest pending.
+PRODUCTION SOURCE CHANGED: NO. ITEMSTORE CHANGED: NO. DEPLOYMENT: NO.
