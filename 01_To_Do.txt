@@ -631,3 +631,13 @@ CLASSIFICATION: CI LOCAL ENVIRONMENT / DEV-VARS LOCATION FAILURE.
 ORDERS BUSINESS RUNTIME: NOT EXECUTED.
 NEXT ACTION: load temporary vars at scripts/.dev.vars for scripts/wrangler.orders-runtime.jsonc.
 PRODUCTION REMAINS BLOCKED.
+
+
+============================================================
+GREEN REAL-ORDER STATUS WORKFLOW — INTEGRITY GATE PENDING — 2026-09-17
+============================================================
+RUN: 35277143032
+SHA: 49a89a975f9b4baf6daf4ffa7dcbefc29a856c23
+- Exact-head CI SUCCESS. Install/typecheck/build/ItemStore/Bun/RBAC/Dashboard/local Wrangler/dev-vars/real non-design Order/status workflow/Operator baseline all verified.
+- Complete Orders integrity remains pending: stock quantities, reservation lifecycle, exact Master/preflight, Printing Job relationships, duplicate-job prevention.
+- Production remains blocked until the complete Orders gate is green.
