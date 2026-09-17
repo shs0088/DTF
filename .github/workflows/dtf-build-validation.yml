@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'verify/**'
+      - 'integrate/**'
       - camel-current
       - kamel/admin-rbac-foundation
   pull_request:
@@ -31,6 +32,8 @@ jobs:
         run: npm run typecheck
       - name: Production build
         run: npm run build
+      - name: ItemStore initialization regression test
+        run: bun test item-store-initialization.test.ts
       - name: RBAC tests
         run: bun test workers/admin-rbac.test.ts
       - name: RBAC runtime tests
@@ -57,9 +60,75 @@ jobs:
         run: bun test workers/admin-settings.test.ts
       - name: Integrations tests
         run: bun test workers/admin-integrations.test.ts
+      - name: Admin i18n tests
+        run: bun test workers/admin-i18n.test.ts
       - name: Audit Log tests
         run: bun test workers/admin-audit-log.test.ts
       - name: Checkout Integration tests
         run: bun test workers/checkout-integration.test.ts
       - name: Designer Upload tests
         run: bun test workers/analyzer.test.ts workers/designer-upload.test.ts
+      - name: Local Cloudflare Worker RBAC smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node --check scripts/rbac-local-smoke.mjs
+
+          WRANGLER_VERSION="$(./node_modules/.bin/wrangler --version)"
+          echo "Wrangler: $WRANGLER_VERSION"
+          echo "$WRANGLER_VERSION" | grep -q "4.97.0"
+
+          TEST_TOKEN="dtf-ci-bootstrap-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          TEST_HASH="$(printf '%s' "$TEST_TOKEN" | sha256sum | awk '{print $1}')"
+
+          printf 'ADMIN_WEB_KEY="%s"\nADMIN_BOOTSTRAP_TOKEN_SHA256="%s"\n' \
+            'dtf-ci-local-session-key-0123456789012345678901234567890123456789' \
+            "$TEST_HASH" > .dev.vars
+
+          STATE_DIR="/tmp/dtf-rbac-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          rm -rf "$STATE_DIR"
+
+          cleanup() {
+            if [ -n "${WRANGLER_PID:-}" ]; then
+              kill "$WRANGLER_PID" 2>/dev/null || true
+              wait "$WRANGLER_PID" 2>/dev/null || true
+            fi
+            rm -f .dev.vars
+            rm -rf "$STATE_DIR"
+          }
+
+          trap cleanup EXIT
+
+          ./node_modules/.bin/wrangler dev \
+            --local \
+            --ip 127.0.0.1 \
+            --port 8787 \
+            --persist-to "$STATE_DIR" \
+            > /tmp/dtf-wrangler.log 2>&1 &
+
+          WRANGLER_PID=$!
+          READY=0
+
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8787/api/studio/health >/dev/null 2>&1; then
+              READY=1
+              break
+            fi
+
+            if ! kill -0 "$WRANGLER_PID" 2>/dev/null; then
+              echo "Wrangler exited before becoming ready."
+              cat /tmp/dtf-wrangler.log
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+          if [ "$READY" -ne 1 ]; then
+            echo "Worker failed readiness check."
+            cat /tmp/dtf-wrangler.log
+            exit 1
+          fi
+
+          DTF_RBAC_BOOTSTRAP_TOKEN="$TEST_TOKEN" node scripts/rbac-local-smoke.mjs
