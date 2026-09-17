@@ -109,6 +109,47 @@ async function run() {
     assert.equal(denied.response.status, 401);
   });
 
+  const anonymousOrders = await request("/api/admin/orders");
+  assert.equal(anonymousOrders.response.status, 401);
+  console.log("PASS [ORDERS-RUNTIME] unauthenticated API");
+
+  const ordersMain = await request("/api/admin/orders", { headers: { cookie: mainCookie } });
+  assert.equal(ordersMain.response.status, 200);
+  assert.equal(ordersMain.data?.ok, true);
+  assert.ok(Array.isArray(ordersMain.data?.items));
+  const ordersPage = await request("/admin/orders", { headers: { cookie: mainCookie } });
+  assert.equal(ordersPage.response.status, 200);
+  console.log("PASS [ORDERS-RUNTIME] Main Administrator access");
+
+  const viewOrdersGroupResult = await request("/api/admin/rbac/groups", json("POST", { name: "CI Orders View Only" }, mainCookie));
+  assert.equal(viewOrdersGroupResult.response.status, 200);
+  const viewOrdersGroup = viewOrdersGroupResult.data.group;
+  assert.ok(viewOrdersGroup?.id);
+  const viewOrdersPerms = await request(`/api/admin/rbac/groups/${encodeURIComponent(viewOrdersGroup.id)}/permissions`, json("PUT", { permissions: [{ resource: "admin.orders", access: true, modify: false }] }, mainCookie));
+  assert.equal(viewOrdersPerms.response.status, 200);
+  const viewOrdersUserResult = await request("/api/admin/rbac/users", json("POST", { username: "ci-orders-view-only", password: "CI-Orders-View-Password-2026!", groupId: viewOrdersGroup.id }, mainCookie));
+  assert.equal(viewOrdersUserResult.response.status, 200);
+  const viewOrdersCookie = await login("ci-orders-view-only", "CI-Orders-View-Password-2026!");
+  const viewOrdersGet = await request("/api/admin/orders", { headers: { cookie: viewOrdersCookie } });
+  assert.equal(viewOrdersGet.response.status, 200);
+  const viewOrdersPage = await request("/admin/orders", { headers: { cookie: viewOrdersCookie } });
+  assert.equal(viewOrdersPage.response.status, 200);
+  const viewOrdersMutation = await request("/api/admin/orders/test-order/status", json("PATCH", { status: "payment_confirmed" }, viewOrdersCookie));
+  assert.equal(viewOrdersMutation.response.status, 403);
+  console.log("PASS [ORDERS-RUNTIME] view-only enforcement");
+
+  const revokeOrders = await request(`/api/admin/rbac/groups/${encodeURIComponent(viewOrdersGroup.id)}/permissions`, json("PUT", { permissions: [] }, mainCookie));
+  assert.equal(revokeOrders.response.status, 200);
+  const revokedOrders = await request("/api/admin/orders", { headers: { cookie: viewOrdersCookie } });
+  assert.equal(revokedOrders.response.status, 403);
+  console.log("PASS [ORDERS-RUNTIME] current database authority");
+
+  const ordersDetailMissing = await request("/api/admin/orders/ci-missing-order");
+  assert.equal(ordersDetailMissing.response.status, 404);
+  const invalidOrderMutation = await request("/api/admin/orders/ci-missing-order/status", json("PATCH", { status: "unknown_status" }, mainCookie));
+  assert.equal(invalidOrderMutation.response.status, 400);
+  console.log("PASS [ORDERS-RUNTIME] fail-closed invalid order mutation");
+
   const operatorResult = await request("/api/admin/rbac/users", json("POST", { username: "ci-printing-operator", password: "CI-Operator-Password-2026!", groupId: "group-printing-operator" }, mainCookie));
   assert.equal(operatorResult.response.status, 200);
   const operatorCookie = await login("ci-printing-operator", "CI-Operator-Password-2026!");
