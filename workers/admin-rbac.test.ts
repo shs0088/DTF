@@ -56,3 +56,11 @@ describe("Admin dashboard real-data contract", () => {
     expect(worker).toContain("Live operational data from the project database");
   });
 });
+
+describe("Admin RBAC mutation HTTP boundary regression", () => {
+  test("PATCH-user awaits Durable Object role and enabled mutations", async () => {
+    const source = await Bun.file(new URL("./static-app.ts", import.meta.url)).text();
+    expect(source).toContain("body.role?await store.setAdminUserRole");
+    expect(source).toContain(":await store.setAdminUserEnabled");
+  });
+});
