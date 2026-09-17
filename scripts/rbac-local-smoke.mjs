@@ -159,23 +159,13 @@ async function run() {
   console.log("PASS [ORDERS-RUNTIME] fail-closed invalid order mutation");
 
 
-  const customerEmail = "ci-orders-" + Date.now() + "@example.test";
-  const customerPassword = "CI-Customer-Order-Password-2026!";
-  const registration = await request("/api/studio/auth/register", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ displayName: "CI Orders Customer", email: customerEmail, password: customerPassword, role: "customer" }) });
-  assert.equal(registration.response.status, 201);
-  const customerCookie = namedCookie(registration.response, "dtf_session");
-  const addToCart = await request("/customize", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded", cookie: customerCookie }, body: new URLSearchParams({ intent: "add-to-cart", variantId: "variant-tshirt-white-m" }) });
-  assert.ok([302, 303].includes(addToCart.response.status));
-  const cartCookie = namedCookie(addToCart.response, "dtf_cart_session");
-  const customerCookies = customerCookie + "; " + cartCookie;
-  const checkout = await request("/checkout", { headers: { cookie: customerCookies } });
-  assert.equal(checkout.response.status, 200);
-  const requestKey = "ci-order-" + Date.now() + "-" + Math.random().toString(36).slice(2);
-  const placed = await request("/checkout", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded", cookie: customerCookies }, body: new URLSearchParams({ intent: "place-order", cartKey: cartCookie.slice("dtf_cart_session=".length), requestKey, coupon: "", customerName: "CI Orders Customer", customerPhone: "+962790000000", city: "Amman", address: "CI local order address", notes: "", fulfillment: "delivery", paymentMethod: "bank_transfer" }) });
-  assert.ok([302, 303].includes(placed.response.status));
-  const orderLocation = placed.response.headers.get("location") || "";
-  const orderId = orderLocation.split("/").pop();
-  assert.ok(orderId, "checkout must return an order location");
+  const fixtureToken = process.env.DTF_ORDERS_FIXTURE_TOKEN;
+  assert.ok(fixtureToken, "DTF_ORDERS_FIXTURE_TOKEN is required");
+  const fixture = await request("/__ci/orders-fixture", { method: "POST", headers: { "content-type": "application/json", "x-orders-fixture-token": fixtureToken }, body: JSON.stringify({ actorId: mainUser.id, runId: "ci-" + Date.now() }) });
+  assert.equal(fixture.response.status, 200);
+  assert.equal(fixture.data?.ok, true);
+  const orderId = fixture.data.orderId;
+  assert.ok(orderId);
   const initialDetail = await request("/api/admin/orders/" + encodeURIComponent(orderId), { headers: { cookie: mainCookie } });
   assert.equal(initialDetail.response.status, 200);
   const initialOrder = initialDetail.data.order;
