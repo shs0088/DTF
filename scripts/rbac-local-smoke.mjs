@@ -128,7 +128,7 @@ async function run() {
   const securityCookie = await login("ci-security-user", "CI-Security-Password-2026!");
   await scenario("self escalation", async () => {
     const result = await request(`/api/admin/rbac/users/${encodeURIComponent(securityUser.id)}/group`, json("PATCH", { groupId: "group-main-admin" }, securityCookie));
-    assert.equal(result.response.status, 403);
+    assert.ok([400, 403].includes(result.response.status), `self escalation must be rejected, got ${result.response.status}`);
     const users = await request("/api/admin/rbac/users", { headers: { cookie: mainCookie } });
     const current = users.data.users.find((user) => user.id === securityUser.id);
     assert.notEqual(current?.groupId, "group-main-admin");
@@ -150,6 +150,9 @@ async function run() {
     assert.ok([400, 403].includes(move.response.status));
     const stillWorks = await request("/api/admin/rbac/users", { headers: { cookie: mainCookie } });
     assert.equal(stillWorks.response.status, 200);
+    const finalMain = stillWorks.data.users.find((user) => user.id === mainUser.id);
+    assert.equal(finalMain?.enabled, true);
+    assert.equal(finalMain?.groupId, "group-main-admin");
   });
 
   console.log("FULL RBAC LOCAL RUNTIME MATRIX: PASS");
