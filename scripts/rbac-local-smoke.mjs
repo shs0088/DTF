@@ -186,7 +186,7 @@ async function run() {
   const initialHistoryCount = initialOrder.history?.length || 0;
   console.log("PASS [ORDERS-RUNTIME] real order detail " + orderId);
   const unknown = await request("/api/admin/orders/" + encodeURIComponent(orderId) + "/status", json("PATCH", { status: "unsupported_status" }, mainCookie));
-  assert.notEqual(unknown.response.status, 2);
+  assert.ok(unknown.response.status < 200 || unknown.response.status >= 300);
   const afterUnknown = await request("/api/admin/orders/" + encodeURIComponent(orderId), { headers: { cookie: mainCookie } });
   assert.equal(afterUnknown.response.status, 200);
   assert.equal(afterUnknown.data.order.status, "payment_pending");
@@ -199,13 +199,13 @@ async function run() {
   assert.equal(afterConfirmed.data.order.paymentStatus, "confirmed");
   assert.ok((afterConfirmed.data.order.history?.length || 0) > initialHistoryCount);
   const repeatedConfirmed = await request("/api/admin/orders/" + encodeURIComponent(orderId) + "/status", json("PATCH", { status: "payment_confirmed" }, mainCookie));
-  assert.notEqual(repeatedConfirmed.response.status, 2);
+  assert.ok(repeatedConfirmed.response.status < 200 || repeatedConfirmed.response.status >= 300);
   const afterRepeated = await request("/api/admin/orders/" + encodeURIComponent(orderId), { headers: { cookie: mainCookie } });
   assert.equal(afterRepeated.data.order.status, "payment_confirmed");
   assert.equal(afterRepeated.data.order.items.length, afterConfirmed.data.order.items.length);
   console.log("PASS [ORDERS-RUNTIME] payment confirmation and repeated confirmation safety");
   const reverse = await request("/api/admin/orders/" + encodeURIComponent(orderId) + "/status", json("PATCH", { status: "new" }, mainCookie));
-  assert.notEqual(reverse.response.status, 2);
+  assert.ok(reverse.response.status < 200 || reverse.response.status >= 300);
   const afterReverse = await request("/api/admin/orders/" + encodeURIComponent(orderId), { headers: { cookie: mainCookie } });
   assert.equal(afterReverse.data.order.status, "payment_confirmed");
   console.log("PASS [ORDERS-RUNTIME] invalid transition denied");
@@ -214,7 +214,7 @@ async function run() {
   const afterCancelled = await request("/api/admin/orders/" + encodeURIComponent(orderId), { headers: { cookie: mainCookie } });
   assert.equal(afterCancelled.data.order.status, "cancelled");
   const repeatedCancel = await request("/api/admin/orders/" + encodeURIComponent(orderId) + "/status", json("PATCH", { status: "cancelled" }, mainCookie));
-  assert.notEqual(repeatedCancel.response.status, 2);
+  assert.ok(repeatedCancel.response.status < 200 || repeatedCancel.response.status >= 300);
   const afterRepeatedCancel = await request("/api/admin/orders/" + encodeURIComponent(orderId), { headers: { cookie: mainCookie } });
   assert.equal(afterRepeatedCancel.data.order.status, "cancelled");
   assert.ok((afterRepeatedCancel.data.order.history?.length || 0) >= (afterCancelled.data.order.history?.length || 0));
@@ -351,6 +351,7 @@ async function run() {
   assert.ok(arabicHtml.includes("إجمالي الطلبات"));
   assert.ok(arabicHtml.includes("ar-JO"));
   console.log("PASS [DASHBOARD-RUNTIME] Arabic RTL HTTP locale");
+  console.log("ADMIN ORDERS LOCAL RUNTIME: PASS");
   console.log("ADMIN DASHBOARD LOCAL RUNTIME: PASS");
 }
 
