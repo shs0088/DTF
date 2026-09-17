@@ -1,5 +1,4 @@
 
-
 DATE/TIME: 2026-09-17T00:00:00Z
 TASK: Read-only inventory followed by controlled backend consolidation into canonical V48 project.
 SOURCE PROJECT: dtf-studio
@@ -18,3 +17,18 @@ VALIDATION:
 DEPLOYMENT: NOT RUN.
 DELETION: Neither project deleted.
 PROTECTED FRONTEND: V48 homepage was not replaced.
+
+DATE/TIME: 2026-09-17T00:00:00Z
+TASK: Prepared repository support files and isolated GitHub verification branch.
+ACTIONS:
+- Preserved canonical V48 source without adding the obsolete src/ frontend.
+- Added a repository-level .gitignore covering dependencies, build output, caches, logs, temporary files, and environment secrets.
+- Adapted build validation to run on verify/** branches and pull requests while preserving the existing validation test matrix.
+- Made Printify snapshot workflow manual and verification-branch-only, with no automatic write-back.
+- Published the canonical text/config source to GitHub verification branch verify/v48-consolidated-20260917.
+VALIDATION:
+- Full bun test reconfirmation was attempted but the sandbox execution exceeded its deadline; the prior verified state remains 118 passed, 0 failed, 561 assertions.
+- Dependency install remains blocked by external HTTP 520; typecheck/build were not claimed.
+DEPLOYMENT: NOT RUN.
+GITHUB: Verification branch only; main, camel-current, and kamel/admin-rbac-foundation were not modified.
+DELETION: Neither project deleted.
