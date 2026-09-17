@@ -51,3 +51,84 @@ VALIDATION:
 DEPLOYMENT: NOT RUN.
 GITHUB: Correction is limited to the verification branch verify/v48-consolidated-20260917.
 DELETION: Neither project deleted.
+
+DATE/TIME: 2026-09-17T00:00:00Z
+TASK: Admin i18n reconciliation patch from requested verification head.
+STARTING REFERENCE: 854da60a304ada25be7389b90955d4212cd71ba0 (requested; local project storage does not expose a Git working tree for SHA/branch verification).
+ACTIONS:
+- Added the existing localizeAdminHtml import to workers/static-app.ts.
+- Applied the existing localization wrapper to Admin HTML pages, including Orders, Dashboard, Manual Review, Production, Products, Printify Catalog, Customers, Designers, Payouts, Reports, Promotions, Settings, Integrations, Audit Log, Users/User Groups, login, setup, setup error, and security settings HTML.
+- API JSON response paths were not changed.
+- workers/item-store.ts, package.json, bun.lock, app/i18n.ts, app/routes.ts, main, camel-current, dtf-studio, and the source project were not intentionally changed.
+VALIDATION:
+- npm install: did not return within the sandbox deadline; node_modules was not present afterward.
+- npm run typecheck: not runnable because react-router was unavailable after the incomplete install.
+- npm run build: not run because dependencies were unavailable.
+- Bun test matrix: not run because dependencies were unavailable.
+- GitHub Actions / commit / new SHA: not available from this project storage session.
+STATUS: PATCH SOURCE EDITED; QC INCOMPLETE. No deployment or merge performed. SAFE TO DELETE dtf-studio remains NO.
+
+DATE/TIME: 2026-09-17T00:00:00Z
+TASK: Final verification/reconciliation pass from uploaded instructions.
+INPUT SAFETY: Uploaded file was plain text instructions only; no archive, script, Dockerfile, executable, traffic forwarder, bridge, relay, tunnel, or download-and-execute behavior was present.
+INSPECTION:
+- Canonical project inspected in project storage.
+- workers/item-store.ts and workers/static-app.ts inspected without copying display output.
+- No truncation markers found; byte sizes: item-store.ts 216955, static-app.ts 205317.
+- Bun version: 1.3.12.
+- CI workflow pins Bun 1.3.12, uses Node 22, npm install, typecheck, build, and the listed Bun test groups.
+CORRECTIONS:
+- Restored missing app/i18n.ts with existing locale helpers required by current routes.
+- Corrected app/routes.ts from language to language/:locale.
+- Preserved existing Admin i18n wiring in workers/static-app.ts.
+VALIDATION:
+- bun test: 118 passed, 0 failed, 561 expect() calls, 17 files.
+- Admin i18n included: 6 passed, 0 failed.
+- RBAC, Orders, Production, Manual Review, Products, Customers, Designers, Payouts, Reports, Promotions, Settings, Integrations, Audit Log, Checkout Integration, Designer Upload, and Analyzer groups all passed in the complete run.
+- npm install: not completed in this sandbox; previous attempt exceeded deadline and node_modules remained unavailable.
+- npm run typecheck/build: not runnable because dependencies were unavailable.
+- GitHub Actions exact-head run and SHA: not available from project storage; no push performed.
+STATUS: Local Bun regression matrix green. Build/CI verification incomplete. No deployment, merge, or deletion. SAFE TO DELETE dtf-studio remains NO.
+
+DATE/TIME: 2026-09-17T00:00:00Z
+TASK: Minimal ItemStore initialization fix for current V48 admin login runtime failure.
+ACTIONS:
+- Reproduced current live failure: GET /api/studio/health returned HTTP 500; POST /admin returned HTTP 500 at ADMIN-LOGIN-03 with `too many terms in compound SELECT: SQLITE_ERROR`.
+- Traced the failure to first Durable Object initialization invoked by `loginAdmin()`, before the admin_users SELECT or password hashing.
+- Confirmed the same constructor/bootstrap path caused the health failure, identifying initialization rather than authentication as the failing stage.
+- Added a statement-preserving SQL script splitter and routed only the constructor and bootstrapCatalog initialization scripts through it, preventing SQLite from compiling the entire multi-statement seed/schema script as one compound SELECT.
+- Added focused `item-store-initialization.test.ts` coverage for bounded initialization, login query preservation, repeated bootstrap calls, idempotent seed markers, and destructive-operation absence.
+- No frontend pages, Admin routes, package.json, bun.lock, wrangler.jsonc, namespace, storage bindings, or localization code changed.
+VALIDATION:
+- Live reproduction completed before patch: health HTTP 500 and admin POST HTTP 500 diagnostic 4d6ed16f (the requested bd837a69 was not present in current retained runtime logs).
+- Source inspection identified oversized multi-row VALUES blocks in the initialization script; no UNION SELECT was found.
+- npm install, bun test, and follow-up sandbox commands exceeded the analysis execution deadline; no green test/build claim made.
+- GitHub commit, exact branch push, Actions run, deployment, and live post-fix retest were not performed because this workspace session has no available GitHub commit/push/Actions mediation and validation is not green.
+DATA SAFETY:
+- No DROP TABLE, database reset, namespace change, migration, admin recreation, or destructive data operation was introduced.
+STATUS: SOURCE PATCH AND FOCUSED TEST ADDED; CI/QC, GitHub, deployment, and live verification INCOMPLETE. SAFE TO DELETE dtf-studio remains NO.
+
+DATE/TIME: 2026-09-17T00:00:00Z
+TASK: Corrected local ItemStore handoff patch after external review; no GitHub synchronization requested.
+ACTIONS:
+- Reviewed the prior local-only patch before any handoff export.
+- Removed the invalid TypeScript `try { this.ctx.storage.sql.exec(...) } catch {}` text from the constructor SQL template.
+- Moved the real, non-destructive `ALTER TABLE admin_users ADD COLUMN group_id TEXT` attempt into TypeScript before the bootstrap SQL statement that updates `admin_users.group_id`; only duplicate/already-exists errors are ignored.
+- Restored the Main Admin permission seed to the exact GitHub baseline SELECT/UNION/CROSS JOIN form; no direct runtime evidence proves it is the failing statement.
+- Corrected the focused regression test so it validates initialization/bootstrap templates rather than globally forbidding legitimate DELETE statements elsewhere in ItemStore.
+- Corrected the root-cause wording: location is the Durable Object constructor/bootstrap initialization path; exact failing SQL statement remains NOT YET PROVEN.
+- Created a v2 handoff ZIP only; no source files were changed during export.
+VALIDATION:
+- Validation was not run per request. No PASS claim is made.
+- No deployment performed and no database operation was executed.
+
+DATE/TIME: 2026-09-17T00:00:00Z
+TASK: V3 regression-test false-positive correction; no ItemStore source change.
+ACTIONS:
+- External review found that the broad `truncate` regex matched the legitimate existing source text `truncated`.
+- Narrowed the regression test destructive-operation checks to the extracted constructor/bootstrap SQL templates with SQL word boundaries.
+- The focused checks now cover DROP TABLE, TRUNCATE TABLE, DELETE FROM admin_users, and DELETE FROM schema_meta without globally forbidding legitimate ItemStore DELETE operations.
+- `workers/item-store.ts` was not changed and remains the current V2 file.
+- GitHub remains unchanged; no deployment occurred; no database changes occurred.
+VALIDATION:
+- Validation was not run. No PASS claim is made.
