@@ -406,3 +406,13 @@ VERIFIED IN SOURCE + CI:
 - responsive Black + Electric Blue Designer UI
 - full existing regression chain plus Designer Upload tests
 NOTE: live R2/browser acceptance remains pending; this is not a Production Ready claim.
+
+
+============================================================
+CURRENT VERIFIED CONTROL STATE — 2026-09-17
+============================================================
+- Admin RBAC: SOURCE/TEST/GITHUB CI/RUNTIME VERIFIED on prior exact-head green runs.
+- Admin Dashboard: SOURCE/TEST/GITHUB CI/RUNTIME/I18N VERIFIED; browser visual verification remains NOT VERIFIED.
+- Orders authorization: REQUEST-LEVEL RUNTIME VERIFIED; complete business workflow remains pending.
+- CI-only Orders fixture wrapper/config: SOURCE VERIFIED; runtime execution after path correction pending.
+- Production: NOT STARTED; blocked until complete Orders gate.
