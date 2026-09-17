@@ -1,0 +1,29 @@
+export type AdminLocale = "en" | "ar";
+
+export function adminLocaleFromRequest(request: Request): AdminLocale {
+  const url = new URL(request.url);
+  const query = url.searchParams.get("lang");
+  if (query === "ar" || query === "en") return query;
+  const cookie = request.headers.get("cookie") ?? "";
+  const value = cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith("dtf_locale="))?.slice("dtf_locale=".length);
+  return value === "ar" ? "ar" : "en";
+}
+
+const translations: Record<string, string> = {
+  "Dashboard": "لوحة التحكم", "Orders": "الطلبات", "Printing Required Orders": "الطلبات التي تتطلب الطباعة", "Manual Review": "مراجعة يدوية", "Production Queue": "قائمة الإنتاج", "Products": "المنتجات", "Printify Catalog": "كتالوج Printify", "Customers": "العملاء", "Designers": "المصممون", "Payouts": "المدفوعات", "Reports": "التقارير", "Promotions": "العروض الترويجية", "Settings": "الإعدادات", "Integrations": "التكاملات", "Audit Log": "سجل التدقيق", "Users": "المستخدمون", "User Groups": "مجموعات المستخدمين", "Administration": "الإدارة", "Admin Users": "مستخدمو الإدارة", "First Main Admin Setup": "إعداد المسؤول الرئيسي الأول", "Admin account security": "أمان حساب المسؤول", "Username": "اسم المستخدم", "Password": "كلمة المرور", "Current Password": "كلمة المرور الحالية", "New Password": "كلمة المرور الجديدة", "Confirm Password": "تأكيد كلمة المرور", "Confirm New Password": "تأكيد كلمة المرور الجديدة", "Bootstrap Token": "رمز التهيئة", "Login": "تسجيل الدخول", "Create Main Admin": "إنشاء المسؤول الرئيسي", "Change credentials": "تغيير بيانات الدخول", "Loading…": "جارٍ التحميل…", "Loading...": "جارٍ التحميل...", "Reload": "إعادة تحميل", "Search": "بحث", "Filter": "تصفية", "Clear": "مسح", "Submit": "إرسال", "Save": "حفظ", "Cancel": "إلغاء", "Actions": "الإجراءات", "Status": "الحالة", "Enabled": "مفعّل", "Group": "المجموعة", "System": "النظام", "Protected": "محمي", "Custom": "مخصص", "Access": "الوصول", "Modify": "تعديل", "Resource": "المورد", "Select All": "تحديد الكل", "Clear All": "مسح الكل", "Save Permissions": "حفظ الصلاحيات", "Edit permissions": "تعديل الصلاحيات", "Create user": "إنشاء مستخدم", "Create group": "إنشاء مجموعة", "Rename": "إعادة تسمية", "Disable": "تعطيل", "Enable": "تفعيل", "Delete": "حذف", "Yes": "نعم", "No": "لا", "Published": "منشور", "Imported": "مُستورد", "Catalog": "الكتالوج", "All categories": "كل الفئات", "All subcategories": "كل الفئات الفرعية", "Image": "الصورة", "Title": "العنوان", "Brand / Model": "العلامة التجارية / الطراز", "Category / Subcategory": "الفئة / الفئة الفرعية", "Showing": "عرض", "of": "من", "Page": "صفحة", "Permissions saved": "تم حفظ الصلاحيات", "Setup failed": "فشل الإعداد", "Try again": "حاول مرة أخرى", "Access denied": "الوصول مرفوض", "Not found": "غير موجود", "Request failed": "فشل الطلب", "Invalid bootstrap token or password confirmation.": "رمز التهيئة غير صالح أو تأكيد كلمة المرور غير متطابق.", "New group name": "اسم المجموعة الجديدة", "Password (12+ chars)": "كلمة المرور (12 حرفًا على الأقل)"
+};
+
+function browserScript(locale: AdminLocale): string {
+  const dict = JSON.stringify(translations).replace(/</g, "\\u003c");
+  return `<script>(function(){const locale=${JSON.stringify(locale)},dict=${dict};const translate=s=>locale==='ar'?(dict[s]||s):s;function text(){const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);const a=[];while(w.nextNode())a.push(w.currentNode);a.forEach(n=>{const v=n.nodeValue?.trim();if(v&&dict[v])n.nodeValue=n.nodeValue.replace(v,translate(v))});document.querySelectorAll('[placeholder],[aria-label],title').forEach(e=>['placeholder','aria-label','title'].forEach(k=>{const v=e.getAttribute(k);if(v&&dict[v])e.setAttribute(k,translate(v))}));}function switcher(){const b=document.createElement('a');b.href=location.pathname+'?lang='+(locale==='ar'?'en':'ar');b.textContent=locale==='ar'?'English':'العربية';b.style.cssText='position:fixed;top:12px;'+(locale==='ar'?'left':'right')+':12px;z-index:9999;padding:7px 11px;border:1px solid #38536e;border-radius:5px;background:#10243a;color:#eef7ff;text-decoration:none;font:13px Arial';document.body.appendChild(b)}document.documentElement.lang=locale;document.documentElement.dir=locale==='ar'?'rtl':'ltr';document.addEventListener('DOMContentLoaded',function(){text();switcher();new MutationObserver(text).observe(document.body,{childList:true,subtree:true})})})();</script>`;
+}
+
+export function localizeAdminHtml(html: string, request: Request): string {
+  const locale = adminLocaleFromRequest(request);
+  const styled = html.replace(/<html(?:\s[^>]*)?>/i, `<html lang="${locale}" dir="${locale === "ar" ? "rtl" : "ltr"}">`).replace(/<\/head>/i, `<style>html[dir="rtl"] body{direction:rtl;text-align:right}html[dir="rtl"] table,html[dir="rtl"] th,html[dir="rtl"] td{text-align:right}html[dir="rtl"] input,html[dir="rtl"] select,html[dir="rtl"] textarea{direction:rtl}</style></head>`);
+  return styled.replace(/<\/body>/i, `${browserScript(locale)}</body>`);
+}
+
+export function adminLocaleCookie(locale: AdminLocale): string {
+  return `dtf_locale=${locale}; Path=/; SameSite=Lax; Max-Age=31536000`;
+}

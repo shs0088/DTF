@@ -1,0 +1,81 @@
+DTF STUDIO — PROTECTED PASS BASELINE
+STATUS: ACTIVE
+
+BASELINE SNAPSHOT:
+cfc46d91f27059bcbda1a264b9930c4f18d83416efc55c7d37a6e8944208e3fe
+
+LIVE URL:
+https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app
+
+PROTECTED PASS — HOME CARD SIZING
+Card width: 200px fixed
+Gap: 14px
+Categories: 200 × 200
+Ready-to-Print: 200 × 210
+Designer Designs: 200 × 210
+Do not reintroduce: 150px, 160px, 42vw, 1fr target sizing, minmax(...,1fr), or language-specific card target widths.
+STATUS: PROTECTED PASS
+
+PROTECTED PASS — MOBILE MENU CLOSE
+NO X. NO separate close button. The same three-line hamburger opens and closes the menu. Do not transform ☰ into X.
+STATUS: PROTECTED PASS
+
+PROTECTED PASS — MOBILE MENU SCROLL SYSTEM
+Preserve full-screen menu, background/body scroll lock, internal menu scrolling, overscroll containment, previous page scroll restoration, and release of scroll lock after navigation.
+STATUS: PROTECTED PASS IN SOURCE
+
+PROTECTED PASS — MOBILE MENU COMPACT SPACING
+Approved approximate values: font-size 16px, vertical padding 10px, row/min-height 42px, gap 4px.
+STATUS: PROTECTED PASS IN SOURCE
+
+PROTECTED PASS — MENU LANGUAGE ALIGNMENT
+English: LTR, left aligned. Arabic: RTL, right aligned. Same physical geometry.
+STATUS: PROTECTED PASS IN SOURCE
+
+PROTECTED PASS — MINI BRAND BANNER
+Keep the Mini Brand Banner below navigation links and above bottom navigation. English: PRINT YOUR DREAM. Arabic: اطبع حلمك. Black + Electric Blue styling.
+STATUS: PROTECTED PASS
+
+PROTECTED PASS — FEATURED TITLE
+English: Featured. Arabic: مميز لك. Immediately above Mini Brand Banner. Decorative lines/marks are visual only.
+STATUS: PROTECTED PASS IN SOURCE
+
+PROTECTED PASS — GLOBAL SCROLLBAR VISUAL RULE
+Hide scrollbar chrome while preserving scrolling for the main document, mobile menu, Categories slider, Ready-to-Print slider, Designer Designs slider, and relevant public/customer scroll containers across English/Arabic, LTR/RTL, desktop/tablet/mobile.
+STATUS: PROTECTED PASS IN SOURCE
+
+PROTECTED PASS — NAVIGATION API
+Preserve GET /api/studio/navigation and PUT /api/studio/navigation, ItemStore, navigation_items, navigationItems(), and saveNavigationItems(). Current live API: HTTP 200 confirmed. Do not change deployment architecture unnecessarily or allow API 404.
+STATUS: PROTECTED PASS
+
+PROTECTED PASS — CANONICAL NAVIGATION SOURCE
+Desktop and mobile use the same Admin-managed source preserving title_en, title_ar, route, order, enabled, and device visibility.
+STATUS: PROTECTED PASS IN SOURCE
+
+PROTECTED BASELINE HEALTH
+Inline JavaScript: PASS
+Build: PASS
+Navigation API: HTTP 200
+
+APPROVED DESIGN MASTER RULE
+English Home is the master for physical sizes, positions, spacing, Header geometry, Hero geometry, icon dimensions, and responsive breakpoints. Arabic must use the same physical geometry; differences are RTL, Arabic text, and logical mirrored alignment only.
+
+NOT YET LOCKED / STILL REQUIRES CORRECTION OR QC
+- Full EN/AR Header parity
+- Global public Header unification
+- Logo EN/AR parity
+- Tagline EN/AR parity
+- Hero EN/AR geometry
+- Hero image parity
+- Hero title/description parity
+- CTA vertical-position parity
+- Arabic runtime overflow verification
+- Bottom-navigation EN/AR parity
+- Home hyperlink QA
+- How It Works hyperlink QA
+- Print Your Dream hyperlink QA
+- Design Gallery hyperlink QA
+- Products hyperlink QA
+- Sitemap hyperlink QA
+- stray “...” if still reproducible
+- runtime QA at 320, 375, 430, 768, 1024, 1366, 1920

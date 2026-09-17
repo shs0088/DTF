@@ -1,0 +1,59 @@
+name: DTF build validation
+on:
+  push:
+    branches:
+      - 'verify/**'
+      - camel-current
+      - kamel/admin-rbac-foundation
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout branch under validation
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: npm install
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
+      - name: RBAC tests
+        run: bun test workers/admin-rbac.test.ts
+      - name: Orders tests
+        run: bun test workers/admin-orders.test.ts
+      - name: Production tests
+        run: bun test workers/admin-production.test.ts
+      - name: Manual Review tests
+        run: bun test workers/admin-manual-review.test.ts
+      - name: Products tests
+        run: bun test workers/admin-products.test.ts
+      - name: Customers tests
+        run: bun test workers/admin-customers.test.ts
+      - name: Designers tests
+        run: bun test workers/admin-designers.test.ts
+      - name: Payouts tests
+        run: bun test workers/admin-payouts.test.ts
+      - name: Reports tests
+        run: bun test workers/admin-reports.test.ts
+      - name: Promotions tests
+        run: bun test workers/admin-promotions.test.ts
+      - name: Settings tests
+        run: bun test workers/admin-settings.test.ts
+      - name: Integrations tests
+        run: bun test workers/admin-integrations.test.ts
+      - name: Audit Log tests
+        run: bun test workers/admin-audit-log.test.ts
+      - name: Checkout Integration tests
+        run: bun test workers/checkout-integration.test.ts
+      - name: Designer Upload tests
+        run: bun test workers/analyzer.test.ts workers/designer-upload.test.ts

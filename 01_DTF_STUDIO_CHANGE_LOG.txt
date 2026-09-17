@@ -1,0 +1,20 @@
+
+
+DATE/TIME: 2026-09-17T00:00:00Z
+TASK: Read-only inventory followed by controlled backend consolidation into canonical V48 project.
+SOURCE PROJECT: dtf-studio
+FINAL PROJECT: dtf-studio-v48-safe-frontend
+ACTIONS:
+- Inspected both project trees before transfer; no project was deleted.
+- Preserved V48 authoritative homepage/static frontend and did not copy the old src/ frontend implementation.
+- Copied backend-only Worker modules, Admin/RBAC tests and helpers, upload/analyzer support, missing route modules, server-side support files, Printify snapshot tooling, database/server support, R2 configuration, and requirement/QC records into V48.
+- Copied the fuller source Worker pair workers/item-store.ts and workers/static-app.ts as a matched backend implementation.
+- Added missing V48 route registrations for checkout, designer flows, order, language, and Admin RBAC.
+- Added the fuller analyzer implementation and checkout route after test feedback.
+VALIDATION:
+- bun test after consolidation: 114 passed, 4 failed.
+- Remaining failures are known reconciliation issues in V48 frontend route contracts: designer route test expects route registration (addressed in source), checkout contract expects legacy cart cookie/business-settings markers not present in the protected V48 cart implementation, and the next test run is required.
+- Dependency/build validation was attempted but blocked by registry HTTP 520 responses during bun install; no build/deploy claim is made.
+DEPLOYMENT: NOT RUN.
+DELETION: Neither project deleted.
+PROTECTED FRONTEND: V48 homepage was not replaced.

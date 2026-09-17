@@ -51,3 +51,552 @@ Cross-system conclusion:
 - No Production Ready claim is permitted from these findings alone.
 - The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
 
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+STATUS: REQUIRED — CURRENT FOUNDATION IS PARTIAL, NOT FINAL.
+1. Replace fixed-role-only Admin authorization with an OpenCart-style User → User Group → Permissions operating model.
+2. Every Admin user must belong to exactly one Admin User Group.
+3. Preserve protected system groups: Main Administrator and Printing Operator.
+4. Support creation, rename, enable/disable and safe deletion of additional custom Admin User Groups.
+5. User Group permissions must expose TWO independent permission sets per Admin resource/page:
+   - Access: page/route/API read access.
+   - Modify: create/update/delete/status-change and other mutating actions.
+6. Main Administrator has full Access + Modify and the last enabled Main Administrator must remain protected.
+7. Printing Operator default group keeps least privilege: Dashboard/Orders/Production only unless explicitly expanded by Main Administrator.
+8. Admin Users page must assign/move a user to a User Group and enable/disable the user.
+9. User Groups page must provide an OpenCart-style Access/Modify permission matrix with select-all/clear controls.
+10. Menu visibility must follow Access permission, but server-side authorization remains authoritative.
+11. All protected GET/page/API reads require Access permission. POST/PATCH/PUT/DELETE and mutating actions require Modify permission.
+12. Client-controlled role/group/permission headers are never authoritative.
+13. Permission/group/user changes must be audit logged.
+14. Preserve existing Printify/customer/designer/cart/stock/order/checkout behavior.
+15. Add and execute authorization regression tests in CI, including disabled admin, fake-header escalation, direct URL/API access, view-only modify attempt, Printing Operator Users/User Groups denial, custom group behavior, self-escalation denial, and last Main Administrator protection.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+KAMEL CORRECTION REQUIRED FROM SHA d542319113b00387565b0f5252f023b16fda785e.
+1. Fix TypeScript syntax failure in workers/item-store.ts around adminGroupPermissions/setAdminGroupPermissions.
+2. Re-run CI until npm install + typecheck + production build + RBAC tests all PASS.
+3. Do not claim CI unavailable: GitHub Actions run 35069801013 is available and FAILED at Typecheck.
+4. Complete active Worker-layer OpenCart-style enforcement:
+   - Admin page access must resolve User → current DB User Group → Access permission.
+   - Mutating Admin operations must resolve Modify permission.
+   - Printify GET routes must use Access permission; Printify POST/PATCH/PUT mutations must use Modify permission.
+   - Do not hard-code identity.role === main_admin for ordinary protected resources where User Group permissions are intended to control access.
+5. Complete Admin Users UI so each user shows/changes exactly one User Group, not only fixed role.
+6. Complete User Groups UI with full permission matrix:
+   - resource rows
+   - Access checkbox
+   - Modify checkbox
+   - Access Select All / Clear
+   - Modify Select All / Clear
+   - custom group create/rename/enable-disable/delete controls
+7. Reconcile active Worker RBAC and inactive React RBAC so both use current database-backed group identity/permissions and do not trust stale session role.
+8. Execute source/CI regression tests and then the requested live authorization matrix before marking complete.
+9. Preserve unrelated DTF Studio/Printify/customer/designer/cart/order/stock behavior and do not deploy/merge to main.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+STATUS: REQUIRED — BUILD AFTER RBAC CORRECTION PASSES CI.
+The DTF Studio Administration must be completed end-to-end using OpenCart-style operating patterns, adapted to DTF Studio business rules and Black + Electric Blue UI. Required modules:
+1. Dashboard: real KPIs, status cards, recent orders, production alerts, designer review alerts, low-stock alerts, payout alerts, useful charts, quick links.
+2. Orders: filters/search/sort/pagination, order detail, customer/contact, payment/fulfillment, status history, allowed status transitions, notes, print-master linkage, production handoff.
+3. Manual Review: designer qualification and design review queues, reasons, approve/reject/replacement/escalation, 5-day rules, preflight evidence.
+4. Production Queue: order-item jobs, approved master only, print specs/preflight snapshot, download, status transitions, operator-restricted experience.
+5. Products/Catalog: site categories, products, variants, stock, pricing, images, Print Your Dream eligibility, publish/unpublish; Printify catalog remains admin/internal only.
+6. Customers: list/detail/status/order history/contact information and safe admin actions.
+7. Designers: profile/qualification/status/designs/earnings/history, admin approval controls.
+8. Payouts: designer earnings/withdrawal requests/statuses/audit-safe ledger behavior.
+9. Reports: sales/orders/products/designers/production/inventory/payout operational reports with filters/date ranges and export-ready structure.
+10. Promotions: coupon/promotion CRUD, validity dates, usage limits, status and audit.
+11. Settings: business/store/order/payment/delivery/pickup/stock/reservation/DTF/preflight/content settings with safe validation and audit.
+12. Integrations: Printify and future integrations health/config status; secrets remain server-side and never displayed.
+13. Audit Log: searchable/filterable immutable audit history for sensitive admin actions.
+14. Users and User Groups: OpenCart-style User → User Group → Access/Modify permission model, custom groups, protected system groups.
+15. Shared Admin UX: sidebar/header/breadcrumbs, search, filters, sorting, pagination, bulk actions, confirmation dialogs, success/error states, responsive mobile/tablet behavior, Arabic/English + RTL/LTR where required.
+16. Every visible value must come from the real database/backend or an explicitly identified empty state; no fake dashboard metrics.
+17. Preserve storefront and all unrelated DTF Studio flows unless required to connect real admin operations.
+18. No merge/deploy until CI and runtime authorization/business-flow matrix pass.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+CURRENT VERIFIED HEAD AFTER QC REPAIR: 4d7b5a123095af7000adbeb3e8ec303e089cefff
+KAMEL must continue from this exact GitHub head, not from 4ad0cff1ca0a3802080f64b2b14f4a7a0774df94.
+REQUIRED NEXT:
+1. Complete the professional OpenCart-style User Groups permission matrix UI.
+2. Matrix must list every Admin resource with independent Access and Modify controls.
+3. Add Access Select All / Clear and Modify Select All / Clear controls.
+4. Include the full Admin resource catalog: Dashboard, Orders, Manual Review, Production Queue, Products, Customers, Designers, Payouts, Reports, Promotions, Settings, Integrations, Audit Log, Users, User Groups.
+5. Keep Main Administrator protected/full access and Printing Operator least privilege.
+6. Reconcile Worker and React Admin RBAC layers so both resolve CURRENT enabled Admin identity/group/permissions from the database.
+7. No stale signed-session role/group claim may be authoritative after group/permission changes.
+8. Run full authorization matrix, not source-string-only assertions.
+9. Keep existing Printify/customer/designer/cart/stock/order/checkout flows unchanged unless a permission guard is required.
+10. Do not deploy or merge until runtime authorization evidence passes.
+
+
+============================================================
+OPENCART RBAC QC UPDATE — CURRENT HEAD 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5 — 2026-09-16
+============================================================
+- OpenCart-style group schema, exactly-one group assignment, protected system groups, custom group CRUD, Access/Modify persistence, and server-side resolver are present.
+- Remaining validation requires actual GitHub Actions evidence and runtime authorization matrix execution.
+
+
+RBAC CONTINUATION UPDATE — CURRENT WORK
+- Complete fresh GitHub Actions run for final SHA.
+- Execute runtime HTTP authorization matrix against a test environment.
+- Verify active deployed Worker route behavior without deploying in this task.
+
+============================================================
+KAMEL CONTINUE-UNTIL-COMPLETE EXECUTION DIRECTIVE — 2026-09-16
+============================================================
+MANDATORY EXECUTION MODE:
+- KAMEL must continue through the current RBAC + Admin A–Z backlog without stopping after each small task.
+- Resolve the first unfinished item, test it, update QC, then immediately continue to the next unfinished item.
+- A failed CI/test becomes the next task automatically; fix and rerun before moving on.
+- If one item is externally blocked, record it and continue all other independent items.
+- No merge/deploy/main changes are authorized by this directive.
+
+
+RBAC BATCH — 2026-09-16
+- Professional User Groups controls and complete 15-resource matrix were implemented.
+- Final SHA CI validation and runtime authorization matrix remain required before acceptance.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+CURRENT SOURCE SHA: 7b552a84a23814ce5b2622b2cef8ab19a433c16f
+CI RUN: 35079037333 — SUCCESS.
+RBAC SOURCE/CI WORK NOW COMPLETE FOR THIS BATCH.
+NEXT UNFINISHED ITEMS:
+1. Execute the live/runtime authorization matrix in a safe test environment when runtime access is available.
+2. Verify direct URL/API denial, view-only mutation denial, disabled-user/stale-session behavior, fake-header escalation resistance, custom-group permission changes, and last Main Administrator behavior at runtime.
+3. Continue Full Admin Dashboard A–Z implementation from the current verified branch after RBAC runtime evidence is available or while independently unblocked.
+4. Do not merge/deploy/main-update without separate authorization.
+
+============================================================
+ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
+============================================================
+DASHBOARD SOURCE + CI COMPLETE FOR THIS BATCH.
+NEXT IN DEPENDENCY ORDER:
+1. Orders list/detail/filters/status workflow.
+2. Production Queue tied to order items and approved Ready-to-Print Master.
+3. Manual Review queues.
+4. Remaining Admin modules per Full Admin Dashboard A–Z target.
+Runtime/browser verification remains required before merge/deploy.
+
+============================================================
+ADMIN ORDERS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 6d1897955180a11737a092b8e7a71178d5c6f0aa
+GITHUB ACTIONS RUN: 35096692301 — SUCCESS.
+COMPLETED FOR ADMIN ORDERS SOURCE/CI:
+- real database-backed Orders list
+- search by order ID/customer/email/phone
+- status/payment/fulfillment/date filters
+- sorting and numbered pagination
+- order detail with customer/payment/fulfillment/items
+- exact order-item Ready-to-Print Master reference
+- printing-job reference/status
+- internal Admin note history
+- authoritative status-transition enforcement
+- payment synchronization on payment_confirmed
+- admin.orders Access/Modify server authorization
+- audit logging for status changes and internal notes
+- Orders-specific regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Production Queue full module tied to order items and approved Ready-to-Print Master.
+2. Manual Review queues.
+3. Remaining Admin A–Z modules.
+RUNTIME STILL REQUIRED:
+- live Access-only/Modify denial
+- live status mutation/note persistence/audit persistence
+- live exact master/printing-job relationship verification
+- browser/responsive verification
+
+============================================================
+PRODUCTION QUEUE SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 728416b2dc96eb6bd6e06fe5460f2867a76305cc
+GITHUB ACTIONS RUN: 35097227839 — SUCCESS.
+COMPLETED FOR PRODUCTION QUEUE SOURCE/CI:
+- real database-backed printing jobs queue
+- search/status filter/pagination
+- order/customer/product/variant/quantity context
+- exact approved Ready-to-Print Master matching against order item
+- historical print-spec/preflight snapshot display
+- server-side block on missing/mismatched approved master
+- server-side block on missing/failed preflight snapshot
+- approved master download path with storage-key sanitization
+- production status workflow and audit logging
+- admin.production Access/Modify authorization
+- Production-specific regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Manual Review full module.
+2. Remaining Admin A–Z modules.
+RUNTIME STILL REQUIRED:
+- live operator Access/Modify matrix
+- live master download bytes
+- live printing-job status persistence/audit
+- browser/responsive verification
+
+============================================================
+MANUAL REVIEW SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 7056e9ea98abac3afd5315a4f9867c45ba9ef8c8
+GITHUB ACTIONS RUN: 35101827809 — SUCCESS.
+COMPLETED FOR MANUAL REVIEW SOURCE/CI:
+- Designer Qualification queue
+- exact 3-design approval requirement
+- automatic preflight/analyzer evidence display
+- fixed five-day review due target
+- first rejection → replacement required flow
+- second rejection → escalation/final rejection flow
+- bilingual designer notifications
+- Admin-controlled Authorized status
+- Designer design review queue with approve/reject reasons
+- failed-preflight design approval block
+- review history and audit logging
+- admin.manual_review Access/Modify authorization
+- Manual Review regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Products/Catalog full internal management.
+2. Customers.
+3. Designers.
+4. Payouts.
+5. Reports.
+6. Promotions.
+7. Settings.
+8. Integrations.
+9. Audit Log.
+RUNTIME STILL REQUIRED:
+- live Access-only/Modify denial
+- live first/second rejection and notification persistence
+- live authorization-status update verification
+- browser/responsive verification
+
+============================================================
+PRODUCTS / CATALOG SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+FEATURE SOURCE SHA: 5bef0f4625c32e47515587809d38cd4489af8d73
+CI-STABILIZED HEAD: a2ece44705a09e0c9d60b4a389da92cea8b751c3
+GITHUB ACTIONS RUN: 35102844014 — SUCCESS.
+COMPLETED FOR PRODUCTS/CATALOG SOURCE/CI:
+- internal DTF Studio categories and custom product management
+- bilingual product metadata
+- custom product variants, pricing and stock controls
+- stock movement records for Admin quantity adjustments
+- product media references
+- Print Your Dream eligibility
+- all seven approved product-type combinations
+- custom product publish/unpublish validation
+- Printify-backed products preserved on existing dedicated workflow
+- admin.products Access/Modify authorization
+- Products regression tests added to CI
+CI STABILIZATION:
+- attempts on run 35102413636 failed before typecheck because npm resolved unavailable rolldown-1.2.9.tgz
+- pinned intended Vite 8.0.16 (which uses rolldown 1.0.3)
+- moved CI from Node 20 to Node 22 for current Cloudflare tooling
+NEXT UNFINISHED DEPENDENCY:
+1. Customers.
+2. Designers.
+3. Payouts.
+4. Reports.
+5. Promotions.
+6. Settings.
+7. Integrations.
+8. Audit Log.
+RUNTIME STILL REQUIRED:
+- Products browser/runtime CRUD/publish verification
+- live Access-only/Modify denial
+- live stock adjustment persistence
+- storefront regression verification after safe runtime deployment
+
+============================================================
+CUSTOMERS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: ec166e8eb72646927855401875b91849419fb7e9
+GITHUB ACTIONS RUN: 35103272968 — SUCCESS.
+COMPLETED FOR CUSTOMERS SOURCE/CI:
+- customer-only database list/search/status/date filters/pagination
+- profile/detail with contact, locale, address and registration date
+- order history and order statistics
+- active/suspended/disabled customer status handling
+- non-active status revokes customer sessions
+- email uniqueness and address validation
+- no password/auth credential exposure in Admin Customers API/UI
+- Admin customer update audit logging
+- admin.customers Access/Modify authorization
+- Customers regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Designers.
+2. Payouts.
+3. Reports.
+4. Promotions.
+5. Settings.
+6. Integrations.
+7. Audit Log.
+RUNTIME STILL REQUIRED:
+- live customer list/detail/edit verification
+- live Access-only/Modify denial
+- live session revocation after suspend/disable
+- browser/responsive verification
+
+============================================================
+DESIGNERS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+FEATURE SOURCE HEAD: e804711ac0340aff2ab8fd5f1a41eed37bd47658
+VERIFIED HEAD: ee051a6b903e1bece8e71dcf90c22c5d3053abd4
+GITHUB ACTIONS RUN: 35103920821 — SUCCESS.
+COMPLETED FOR DESIGNERS SOURCE/CI:
+- designer-role list/search/account-status/authorization-status filters/pagination
+- designer profile and qualification application visibility
+- design list with latest preflight status
+- linked order/design activity
+- earnings, ledger and withdrawal history visibility
+- safe account updates for name/email/locale/account status
+- suspended/disabled designer session revocation
+- qualification authorization remains exclusively controlled by Manual Review
+- admin.designers Access/Modify authorization
+- audit logging
+- Designers regression tests
+VALIDATION NOTE:
+- run 35103673377 passed install/typecheck/build and all prior module tests, but Designers test had an invalid source-slice boundary; implementation was not the failing behavior.
+- corrected test boundary in ee051a6b... and reran full chain to SUCCESS.
+NEXT UNFINISHED DEPENDENCY:
+1. Payouts.
+2. Reports.
+3. Promotions.
+4. Settings.
+5. Integrations.
+6. Audit Log.
+RUNTIME STILL REQUIRED:
+- live Designers list/detail/account update
+- live Access-only/Modify denial
+- live session revocation after suspend/disable
+- live qualification/financial-history display verification
+
+============================================================
+PAYOUTS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 6e6d5824a29a3f6dcda9230ac2424ee670db9a35
+GITHUB ACTIONS RUN: 35104755254 — SUCCESS.
+COMPLETED FOR PAYOUTS SOURCE/CI:
+- real withdrawal list/search/status/date filters/pagination
+- designer identity, account/authorization and payout detail visibility
+- requested → approved/rejected → paid workflow
+- rejected/paid terminal states
+- rejection reason requirement
+- approval blocked above payoutable designer balance
+- payoutable earnings restricted to available/approved/earned/payable states
+- existing approved/paid withdrawals counted as committed balance
+- exactly one negative withdrawal_paid ledger entry on paid transition
+- duplicate paid-ledger prevention
+- Admin payout transition history
+- bilingual designer notifications
+- payout status audit logging
+- admin.payouts Access/Modify authorization
+- Payouts regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Reports.
+2. Promotions.
+3. Settings.
+4. Integrations.
+5. Audit Log.
+RUNTIME STILL REQUIRED:
+- live payout list/detail verification
+- live Access-only/Modify denial
+- live approval balance enforcement
+- live paid ledger/notification/history/audit persistence
+- browser/responsive verification
+
+============================================================
+REPORTS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 3a6ed1eea280cfa08a9ce45b682cefa9b570b16c
+GITHUB ACTIONS RUN: 35105176696 — SUCCESS.
+COMPLETED FOR REPORTS SOURCE/CI:
+- real database-backed read-only Admin Reports
+- optional date-from/date-to filters
+- total/open/completed/cancelled order metrics
+- non-cancelled gross order value
+- confirmed-payment revenue separated from gross order value
+- order/payment/fulfillment status breakdowns
+- daily orders/revenue table
+- product quantity/order-count report
+- designer earnings report
+- payout status/amount report
+- user registrations by role
+- current tracked inventory/low-stock/out-of-stock summary
+- client-side CSV export of daily/product report data
+- admin.reports Access enforcement
+- Reports regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Promotions.
+2. Settings.
+3. Integrations.
+4. Audit Log.
+RUNTIME STILL REQUIRED:
+- live Reports data reconciliation against database
+- live date-filter verification
+- live Access denial for unauthorized groups
+- browser/responsive and CSV export verification
+
+============================================================
+PROMOTIONS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: d8bc5f1bd8ec240f7aadefe4457b7751c2f0a612
+GITHUB ACTIONS RUN: 35105761651 — SUCCESS.
+COMPLETED FOR ADMIN PROMOTIONS SOURCE/CI:
+- real database-backed promotion/coupon definitions
+- percentage and fixed-JOD discount types
+- code uniqueness and normalization
+- minimum spend, maximum uses, start/expiry dates, enabled state
+- active/scheduled/expired/exhausted/disabled operational states
+- redemption history table with unique promotion+order pair
+- used count and total discount derived from redemptions, not Admin-editable
+- historical redemption-preserving enable/disable/update behavior
+- Admin list/search/filter/pagination/detail/create/update
+- admin.promotions Access/Modify authorization
+- promotion change audit logging
+- Promotions regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Settings.
+2. Integrations.
+3. Audit Log.
+4. Final storefront/business-flow integration and runtime QA, including checkout coupon redemption.
+RUNTIME/INTEGRATION STILL REQUIRED:
+- live Promotions CRUD and RBAC verification
+- live operational-state/date behavior
+- checkout coupon validation/redemption integration verification
+- browser/responsive verification
+
+============================================================
+SETTINGS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: ad6500b7eddfb882f1e336fe8ae168bfff635748
+GITHUB ACTIONS RUN: 35106315962 — SUCCESS.
+COMPLETED FOR SETTINGS SOURCE/CI:
+- authoritative business_settings-backed configuration
+- safe public GET /api/settings endpoint for storefront
+- bank/CliQ display details, timing rules, delivery/pickup, designer economics, artwork defaults and bilingual policy text
+- reservation_minutes compatibility maintained with authoritative snapshot
+- validation ranges for reservation timeout, cancellation, POD, DPI and upload size
+- supported artwork MIME whitelist
+- required designer qualification count fixed at exactly 3 and not editable
+- sensitive server_secrets excluded from public/Admin business settings payloads
+- admin.settings Access/Modify authorization and audit logging
+- Settings regression tests added to CI
+NEXT UNFINISHED DEPENDENCY:
+1. Integrations.
+2. Audit Log.
+3. Final storefront/business-flow integration and runtime QA.
+RUNTIME STILL REQUIRED:
+- live Admin Settings read/write verification
+- live storefront /api/settings consumption
+- live Access-only/Modify denial
+- browser/responsive verification
+
+============================================================
+INTEGRATIONS SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED HEAD: d5e12e2cc3fe7e853d69142a6390db7c55d3dec5
+CI RUN: 35107135859 — SUCCESS.
+COMPLETED:
+- real Printify operational status and safe diagnostics
+- connector/snapshot presence checks
+- no live supplier request in diagnostic
+- sensitive credential data is not exposed in the Admin response
+- admin.integrations Access/Modify authorization
+- Integrations regression tests in CI
+NEXT: Audit Log, then final runtime/business-flow QA.
+RUNTIME STILL REQUIRED: live Integrations UI/RBAC/diagnostic verification.
+
+============================================================
+AUDIT LOG SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 1ab487102a0990c9107c38c54b9c768b933b40fe
+GITHUB ACTIONS RUN: 35116639331 — SUCCESS.
+COMPLETED FOR AUDIT LOG SOURCE/CI:
+- existing audit_logs evidence reused as the authoritative audit source
+- searchable/filterable/paginated Admin Audit Log
+- actor/action/resource/result/timestamp context
+- read-only Admin page and API
+- stored metadata parsed and sanitized before browser delivery
+- compatibility retained for legacy adminAuditList callers
+- admin.audit_log Access authorization
+- Audit Log regression tests added to CI
+ADMIN A–Z SOURCE MODULES ARE NOW COMPLETE THROUGH AUDIT LOG.
+NEXT UNFINISHED WORK:
+1. Final storefront/business-flow integration and source reconciliation.
+2. Safe runtime/browser authorization matrix.
+3. End-to-end runtime QA across customer/designer/admin/operator flows.
+4. No merge/deploy until separately authorized.
+
+============================================================
+CHECKOUT / PROMOTION / STOCK INTEGRATION SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 7c8b8e3db96243d42d2f9e377df5114460803a40
+GITHUB ACTIONS RUN: 35118115500 — SUCCESS.
+COMPLETED IN SOURCE/CI:
+- dedicated cart session separated from authenticated customer session
+- legacy guest-cart continuity preserved when possible
+- authenticated database-backed /checkout route
+- customer-owned /order/:orderId confirmation route
+- authoritative business Settings used for reservation/delivery/free-delivery behavior
+- server-side coupon validation: enabled/schedule/max uses/minimum spend/discount cap
+- promotion redemption created only with successful database order
+- order checkout snapshot for customer/contact/subtotal/delivery/discount/promotion/reservation evidence
+- stock availability revalidated at checkout
+- tracked stock reserved without negative availability
+- explicit Ready-to-Print Master and passing preflight enforced for linked designs
+- payment confirmation consumes reserved stock once and creates production jobs from historical snapshots
+- cancellation releases reservations and restores previously deducted stock once
+- checked-out cart cleared only after successful order; new additions reopen cart
+- Login → Create Account → Customer Registration return path preserved back to checkout
+- dedicated Checkout Integration regression suite added to CI
+NEXT: scan remaining source-level storefront/designer integration gaps, then runtime QA.
+RUNTIME STILL REQUIRED: real browser checkout/coupon/auth/payment-confirmation/cancellation/production validation.
+
+============================================================
+DESIGNER NEW DESIGN UPLOAD SOURCE + CI COMPLETE — 2026-09-16
+============================================================
+VERIFIED SOURCE HEAD: 63c620dafb11379749007d48e078b01a4b71ba00
+GITHUB ACTIONS RUN: 35121193690 — SUCCESS.
+COMPLETED IN SOURCE/CI:
+- active /designer Dashboard route
+- active /designer/new-design route
+- private /designer/assets/:assetId preview route
+- private R2 DESIGN_ASSETS storage binding
+- server-side byte/signature inspection for PNG/JPEG/WebP/SVG/PDF
+- standard VP8/VP8L/VP8X WebP dimension support
+- SVG preview sandboxing and PDF attachment handling
+- Admin Settings artwork file-size/format/minimum-DPI policy consumed by upload flow
+- raster artwork below configured minimum DPI fails final-print preflight
+- SVG/PDF treated as vector/document artwork without raster-DPI rejection
+- four mandatory bilingual metadata fields
+- all 7 approved Product Type combinations
+- multiple file upload with preview
+- explicit Ready-to-Print Master; never auto-selected
+- optional Main Display Image with image-only validation and suitable auto-cover fallback
+- product-combination preflight executed against each included product type
+- R2 objects cleaned up when database design creation fails
+- analyzer/preflight/rule-version/asset relations persisted
+- preflight rule version records configured minimum DPI
+- private designer-owned asset access
+- cover/master role update controls
+- asset/design deletion with cart/order/production protection and FK-safe validation cleanup
+- fixed-size Designer cards with inner asset view and preflight labels
+- Designer Upload regression tests added to CI
+NEXT SOURCE-LEVEL WORK:
+1. Global Arabic/English switching with RTL/LTR across active routes.
+2. Final source reconciliation against remaining master requirements.
+3. Runtime/browser QA after an authorized safe deployment.
+RUNTIME BLOCKER:
+- DESIGN_ASSETS R2 bucket must exist in the deployment environment before real uploads can run live.
+DEPLOYMENT: NOT PERFORMED.
+MERGE/MAIN CHANGE: NONE.

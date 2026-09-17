@@ -112,3 +112,503 @@ ADDED AUDIT REGRESSION TESTS — 2026-09-02
 272. Backup/restore verification evidence exists.
 273. GitHub/runtime/database schema reconciliation passes before Production Ready.
 274. No requirement is marked Implemented solely from an AI-agent completion statement.
+
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+275. Admin Users page lists persistent Admin identities from database.
+276. Every Admin user resolves to exactly one User Group.
+277. Main Administrator system group exists and cannot be deleted.
+278. Printing Operator system group exists and cannot be deleted.
+279. Main Administrator has full Access + Modify.
+280. Printing Operator default Access is limited to Dashboard/Orders/Production.
+281. Printing Operator cannot access Users/User Groups/Settings by default.
+282. Custom User Group can be created.
+283. Custom User Group can be renamed/updated.
+284. Custom User Group safe deletion behavior is enforced.
+285. User can be assigned/moved to a custom User Group.
+286. User Groups editor exposes separate Access and Modify permission sets.
+287. Access checkbox enables page/route/API-read access.
+288. Modify checkbox controls create/update/delete/status-change operations.
+289. View-only group can open an allowed page but receives 403 on mutation.
+290. No-access group receives 403 on direct protected URL.
+291. No-access group receives 403 on direct protected API read.
+292. Fake client role/group/permission headers cannot escalate authorization.
+293. Disabled Admin session is rejected after database revalidation.
+294. Changed group/permissions take effect from current database state, not stale cookie claims.
+295. Printing Operator cannot manage Users or User Groups without explicit permission.
+296. Self-escalation to Main Administrator is denied unless policy explicitly authorizes a separate Main Administrator actor.
+297. Last enabled Main Administrator cannot be disabled.
+298. Last enabled Main Administrator cannot be moved/demoted out of full-access group.
+299. Group/user/permission changes create audit records.
+300. Admin navigation hides resources without Access permission.
+301. Hidden navigation cannot replace server-side authorization.
+302. Worker and React/Admin route layers use the same authoritative database-backed permission resolver.
+303. CI executes RBAC regression tests, not only typecheck/build.
+304. Full authorization matrix passes before merge/deploy.
+305. OpenCart-style RBAC is not marked complete until items 275–304 are evidenced.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+323. KAMEL final SHA d542319113b00387565b0f5252f023b16fda785e exists.
+324. GitHub Actions run 35069801013 retrieved.
+325. npm install on KAMEL final SHA: PASS.
+326. Typecheck on KAMEL final SHA: FAIL.
+327. Production build on KAMEL final SHA: SKIPPED.
+328. RBAC regression tests on KAMEL final SHA: SKIPPED.
+329. Syntax defect around adminGroupPermissions/setAdminGroupPermissions corrected and CI rerun.
+330. Active Worker Admin page Access enforcement uses current DB User Group permissions.
+331. Active Worker Admin mutation enforcement uses current DB Modify permissions.
+332. Printify GET routes use Access and mutation routes use Modify.
+333. Users UI assigns exactly one User Group per Admin.
+334. User Groups UI contains Access/Modify permission matrix.
+335. User Groups UI contains Access Select All/Clear and Modify Select All/Clear.
+336. Protected Main Administrator and Printing Operator groups cannot be deleted.
+337. Full CI passes after correction.
+338. Live authorization matrix passes before KAMEL work is accepted.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+323. Admin Dashboard loads from real backend/database data.
+324. Dashboard KPIs contain no hard-coded/demo operational metrics.
+325. Dashboard recent orders and alerts link to their real records.
+326. Orders list supports filter/search/sort/pagination.
+327. Order detail shows customer, items, payment, fulfillment and status history.
+328. Order status mutation is server-authorized and audited.
+329. Order item links to the exact approved master used for production.
+330. Manual Review queue covers designer qualification/design review states.
+331. 5-day review/replacement/escalation rules are represented and testable.
+332. Production Queue uses approved master + preflight/print-spec snapshots.
+333. Printing Operator can perform only permitted production/order actions.
+334. Products page manages DTF Studio product records and variants.
+335. Printify catalog remains Admin/internal and does not leak to customer UI.
+336. Stock management prevents negative inventory and exposes auditable movements.
+337. Customers list/detail/order history work.
+338. Designers list/detail/qualification/design history work.
+339. Designer earnings and payout/withdrawal management work.
+340. Reports use real data and support date/status filtering.
+341. Promotions CRUD validates dates/limits/status.
+342. Settings persist safely and audit sensitive changes.
+343. Integrations page reports health/status without exposing secrets.
+344. Audit Log supports filters and preserves historical records.
+345. Users/User Groups use exactly-one-group membership and Access/Modify permissions.
+346. Permission-aware sidebar/navigation hides unavailable modules.
+347. Direct URL/API bypass is denied server-side.
+348. Shared list pages use consistent filters/sort/pagination/bulk actions.
+349. Add/edit pages validate required fields and show exact errors.
+350. Confirmation/error/success states are consistent.
+351. Admin is responsive on desktop/tablet/mobile.
+352. Arabic/English + RTL/LTR verified where applicable.
+353. Existing storefront/customer/designer/Printify catalog behavior regression-tested.
+354. CI install/typecheck/build/RBAC tests pass.
+355. Full live runtime authorization matrix passes.
+356. Critical Admin A–Z business-flow runtime tests pass.
+357. No merge/deploy until 323–356 have evidence or an explicit documented exception.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+323. KAMEL branch exact current GitHub head verified before continuation.
+324. GitHub Actions run 35071195877 on 4ad0cff1... failed at Typecheck.
+325. Failure traced to malformed adminGroupPermissions/setAdminGroupPermissions method ordering.
+326. Syntax repaired without changing intended RBAC behavior.
+327. Repair commit 4d7b5a123095af7000adbeb3e8ec303e089cefff exists.
+328. GitHub Actions run 35072055326 completed SUCCESS.
+329. npm install passed on run 35072055326.
+330. npm run typecheck passed on run 35072055326.
+331. npm run build passed on run 35072055326.
+332. bun test workers/admin-rbac.test.ts passed on run 35072055326.
+333. Professional Access/Modify matrix UI still pending on KAMEL branch.
+334. Access Select All/Clear still pending on KAMEL branch.
+335. Modify Select All/Clear still pending on KAMEL branch.
+336. Full 15-resource permission coverage must be verified.
+337. Worker/React resolver reconciliation remains pending.
+338. Runtime authorization matrix remains pending.
+339. No merge/deploy permitted until pending authorization checks pass.
+
+
+============================================================
+OPENCART RBAC CHECK STATUS — CURRENT HEAD 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5
+============================================================
+- Source-level group schema and resolver checks: PASS.
+- CI execution for this exact HEAD: PENDING.
+- Runtime authorization matrix: PENDING.
+
+
+RBAC CONTINUATION CHECKLIST
+- Matrix UI controls: COMPLETED in source.
+- Current group display and reassignment wiring: COMPLETED in source.
+- Server-side group assignment endpoint: COMPLETED in source.
+- Detailed current-group user query: COMPLETED in source.
+- Runnable authorization coverage: COMPLETED in source; execution NEEDS RETEST.
+- GitHub Actions final SHA: NEEDS RETEST.
+
+============================================================
+KAMEL CONTINUE-UNTIL-COMPLETE EXECUTION DIRECTIVE — 2026-09-16
+============================================================
+358. KAMEL verifies exact GitHub HEAD before every implementation batch.
+359. KAMEL continues automatically from one unfinished requirement to the next.
+360. Any CI/typecheck/build/test failure is fixed and rerun before final completion.
+361. QC files are updated continuously, not only at the end.
+362. A blocked runtime item does not stop unrelated source/CI work.
+363. No "completed" claim is made with known failing CI/tests.
+364. Final report includes exact final SHA and CI run result for that SHA.
+365. No deploy/merge/main modification occurs without separate authorization.
+
+
+RBAC BATCH CHECK
+- All 15 required resources listed: COMPLETED in source.
+- Independent Access/Modify controls and four bulk actions: COMPLETED in source.
+- Custom group rename and enable/disable controls: COMPLETED in source.
+- Current group selection and assignment wiring: COMPLETED in source.
+- Prior batch CI run 35077216041: PASS.
+- Final batch CI run 35077310054: NEEDS RETEST / IN PROGRESS.
+- Runtime authorization matrix: BLOCKED pending test environment.
+
+============================================================
+DOCUMENTATION-ONLY CHANGE SAFETY — 2026-09-16
+============================================================
+323. Documentation-only update changes only intended *.md/*.txt project-control files.
+324. Documentation-only update does not change workers/, app/, src/, server/, package files, workflow logic, schema, or deployment configuration unless separately authorized.
+325. Documentation-only commit causes no deployment/import/publish/database execution.
+326. Any implementation required by changed paperwork is performed as a separate implementation commit.
+327. Changed-path review confirms no accidental application-source changes in documentation-only commits.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+366. Main Administrator authority resolves from group-main-admin membership: SOURCE PASS.
+367. Main Administrator full Access/Modify is future-proof and not limited to old seed rows: SOURCE PASS.
+368. New Admin can be created directly in any enabled User Group: SOURCE PASS.
+369. Reassigning a user synchronizes group and legacy compatibility role: SOURCE PASS.
+370. Last enabled Main Administrator check uses protected-group membership: SOURCE PASS.
+371. Users/User Groups pages no longer require a fixed main role after Access permission passes: SOURCE PASS.
+372. Settings GET requires Access; Settings credential mutation requires Modify: SOURCE PASS.
+373. Printify Catalog has an explicit permission resource in the matrix: SOURCE PASS.
+374. Admin navigation is generated from current Access permissions: SOURCE PASS.
+375. GitHub Actions run 35079037333: PASS.
+376. npm install/typecheck/build/RBAC tests on SHA 7b552a84...: PASS.
+377. Live direct restricted API test: PENDING RUNTIME.
+378. Live protected URL test: PENDING RUNTIME.
+379. Live fake-header escalation test: PENDING RUNTIME.
+380. Live view-only mutation attempt: PENDING RUNTIME.
+381. Live Printing Operator Users/User Groups denial: PENDING RUNTIME.
+382. Live disabled Admin/stale-session test: PENDING RUNTIME.
+383. Live custom-group permission change taking effect: PENDING RUNTIME.
+384. Live last Main Administrator protection: PENDING RUNTIME.
+
+============================================================
+ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
+============================================================
+385. Dashboard values come from real database queries: PASS SOURCE.
+386. Dashboard has no hard-coded fake operational KPIs: PASS SOURCE.
+387. Dashboard total/open/payment-pending order counts: PASS SOURCE.
+388. Dashboard production/review/inventory/payout attention counts: PASS SOURCE.
+389. Dashboard recent orders: PASS SOURCE.
+390. Dashboard recent Admin activity: PASS SOURCE.
+391. Dashboard last-7-day order series: PASS SOURCE.
+392. Dashboard quick links respect current Access permissions: PASS SOURCE.
+393. Dashboard API requires admin.dashboard Access: PASS SOURCE.
+394. GitHub Actions run 35079512451: PASS.
+395. Dashboard browser/runtime visual verification: PENDING RUNTIME.
+
+============================================================
+ADMIN ORDERS SOURCE/CI CHECK — 2026-09-16
+============================================================
+396. Admin Orders list uses real database records: PASS SOURCE.
+397. Search by order ID/customer/email/phone: PASS SOURCE.
+398. Status/payment/fulfillment/date filters: PASS SOURCE.
+399. Sort + numbered pagination: PASS SOURCE.
+400. Order detail customer/payment/fulfillment/items: PASS SOURCE.
+401. Exact order-item Ready-to-Print Master reference: PASS SOURCE.
+402. Printing-job reference/status: PASS SOURCE.
+403. Canonical DTF status transition map: PASS SOURCE/TEST.
+404. Invalid transition rejected server-side: PASS SOURCE/TEST.
+405. payment_confirmed synchronizes order/payment state: PASS SOURCE.
+406. Internal notes/history persistence layer: PASS SOURCE.
+407. Status/note actions audit logged: PASS SOURCE.
+408. admin.orders GET requires Access: PASS SOURCE.
+409. admin.orders mutation requires Modify: PASS SOURCE.
+410. GitHub Actions run 35096692301: PASS.
+411. npm install/typecheck/build/RBAC tests/Orders tests: PASS.
+412. Orders browser/runtime verification: PENDING RUNTIME.
+413. Live Access-only mutation denial: PENDING RUNTIME.
+414. Live master/printing-job relationship verification: PENDING RUNTIME.
+
+============================================================
+PRODUCTION QUEUE SOURCE/CI CHECK — 2026-09-16
+============================================================
+415. Production Queue uses real printing_jobs/order_items/orders: PASS SOURCE.
+416. Queue shows order/customer/product/variant/quantity: PASS SOURCE.
+417. Exact order-item approved Ready-to-Print Master enforced: PASS SOURCE/TEST.
+418. Printing-job master mismatch blocks production: PASS SOURCE/TEST.
+419. Missing/failed historical preflight blocks production: PASS SOURCE/TEST.
+420. Print-spec/preflight snapshots displayed: PASS SOURCE.
+421. Approved master download resolver sanitizes storage key: PASS SOURCE/TEST.
+422. Production canonical status workflow: PASS SOURCE/TEST.
+423. Production status mutation audit logged: PASS SOURCE.
+424. admin.production GET requires Access: PASS SOURCE.
+425. admin.production mutation requires Modify: PASS SOURCE.
+426. GitHub Actions run 35097227839: PASS.
+427. npm install/typecheck/build/RBAC/Orders/Production tests: PASS.
+428. Production browser/runtime verification: PENDING RUNTIME.
+429. Live operator permission matrix: PENDING RUNTIME.
+430. Live master-byte download verification: PENDING RUNTIME.
+
+============================================================
+MANUAL REVIEW SOURCE/CI CHECK — 2026-09-16
+============================================================
+431. Qualification queue uses real designer applications: PASS SOURCE.
+432. Approval requires exactly 3 qualification designs: PASS SOURCE/TEST.
+433. All 3 require preflight evidence; failed preflight blocks approval: PASS SOURCE/TEST.
+434. Five-day review due target calculated from submission: PASS SOURCE/TEST.
+435. First rejection requires reason and creates replacement-required flow: PASS SOURCE/TEST.
+436. Second rejection escalates/finalizes rejection: PASS SOURCE/TEST.
+437. Designer notifications created for decisions: PASS SOURCE/TEST.
+438. Authorized status remains Admin-controlled: PASS SOURCE/TEST.
+439. Designer design review queue exists: PASS SOURCE.
+440. Design review approve does not auto-publish: PASS SOURCE/TEST.
+441. Manual review history/audit logging: PASS SOURCE.
+442. admin.manual_review GET requires Access: PASS SOURCE.
+443. Manual Review mutation requires Modify: PASS SOURCE.
+444. GitHub Actions run 35101827809: PASS.
+445. npm install/typecheck/build/RBAC/Orders/Production/Manual Review tests: PASS.
+446. Manual Review browser/runtime verification: PENDING RUNTIME.
+447. Live replacement/escalation/notification persistence: PENDING RUNTIME.
+
+============================================================
+PRODUCTS / CATALOG SOURCE/CI CHECK — 2026-09-16
+============================================================
+448. Products list uses real product_models/categories/variants/stocks: PASS SOURCE.
+449. Internal custom products separated from Printify workflow: PASS SOURCE/TEST.
+450. Bilingual product name/description support: PASS SOURCE.
+451. Custom publish requires bilingual metadata + display image: PASS SOURCE/TEST.
+452. Publish requires at least one enabled positive-price variant: PASS SOURCE/TEST.
+453. Variant pricing/enable controls: PASS SOURCE.
+454. Stock quantity cannot be negative: PASS SOURCE/TEST.
+455. Admin stock adjustment creates stock movement: PASS SOURCE/TEST.
+456. Product media records supported with sanitized storage keys: PASS SOURCE.
+457. Print Your Dream setting supported: PASS SOURCE.
+458. Seven approved product-type combinations enforced: PASS SOURCE/TEST.
+459. admin.products GET requires Access: PASS SOURCE.
+460. Products mutations require Modify: PASS SOURCE.
+461. Original CI run 35102413636 attempts 1/2: FAILED INSTALL due unavailable npm rolldown-1.2.9.tgz; no source tests executed.
+462. Vite pinned to 8.0.16: PASS CORRECTION.
+463. CI Node moved to 22: PASS CORRECTION.
+464. GitHub Actions run 35102844014: PASS.
+465. npm install/typecheck/build/RBAC/Orders/Production/Manual Review/Products tests: PASS.
+466. Products browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+CUSTOMERS SOURCE/CI CHECK — 2026-09-16
+============================================================
+467. Customers list is scoped to customer role only: PASS SOURCE/TEST.
+468. Search by ID/name/email/phone: PASS SOURCE.
+469. Status/date filters + pagination: PASS SOURCE.
+470. Customer detail includes contact/address/registration data: PASS SOURCE.
+471. Customer detail includes order history/stats: PASS SOURCE/TEST.
+472. Password hashes/salts/auth credentials are not exposed: PASS SOURCE/TEST.
+473. Email uniqueness enforced on Admin update: PASS SOURCE/TEST.
+474. Customer status whitelist active/suspended/disabled: PASS SOURCE/TEST.
+475. Non-active customer sessions revoked: PASS SOURCE/TEST.
+476. Admin customer mutation audit logged: PASS SOURCE.
+477. admin.customers GET requires Access: PASS SOURCE.
+478. Customers mutation requires Modify: PASS SOURCE.
+479. GitHub Actions run 35103272968: PASS.
+480. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers tests: PASS.
+481. Customers browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+DESIGNERS SOURCE/CI CHECK — 2026-09-16
+============================================================
+482. Designers list scoped to designer role: PASS SOURCE/TEST.
+483. Search/account-status/authorization-status filters + pagination: PASS SOURCE.
+484. Designer profile and qualification applications: PASS SOURCE/TEST.
+485. Designs + latest preflight status: PASS SOURCE/TEST.
+486. Linked order/design activity: PASS SOURCE/TEST.
+487. Earnings/ledger/withdrawal history: PASS SOURCE/TEST.
+488. Authorization cannot be changed from Designers page: PASS SOURCE/TEST.
+489. Account active/suspended/disabled + session revocation: PASS SOURCE/TEST.
+490. Designer account update audit logged: PASS SOURCE.
+491. admin.designers GET requires Access: PASS SOURCE.
+492. Designers mutation requires Modify: PASS SOURCE.
+493. Run 35103673377: FAIL Designers test only due invalid test page-boundary slice; implementation/typecheck/build/prior tests passed.
+494. Test boundary corrected in ee051a6b903e1bece8e71dcf90c22c5d3053abd4: PASS CORRECTION.
+495. GitHub Actions run 35103920821: PASS.
+496. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers tests: PASS.
+497. Designers browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+PAYOUTS SOURCE/CI CHECK — 2026-09-16
+============================================================
+498. Payouts list uses real withdrawals/designers: PASS SOURCE.
+499. Search/status/date filters + pagination: PASS SOURCE.
+500. Requested→approved/rejected and approved→paid only: PASS SOURCE/TEST.
+501. Paid/rejected terminal states: PASS SOURCE/TEST.
+502. Rejection requires reason: PASS SOURCE/TEST.
+503. Approval uses payoutable earnings only: PASS SOURCE/TEST.
+504. Approved/paid withdrawals counted as committed: PASS SOURCE/TEST.
+505. Withdrawal above payoutable balance blocked: PASS SOURCE/TEST.
+506. Paid transition creates negative withdrawal_paid ledger record: PASS SOURCE/TEST.
+507. Duplicate paid ledger blocked: PASS SOURCE/TEST.
+508. Admin withdrawal history persisted: PASS SOURCE/TEST.
+509. Designer notifications generated: PASS SOURCE/TEST.
+510. Payout transition audit logged: PASS SOURCE/TEST.
+511. admin.payouts GET requires Access: PASS SOURCE.
+512. Payout mutations require Modify: PASS SOURCE.
+513. GitHub Actions run 35104755254: PASS.
+514. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts tests: PASS.
+515. Payouts browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+REPORTS SOURCE/CI CHECK — 2026-09-16
+============================================================
+516. Reports use real database operational tables: PASS SOURCE/TEST.
+517. Date-from/date-to SQL filters parameterized: PASS SOURCE/TEST.
+518. Gross non-cancelled order value reported: PASS SOURCE/TEST.
+519. Confirmed-payment revenue reported separately: PASS SOURCE/TEST.
+520. Order/payment/fulfillment status breakdowns: PASS SOURCE.
+521. Daily sales/orders report: PASS SOURCE.
+522. Product quantity/order-count report: PASS SOURCE/TEST.
+523. Designer earnings report: PASS SOURCE/TEST.
+524. Payout status/amount report: PASS SOURCE/TEST.
+525. Registrations-by-role report: PASS SOURCE/TEST.
+526. Current inventory summary: PASS SOURCE/TEST.
+527. Reports API is read-only: PASS SOURCE/TEST.
+528. admin.reports GET requires Access: PASS SOURCE/TEST.
+529. Daily/product CSV export controls: PASS SOURCE/TEST.
+530. GitHub Actions run 35105176696: PASS.
+531. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts/Reports tests: PASS.
+532. Reports browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+PROMOTIONS SOURCE/CI CHECK — 2026-09-16
+============================================================
+533. Promotions stored in real database: PASS SOURCE/TEST.
+534. Redemption history uses unique promotion+order relation: PASS SOURCE/TEST.
+535. Percentage and fixed discount types supported: PASS SOURCE.
+536. Percentage >100 blocked: PASS SOURCE/TEST.
+537. Coupon code normalized/unique: PASS SOURCE/TEST.
+538. Start/expiry chronology validated: PASS SOURCE/TEST.
+539. Max uses cannot be reduced below historical redemption count: PASS SOURCE/TEST.
+540. Used count derived from redemption records: PASS SOURCE/TEST.
+541. Operational states active/scheduled/expired/exhausted/disabled: PASS SOURCE/TEST.
+542. Admin Promotions API/UI CRUD and filters: PASS SOURCE.
+543. admin.promotions GET requires Access: PASS SOURCE/TEST.
+544. Promotions mutations require Modify: PASS SOURCE/TEST.
+545. Promotion changes audit logged: PASS SOURCE.
+546. GitHub Actions run 35105761651: PASS.
+547. install/typecheck/build/RBAC/Orders/Production/Manual Review/Products/Customers/Designers/Payouts/Reports/Promotions tests: PASS.
+548. Checkout promotion redemption integration: PENDING FINAL BUSINESS-FLOW INTEGRATION.
+549. Promotions browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+SETTINGS SOURCE/CI CHECK — 2026-09-16
+============================================================
+550. Settings use existing business_settings table: PASS SOURCE/TEST.
+551. Legacy reservation_minutes read compatibility: PASS SOURCE/TEST.
+552. Saving Settings synchronizes reservation_minutes: PASS SOURCE/TEST.
+553. Reservation timeout 5–120 validation: PASS SOURCE/TEST.
+554. POD 1–72 hours validation: PASS SOURCE/TEST.
+555. Cancellation window 0–240 validation: PASS SOURCE/TEST.
+556. Artwork minimum DPI 72–1200 validation: PASS SOURCE/TEST.
+557. Max file size 1–200 MB validation: PASS SOURCE/TEST.
+558. Artwork MIME whitelist enforced: PASS SOURCE.
+559. Required qualification designs fixed at exactly 3: PASS SOURCE/TEST.
+560. Public /api/settings GET only: PASS SOURCE/TEST.
+561. Public settings endpoint excludes server secrets: PASS SOURCE/TEST.
+562. admin.settings GET requires Access: PASS SOURCE/TEST.
+563. Settings write requires Modify: PASS SOURCE/TEST.
+564. Settings changes audit logged: PASS SOURCE.
+565. GitHub Actions run 35106315962: PASS.
+566. install/typecheck/build/all Admin tests through Settings: PASS.
+567. Settings browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+INTEGRATIONS SOURCE/CI CHECK — 2026-09-16
+============================================================
+568. Real Printify operational status: PASS SOURCE/TEST.
+569. Connector/snapshot diagnostics: PASS SOURCE/TEST.
+570. No live supplier request in diagnostic: PASS SOURCE/TEST.
+571. Sensitive credential data excluded from Admin response: PASS SOURCE/TEST.
+572. admin.integrations Access/Modify checks: PASS SOURCE/TEST.
+573. Full CI run 35107135859: PASS.
+574. Integrations browser/runtime verification: PENDING RUNTIME.
+
+============================================================
+AUDIT LOG SOURCE/CI CHECK — 2026-09-16
+============================================================
+585. Audit Log reuses existing audit_logs table: PASS SOURCE/TEST.
+586. Search/action/resource/actor/date filters: PASS SOURCE/TEST.
+587. Numbered pagination: PASS SOURCE/TEST.
+588. Actor/action/resource/result/timestamp context: PASS SOURCE.
+589. Metadata parsed and sanitized before response: PASS SOURCE/TEST.
+590. Audit Log API/page read-only: PASS SOURCE/TEST.
+591. admin.audit_log requires Access: PASS SOURCE/TEST.
+592. Legacy adminAuditList compatibility preserved: PASS SOURCE/TEST.
+593. GitHub Actions run 35116639331: PASS.
+594. install/typecheck/build/all Admin tests through Audit Log: PASS.
+595. Audit Log browser/runtime verification: PENDING RUNTIME.
+596. Admin A–Z source/CI modules through Audit Log: COMPLETE; final integration/runtime QA remains.
+
+============================================================
+CHECKOUT INTEGRATION SOURCE/CI CHECK — 2026-09-16
+============================================================
+597. Cart and auth session cookies separated: PASS SOURCE/TEST.
+598. Authenticated customer required before checkout: PASS SOURCE/TEST.
+599. Customer registration/login return path back to checkout: PASS SOURCE.
+600. Checkout consumes authoritative Settings snapshot: PASS SOURCE/TEST.
+601. Coupon enabled/schedule/max-use/min-spend validation: PASS SOURCE/TEST.
+602. Coupon discount capped at subtotal: PASS SOURCE/TEST.
+603. Promotion redemption tied to successful order: PASS SOURCE/TEST.
+604. Idempotent checkout request key persisted: PASS SOURCE/TEST.
+605. Order checkout/customer/discount/delivery snapshot persisted: PASS SOURCE/TEST.
+606. Tracked stock availability revalidated and reserved: PASS SOURCE/TEST.
+607. Explicit Ready-to-Print Master exact-match enforcement: PASS SOURCE/TEST.
+608. Passing preflight required for design master: PASS SOURCE/TEST.
+609. Payment confirmation consumes tracked stock once: PASS SOURCE/TEST.
+610. Payment confirmation creates production jobs from historical snapshots: PASS SOURCE/TEST.
+611. Cancellation releases pending reservations: PASS SOURCE/TEST.
+612. Cancellation restores previously deducted stock once: PASS SOURCE/TEST.
+613. Successful checkout clears cart items; next additions reopen cart: PASS SOURCE/TEST.
+614. Customer-owned order confirmation view: PASS SOURCE.
+615. GitHub Actions run 35118115500: PASS.
+616. install/typecheck/build/all Admin suites + Checkout Integration: PASS.
+617. Checkout end-to-end browser/runtime acceptance: PENDING RUNTIME.
+
+============================================================
+DESIGNER NEW DESIGN UPLOAD SOURCE/CI CHECK — 2026-09-16
+============================================================
+618. Active /designer route: PASS SOURCE/BUILD.
+619. Active /designer/new-design route: PASS SOURCE/BUILD.
+620. Private designer asset route: PASS SOURCE/BUILD.
+621. DESIGN_ASSETS R2 binding configured in source: PASS SOURCE.
+622. Server verifies uploaded bytes/signature: PASS SOURCE/TEST.
+623. Browser MIME/signature mismatch blocked: PASS SOURCE/TEST.
+624. Settings maximum file size enforced: PASS SOURCE/TEST.
+625. Settings allowed artwork formats enforced: PASS SOURCE/TEST.
+626. Configured minimum DPI enforced as preflight failure: PASS SOURCE/TEST.
+627. Vector SVG/PDF handled without raster-DPI rejection: PASS SOURCE/TEST.
+628. Standard WebP VP8/VP8L/VP8X inspection: PASS SOURCE/TEST.
+629. Four bilingual fields required: PASS SOURCE/TEST.
+630. Seven Product Type combinations available: PASS SOURCE/TEST.
+631. Product combinations preflight each included product: PASS SOURCE/TEST.
+632. Multiple assets supported up to 20 files: PASS SOURCE.
+633. Ready-to-Print Master requires explicit selection: PASS SOURCE/TEST.
+634. Selected Master must pass preflight: PASS SOURCE/TEST.
+635. Main Display Image limited to previewable image: PASS SOURCE/TEST.
+636. Auto-cover fallback uses suitable recent image: PASS SOURCE.
+637. Analyzer/preflight/rule version rows persisted: PASS SOURCE/TEST.
+638. Rule version reflects configured minimum DPI: PASS SOURCE/TEST.
+639. Failed DB design creation cleans uploaded R2 objects: PASS SOURCE/TEST.
+640. Private asset access is designer ownership-gated: PASS SOURCE/TEST.
+641. SVG previews are sandboxed: PASS SOURCE/TEST.
+642. Asset deletion blocks cart/order/production references: PASS SOURCE/TEST.
+643. Validation rows explicitly cleaned before asset delete: PASS SOURCE/TEST.
+644. Design deletion blocks active cart/order/production protection: PASS SOURCE/TEST.
+645. Designer Dashboard exposes cover/master/preflight/deletion controls: PASS SOURCE/TEST.
+646. GitHub Actions run 35121193690: PASS.
+647. install/typecheck/build/all Admin/Checkout/Designer Upload tests: PASS.
+648. Live R2/browser Designer upload verification: PENDING RUNTIME.

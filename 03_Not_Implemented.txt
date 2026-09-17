@@ -42,3 +42,332 @@ Cross-system conclusion:
 - No Production Ready claim is permitted from these findings alone.
 - The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
 
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+NOT YET COMPLETE:
+1. Custom Admin User Group CRUD comparable to OpenCart.
+2. Exactly-one-group assignment model for each Admin user.
+3. Separate Access and Modify permission sets for every Admin resource/page.
+4. OpenCart-style permission matrix editor UI with Access/Modify columns and select-all/clear behavior.
+5. Group assignment editor for Admin users beyond the two fixed system roles.
+6. Consistent server-side Access enforcement for reads/pages and Modify enforcement for mutations across Admin.
+7. One authoritative permission resolver shared by Worker and React route implementations.
+8. Menu/navigation filtering derived from Access permissions for all groups.
+9. Safe custom-group deletion rules (deny deletion while assigned, or require reassignment).
+10. Full authorization matrix executed in CI/runtime.
+11. Current workers/admin-rbac.test.ts must be made runnable and CI must execute it.
+12. Current duplicate RBAC route/auth implementations must be reconciled so stale session role data is never treated as the authorization source.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+CURRENT VERIFIED BLOCKERS AT d542319113b00387565b0f5252f023b16fda785e:
+1. GitHub Actions run 35069801013 FAILED.
+2. Typecheck failure in workers/item-store.ts line ~868: malformed/missing adminGroupPermissions method body around setAdminGroupPermissions.
+3. Production build and RBAC tests were skipped because Typecheck failed.
+4. Active Worker adminPrintifyApi still gates on identity.role === "main_admin" instead of Access/Modify group permissions.
+5. Active Admin page routing still uses fixed role/main checks instead of the new User Group Access matrix for ordinary modules.
+6. Active ADMIN_RBAC_PAGE still shows Role and only Enable/Disable; it does not implement the requested OpenCart-style User Group assignment + Access/Modify matrix.
+7. React/Worker RBAC layers remain unreconciled.
+8. Full runtime authorization matrix remains pending.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+NOT COMPLETE UNTIL VERIFIED:
+- Full A–Z Admin modules listed in 01_To_Do are functional against real backend/database data.
+- OpenCart-style shared list/form/detail interaction patterns are consistently applied.
+- Operator sees only permitted pages/actions.
+- Admin pages do not rely on client-side hiding for security.
+- No placeholder/fake KPI/report data remains.
+- Cross-module links (order → item → master → production; designer → design → review; product → variant → stock) are verified.
+- Full runtime authorization matrix and critical business-flow tests are still required before Production Ready.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+STILL NOT COMPLETE:
+1. Full professional Access/Modify matrix UI.
+2. Access Select All / Clear controls.
+3. Modify Select All / Clear controls.
+4. Permission matrix coverage for all 15 Admin modules/resources.
+5. Full active Admin navigation generated from Access permissions.
+6. Shared authoritative database-backed permission resolver across Worker and React Admin layers.
+7. Runtime test proving a view-only group can read but cannot mutate.
+8. Runtime direct URL/API denial tests.
+9. Runtime fake-header escalation test.
+10. Runtime disabled-user/stale-session test.
+11. Runtime group/permission change taking effect within an existing signed session.
+12. Runtime Printing Operator denial of Users/User Groups/Settings.
+13. Runtime self-escalation denial.
+14. Runtime last Main Administrator safeguards.
+15. Full A-Z business UIs for Manual Review, Products, Customers, Designers, Payouts, Reports, Promotions, Integrations, Audit Log, and structured Settings remain separate pending Admin-module work.
+
+
+============================================================
+OPENCART RBAC REMAINING — CURRENT QC
+============================================================
+- Full professional permission-matrix UI with Access/Modify select-all and clear-all controls.
+- Full runtime authorization matrix evidence.
+- GitHub Actions result for the latest current HEAD.
+
+
+RBAC CONTINUATION OPEN ITEMS
+- Fresh GitHub Actions result for final SHA: NEEDS RETEST.
+- Runtime HTTP authorization matrix: NEEDS RETEST.
+- Browser/UI verification: NOT RUN.
+- Full module-by-module navigation verification: NEEDS RETEST.
+
+============================================================
+KAMEL CONTINUE-UNTIL-COMPLETE EXECUTION DIRECTIVE — 2026-09-16
+============================================================
+A requirement remains here only while it is genuinely incomplete or blocked.
+KAMEL must not leave an item pending merely because one implementation batch finished.
+After each verified completion, move/update its status in the QC records and continue to the next item.
+External blockers must be specific and must not stop unrelated work.
+
+
+RBAC BATCH STILL PENDING
+- Final SHA fc9f76b016ffb94036cb3bc6c63da47c2e2b89f3 GitHub Actions result: NEEDS RETEST while run 35077310054 is in progress.
+- Runtime HTTP authorization matrix: BLOCKED pending a running test environment without deployment.
+- Browser verification: NOT RUN.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+REMAINING / NOT YET VERIFIED:
+1. Live/runtime authorization matrix has not yet been executed against a safe deployed/test runtime.
+2. Browser/UI verification of all group combinations and responsive states remains pending.
+3. Full Admin Dashboard A–Z modules beyond the RBAC foundation remain to be implemented/verified per 01_To_Do.
+4. No merge/deploy/Production Ready claim is authorized from source/CI evidence alone.
+RESOLVED FROM EARLIER BLOCKERS:
+- Full Access/Modify matrix UI: resolved in source.
+- Access/Modify Select All/Clear: resolved in source.
+- Full Admin permission resource catalog plus Printify-specific resource: resolved in source.
+- Fixed role-based Admin page gates: removed/replaced by current DB group Access checks.
+- Direct group assignment on user creation: resolved in source.
+- Main Administrator stale-role authority issue: resolved in source.
+
+============================================================
+ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
+============================================================
+DASHBOARD SOURCE/CI IS COMPLETE.
+STILL PENDING:
+- Live/browser Dashboard runtime verification in a safe test environment.
+- Orders full module.
+- Manual Review module.
+- Production Queue full module.
+- Products/Customers/Designers/Payouts/Reports/Promotions/Settings/Integrations/Audit A–Z completion.
+- No merge/deploy until required runtime evidence passes.
+
+============================================================
+ADMIN ORDERS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- Orders list/detail/search/filter/sort/pagination
+- order status workflow and notes
+- master/printing-job data linkage
+- server-side Access/Modify guards
+- audit/history persistence code
+- Orders regression tests in CI
+STILL PENDING:
+1. Live/browser Admin Orders verification against a safe runtime.
+2. Live Access-only group read + Modify denial.
+3. Live status transition persistence and payment synchronization.
+4. Live internal note and audit persistence.
+5. Live exact Ready-to-Print Master and printing-job relation verification.
+6. Production Queue full module remains next implementation dependency.
+
+============================================================
+PRODUCTION QUEUE REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- Production Queue list/filter/pagination/detail
+- order/customer/product/variant context
+- exact master/preflight safeguards
+- master download resolver
+- production status workflow
+- server-side Access/Modify guards
+- audit logging
+- Production regression tests in CI
+STILL PENDING:
+1. Live/browser Production Queue verification against safe runtime.
+2. Live Printing Operator access and unrelated-module denial.
+3. Live status mutation and audit persistence.
+4. Live approved-master download bytes from configured storage.
+5. Manual Review full module remains next implementation dependency.
+
+============================================================
+MANUAL REVIEW REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- qualification/design review queues
+- exactly-three qualification approval rule
+- five-day review target display
+- preflight/analyzer evidence
+- first rejection replacement and second rejection escalation
+- notifications and Authorized status mutation
+- Access/Modify guards and audit history
+STILL PENDING:
+1. Live/browser Manual Review verification.
+2. Live Access-only mutation denial.
+3. Live approve/reject/replacement/escalation persistence.
+4. Live designer notification persistence and Authorized-state verification.
+5. Products/Catalog remains next implementation dependency.
+
+============================================================
+PRODUCTS / CATALOG REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- internal category/product/variant/stock/media management
+- custom publish validation
+- seven product-type eligibility rules
+- Printify workflow separation
+- Access/Modify guards and audit logging
+- deterministic CI dependency correction
+STILL PENDING:
+1. Live/browser Products verification.
+2. Live create/edit/publish/unpublish persistence.
+3. Live stock adjustment and stock movement verification.
+4. Live Access-only mutation denial.
+5. Safe storefront regression verification.
+6. Customers remains next implementation dependency.
+
+============================================================
+CUSTOMERS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- customer list/detail/filter/pagination
+- profile/contact/address/status editing
+- order history/statistics
+- credential non-exposure
+- session revocation code
+- Access/Modify guards and audit logging
+STILL PENDING:
+1. Live/browser Customers verification.
+2. Live Access-only mutation denial.
+3. Live suspend/disable session revocation verification.
+4. Live customer update/order-history persistence checks.
+5. Designers remains next implementation dependency.
+
+============================================================
+DESIGNERS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- designer list/detail/filter/pagination
+- qualification/design/order/financial history views
+- account update/session revocation
+- Manual Review authorization separation
+- Access/Modify guards and audit logging
+STILL PENDING:
+1. Live/browser Designers verification.
+2. Live Access-only mutation denial.
+3. Live suspend/disable session revocation.
+4. Live financial/order/qualification-history data verification.
+5. Payouts remains next implementation dependency.
+
+============================================================
+PAYOUTS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- payout list/detail/filter/pagination
+- controlled status workflow
+- payoutable-balance validation
+- one-time paid ledger protection
+- rejection reason/history/notification/audit records
+- Access/Modify guards
+STILL PENDING:
+1. Live/browser Payouts verification.
+2. Live Access-only mutation denial.
+3. Live approval balance enforcement against real data.
+4. Live paid ledger, notification, history and audit persistence.
+5. Reports remains next implementation dependency.
+
+============================================================
+REPORTS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- real-data report queries and UI
+- date filters
+- order/revenue/product/designer/payout/user/inventory reporting
+- Reports Access guard
+- CSV exports in Admin UI
+STILL PENDING:
+1. Live/browser Reports verification.
+2. Live report totals reconciliation with known database rows.
+3. Live date range boundary checks.
+4. Live CSV export/browser verification.
+5. Promotions remains next implementation dependency.
+
+============================================================
+PROMOTIONS REMAINING RUNTIME / CHECKOUT INTEGRATION — 2026-09-16
+============================================================
+RESOLVED IN ADMIN SOURCE/CI:
+- coupon definitions and redemption-history persistence
+- Admin CRUD/filter/pagination/detail
+- operational states and validation
+- Access/Modify guards and audit logging
+STILL PENDING:
+1. Live/browser Promotions verification.
+2. Live Access-only mutation denial.
+3. Checkout coupon validation/application/redemption integration against the authoritative promotions tables.
+4. Atomic used-count/redemption behavior under checkout concurrency.
+5. Settings remains next Admin implementation dependency.
+
+============================================================
+SETTINGS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+RESOLVED IN SOURCE/CI:
+- authoritative Settings persistence
+- safe public settings endpoint
+- range validation and qualification-count protection
+- Access/Modify guards and audit logging
+STILL PENDING:
+1. Live/browser Settings verification.
+2. Live storefront consumption of saved /api/settings values.
+3. Live Access-only mutation denial.
+4. Business-rule reconciliation of saved timing/economic values in final end-to-end flows.
+5. Integrations remains next implementation dependency.
+
+============================================================
+INTEGRATIONS REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+SOURCE/CI COMPLETE.
+PENDING: live UI verification, live Access/Modify denial checks, safe diagnostic verification, then Audit Log and final runtime/business-flow QA.
+
+============================================================
+AUDIT LOG / ADMIN A–Z REMAINING ACCEPTANCE — 2026-09-16
+============================================================
+AUDIT LOG SOURCE/CI: COMPLETE.
+ADMIN A–Z SOURCE/CI: COMPLETE THROUGH AUDIT LOG.
+STILL PENDING:
+1. Live/browser Audit Log verification and unauthorized Access denial.
+2. Final storefront/business-flow integration and reconciliation.
+3. Full runtime RBAC matrix and stale-session/direct-URL/API denial tests.
+4. End-to-end customer/designer/admin/operator workflows.
+5. Deployment/merge remains unauthorized until separate approval.
+
+============================================================
+CHECKOUT INTEGRATION REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+SOURCE/CI COMPLETE for current checkout integration batch.
+PENDING:
+1. Live/browser guest cart → login/registration → checkout continuity.
+2. Live valid/invalid/expired/exhausted/minimum-spend coupon cases.
+3. Concurrent stock reservation and never-negative verification.
+4. Live payment confirmation → stock consumption → printing-job creation.
+5. Live cancellation → reservation release / stock restoration.
+6. Full remaining storefront/designer source reconciliation and runtime QA.
+
+============================================================
+DESIGNER UPLOAD REMAINING RUNTIME ACCEPTANCE — 2026-09-16
+============================================================
+SOURCE/CI: COMPLETE for the New Design upload batch.
+STILL PENDING:
+1. Provision/verify DESIGN_ASSETS R2 bucket in the safe runtime environment.
+2. Live authorized-designer upload of PNG/JPEG/WebP/SVG/PDF.
+3. Live preview, explicit Master, auto/explicit cover, rejection-reason display and deletion verification.
+4. Live protected deletion behavior when cart/order/production references exist.
+5. Global Arabic/English switching with RTL/LTR across active routes remains the next source-level requirement.
+6. Final deployed runtime/business-flow QA remains pending.

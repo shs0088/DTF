@@ -49,3 +49,107 @@ Cross-system conclusion:
 - No Production Ready claim is permitted from these findings alone.
 - The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
 
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+R. ADMIN RBAC — OPENCART-STYLE OPERATING RULE
+R1. The functional model is User → User Group → Permissions, independent of implementation language/framework.
+R2. Each Admin user belongs to exactly one Admin User Group.
+R3. A group has two independent permission sets per resource: Access and Modify.
+R4. Access permits navigation/page/direct-URL/API-read access only.
+R5. Modify permits mutating operations only and never implies Access unless explicitly configured by policy; UI must prevent nonsensical states or resolve them predictably.
+R6. Main Administrator is a protected full-access system group. At least one enabled Main Administrator must always remain.
+R7. Printing Operator is a protected least-privilege system group. Default: Dashboard + Orders + Production access, with only explicitly required order/production modifications/downloads.
+R8. Main Administrator may create custom groups and configure Access/Modify per Admin resource.
+R9. Users may be created, enabled/disabled, and reassigned to a group only by an authorized Main Administrator.
+R10. Navigation visibility follows Access permission, but hiding controls is never security enforcement.
+R11. Server-side authorization is mandatory on every protected page/API. Read operations require Access; write/mutating operations require Modify.
+R12. Direct URL/API access, fake headers, stale cookies, disabled users, and client-side tampering must not bypass authorization.
+R13. Permission/group/user changes are audit logged with actor, target, action, result, and timestamp.
+R14. System groups may not be deleted. Custom group deletion must be blocked while users are assigned unless an explicit safe reassignment transaction occurs.
+R15. Authorization policy must have one authoritative resolver; duplicate route layers must use current database identity/group state rather than trusting stale session role claims.
+R16. Every RBAC change requires positive/negative/boundary/regression tests and CI evidence before being marked Implemented.
+
+============================================================
+FULL ADMIN DASHBOARD A–Z TARGET — OPENCART FUNCTIONAL MODEL — 2026-09-16
+============================================================
+S. ADMIN DASHBOARD OPERATING MODEL
+S1. OpenCart is the functional/UX reference, not a requirement to copy PHP/Twig/code.
+S2. Reuse OpenCart interaction conventions where applicable: left navigation hierarchy, list pages, filters, pagination, selection/bulk actions, add/edit forms, breadcrumbs, status toggles, permission-aware menus, Access/Modify checks, clear success/error notices.
+S3. DTF Studio business rules override OpenCart where the businesses differ.
+S4. Admin UI uses DTF Studio Black + Electric Blue visual system; do not replace it with OpenCart visual styling.
+S5. All Admin reads and writes are database-backed. Do not present generated demo numbers as operational data.
+S6. Access permission controls visibility/read access; Modify controls mutations. Modify must imply/require usable Access behavior consistently.
+S7. Protected routes/APIs must re-resolve current enabled Admin identity and current group permissions server-side.
+S8. Printing Operator default scope is Dashboard + Orders + Production only; no Users/User Groups/Settings/pricing unless explicitly granted.
+S9. Printify is an internal supplier/catalog integration and must not be exposed by name to customers.
+S10. Orders/production must use the explicitly selected, successfully preflighted Ready-to-Print Master associated with the order item.
+S11. Sensitive changes require audit logging.
+S12. Destructive actions require backend relationship/protection checks and confirmation UI.
+S13. Admin content must support responsive use. Arabic/English and RTL/LTR apply where project content/labels require bilingual behavior.
+S14. Existing correct functionality must be preserved; do not rebuild unrelated application areas.
+S15. Completion requires evidence: CI PASS plus runtime/API/UI checks. Agent statements alone are not evidence.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+S. CURRENT-KAMEL CONTINUATION RULE
+S1. All future KAMEL work on this branch must begin by fetching GitHub and verifying exact branch HEAD.
+S2. Current continuation source is commit 4d7b5a123095af7000adbeb3e8ec303e089cefff or its verified descendant.
+S3. KAMEL must never resume from an older workspace snapshot when GitHub head has advanced.
+S4. GitHub Actions success is required for typecheck/build/RBAC tests before a completion claim.
+S5. OpenCart-style permission UI means one resource list with independent Access and Modify selections, including select-all/clear operations.
+S6. Source-level contract tests are supplemental; runtime authorization evidence remains mandatory.
+S7. No merge/deploy while any runtime authorization matrix item remains unverified.
+
+
+============================================================
+OPENCART RBAC ENFORCEMENT NOTE — 2026-09-16
+============================================================
+- Access and Modify are independent database permissions.
+- Current enabled user, group, and permissions are authoritative for Worker and React RBAC API checks.
+- Client role/group/permission headers are not authorization sources.
+
+
+RBAC CONTINUATION RULES
+- User Group membership and database permissions remain authoritative.
+- Access and Modify remain independent.
+- Protected system-group permissions are not editable.
+- Documentation updates are documentation-only and do not change runtime behavior.
+
+
+RBAC BATCH RULE
+- Permission matrix resource identifiers must match authoritative database admin.* keys; display labels remain human-readable.
+
+============================================================
+DOCUMENTATION-ONLY CHANGE SAFETY — 2026-09-16
+============================================================
+S. PROJECT PAPER / QC ISOLATION
+S1. Updating requirement, QC, rules, checking-list, change-log, or prompt documents is a documentation-only operation unless implementation is explicitly requested.
+S2. Documentation-only changes cannot change runtime application code, database schema/data, deployment state, integrations, or production behavior.
+S3. Implementation caused by a new/changed requirement must be performed in a separate source-code change and validated independently.
+S4. No deployment is implied or authorized by a documentation-only commit.
+S5. Every documentation-only commit must be checked for unexpected non-document changes before acceptance.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+T. CURRENT ADMIN AUTHORIZATION AUTHORITY
+T1. Current enabled Admin User Group membership is the authoritative authorization identity; legacy role exists only for compatibility.
+T2. group-main-admin is the protected Main Administrator group and has full Access/Modify for present and future Admin resources.
+T3. Every other group is authorized by explicit database Access/Modify permissions.
+T4. Creating or reassigning an Admin user must set exactly one current group and keep any compatibility role synchronized.
+T5. Last enabled Main Administrator protection is evaluated by protected Main Administrator group membership, not by stale role text.
+T6. Admin navigation visibility is derived from Access permission; direct URL/API authorization remains server-side.
+T7. Documentation/QC edits remain isolated from runtime source changes and never imply deployment.
+
+
+============================================================
+FINAL CAMEL REFERENCE RULE — 2026-09-16
+============================================================
+- camel-current is the final working and visual reference branch.
+- camel-baseline-da347f preserves the previous protected baseline at da347ffbf928bbd1c80f302c134cd8928255abf8.
+- Visual decisions follow Camel.
+- Business rules, database, security, RBAC, preflight, stock, orders and production follow approved DTF Studio requirements/QC.
+- If a visual request conflicts with verified functional/security behavior, preserve the functional/security behavior and adapt the visual implementation around it.
+- main remains unchanged until explicit merge authorization.

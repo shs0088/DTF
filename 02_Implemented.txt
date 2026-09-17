@@ -40,3 +40,369 @@ Cross-system conclusion:
 - No Production Ready claim is permitted from these findings alone.
 - The above discrepancies must be reflected in all seven requirement files and resolved by AI Studio implementation/testing.
 
+============================================================
+OPENCART-STYLE ADMIN RBAC TARGET — 2026-09-16
+============================================================
+VERIFIED ON BRANCH: kamel/admin-rbac-foundation
+VERIFIED SHA AT REVIEW: c4124deafd8962206f6550e5070bb1f3b531d7a6
+FOUNDATION VERIFIED:
+- Persistent admin_users identities exist.
+- Signed Admin session plus server-side enabled-user lookup exists in active Worker Admin flow.
+- Main Administrator and Printing Operator system roles exist.
+- admin_permission_assignments foundation exists and Printing Operator defaults are seeded.
+- Audit primitives and management audit records exist.
+- Protected RBAC inspection/user-management API endpoints exist.
+- Users and User Groups Admin navigation/pages exist.
+- Last Main Administrator disable/demotion protection exists.
+- GitHub Actions build validation for c4124deafd8962206f6550e5070bb1f3b531d7a6 completed SUCCESS (install, typecheck, production build).
+IMPORTANT:
+- This is IMPLEMENTED FOUNDATION ONLY.
+- Do NOT mark OpenCart-style RBAC complete until custom groups + Access/Modify matrix + server-side permission enforcement + full CI/runtime authorization matrix are verified.
+
+============================================================
+INDEPENDENT QC OF KAMEL OPENCART RBAC — 2026-09-16
+============================================================
+VERIFIED IN KAMEL BRANCH:
+- Final reported branch SHA exists: d542319113b00387565b0f5252f023b16fda785e.
+- KAMEL added schema/code for admin_user_groups, admin_group_permissions and admin_users.group_id.
+- Custom-group backend primitives are present in source.
+- Permission read/update backend primitives are present in source.
+- CI test step(s) are configured.
+NOT VERIFIED AS PASS:
+- The final SHA does NOT pass CI.
+- Full active Admin Access/Modify enforcement is NOT complete.
+- Full permission-matrix UI is NOT present in the active Worker Admin page.
+Therefore the KAMEL OpenCart-style RBAC implementation remains PARTIAL.
+
+============================================================
+KAMEL OPENCART RBAC VERIFIED STATUS — 2026-09-16
+============================================================
+VERIFIED:
+- KAMEL branch OpenCart-style backend group foundation exists.
+- admin_user_groups exists.
+- admin_group_permissions exists.
+- admin_users has group_id assignment.
+- Main Administrator and Printing Operator protected groups exist.
+- Custom group create/update/enable-disable/safe-delete backend exists.
+- User-to-group assignment/reassignment exists.
+- Access and Modify are independently persisted.
+- Last Main Administrator safeguards exist.
+- RBAC CI test step exists.
+QC CORRECTION APPLIED:
+- KAMEL HEAD 4ad0cff1ca0a3802080f64b2b14f4a7a0774df94 failed GitHub Actions typecheck because adminGroupPermissions() and setAdminGroupPermissions() were syntactically interleaved in workers/item-store.ts.
+- GitHub QC repaired only that syntax on commit 4d7b5a123095af7000adbeb3e8ec303e089cefff.
+- GitHub Actions run 35072055326: SUCCESS.
+- npm install: PASS.
+- npm run typecheck: PASS.
+- npm run build: PASS.
+- bun test workers/admin-rbac.test.ts: PASS.
+STATUS:
+- Backend RBAC foundation is validated by CI.
+- Full OpenCart-style Admin UI/runtime authorization is NOT yet complete.
+
+
+============================================================
+OPENCART RBAC CURRENT IMPLEMENTATION EVIDENCE — 2026-09-16
+============================================================
+- Current branch HEAD: 1e97148026dcdfbd7e06fa2995d4ff91c51cecd5.
+- Worker and React RBAC API now call the current database-backed adminPermission resolver.
+- Group management and Access/Modify persistence remain in workers/item-store.ts.
+- CI workflow includes npm install, typecheck, build, and bun test workers/admin-rbac.test.ts.
+- CI result for this exact HEAD is pending retrieval.
+
+
+RBAC CONTINUATION COMPLETED/CORRECTED
+- Active Admin RBAC page now includes Users and User Groups workflows.
+- User Groups matrix includes independent Access and Modify columns.
+- Access Select All/Clear All and Modify Select All/Clear All controls added.
+- Group permission save uses group permissions API.
+- Users page displays current group, enabled state, and group reassignment control.
+- User group assignment route is connected to setAdminUserGroup.
+- Users API returns current group data through adminUsersDetailed.
+- New source-level authorization matrix tests added.
+
+
+RBAC BATCH VERIFIED IN SOURCE
+- Custom group Rename and Enable/Disable controls are present in the active Admin UI.
+- Permission matrix uses authoritative admin.* resource keys for all 15 required resources.
+- Current user group is selected in the Admin Users assignment control.
+- Direct page mapper covers all required Admin resources.
+- GitHub Actions run 35077216041 passed for the prior batch commit be386f5; final batch run 35077310054 is in progress.
+
+============================================================
+RBAC AUTHORITATIVE-GROUP QC — 2026-09-16
+============================================================
+VERIFIED IMPLEMENTED ON kamel/admin-rbac-foundation:
+- User Group membership is authoritative for Admin authorization; stale legacy role is no longer the management authority.
+- Main Administrator authority is tied to protected group-main-admin membership.
+- Main Administrator group receives future-proof full Access/Modify through the database-backed resolver.
+- Admin user creation supports direct assignment to any enabled User Group.
+- User reassignment synchronizes the compatibility role field with the authoritative User Group.
+- Last enabled Main Administrator protection uses current protected-group membership.
+- Admin Users/User Groups/Settings/Printify/direct Admin pages use current database group Access/Modify instead of fixed main-role page gates.
+- Admin navigation is generated from current Access permissions.
+- Permission matrix includes the dedicated Printify Catalog resource in addition to the Admin module catalog.
+- Documentation-only governance remains isolated from application source changes.
+VALIDATION:
+- Source commit: 7b552a84a23814ce5b2622b2cef8ab19a433c16f
+- GitHub Actions run 35079037333: SUCCESS.
+- npm install: PASS.
+- typecheck: PASS.
+- production build: PASS.
+- RBAC tests: PASS.
+STATUS: SOURCE + CI VERIFIED. Runtime HTTP/browser authorization matrix remains pending.
+
+============================================================
+ADMIN DASHBOARD DATABASE-BACKED BATCH — 2026-09-16
+============================================================
+VERIFIED IMPLEMENTED:
+- Real database-backed Admin Dashboard API.
+- Real KPI counts for orders/open orders/payment pending/production/designer reviews/inventory attention/withdrawal requests.
+- Recent orders from database.
+- Recent Admin audit activity from database.
+- Last-7-day order series from database.
+- Permission-aware quick links based on current User Group Access.
+- No hard-coded operational KPI values.
+SOURCE SHA: 1bd692923528975d34d9965311b2c79dfadbe064
+GITHUB ACTIONS RUN: 35079512451 — SUCCESS.
+INSTALL/TYPECHECK/BUILD/RBAC TESTS: PASS.
+DEPLOYMENT: NO.
+
+============================================================
+ADMIN ORDERS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 6d1897955180a11737a092b8e7a71178d5c6f0aa
+CI RUN: 35096692301 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- database-backed Admin Orders list/detail
+- search/filter/sort/numbered pagination
+- customer/contact/payment/fulfillment display
+- order items/variants/design data
+- explicit order-item Ready-to-Print Master linkage
+- printing-job linkage/status display
+- canonical DTF Studio order status workflow
+- server-side invalid-transition rejection
+- payment confirmation synchronization
+- persistent Admin order history/internal notes
+- audit logging
+- admin.orders Access/Modify authorization
+- Orders tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+PRODUCTION QUEUE VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 728416b2dc96eb6bd6e06fe5460f2867a76305cc
+CI RUN: 35097227839 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- database-backed Production Queue
+- printing job → order item → order/customer/product linkage
+- exact approved Ready-to-Print Master enforcement
+- print-spec and preflight snapshot visibility
+- blocked production on master mismatch/missing preflight/failed preflight
+- protected approved-master download endpoint
+- canonical production status transitions
+- server-side admin.production Access/Modify checks
+- production status audit logging
+- Production tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+MANUAL REVIEW VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 7056e9ea98abac3afd5315a4f9867c45ba9ef8c8
+CI RUN: 35101827809 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- qualification queue/detail with exactly-three check
+- five-day review due calculation
+- preflight/analyzer evidence for qualification designs
+- first rejection replacement flow
+- second rejection escalation
+- bilingual notifications
+- Admin-controlled designer authorization
+- design review queue and decisions
+- review history + audit records
+- admin.manual_review Access/Modify server authorization
+- Manual Review tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+PRODUCTS / CATALOG VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+FEATURE SOURCE SHA: 5bef0f4625c32e47515587809d38cd4489af8d73
+VALIDATED HEAD: a2ece44705a09e0c9d60b4a389da92cea8b751c3
+CI RUN: 35102844014 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- internal categories/custom products
+- bilingual metadata and display-image reference
+- variants, prices, enabled state, stock tracking/quantity
+- stock movement audit trail for Admin adjustments
+- media references
+- seven product-type eligibility combinations
+- safe custom publish/unpublish validation
+- existing Printify editor/publication path preserved separately
+- admin.products Access/Modify authorization
+- Products tests executed in GitHub Actions
+- deterministic CI restored by pinning Vite 8.0.16 and using Node 22
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+CUSTOMERS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: ec166e8eb72646927855401875b91849419fb7e9
+CI RUN: 35103272968 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- role-scoped Customers list/detail
+- search/status/date filters and pagination
+- contact/address/locale/status editing
+- customer order history and summary metrics
+- no password/auth credential exposure
+- non-active customers have sessions revoked
+- server-side admin.customers Access/Modify checks
+- customer update audit logging
+- Customers tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+DESIGNERS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+VERIFIED HEAD: ee051a6b903e1bece8e71dcf90c22c5d3053abd4
+CI RUN: 35103920821 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- role-scoped designer list/detail
+- account/authorization filters and pagination
+- qualification applications and rejection/replacement/escalation visibility
+- designs and latest preflight status
+- order activity linked through designer designs
+- earnings, ledger and withdrawal history
+- safe account status handling and session revocation
+- no authorization bypass from Designers page; Manual Review remains authoritative
+- server-side admin.designers Access/Modify checks
+- designer account audit logging
+- Designers tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+PAYOUTS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 6e6d5824a29a3f6dcda9230ac2424ee670db9a35
+CI RUN: 35104755254 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- database-backed withdrawals queue/detail
+- real designer earnings/ledger/withdrawal evidence
+- controlled requested→approved/rejected and approved→paid transitions
+- payoutable-balance and committed-withdrawal safeguards
+- rejection reasons
+- one-time negative paid ledger entry
+- transition history, notifications and audit logging
+- server-side admin.payouts Access/Modify checks
+- Payouts tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+REPORTS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 3a6ed1eea280cfa08a9ce45b682cefa9b570b16c
+CI RUN: 35105176696 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- real operational Reports data from orders/order-items/products/designers/payouts/users/stocks
+- date filtering with parameterized SQL
+- confirmed revenue separated from gross order value
+- read-only Reports API/UI
+- CSV export from returned report datasets
+- server-side admin.reports Access authorization
+- Reports tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+PROMOTIONS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: d8bc5f1bd8ec240f7aadefe4457b7751c2f0a612
+CI RUN: 35105761651 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- persistent coupon definitions and redemption-history schema
+- percentage/fixed-JOD discounts, min spend, max uses, schedule/expiry and enabled state
+- system-derived usage/discount totals
+- safe validation for codes, percentages, dates and max-use history
+- operational state evaluation
+- protected Admin Promotions API/UI
+- admin.promotions Access/Modify checks and audit logging
+- Promotions tests executed in GitHub Actions
+NOTE: checkout redemption wiring is intentionally left for final storefront/business-flow integration; Admin source/CI completion does not claim live checkout redemption.
+
+============================================================
+SETTINGS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: ad6500b7eddfb882f1e336fe8ae168bfff635748
+CI RUN: 35106315962 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- business_settings is authoritative for safe business configuration
+- safe public /api/settings endpoint
+- validated payment/timing/delivery/designer/artwork/policy fields
+- legacy reservation_minutes synchronized on save
+- qualification sample count fixed at exactly 3
+- no server secrets returned by the public settings endpoint
+- admin.settings Access/Modify checks and audit logging
+- Settings tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+INTEGRATIONS VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+SOURCE SHA: d5e12e2cc3fe7e853d69142a6390db7c55d3dec5
+CI RUN: 35107135859 — SUCCESS.
+Verified real operational status, safe diagnostics, credential non-disclosure, Access/Modify authorization, and full regression coverage.
+Runtime/browser acceptance remains pending.
+
+============================================================
+AUDIT LOG VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 1ab487102a0990c9107c38c54b9c768b933b40fe
+CI RUN: 35116639331 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- database-backed read-only Audit Log
+- search/action/resource/actor/date filtering and pagination
+- actor username/role and resource context
+- sanitized metadata response
+- admin.audit_log Access enforcement
+- Audit Log tests executed in GitHub Actions
+NOTE: runtime/browser acceptance remains pending and this is not a Production Ready claim.
+
+============================================================
+CHECKOUT INTEGRATION VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+SOURCE SHA: 7c8b8e3db96243d42d2f9e377df5114460803a40
+CI RUN: 35118115500 — SUCCESS.
+Verified database-authoritative customer checkout, coupon redemption, separate cart/auth session handling, stock reservation/consumption/restoration, master/preflight enforcement, live Settings consumption, order confirmation, and checkout regression coverage.
+Runtime/browser acceptance remains pending; no Production Ready claim.
+
+============================================================
+DESIGNER NEW DESIGN UPLOAD VERIFIED SOURCE/CI — 2026-09-16
+============================================================
+BRANCH: kamel/admin-rbac-foundation
+SOURCE SHA: 63c620dafb11379749007d48e078b01a4b71ba00
+CI RUN: 35121193690 — SUCCESS.
+VERIFIED IN SOURCE + CI:
+- real Designer Dashboard/New Design routes
+- private R2 upload architecture and ownership-gated previews
+- server-side signature/MIME/file-size inspection
+- configured minimum-DPI enforcement
+- PNG/JPEG/WebP/SVG/PDF support
+- bilingual metadata + seven Product Type combinations
+- multiple assets + explicit master + Main Display Image/auto-cover rules
+- analyzer/preflight/versioned rule persistence
+- protected asset/design deletion safeguards
+- responsive Black + Electric Blue Designer UI
+- full existing regression chain plus Designer Upload tests
+NOTE: live R2/browser acceptance remains pending; this is not a Production Ready claim.
