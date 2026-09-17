@@ -612,3 +612,19 @@ DESIGNER NEW DESIGN UPLOAD SOURCE/CI CHECK — 2026-09-16
 646. GitHub Actions run 35121193690: PASS.
 647. install/typecheck/build/all Admin/Checkout/Designer Upload tests: PASS.
 648. Live R2/browser Designer upload verification: PENDING RUNTIME.
+
+
+============================================================
+ORDERS FIXTURE PATH RETEST — 2026-09-17
+============================================================
+PRIOR VERIFIED BASELINE: SHA d4c944b4576bcb43e91bc6bc0e23d5b8871c885f; RUN 35274634905; SUCCESS.
+- Install/typecheck/build/ItemStore/Bun/RBAC/Dashboard verified.
+FAILED REAL-ORDER ATTEMPT: SHA dcea6d44c6ada5433e919d30793daeec65602f7d; RUN 35275314686; FAIL.
+- POST /api/studio/auth/register returned 405 from the root static Worker.
+- CLASSIFICATION: TEST ARCHITECTURE MISMATCH — NOT PRODUCTION REGISTRATION DEFECT.
+ISOLATED FIXTURE ATTEMPT: SHA bc1007d77bb5baa20ee39957a65f943f882ef5b5; RUN 35276232224; FAIL.
+- Install/typecheck/build/all Bun suites passed.
+- Local Worker did not start: CI-only Wrangler main path resolved to missing scripts/scripts/orders-runtime-worker.ts.
+- CLASSIFICATION: CI FIXTURE CONFIGURATION FAILURE; Orders business runtime NOT EXECUTED.
+CORRECTION: CI-only config now uses main ./orders-runtime-worker.ts and assets ../public/. Commit f14b9d1302d7151f3d7abd083c2b6745457516f4.
+RETEST STATUS: PENDING.
