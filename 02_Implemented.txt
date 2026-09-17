@@ -424,3 +424,12 @@ CI-ONLY WRANGLER STARTUP VERIFIED — 2026-09-17
 - CI-only Wrangler path correction is RUNTIME VERIFIED: Wrangler 4.97.0 starts and health/no-session checks pass on run 35276755988.
 - Bootstrap environment loading is not verified; run 35276755988 failed at bootstrap with 401.
 - Admin Orders business runtime remains pending.
+
+
+============================================================
+ORDERS STATUS WORKFLOW RUNTIME VERIFIED — 2026-09-17
+============================================================
+- Run 35277143032 / SHA 49a89a975f9b4baf6daf4ffa7dcbefc29a856c23 SUCCESS.
+- Real local non-design Order creation, Admin detail, unknown-status denial, payment/repeated-payment behavior, reverse denial, cancellation/repeated-cancellation behavior, and Operator baseline access verified.
+- Evidence class: GITHUB CI VERIFIED / REQUEST-LEVEL RUNTIME VERIFIED.
+- FINAL ORDERS INTEGRITY GATE: PENDING.
