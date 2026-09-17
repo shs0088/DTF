@@ -652,3 +652,14 @@ RUN: 35277143032
 RESULT: SUCCESS
 PASS: install; typecheck; build; ItemStore initialization; all Bun suites; Wrangler startup; dev-vars loading; Admin bootstrap; RBAC; Dashboard; EN/LTR; AR/RTL; real non-design Order creation/detail; unknown status denial; payment/repeated-payment status behavior; reverse denial; cancellation/repeated-cancellation status behavior; Operator baseline access.
 FINAL ORDERS INTEGRITY GATE: PENDING. Stock/reservation/Master/preflight/Printing Job values were not asserted.
+
+
+============================================================
+EXACT-HEAD GREEN MARKER CORRECTION — 2026-09-17
+============================================================
+SHA: 12d5448f86d8c1012042ce08b697168ad1a1fa98
+RUN: 35277518428
+RESULT: SUCCESS
+PASS: install; typecheck; build; ItemStore regression; Bun suites; Wrangler; bootstrap; FULL RBAC LOCAL RUNTIME MATRIX; Dashboard; EN/LTR; AR/RTL; real non-design Order/status workflow; Printing Operator baseline.
+PASS: marker correction; ADMIN ORDERS STATUS WORKFLOW RUNTIME: PASS.
+PENDING: complete Orders integrity evidence: stock, movements, reservations, exact Master/preflight, Printing Jobs, duplicate prevention, unpaid release, production queue.
