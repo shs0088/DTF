@@ -45,3 +45,11 @@ const page = '<!doctype html><html><head><title>Dashboard</title></head><body><n
     });
   });
 });
+
+  test("Dashboard essential labels have Arabic translations", () => {
+    const source = Bun.file(new URL("./admin-i18n.ts", import.meta.url));
+    const expected = ["DTF STUDIO — Dashboard","Live operational data from the project database","Total Orders","Open Orders","Payment Pending","Production Queue","Designer Reviews","Out of Stock","Low Stock ≤5","Withdrawal Requests","Orders — Last 7 Days","Attention","Recent Orders","Order","Customer","Status","Payment","Date","Recent Admin Activity","Payment pending","Production queue","Designer reviews","Out of stock","Low stock ≤5","Withdrawal requests","No orders in the last 7 days.","No orders yet.","No Admin activity yet.","Dashboard loaded from database.","Dashboard unavailable","Production"];
+    return source.text().then((text) => {
+      for (const label of expected) expect(text).toContain(`"${label}"`);
+    });
+  });
