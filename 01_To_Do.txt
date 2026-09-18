@@ -652,3 +652,14 @@ SHA: 12d5448f86d8c1012042ce08b697168ad1a1fa98
 - ADMIN ORDERS STATUS WORKFLOW RUNTIME: PASS.
 - FINAL ORDERS INTEGRITY GATE: PENDING. Stock, reservations, exact Master/preflight, Printing Job relationships, unpaid reservation release, and production queue cross-check remain unasserted.
 - Production remains blocked.
+
+
+============================================================
+FINAL ORDERS INTEGRITY IMPLEMENTATION — EXECUTION PENDING — 2026-09-18
+============================================================
+BASE RUN: 35278853418 — SUCCESS
+BASE SHA: 8cd0e0af1188a8b0ff94dbfa24c15de427bcadda
+- CI-only fixture now prepares Orders A/R/B prerequisites through inherited ItemStore business methods.
+- CI-only protected inspection reads stocks, reservations, stock movements, and Printing Job joins.
+- Harness mutations use real Admin Orders HTTP endpoints.
+- Exact-head full validation after these implementation commits is pending; no final Orders claim is permitted.
