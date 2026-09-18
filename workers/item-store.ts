@@ -1298,7 +1298,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
           const existingJob=this.ctx.storage.sql.exec<any>("SELECT id FROM printing_jobs WHERE order_item_id=? LIMIT 1",item.orderItemId).toArray()[0]; if(existingJob) continue;
           let snapshot:any={}; try{snapshot=JSON.parse(String(item.priceSnapshotJson||"{}"));}catch{}
           const preflight=snapshot?.preflight; if(!preflight||String(preflight.status||"").toLowerCase()!=="passed") throw new Error("Payment confirmation blocked because the historical preflight snapshot is not passing.");
-          this.ctx.storage.sql.exec("INSERT INTO printing_jobs (id,order_item_id,status,master_asset_id,print_spec_snapshot_json,preflight_snapshot_json,protected_at) VALUES (?,?,'queued',?,?,?,?,CURRENT_TIMESTAMP)",crypto.randomUUID(),item.orderItemId,item.masterAssetId,String(item.printSpecJson||"{}"),JSON.stringify(preflight));
+          this.ctx.storage.sql.exec("INSERT INTO printing_jobs (id,order_item_id,status,master_asset_id,print_spec_snapshot_json,preflight_snapshot_json,protected_at) VALUES (?,?,'queued',?,?,?,CURRENT_TIMESTAMP)",crypto.randomUUID(),item.orderItemId,item.masterAssetId,String(item.printSpecJson||"{}"),JSON.stringify(preflight));
           this.ctx.storage.sql.exec("UPDATE assets SET protected=1 WHERE id=?",item.masterAssetId);
         }
       }

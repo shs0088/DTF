@@ -523,3 +523,17 @@ CLASSIFICATION: TEST ASSERTION / SNAPSHOT-SHAPE MISMATCH.
 PRODUCTION PREFLIGHT DEFECT: NOT PROVEN.
 ORDER B printing-job assertions: NOT REACHED.
 CORRECTION: CI assertion now uses preflight.status.
+
+
+============================================================
+PROVEN PRINTING JOB INSERT DEFECT CORRECTED — 2026-09-18
+============================================================
+BASE SHA: 58d933eb003268bbe3ebddc7e02d588231608c7b
+RUN: 35324132313
+RESULT: FAILURE
+VERIFIED: Order A stock/payment/cancellation/reservation PASS; Order R unpaid reservation release PASS; Order B exact Master PASS; historical preflight PASS; Printing Jobs before payment = 0.
+FAIL: Order B payment confirmation returned HTTP 400.
+ROOT CAUSE: production ItemStore Printing Job INSERT had one extra placeholder in VALUES.
+CLASSIFICATION: REAL PRODUCTION BUSINESS DEFECT, proven by runtime plus source inspection.
+MINIMAL FIX: malformed VALUES corrected to one placeholder per bound value.
+UNRELATED BUSINESS LOGIC: unchanged.
