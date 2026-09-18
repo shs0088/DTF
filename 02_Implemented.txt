@@ -479,3 +479,17 @@ EXACT FAILURE: Multiple exports with the same name "OrdersFixtureStore".
 CORRECTION: remove duplicate named export while retaining the OrdersFixtureStore class and isolated binding.
 ORDERS INTEGRITY RUNTIME: NOT EXECUTED.
 PRODUCTION SOURCE DEFECT: NOT PROVEN.
+
+
+============================================================
+CURRENT CI FIXTURE COMPATIBILITY FAILURE — 2026-09-18
+============================================================
+BASE SHA: b9663793152a4c20be71bc136b46742ef126dac6
+RUN: 35323021417
+RESULT: FAILURE
+PASS: duplicate cancelled declaration corrected; duplicate OrdersFixtureStore export corrected; Worker build/readiness; install; typecheck; build; all static/Bun suites; pre-integrity RBAC/order authorization checks.
+FAIL: legacy Orders status workflow assertion assert.ok(orderId); fixture.data.orderId was undefined after A/R/B expansion.
+CLASSIFICATION: CI FIXTURE BACKWARD-COMPATIBILITY FAILURE.
+CORRECTION: restore orderId as alias of Order A while retaining orderAId/orderRId/orderBId.
+ORDERS INTEGRITY SECTION: NOT REACHED.
+PRODUCTION SOURCE DEFECT: NOT PROVEN.
