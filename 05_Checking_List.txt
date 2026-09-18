@@ -663,3 +663,12 @@ RESULT: SUCCESS
 PASS: install; typecheck; build; ItemStore regression; Bun suites; Wrangler; bootstrap; FULL RBAC LOCAL RUNTIME MATRIX; Dashboard; EN/LTR; AR/RTL; real non-design Order/status workflow; Printing Operator baseline.
 PASS: marker correction; ADMIN ORDERS STATUS WORKFLOW RUNTIME: PASS.
 PENDING: complete Orders integrity evidence: stock, movements, reservations, exact Master/preflight, Printing Jobs, duplicate prevention, unpaid release, production queue.
+
+
+============================================================
+FINAL ORDERS INTEGRITY HARNESS — NOT YET EXECUTED — 2026-09-18
+============================================================
+- Base exact-head Run 35278853418 / SHA 8cd0e0af1188a8b0ff94dbfa24c15de427bcadda: SUCCESS.
+- New CI-only fixture/inspection/harness implementation is present after the base run.
+- Full validation of resulting HEAD is required before any integrity PASS claim.
+- Protected production hashes remain unchanged, including ItemStore 15d6c68443e7400dd50af0ac429a4b2e2936c69a.
