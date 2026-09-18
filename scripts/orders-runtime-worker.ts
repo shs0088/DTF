@@ -1,6 +1,6 @@
 import staticHandler from "../workers/static-app";
 import { ItemStore } from "../workers/item-store";
-export { ItemStore, OrdersFixtureStore };
+export { ItemStore };
 
 interface Env {
   ITEMS: DurableObjectNamespace;

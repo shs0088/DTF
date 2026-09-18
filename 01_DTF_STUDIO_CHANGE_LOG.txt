@@ -107,3 +107,18 @@ EXACT FAILURE: Identifier 'cancelled' has already been declared in scripts/rbac-
 ORDERS INTEGRITY RUNTIME: NOT EXECUTED.
 PRODUCTION SOURCE DEFECT: NOT PROVEN.
 NEXT: minimal harness rename followed by node --check and complete GitHub validation.
+
+
+============================================================
+CURRENT CI-ONLY WORKER EXPORT FAILURE — 2026-09-18
+============================================================
+BASE SHA: 1b9dccc8de5c105e66bb74e47cdfe0e1d510e560
+RUN: 35322809342
+RESULT: FAILURE
+PASS: previous duplicate cancelled declaration corrected; node --check; install; typecheck; build; static/Bun suites.
+FAIL: Local Cloudflare Worker smoke before readiness.
+CLASSIFICATION: CI-ONLY WORKER MODULE EXPORT ERROR.
+EXACT FAILURE: Multiple exports with the same name "OrdersFixtureStore".
+CORRECTION: remove duplicate named export while retaining the OrdersFixtureStore class and isolated binding.
+ORDERS INTEGRITY RUNTIME: NOT EXECUTED.
+PRODUCTION SOURCE DEFECT: NOT PROVEN.
