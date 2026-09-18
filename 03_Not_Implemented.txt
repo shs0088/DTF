@@ -477,3 +477,17 @@ CORRECT RELATION: printing_jobs.order_item_id -> order_items.id -> order_items.o
 CLASSIFICATION: TEST OBSERVABILITY DEFECT.
 PRODUCTION DEFECT: NOT PROVEN.
 CORRECTION: CI-only inspection now selects/filters oi.order_id.
+
+
+============================================================
+CURRENT ORDER B PREFLIGHT ASSERTION FAILURE — 2026-09-18
+============================================================
+BASE SHA: 5db7ee8e471f83423c378e276870222b358e2baa
+RUN: 35323595091
+RESULT: FAILURE
+PASS: infrastructure/static tests; Worker build/readiness; RBAC; Dashboard; Orders status workflow; Order A stock/payment/cancellation/reservation integrity; Order R unpaid reservation release; Order B exact Master equality.
+FAIL: Order B CI assertion expected priceSnapshot.preflight.passed === true, but actual authoritative snapshot shape has preflight.status === "passed".
+CLASSIFICATION: TEST ASSERTION / SNAPSHOT-SHAPE MISMATCH.
+PRODUCTION PREFLIGHT DEFECT: NOT PROVEN.
+ORDER B printing-job assertions: NOT REACHED.
+CORRECTION: CI assertion now uses preflight.status.
