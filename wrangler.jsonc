@@ -1,5 +1,5 @@
 {
-  "name": "dtf-studio",
+  "name": "dtf-studio-v48-safe-frontend",
   "main": "./workers/static-app.ts",
   "compatibility_date": "2026-06-01",
   "compatibility_flags": [
