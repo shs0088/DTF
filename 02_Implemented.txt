@@ -442,3 +442,12 @@ EXACT-HEAD MARKER CORRECTION VERIFIED — 2026-09-17
 - ADMIN ORDERS STATUS WORKFLOW RUNTIME: PASS is verified.
 - The premature ADMIN ORDERS LOCAL RUNTIME: PASS marker remains removed.
 - Complete Orders integrity gate remains pending.
+
+
+============================================================
+FINAL ORDERS INTEGRITY HARNESS ADDED — 2026-09-18
+============================================================
+- Added CI-only OrdersFixtureStore and protected read-only inspection endpoint.
+- Added runtime assertions for stock deduction/restoration, paid/unpaid reservation lifecycle, exact Master/preflight, Printing Job relationships, duplicate prevention, and production queue visibility.
+- Production ItemStore/Admin Orders/static Worker/wrangler source remains unchanged.
+- Execution evidence: PENDING until full GitHub validation runs on the resulting exact HEAD.
