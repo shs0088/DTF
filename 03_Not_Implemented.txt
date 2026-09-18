@@ -411,3 +411,11 @@ ORDERS INTEGRITY REMAINS PENDING — 2026-09-17
 - PENDING: exact approved Master, persisted Order Item Master, and historical passing preflight snapshot.
 - PENDING: Printing Job counts, exact Order/Item/Master joins, duplicate prevention, and production queue cross-check.
 - PENDING: complete exact-head Orders gate and Production runtime.
+
+
+============================================================
+FINAL ORDERS INTEGRITY EXECUTION PENDING — 2026-09-18
+============================================================
+- PENDING: exact-head CI execution of the new integrity fixture and assertions.
+- PENDING: actual runtime values for Order A/R/B, stock movements, reservations, Master/preflight, Printing Jobs, queue, and Operator access.
+- PENDING: final ADMIN ORDERS LOCAL RUNTIME marker and Production start gate.
