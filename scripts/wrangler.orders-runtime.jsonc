@@ -5,6 +5,6 @@
   "compatibility_flags": ["nodejs_compat"],
   "assets": { "directory": "../public/", "binding": "ASSETS" },
   "r2_buckets": [{ "binding": "DESIGN_ASSETS", "bucket_name": "dtf-studio-design-assets" }],
-  "durable_objects": { "bindings": [{ "name": "ITEMS", "class_name": "ItemStore" }] },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ItemStore"] }]
+  "durable_objects": { "bindings": [{ "name": "ITEMS", "class_name": "OrdersFixtureStore" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["OrdersFixtureStore"] }]
 }
