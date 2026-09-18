@@ -672,3 +672,16 @@ FINAL ORDERS INTEGRITY HARNESS — NOT YET EXECUTED — 2026-09-18
 - New CI-only fixture/inspection/harness implementation is present after the base run.
 - Full validation of resulting HEAD is required before any integrity PASS claim.
 - Protected production hashes remain unchanged, including ItemStore 15d6c68443e7400dd50af0ac429a4b2e2936c69a.
+
+
+============================================================
+CURRENT HEAD AUDIT / SYNTAX FAILURE — 2026-09-18
+============================================================
+HEAD: d11428356c05840ca33e6bd3d147239be89ac007
+RUN: 35321942994
+RESULT: FAILURE
+FAILURE CLASSIFICATION: CI TEST-HARNESS SYNTAX FAILURE
+EXACT FAILURE: Identifier 'cancelled' has already been declared in scripts/rbac-local-smoke.mjs.
+ORDERS INTEGRITY RUNTIME: NOT EXECUTED.
+PRODUCTION SOURCE DEFECT: NOT PROVEN.
+NEXT: minimal harness rename followed by node --check and complete GitHub validation.

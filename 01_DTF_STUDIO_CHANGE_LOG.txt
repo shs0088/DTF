@@ -94,3 +94,16 @@ TASK: Implement final Orders integrity runtime gate without changing production 
 BASE: SHA 8cd0e0af1188a8b0ff94dbfa24c15de427bcadda / Run 35278853418 SUCCESS.
 CHANGE: CI-only OrdersFixtureStore, protected read-only inspection, real Admin HTTP integrity assertions, and isolated Durable Object binding.
 STATUS: IMPLEMENTED, EXACT-HEAD EXECUTION PENDING. No deployment, merge, main modification, or branch deletion.
+
+
+============================================================
+CURRENT HEAD AUDIT / SYNTAX FAILURE — 2026-09-18
+============================================================
+HEAD: d11428356c05840ca33e6bd3d147239be89ac007
+RUN: 35321942994
+RESULT: FAILURE
+FAILURE CLASSIFICATION: CI TEST-HARNESS SYNTAX FAILURE
+EXACT FAILURE: Identifier 'cancelled' has already been declared in scripts/rbac-local-smoke.mjs.
+ORDERS INTEGRITY RUNTIME: NOT EXECUTED.
+PRODUCTION SOURCE DEFECT: NOT PROVEN.
+NEXT: minimal harness rename followed by node --check and complete GitHub validation.

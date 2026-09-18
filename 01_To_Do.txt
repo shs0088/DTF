@@ -663,3 +663,16 @@ BASE SHA: 8cd0e0af1188a8b0ff94dbfa24c15de427bcadda
 - CI-only protected inspection reads stocks, reservations, stock movements, and Printing Job joins.
 - Harness mutations use real Admin Orders HTTP endpoints.
 - Exact-head full validation after these implementation commits is pending; no final Orders claim is permitted.
+
+
+============================================================
+CURRENT HEAD AUDIT / SYNTAX FAILURE — 2026-09-18
+============================================================
+HEAD: d11428356c05840ca33e6bd3d147239be89ac007
+RUN: 35321942994
+RESULT: FAILURE
+FAILURE CLASSIFICATION: CI TEST-HARNESS SYNTAX FAILURE
+EXACT FAILURE: Identifier 'cancelled' has already been declared in scripts/rbac-local-smoke.mjs.
+ORDERS INTEGRITY RUNTIME: NOT EXECUTED.
+PRODUCTION SOURCE DEFECT: NOT PROVEN.
+NEXT: minimal harness rename followed by node --check and complete GitHub validation.
