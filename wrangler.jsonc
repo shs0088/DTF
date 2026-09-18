@@ -9,12 +9,6 @@
     "directory": "./public/",
     "binding": "ASSETS"
   },
-  "r2_buckets": [
-    {
-      "binding": "DESIGN_ASSETS",
-      "bucket_name": "dtf-studio-design-assets"
-    }
-  ],
   "durable_objects": {
     "bindings": [
       {
