@@ -136,3 +136,19 @@ CLASSIFICATION: CI FIXTURE BACKWARD-COMPATIBILITY FAILURE.
 CORRECTION: restore orderId as alias of Order A while retaining orderAId/orderRId/orderBId.
 ORDERS INTEGRITY SECTION: NOT REACHED.
 PRODUCTION SOURCE DEFECT: NOT PROVEN.
+
+
+============================================================
+CURRENT ORDERS INTEGRITY OBSERVABILITY FAILURE — 2026-09-18
+============================================================
+BASE SHA: ba41733930c5baa2d93e5b71121634f9bb63d2f1
+RUN: 35323220482
+RESULT: FAILURE
+PASS: Worker build/readiness; health/no-session; full RBAC; Dashboard; EN/LTR; AR/RTL; Orders authorization; legacy Orders status workflow.
+REACHED: New Orders Integrity block.
+FAIL: POST /__ci/orders-inspect returned HTTP 400 before Order A assertions.
+ROOT CAUSE: CI inspector referenced non-existent printing_jobs.order_id.
+CORRECT RELATION: printing_jobs.order_item_id -> order_items.id -> order_items.order_id.
+CLASSIFICATION: TEST OBSERVABILITY DEFECT.
+PRODUCTION DEFECT: NOT PROVEN.
+CORRECTION: CI-only inspection now selects/filters oi.order_id.
