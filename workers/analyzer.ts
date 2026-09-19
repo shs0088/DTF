@@ -23,7 +23,6 @@ export interface AnalyzerInput {
   hasAlpha?: boolean | null;
   previewable: boolean;
   productType?: string | null;
-  minDpi?: number | null;
   placeholderWidthPx?: number | null;
   placeholderHeightPx?: number | null;
 }
@@ -60,12 +59,10 @@ export function analyzeAsset(input: AnalyzerInput): AnalyzerResult {
   const errors: string[] = [];
   const warnings: string[] = [];
   const normalizedFormat = input.format.toLowerCase().replace(".", "");
-  const minimumDpi = Number.isFinite(Number(input.minDpi)) ? Math.max(72, Math.min(1200, Number(input.minDpi))) : MIN_DPI;
   const dpi = effectiveDpi(input.pixelWidth, input.pixelHeight, input.intendedWidthIn, input.intendedHeightIn);
   const physicalSizeIn = input.intendedWidthIn > 0 && input.intendedHeightIn > 0 ? { width: round(input.intendedWidthIn), height: round(input.intendedHeightIn) } : null;
   const readable = input.signatureValid && input.byteSize > 0 && input.byteSize <= MAX_BYTES;
-  const vectorLike = normalizedFormat === "svg" || normalizedFormat === "pdf";
-  const analyzable = readable && (vectorLike || (input.pixelWidth > 0 && input.pixelHeight > 0));
+  const analyzable = readable && input.pixelWidth > 0 && input.pixelHeight > 0;
   const productTypeValid = !input.productType || DESIGN_PRODUCT_TYPES.includes(input.productType as DesignProductType);
 
   if (!ALLOWED_FORMATS.has(normalizedFormat)) errors.push(`Unsupported format: ${input.format}.`);
@@ -75,9 +72,8 @@ export function analyzeAsset(input: AnalyzerInput): AnalyzerResult {
   if (!input.previewable) errors.push("Asset cannot produce a preview.");
   if (!analyzable) errors.push("Asset is not readable/analyzable for preflight.");
   if (!productTypeValid) errors.push("Selected product type is not one of the 7 supported combinations.");
-  if (dpi && dpi.minimum < minimumDpi) { warnings.push(`Effective DPI is ${dpi.minimum}; minimum configured DPI is ${minimumDpi}.`); errors.push("Effective DPI is below the configured minimum for final print."); }
-  if (!dpi && !vectorLike) errors.push("Physical print size and pixel dimensions are required to calculate effective DPI.");
-  if (vectorLike) warnings.push("Vector/document artwork does not use raster effective-DPI validation.");
+  if (dpi && dpi.minimum < MIN_DPI) warnings.push(`Effective DPI is ${dpi.minimum}; minimum recommended DPI is ${MIN_DPI}.`);
+  if (!dpi) errors.push("Physical print size and pixel dimensions are required to calculate effective DPI.");
 
   let placeholderCheck: AnalyzerResult["placeholderCheck"] = { status: "not_available" };
   if (input.placeholderWidthPx && input.placeholderHeightPx) {
@@ -89,7 +85,7 @@ export function analyzeAsset(input: AnalyzerInput): AnalyzerResult {
     } else placeholderCheck = { status: "passed", required, actual };
   }
 
-  const scalingRisk: AnalyzerResult["scalingRisk"] = vectorLike ? "none" : !dpi ? "critical" : dpi.minimum < 150 ? "critical" : dpi.minimum < minimumDpi ? "warning" : "none";
+  const scalingRisk: AnalyzerResult["scalingRisk"] = !dpi ? "critical" : dpi.minimum < 150 ? "critical" : dpi.minimum < MIN_DPI ? "warning" : "none";
   if (scalingRisk === "critical" && dpi) errors.push("Scaling risk is critical for the requested physical size.");
   return { ruleVersion: "dtf-preflight-v1.0", readable, analyzable, previewable: input.previewable, effectiveDpi: dpi, physicalSizeIn, scalingRisk, productTypeValid, placeholderCheck, errors, warnings, passed: errors.length === 0 };
 }

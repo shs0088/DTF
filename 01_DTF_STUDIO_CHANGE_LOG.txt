@@ -1,53 +1,216 @@
+DTF STUDIO — CHANGE / QA LOG
 
-DATE/TIME: 2026-09-17T00:00:00Z
-TASK: Read-only inventory followed by controlled backend consolidation into canonical V48 project.
-SOURCE PROJECT: dtf-studio
-FINAL PROJECT: dtf-studio-v48-safe-frontend
-ACTIONS:
-- Inspected both project trees before transfer; no project was deleted.
-- Preserved V48 authoritative homepage/static frontend and did not copy the old src/ frontend implementation.
-- Copied backend-only Worker modules, Admin/RBAC tests and helpers, upload/analyzer support, missing route modules, server-side support files, Printify snapshot tooling, database/server support, R2 configuration, and requirement/QC records into V48.
-- Copied the fuller source Worker pair workers/item-store.ts and workers/static-app.ts as a matched backend implementation.
-- Added missing V48 route registrations for checkout, designer flows, order, language, and Admin RBAC.
-- Added the fuller analyzer implementation and checkout route after test feedback.
-VALIDATION:
-- bun test after consolidation: 114 passed, 4 failed.
-- Remaining failures are known reconciliation issues in V48 frontend route contracts: designer route test expects route registration (addressed in source), checkout contract expects legacy cart cookie/business-settings markers not present in the protected V48 cart implementation, and the next test run is required.
-- Dependency/build validation was attempted but blocked by registry HTTP 520 responses during bun install; no build/deploy claim is made.
-DEPLOYMENT: NOT RUN.
-DELETION: Neither project deleted.
-PROTECTED FRONTEND: V48 homepage was not replaced.
+BASELINE:
+cfc46d91f27059bcbda1a264b9930c4f18d83416efc55c7d37a6e8944208e3fe
 
-DATE/TIME: 2026-09-17T00:00:00Z
-TASK: Prepared repository support files and isolated GitHub verification branch.
-ACTIONS:
-- Preserved canonical V48 source without adding the obsolete src/ frontend.
-- Added a repository-level .gitignore covering dependencies, build output, caches, logs, temporary files, and environment secrets.
-- Adapted build validation to run on verify/** branches and pull requests while preserving the existing validation test matrix.
-- Made Printify snapshot workflow manual and verification-branch-only, with no automatic write-back.
-- Published the canonical text/config source to GitHub verification branch verify/v48-consolidated-20260917.
-VALIDATION:
-- Full bun test reconfirmation was attempted but the sandbox execution exceeded its deadline; the prior verified state remains 118 passed, 0 failed, 561 assertions.
-- Dependency install remains blocked by external HTTP 520; typecheck/build were not claimed.
-DEPLOYMENT: NOT RUN.
-GITHUB: Verification branch only; main, camel-current, and kamel/admin-rbac-foundation were not modified.
-DELETION: Neither project deleted.
+DATE/TIME: 2026-09-14T23:24:05Z
+TASK: Establish protected baseline governance files; no application correction performed in this entry.
+SOURCE SNAPSHOT BEFORE: cfc46d91f27059bcbda1a264b9930c4f18d83416efc55c7d37a6e8944208e3fe
+SOURCE SNAPSHOT AFTER: cfc46d91f27059bcbda1a264b9930c4f18d83416efc55c7d37a6e8944208e3fe
 
-DATE/TIME: 2026-09-17T00:00:00Z
-TASK: Two-file Worker integrity recovery for GitHub verification branch.
-ACTIONS:
-- Preserved the known-good dependency correction: TypeScript ^6.0.1, Vite 8.0.16, Wrangler 4.97.0.
-- Preserved bun.lock unchanged.
-- Confirmed GitHub npm install passed independently before this recovery.
-- Identified consolidation file-integrity failure: workers/item-store.ts and workers/static-app.ts contained tool-output truncation markers and incomplete source.
-- Recovered only these two files from the authoritative GitHub blob API using exact binary bytes; no src/ tree, homepage, or other application files were copied.
-- Verified workers/item-store.ts Git blob SHA-1 3ca5d5a278f059eac07c27ed4d4918353ebe0f38 and size 216955 bytes.
-- Verified workers/static-app.ts Git blob SHA-1 657923931136e1c44d37d9ba82709c8a9b7a8190 and size 204725 bytes.
-- Verified neither recovered file contains [Showing lines, Use offset=, or No newline at end of file markers.
-- No other application or frontend file was changed by this recovery.
+FILES READ:
+- public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html
+- workers/static-app.ts
+- workers/item-store.ts
+- app/routes.ts
+- app/routes/api.studio.navigation.ts
+- wrangler.jsonc
+- /AGENTS.md
+- /00_DTF_STUDIO_PROTECTED_PASS_BASELINE.txt
+
+FILES CHANGED:
+- /AGENTS.md
+- /00_DTF_STUDIO_PROTECTED_PASS_BASELINE.txt
+- /01_DTF_STUDIO_CHANGE_LOG.txt
+
+PROTECTED PASS ITEMS CHECKED:
+- Home card sizing
+- Mobile menu close behavior
+- Mobile menu scroll system
+- Mobile menu compact spacing
+- Menu language alignment
+- Mini Brand Banner
+- Featured title
+- Global scrollbar visual rule
+- Navigation API
+- Canonical navigation source
+
+PROTECTED ITEMS TOUCHED:
+NONE
+
+IMPLEMENTED:
+- Created permanent project governance instructions.
+- Recorded the accepted baseline and protected PASS items.
+- Created the append-only change log.
+
+NOT IMPLEMENTED:
+- No application source changes.
+- No deployment.
+- No build or browser test.
+
 VALIDATION:
-- Canonical Worker writes completed with exact source blob hash and byte-size verification.
-- Full Camel test and build validation remain pending/blocked by sandbox execution limits; no green claim made.
-DEPLOYMENT: NOT RUN.
-GITHUB: Correction is limited to the verification branch verify/v48-consolidated-20260917.
-DELETION: Neither project deleted.
+- inline JS: not run in this governance-only entry
+- build: not run
+- API: not run
+- browser: not run
+- responsive: not run
+- console: not run
+
+NEW PASS ITEMS:
+- None
+
+PARTIAL:
+- None
+
+FAILED:
+- None
+
+NOT VERIFIED:
+- All application behavior; intentionally not inspected beyond the protected baseline context.
+
+DEPLOYMENT: NO
+
+LIVE URL: https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app
+
+NOTES:
+Governance files were created before any Phase 2 application edit. Protected PASS means do not touch without explicit user approval.
+
+DATE/TIME: 2026-09-14T23:30:00Z
+TASK: Review requested remaining Header/Hero/Bottom Navigation/Hyperlink/overflow corrections under protected-baseline governance.
+SOURCE SNAPSHOT BEFORE: cfc46d91f27059bcbda1a264b9930c4f18d83416efc55c7d37a6e8944208e3fe
+SOURCE SNAPSHOT AFTER: cfc46d91f27059bcbda1a264b9930c4f18d83416efc55c7d37a6e8944208e3fe
+
+FILES READ:
+- /AGENTS.md
+- /00_DTF_STUDIO_PROTECTED_PASS_BASELINE.txt
+- /01_DTF_STUDIO_CHANGE_LOG.txt
+- public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html
+- workers/static-app.ts
+- workers/item-store.ts
+- app/routes.ts
+- app/routes/api.studio.navigation.ts
+- wrangler.jsonc
+
+FILES CHANGED:
+- /01_DTF_STUDIO_CHANGE_LOG.txt only
+
+PROTECTED PASS ITEMS CHECKED:
+- Mobile menu close behavior
+- Mobile menu scroll system
+- Mobile menu compact spacing
+- Menu language alignment
+- Mini Brand Banner
+- Featured title
+- Global scrollbar visual rule
+- Navigation API
+- Canonical navigation source
+- Home card sizing
+
+PROTECTED ITEMS TOUCHED:
+NONE
+
+IMPLEMENTED:
+- None; application correction work stopped before source modification.
+
+NOT IMPLEMENTED:
+- EN/AR Header parity
+- Global public Header unification
+- Hero parity and Arabic overflow correction
+- Bottom-navigation parity
+- Hyperlink QA or repair
+- Stray-dot correction
+- Responsive viewport QA
+- Deployment
+
+VALIDATION:
+- inline JS: not run in this controlled-stop entry
+- build: not run
+- API: not run
+- browser: not run
+- responsive: not run
+- console: not run
+
+NEW PASS ITEMS:
+- None
+
+PARTIAL:
+- None
+
+FAILED:
+- None
+
+NOT VERIFIED:
+- All requested Phase 2 visual and responsive items.
+
+DEPLOYMENT: NO
+
+LIVE URL: https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app
+
+NOTES:
+PROTECTED ITEM CONFLICT DETECTED. The requested global public Header unification and EN/AR Header geometry may affect protected hamburger/navigation presentation and protected menu alignment/scroll behavior through shared CSS. Explicit user approval is required before touching those protected items.
+
+DATE/TIME: 2026-09-15T00:00:00Z
+TASK: Explicitly approved Phase 2 corrections for EN/AR public Header parity, public Header unification, Hero parity/overflow, bottom-navigation parity, hyperlink QA/repair, stray-dot investigation, and responsive/horizontal-overflow QA.
+SOURCE SNAPSHOT BEFORE: cfc46d91f27059bcbda1a264b9930c4f18d83416efc55c7d37a6e8944208e3fe
+SOURCE SNAPSHOT AFTER: PENDING
+
+FILES READ:
+- /AGENTS.md
+- /00_DTF_STUDIO_PROTECTED_PASS_BASELINE.txt
+- /01_DTF_STUDIO_CHANGE_LOG.txt
+- public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html
+- workers/static-app.ts
+- workers/item-store.ts
+- app/routes.ts
+- app/routes/api.studio.navigation.ts
+- wrangler.jsonc
+
+FILES CHANGED:
+- PENDING
+
+PROTECTED PASS ITEMS CHECKED:
+- Home card sizing
+- Mobile menu close behavior
+- Mobile menu scroll system
+- Mobile menu compact spacing
+- Menu language alignment
+- Mini Brand Banner
+- Featured title
+- Global scrollbar visual rule
+- Navigation API
+- Canonical navigation source
+
+PROTECTED ITEMS TOUCHED:
+AUTHORIZED BY USER IN CURRENT SESSION: shared Header/menu selectors and functions only as technically necessary for the approved Phase 2 corrections. Protected final behavior must remain unchanged.
+
+IMPLEMENTED:
+- PENDING
+
+NOT IMPLEMENTED:
+- PENDING
+
+VALIDATION:
+- inline JS: PENDING
+- build: PENDING
+- API: PENDING
+- browser: PENDING
+- responsive: PENDING
+- console: PENDING
+
+NEW PASS ITEMS:
+- None; new visual corrections remain pending user QC.
+
+PARTIAL:
+- PENDING
+
+FAILED:
+- PENDING
+
+NOT VERIFIED:
+- PENDING
+
+DEPLOYMENT: PENDING
+LIVE URL: https://dtf-studio-v48-safe-frontend-zk9t5j.camelai.app
+
+NOTES:
+Limited user approval authorizes touching protected selectors/functions only for the listed Phase 2 corrections. Do not change protected final outcomes.
