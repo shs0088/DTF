@@ -67,7 +67,7 @@ export function inspectQualificationFile(file: { name: string; type: string; byt
 export function assertExactlyThreeQualificationSlots(slots: unknown): asserts slots is QualificationSlotInput[] {
   if (!Array.isArray(slots) || slots.length !== 3) throw new Error("Qualification submission requires exactly 3 design slots.");
   if (slots.some((slot) => !slot || !Array.isArray(slot.files) || slot.files.length === 0)) throw new Error("Each qualification design must contain at least one uploaded file.");
-  if (slots.some((slot) => slot.files.some((file) => !file.signatureValid || !file.analyzer.passed))) throw new Error("All qualification files must pass automatic preflight.");
+  if (slots.some((slot) => slot.files.some((file: QualificationFileCheck) => !file.signatureValid || !file.analyzer.passed))) throw new Error("All qualification files must pass automatic preflight.");
 }
 
 export function qualificationObjectKey(userId: string, applicationId: string, slot: number, assetId: string, filename: string): string {
