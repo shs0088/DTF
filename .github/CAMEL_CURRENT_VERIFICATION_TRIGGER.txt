@@ -1,0 +1,2 @@
+Verification trigger for current Camel source snapshot.
+Source snapshot commit: 9147788340b73856efe3d5cb868c98e35e739d31
