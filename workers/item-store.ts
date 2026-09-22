@@ -299,7 +299,7 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
       );
       CREATE INDEX IF NOT EXISTS idx_subscription_plans_order ON subscription_plans(sort_order,name_en);
 
-      CREATE TABLE IF NOT EXISTS site_categories (
+[1624 more lines in file. Use offset=301 to continue.]      CREATE TABLE IF NOT EXISTS site_categories (
         id TEXT PRIMARY KEY,
         name_ar TEXT NOT NULL,
         name_en TEXT NOT NULL,
@@ -599,8 +599,8 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
         withdrawal_id TEXT NOT NULL REFERENCES withdrawals(id) ON DELETE CASCADE,
         from_status TEXT NOT NULL,
         to_status TEXT NOT NULL,
-        note TEXT,
-        admin_actor_id TEXT REFERENCES admin_users(id),
+
+[1323 more lines in file. Use offset=602 to continue.]        admin_actor_id TEXT REFERENCES admin_users(id),
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
       CREATE INDEX IF NOT EXISTS idx_withdrawal_admin_history ON withdrawal_admin_history(withdrawal_id, created_at);
@@ -843,5 +843,642 @@ export class ItemStore extends DurableObject<ItemStoreEnv> {
     const cartId = `guest-${safeSession}`;
     const quantity = Math.max(1, Math.min(99, Math.floor(input.quantity ?? 1)));
     const variant = this.ctx.storage.sql.exec<{ id: string; price: number }>("SELECT id, retail_price_jod AS price FROM variants WHERE id = ? AND enabled = 1", input.variantId).one();
+    const lineKey = [variant.id, input.designId ?? "", input.masterAssetId ?? "", input.printSpecJson ?? "{}"].join(":");
+    this.ctx.storage.transactionSync(() => {
+      this.ctx.storage.sql.exec("INSERT OR IGNORE INTO carts (id, session_key) VALUES (?, ?)", cartId, safeSession);
+      this.ctx.storage.sql.exec("UPDATE carts SET status='open' WHERE id=?",cartId);
+      this.ctx.storage.sql.exec(`
+        INSERT INTO cart_items (id, cart_id, variant_id, design_id, master_asset_id, print_spec_json, quantity, unit_price_jod, line_key)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(cart_id, line_key) DO UPDATE SET quantity = MIN(cart_items.quantity + excluded.quantity, 99)
+      `, crypto.randomUUID(), cartId, variant.id, input.designId ?? null, input.masterAssetId ?? null, input.printSpecJson ?? "{}", quantity, variant.price, lineKey);
+    });
+    return this.getCart(safeSession);
+  }
 
-[Showing lines 1-845 of 1924. Use offset=846 to continue.]
+  removeCartItem(sessionKey: string, lineId: string): CartSnapshot {
+    const safeSession = sessionKey.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) || "anonymous";
+    this.ctx.storage.sql.exec("DELETE FROM cart_items WHERE id = ? AND cart_id = ?", lineId, `guest-${safeSession}`);
+    return this.getCart(safeSession);
+  }
+
+  private normalizeCartKey(value:string):string { return String(value||"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,80)||"anonymous"; }
+
+  private checkoutPromotion(codeValue:string,subtotalCents:number):any{
+    const code=String(codeValue||"").trim().toUpperCase().replace(/[^A-Z0-9_-]/g,"").slice(0,40);
+    if(!code)return null;
+    const row=this.ctx.storage.sql.exec<any>("SELECT id,code,discount_type AS discountType,discount_value AS discountValue,min_spend_jod AS minSpendJod,max_uses AS maxUses,starts_at AS startsAt,expires_at AS expiresAt,enabled FROM promotions WHERE code=?",code).toArray()[0];
+    if(!row)throw new Error("Coupon code was not found.");
+    if(Number(row.enabled)!==1)throw new Error("This coupon is disabled.");
+    const now=Date.now();if(row.startsAt&&Date.parse(String(row.startsAt))>now)throw new Error("This coupon is not active yet.");if(row.expiresAt&&Date.parse(String(row.expiresAt))<now)throw new Error("This coupon has expired.");
+    const used=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM promotion_redemptions WHERE promotion_id=?",row.id).toArray()[0]?.count??0);
+    if(row.maxUses!==null&&used>=Number(row.maxUses))throw new Error("This coupon has reached its usage limit.");
+    if(subtotalCents<Number(row.minSpendJod||0))throw new Error("Cart subtotal does not meet this coupon's minimum spend.");
+    let discount=String(row.discountType)==="percentage"?Math.round(subtotalCents*Math.min(100,Math.max(0,Number(row.discountValue)))/100):Math.round(Math.max(0,Number(row.discountValue))*100);
+    discount=Math.max(0,Math.min(subtotalCents,discount));
+    if(discount<=0)throw new Error("This coupon does not produce a valid discount.");
+    return {...row,usedCount:used,discountJod:discount};
+  }
+
+  checkoutPreview(cartSessionKey:string,couponCode="",fulfillmentMode:"delivery"|"store_pickup"="delivery"):unknown{
+    this.bootstrapCatalog();const key=this.normalizeCartKey(cartSessionKey),cartId=`guest-${key}`;
+    const lines=this.ctx.storage.sql.exec<any>(`SELECT ci.id,ci.variant_id AS variantId,ci.design_id AS designId,ci.master_asset_id AS masterAssetId,ci.print_spec_json AS printSpecJson,ci.quantity,ci.unit_price_jod AS unitPriceJod,v.sku,v.enabled AS variantEnabled,pm.enabled AS productEnabled,pm.name_en AS productName
+      FROM cart_items ci JOIN variants v ON v.id=ci.variant_id JOIN product_models pm ON pm.id=v.model_id WHERE ci.cart_id=? ORDER BY ci.id`,cartId).toArray();
+    if(!lines.length)throw new Error("Cart is empty.");
+    const subtotalJod=lines.reduce((sum:number,x:any)=>sum+Number(x.unitPriceJod||0)*Number(x.quantity||0),0);
+    const settings=(this.businessSettingsSnapshot() as any).settings;
+    const deliveryFeeJod=fulfillmentMode==="store_pickup"?0:(subtotalJod>=Math.round(Number(settings.freeDeliveryThreshold||0)*100)?0:Math.round(Number(settings.standardDeliveryFee||0)*100));
+    const promotion=this.checkoutPromotion(couponCode,subtotalJod);
+    const discountJod=Number(promotion?.discountJod||0);const totalJod=Math.max(0,subtotalJod+deliveryFeeJod-discountJod);
+    const issues:string[]=[];
+    this.ctx.storage.sql.exec("UPDATE reservations SET status='expired' WHERE status='pending' AND datetime(expires_at)<=datetime('now')");
+    for(const line of lines){
+      if(Number(line.variantEnabled)!==1||Number(line.productEnabled)!==1)issues.push(`${line.sku}: product or variant is unavailable.`);
+      const stock=this.ctx.storage.sql.exec<any>("SELECT quantity,tracked FROM stocks WHERE variant_id=?",line.variantId).toArray()[0];
+      if(stock&&Number(stock.tracked)===1){const reserved=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(quantity),0) AS qty FROM reservations WHERE variant_id=? AND status='pending' AND datetime(expires_at)>datetime('now') AND cart_id<>?",line.variantId,cartId).toArray()[0]?.qty??0);const available=Math.max(0,Number(stock.quantity||0)-reserved);if(available<Number(line.quantity))issues.push(`${line.sku}: only ${available} unit(s) available.`);}
+      if(line.designId){
+        if(!line.masterAssetId){issues.push(`${line.sku}: Ready-to-Print Master is required.`);continue;}
+        const master=this.ctx.storage.sql.exec<any>("SELECT mar.asset_id AS masterAssetId,mar.explicitly_selected AS explicitlySelected FROM master_asset_relations mar WHERE mar.design_id=?",line.designId).toArray()[0];
+        if(!master||Number(master.explicitlySelected)!==1||String(master.masterAssetId)!==String(line.masterAssetId)){issues.push(`${line.sku}: selected master does not match the approved Ready-to-Print Master.`);continue;}
+
+[1022 more lines in file. Use offset=903 to continue.]        if(!validation||String(validation.status).toLowerCase()!=="passed")issues.push(`${line.sku}: approved master has no passing preflight result.`);
+      }
+    }
+    return {cartId,lines:lines.map((x:any)=>({id:x.id,variantId:x.variantId,sku:x.sku,productName:x.productName,quantity:Number(x.quantity),unitPriceJod:Number(x.unitPriceJod),lineTotalJod:Number(x.unitPriceJod)*Number(x.quantity),designId:x.designId,masterAssetId:x.masterAssetId})),subtotalJod,deliveryFeeJod,discountJod,totalJod,currency:"JOD",promotion:promotion?{id:promotion.id,code:promotion.code,discountJod}:null,issues,canCheckout:issues.length===0,settings:{reservationMinutes:Number(settings.bankTransferReservationMinutes||30),storePickupEnabled:Boolean(settings.storePickupEnabled),storePickupAddress:String(settings.storePickupAddress||"")}};
+  }
+
+  createCheckoutOrder(input:{sessionId:string;cartSessionKey:string;requestKey:string;couponCode?:string;fulfillmentMode?:"delivery"|"store_pickup";paymentMethod?:"bank_transfer"|"cod";customerName:string;customerPhone:string;city?:string;address?:string;notes?:string}):unknown{
+    this.bootstrapCatalog();const identity=this.sessionIdentity(input.sessionId);if(!identity||identity.role!=="customer")throw new Error("Customer sign-in is required before checkout.");
+    const cartKey=this.normalizeCartKey(input.cartSessionKey);const cartId=`guest-${cartKey}`;const requestKey=String(input.requestKey||"").trim().replace(/[^a-zA-Z0-9_-]/g,"").slice(0,120);if(requestKey.length<8)throw new Error("Checkout request key is invalid.");
+    const existing=this.ctx.storage.sql.exec<any>("SELECT order_id AS orderId FROM order_checkout_details WHERE request_key=?",requestKey).toArray()[0];if(existing)return this.adminOrderDetail(String(existing.orderId));
+    const fulfillment=input.fulfillmentMode==="store_pickup"?"store_pickup":"delivery";const payment=input.paymentMethod==="cod"?"cod":"bank_transfer";
+    const preview=this.checkoutPreview(cartKey,input.couponCode||"",fulfillment) as any;if(!preview.canCheckout)throw new Error(String(preview.issues?.[0]||"Cart is not ready for checkout."));
+    const customerName=String(input.customerName||"").trim().slice(0,160);const customerPhone=String(input.customerPhone||"").trim().slice(0,60);if(customerName.length<2||customerPhone.length<5)throw new Error("Customer name and phone are required.");
+    const city=String(input.city||"").trim().slice(0,120),address=String(input.address||"").trim().slice(0,1000),notes=String(input.notes||"").trim().slice(0,2000);if(fulfillment==="delivery"&&!address)throw new Error("Delivery address is required.");
+    const settings=(this.businessSettingsSnapshot() as any).settings;const reservationMinutes=Math.max(5,Math.min(120,Number(settings.bankTransferReservationMinutes||30)));const expiresAt=new Date(Date.now()+reservationMinutes*60000).toISOString();const orderId=crypto.randomUUID();const initialStatus=payment==="bank_transfer"?"payment_pending":"new";
+    this.ctx.storage.transactionSync(()=>{
+      const promotion=preview.promotion?this.checkoutPromotion(String(preview.promotion.code),Number(preview.subtotalJod)):null;
+      this.ctx.storage.sql.exec("UPDATE reservations SET status='expired' WHERE status='pending' AND datetime(expires_at)<=datetime('now')");
+      for(const line of preview.lines){
+        const stock=this.ctx.storage.sql.exec<any>("SELECT quantity,tracked FROM stocks WHERE variant_id=?",line.variantId).toArray()[0];if(stock&&Number(stock.tracked)===1){const reserved=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(quantity),0) AS qty FROM reservations WHERE variant_id=? AND status='pending' AND datetime(expires_at)>datetime('now') AND cart_id<>?",line.variantId,cartId).toArray()[0]?.qty??0);if(Number(stock.quantity)-reserved<Number(line.quantity))throw new Error(`${line.sku}: stock changed before checkout; please review the cart.`);}
+      }
+      this.ctx.storage.sql.exec("INSERT INTO orders (id,user_id,status,payment_status,fulfillment_mode,total_jod,currency) VALUES (?,?,?,?,?,?,?)",orderId,identity.userId,initialStatus,"pending",fulfillment,Number(preview.totalJod),"JOD");
+      this.ctx.storage.sql.exec("INSERT INTO order_checkout_details (order_id,source_cart_id,request_key,subtotal_jod,delivery_fee_jod,discount_jod,promotion_id,promotion_code,customer_name,customer_phone,city,address,notes,reservation_expires_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",orderId,cartId,requestKey,Number(preview.subtotalJod),Number(preview.deliveryFeeJod),Number(preview.discountJod),promotion?.id??null,promotion?.code??null,customerName,customerPhone,city||null,fulfillment==="store_pickup"?String(settings.storePickupAddress||""):address,notes||null,expiresAt);
+      for(const line of preview.lines){const itemId=crypto.randomUUID();const raw=this.ctx.storage.sql.exec<any>("SELECT design_id AS designId,master_asset_id AS masterAssetId,print_spec_json AS printSpecJson,unit_price_jod AS unitPriceJod FROM cart_items WHERE id=? AND cart_id=?",line.id,cartId).toArray()[0];if(!raw)throw new Error("Cart changed before checkout.");let preflight:any=null;if(raw.designId&&raw.masterAssetId){preflight=this.ctx.storage.sql.exec<any>("SELECT status,errors_json AS errorsJson,warnings_json AS warningsJson,created_at AS createdAt FROM validation_results WHERE design_id=? AND asset_id=? ORDER BY created_at DESC LIMIT 1",raw.designId,raw.masterAssetId).toArray()[0];if(!preflight||String(preflight.status).toLowerCase()!=="passed")throw new Error("Ready-to-Print Master preflight is no longer passing.");this.ctx.storage.sql.exec("UPDATE assets SET protected=1 WHERE id=?",raw.masterAssetId);}
+        this.ctx.storage.sql.exec("INSERT INTO order_items (id,order_id,variant_id,design_id,master_asset_id,print_spec_json,price_snapshot_json,quantity) VALUES (?,?,?,?,?,?,?,?)",itemId,orderId,line.variantId,raw.designId??null,raw.masterAssetId??null,String(raw.printSpecJson||"{}"),JSON.stringify({unitPriceJod:Number(raw.unitPriceJod),currency:"JOD",preflight:preflight??null}),Number(line.quantity));
+        const stock=this.ctx.storage.sql.exec<any>("SELECT tracked FROM stocks WHERE variant_id=?",line.variantId).toArray()[0];if(stock&&Number(stock.tracked)===1)this.ctx.storage.sql.exec("INSERT INTO reservations (id,variant_id,cart_id,quantity,status,expires_at) VALUES (?,?,?,?, 'pending',?)",crypto.randomUUID(),line.variantId,cartId,Number(line.quantity),expiresAt);
+      }
+      this.ctx.storage.sql.exec("INSERT INTO payments (id,order_id,method,status) VALUES (?,?,?,'pending')",crypto.randomUUID(),orderId,payment);
+      if(promotion)this.ctx.storage.sql.exec("INSERT INTO promotion_redemptions (id,promotion_id,order_id,customer_id,discount_jod) VALUES (?,?,?,?,?)",crypto.randomUUID(),promotion.id,orderId,identity.userId,Number(preview.discountJod));
+      this.ctx.storage.sql.exec("UPDATE carts SET user_id=?,status='checked_out' WHERE id=?",identity.userId,cartId);
+      this.ctx.storage.sql.exec("DELETE FROM cart_items WHERE cart_id=?",cartId);
+      this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'customer','customer.checkout.create','order',?,?)",identity.userId,orderId,JSON.stringify({result:"success",metadata:{fulfillmentMode:fulfillment,paymentMethod:payment,promotionApplied:Boolean(promotion),discountJod:Number(preview.discountJod),reservationExpiresAt:expiresAt}}));
+    });
+    return this.adminOrderDetail(orderId);
+  }
+
+  async submitDesignerQualification(sessionId:string,input:any):Promise<unknown>{
+    this.bootstrapCatalog(); const identity=this.sessionIdentity(sessionId); if(!identity||identity.role!=="designer") throw new Error("Authenticated Designer account is required.");
+    if(!this.designAssets) throw new Error("Secure qualification storage is not configured."); const slots=Array.isArray(input?.slots)?input.slots:[];
+    if(slots.length!==3||slots.some((s:any)=>!Array.isArray(s.files)||s.files.length===0)) throw new Error("Exactly 3 non-empty qualification design slots are required.");
+    if(slots.some((s:any)=>s.files.some((f:any)=>!f.analysis?.signatureValid||!f.preflight?.passed))) throw new Error("All qualification files must pass preflight.");
+    const prior=this.ctx.storage.sql.exec<any>("SELECT id FROM designer_applications WHERE designer_id=? AND lower(status)=? ORDER BY submitted_at DESC LIMIT 1",identity.userId,"replacement_required").toArray()[0]; const applicationId=String(prior?.id||crypto.randomUUID()); const staged:string[]=[];
+    try { for(let i=0;i<3;i++) for(const f of slots[i].files){const inputKey=String(f.storageKey||""); const filename=inputKey.split("/").pop()||"upload"; const key="qualification/"+identity.userId+"/"+applicationId+"/"+filename; await this.designAssets.put(key,f.bytes,{httpMetadata:{contentType:String(f.mime||"application/octet-stream")},customMetadata:{qualification:"true",slot:String(i+1)}}); staged.push(key);}
+      const due=new Date(Date.now()+5*24*60*60*1000).toISOString(); this.ctx.storage.transactionSync(()=>{
+        this.ctx.storage.sql.exec("INSERT OR IGNORE INTO designer_applications (id,designer_id,status) VALUES (?,?,?)",applicationId,identity.userId,"submitted"); this.ctx.storage.sql.exec("DELETE FROM qualification_designs WHERE application_id=?",applicationId);
+        for(let i=0;i<3;i++){const designId=crypto.randomUUID(); this.ctx.storage.sql.exec("INSERT INTO designs (id,designer_id,title_en,title_ar,description_en,description_ar,status) VALUES (?,?,?,?,?,?,?)",designId,identity.userId,"Qualification Design "+(i+1),"تصميم التأهيل "+(i+1),"Qualification submission","تقديم التأهيل","pending_review"); this.ctx.storage.sql.exec("INSERT INTO qualification_designs (id,application_id,design_id,slot) VALUES (?,?,?,?)",crypto.randomUUID(),applicationId,designId,i+1);
+          for(const f of slots[i].files){const a=f.analysis||{},p=f.preflight||{},assetId=crypto.randomUUID(); this.ctx.storage.sql.exec("INSERT INTO assets (id,design_id,storage_key,original_filename,mime_type,byte_size,asset_kind) VALUES (?,?,?,?,?,?,?)",assetId,designId,f.storageKey,String(f.filename).slice(0,240),String(f.mime||"application/octet-stream"),Number(f.byteSize)); this.ctx.storage.sql.exec("INSERT INTO analyzer_results (id,asset_id,format,signature,pixel_width,pixel_height,effective_dpi,readable,analyzable,previewable,metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?)",crypto.randomUUID(),assetId,String(a.format||""),a.signatureValid?"verified":"invalid",Number(a.pixelWidth||0),Number(a.pixelHeight||0),p.effectiveDpi?.minimum==null?null:Number(p.effectiveDpi.minimum),p.readable?1:0,p.analyzable?1:0,p.previewable?1:0,JSON.stringify({qualification:true,slot:i+1})); const version=String(a.ruleVersion||"dtf-preflight-v1.0"); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO rule_versions (id,rule_set,version,definition_json) VALUES (?,?,?,?)","qualification-"+version,"qualification-preflight",version,"{}"); const rv=this.ctx.storage.sql.exec<any>("SELECT id FROM rule_versions WHERE rule_set=? AND version=?","qualification-preflight",version).toArray()[0]; this.ctx.storage.sql.exec("INSERT INTO validation_results (id,design_id,asset_id,rule_version_id,status,errors_json,warnings_json) VALUES (?,?,?,?,?,?,?)",crypto.randomUUID(),designId,assetId,rv.id,"passed",JSON.stringify(p.errors||[]),JSON.stringify(p.warnings||[]));}}
+        this.ctx.storage.sql.exec("UPDATE designer_applications SET status='submitted',submitted_at=CURRENT_TIMESTAMP,review_due_at=?,rejection_reason=NULL,replacement_due_at=NULL WHERE id=?",due,applicationId); this.ctx.storage.sql.exec("UPDATE designer_profiles SET review_due_at=?,rejection_reason=NULL WHERE user_id=?",due,identity.userId); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'designer','designer.qualification.submit','designer_application',?,?)",identity.userId,applicationId,JSON.stringify({result:"success",metadata:{slotCount:3}})); }); return {applicationId,status:"submitted",reviewDueAt:due};
+    } catch(error){for(const key of staged){try{await this.designAssets.delete(key);}catch{}} throw error;}
+  }
+
+  private authorizedDesigner(sessionId:string):any{
+    const identity=this.sessionIdentity(sessionId);if(!identity||identity.role!=="designer")throw new Error("Designer sign-in is required.");
+    const profile=this.ctx.storage.sql.exec<any>("SELECT authorization_status AS authorizationStatus FROM designer_profiles WHERE user_id=?",identity.userId).toArray()[0];
+    if(!profile||String(profile.authorizationStatus).toLowerCase()!=="authorized")throw new Error("Designer Dashboard is available after qualification approval.");
+    return {...identity,authorizationStatus:profile.authorizationStatus};
+  }
+
+  designerWorkspace(sessionId:string):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const parse=(v:any,f:any)=>{try{return JSON.parse(String(v??""));}catch{return f;}};
+    const designs=this.ctx.storage.sql.exec<any>("SELECT d.id AS designId,d.title_en AS titleEn,d.title_ar AS titleAr,d.description_en AS descriptionEn,d.description_ar AS descriptionAr,d.product_type AS productType,d.status,d.created_at AS createdAt,d.published_at AS publishedAt,c.asset_id AS coverAssetId,m.asset_id AS masterAssetId,m.explicitly_selected AS masterExplicit FROM designs d LEFT JOIN cover_asset_relations c ON c.design_id=d.id LEFT JOIN master_asset_relations m ON m.design_id=d.id WHERE d.designer_id=? ORDER BY d.created_at DESC,d.id DESC",designer.userId).toArray();
+    return {designer,designs:designs.map((d:any)=>{const assets=this.ctx.storage.sql.exec<any>("SELECT a.id AS assetId,a.original_filename AS filename,a.mime_type AS mimeType,a.byte_size AS byteSize,a.asset_kind AS assetKind,a.protected,a.created_at AS createdAt,ar.format,ar.pixel_width AS pixelWidth,ar.pixel_height AS pixelHeight,ar.embedded_dpi AS embeddedDpi,ar.effective_dpi AS effectiveDpi,ar.has_alpha AS hasAlpha,ar.readable,ar.analyzable,ar.previewable,ar.metadata_json AS metadataJson,(SELECT vr.status FROM validation_results vr WHERE vr.asset_id=a.id ORDER BY vr.created_at DESC LIMIT 1) AS preflightStatus,(SELECT vr.errors_json FROM validation_results vr WHERE vr.asset_id=a.id ORDER BY vr.created_at DESC LIMIT 1) AS errorsJson,(SELECT vr.warnings_json FROM validation_results vr WHERE vr.asset_id=a.id ORDER BY vr.created_at DESC LIMIT 1) AS warningsJson FROM assets a LEFT JOIN analyzer_results ar ON ar.id=(SELECT x.id FROM analyzer_results x WHERE x.asset_id=a.id ORDER BY x.created_at DESC LIMIT 1) WHERE a.design_id=? ORDER BY a.created_at DESC,a.id DESC",d.designId).toArray().map((a:any)=>({...a,isCover:String(d.coverAssetId||"")===String(a.assetId),isMaster:String(d.masterAssetId||"")===String(a.assetId),metadata:parse(a.metadataJson,{}),errors:parse(a.errorsJson,[]),warnings:parse(a.warningsJson,[])}));return {...d,assets};})};
+  }
+
+  createDesignerDesign(sessionId:string,input:any):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const required=[["titleAr","Arabic Title"],["titleEn","English Title"],["descriptionAr","Arabic Description"],["descriptionEn","English Description"]] as const;
+    const clean:any={};for(const [key,label] of required){clean[key]=String(input?.[key]??"").trim().slice(0,key.startsWith("description")?5000:240);if(!clean[key])throw new Error("Missing required field: "+label+".");}
+    const productType=String(input?.productType??"").trim();if(!DESIGN_PRODUCT_TYPES.includes(productType as any))throw new Error("Select one of the 7 supported Product Type combinations.");
+    const designId=String(input?.designId??"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,100);if(!designId)throw new Error("Design ID is required.");
+    const assets=Array.isArray(input?.assets)?input.assets.slice(0,20):[];if(!assets.length)throw new Error("Upload at least one design asset.");if(assets.filter((a:any)=>Boolean(a.isMaster)).length!==1)throw new Error("Select exactly one Ready-to-Print Master.");
+    if(assets.filter((a:any)=>Boolean(a.isCover)).length>1)throw new Error("Select only one Main Display Image.");
+    const master=assets.find((a:any)=>Boolean(a.isMaster));if(!master?.preflight?.passed)throw new Error("The selected Ready-to-Print Master must pass preflight.");
+    let cover=assets.find((a:any)=>Boolean(a.isCover));
+    if(cover&&(!Boolean(cover?.analysis?.previewable)||!String(cover?.mime||cover?.analysis?.mime||"").startsWith("image/")))throw new Error("Main Display Image must be a previewable image asset.");
+    if(!cover)cover=[...assets].reverse().find((a:any)=>Boolean(a?.analysis?.previewable)&&String(a?.mime||a?.analysis?.mime||"").startsWith("image/"));
+    if(!cover)throw new Error("At least one uploaded image must be previewable for the Main Display Image.");
+    const expectedPrefix=`designer/${designer.userId}/${designId}/`;for(const a of assets){if(!String(a.storageKey||"").startsWith(expectedPrefix))throw new Error("Asset storage path is outside the designer/design namespace.");if(!a.analysis?.signatureValid)throw new Error("Uploaded asset signature validation failed.");}
+    const minDpi=Math.max(72,Math.min(1200,Math.round(Number(input?.minDpi)||300)));const ruleVersion="1.0-dpi-"+minDpi;const ruleId="rule-dtf-preflight-"+ruleVersion;
+    this.ctx.storage.transactionSync(()=>{
+      if(this.ctx.storage.sql.exec<any>("SELECT id FROM designs WHERE id=?",designId).toArray()[0])throw new Error("Design ID already exists.");
+      this.ctx.storage.sql.exec("INSERT OR IGNORE INTO rule_versions (id,rule_set,version,definition_json) VALUES (?,'dtf-preflight',?,?)",ruleId,ruleVersion,JSON.stringify({minEffectiveDpi:minDpi,productTypes:[...DESIGN_PRODUCT_TYPES]}));
+      this.ctx.storage.sql.exec("INSERT INTO designs (id,designer_id,title_ar,title_en,description_ar,description_en,product_type,status) VALUES (?,?,?,?,?,?,?,'pending_review')",designId,designer.userId,clean.titleAr,clean.titleEn,clean.descriptionAr,clean.descriptionEn,productType);
+      for(const raw of assets){const assetId=String(raw.assetId||"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,100);if(!assetId)throw new Error("Asset ID is required.");const filename=String(raw.filename||"asset").replace(/[\\/\0]/g,"_").slice(0,240);const mime=String(raw.mime||raw.analysis?.mime||"application/octet-stream").slice(0,120);const bytes=Math.max(1,Math.floor(Number(raw.byteSize)||0));const kind=raw.isMaster?"master":raw.isCover?"cover":"original";const a=raw.analysis||{},p=raw.preflight||{};
+        this.ctx.storage.sql.exec("INSERT INTO assets (id,design_id,storage_key,original_filename,mime_type,byte_size,asset_kind) VALUES (?,?,?,?,?,?,?)",assetId,designId,String(raw.storageKey),filename,mime,bytes,kind);
+        this.ctx.storage.sql.exec("INSERT INTO analyzer_results (id,asset_id,format,signature,pixel_width,pixel_height,embedded_dpi,effective_dpi,physical_width_in,physical_height_in,has_alpha,readable,analyzable,previewable,metadata_json) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",crypto.randomUUID(),assetId,String(a.format||""),a.signatureValid?"verified":"invalid",Number(a.pixelWidth||0),Number(a.pixelHeight||0),a.embeddedDpi==null?null:Number(a.embeddedDpi),p.effectiveDpi?.minimum==null?null:Number(p.effectiveDpi.minimum),p.physicalSizeIn?.width==null?null:Number(p.physicalSizeIn.width),p.physicalSizeIn?.height==null?null:Number(p.physicalSizeIn.height),a.hasAlpha==null?null:(a.hasAlpha?1:0),p.readable?1:0,p.analyzable?1:0,p.previewable?1:0,JSON.stringify({scalingRisk:p.scalingRisk??null,placeholderCheck:p.placeholderCheck??null,productType}));
+        this.ctx.storage.sql.exec("INSERT INTO validation_results (id,design_id,asset_id,rule_version_id,status,errors_json,warnings_json) VALUES (?,?,?,?,?,?,?)",crypto.randomUUID(),designId,assetId,ruleId,p.passed?"passed":"failed",JSON.stringify(Array.isArray(p.errors)?p.errors:[]),JSON.stringify(Array.isArray(p.warnings)?p.warnings:[]));
+      }
+      this.ctx.storage.sql.exec("INSERT INTO cover_asset_relations (design_id,asset_id) VALUES (?,?)",designId,String(cover.assetId));
+      this.ctx.storage.sql.exec("INSERT INTO master_asset_relations (design_id,asset_id,explicitly_selected) VALUES (?,?,1)",designId,String(master.assetId));
+      this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'designer','designer.design.create','design',?,?)",designer.userId,designId,JSON.stringify({result:"success",metadata:{productType,assetCount:assets.length,coverAssetId:cover.assetId,masterAssetId:master.assetId}}));
+    });
+    return (this.designerWorkspace(sessionId) as any).designs.find((d:any)=>d.designId===designId)??null;
+  }
+
+  setDesignerAssetRoles(sessionId:string,designId:string,assetId:string,input:{cover?:boolean;master?:boolean}):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const d=String(designId||"").trim(),a=String(assetId||"").trim();const row=this.ctx.storage.sql.exec<any>("SELECT a.id,d.status FROM assets a JOIN designs d ON d.id=a.design_id WHERE a.id=? AND d.id=? AND d.designer_id=?",a,d,designer.userId).toArray()[0];if(!row)throw new Error("Design asset not found.");
+    this.ctx.storage.transactionSync(()=>{if(input.cover===true)this.ctx.storage.sql.exec("INSERT INTO cover_asset_relations (design_id,asset_id) VALUES (?,?) ON CONFLICT(design_id) DO UPDATE SET asset_id=excluded.asset_id",d,a);else if(input.cover===false)this.ctx.storage.sql.exec("DELETE FROM cover_asset_relations WHERE design_id=? AND asset_id=?",d,a);
+      if(input.master===true){const pass=this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM validation_results WHERE design_id=? AND asset_id=? AND status='passed' ORDER BY created_at DESC LIMIT 1",d,a).toArray()[0]?.ok;if(!pass)throw new Error("Ready-to-Print Master must have a passing preflight result.");this.ctx.storage.sql.exec("INSERT INTO master_asset_relations (design_id,asset_id,explicitly_selected) VALUES (?,?,1) ON CONFLICT(design_id) DO UPDATE SET asset_id=excluded.asset_id,explicitly_selected=1,selected_at=CURRENT_TIMESTAMP",d,a);}else if(input.master===false)this.ctx.storage.sql.exec("DELETE FROM master_asset_relations WHERE design_id=? AND asset_id=?",d,a);
+      this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'designer','designer.asset.roles','asset',?,?)",designer.userId,a,JSON.stringify({result:"success",metadata:{designId:d,cover:input.cover,master:input.master}}));});
+    return (this.designerWorkspace(sessionId) as any).designs.find((x:any)=>x.designId===d)??null;
+  }
+
+  designerAssetAccess(sessionId:string,assetId:string):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);return this.ctx.storage.sql.exec<any>("SELECT a.id AS assetId,a.storage_key AS storageKey,a.original_filename AS filename,a.mime_type AS mimeType,a.byte_size AS byteSize,a.protected,d.id AS designId FROM assets a JOIN designs d ON d.id=a.design_id WHERE a.id=? AND d.designer_id=?",String(assetId||""),designer.userId).toArray()[0]??null;
+  }
+
+  deleteDesignerAsset(sessionId:string,assetId:string):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const id=String(assetId||"").trim();const row=this.ctx.storage.sql.exec<any>("SELECT a.id,a.storage_key AS storageKey,a.protected,a.design_id AS designId,d.status FROM assets a JOIN designs d ON d.id=a.design_id WHERE a.id=? AND d.designer_id=?",id,designer.userId).toArray()[0];if(!row)throw new Error("Design asset not found.");const linked=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM order_items WHERE master_asset_id=? LIMIT 1",id).toArray()[0]?.ok)||Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM printing_jobs WHERE master_asset_id=? LIMIT 1",id).toArray()[0]?.ok);const cartRef=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM cart_items WHERE master_asset_id=? LIMIT 1",id).toArray()[0]?.ok);if(Number(row.protected)===1||linked)throw new Error("This asset is protected by order/production history and cannot be deleted.");if(cartRef)throw new Error("Remove this design asset from active carts before deleting it.");
+    let designDeleted=false;this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("DELETE FROM cover_asset_relations WHERE asset_id=?",id);this.ctx.storage.sql.exec("DELETE FROM master_asset_relations WHERE asset_id=?",id);this.ctx.storage.sql.exec("DELETE FROM validation_results WHERE asset_id=?",id);this.ctx.storage.sql.exec("DELETE FROM assets WHERE id=?",id);const count=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM assets WHERE design_id=?",row.designId).toArray()[0]?.count??0);if(count===0&&String(row.status).toLowerCase()!=="published"){this.ctx.storage.sql.exec("DELETE FROM designs WHERE id=?",row.designId);designDeleted=true;}this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'designer','designer.asset.delete','asset',?,?)",designer.userId,id,JSON.stringify({result:"success",metadata:{designId:row.designId,designDeleted}}));});return {assetId:id,storageKey:row.storageKey,designId:row.designId,designDeleted};
+  }
+
+  deleteDesignerDesign(sessionId:string,designId:string):unknown{
+    this.bootstrapCatalog();const designer=this.authorizedDesigner(sessionId);const id=String(designId||"").trim();const row=this.ctx.storage.sql.exec<any>("SELECT id,status FROM designs WHERE id=? AND designer_id=?",id,designer.userId).toArray()[0];if(!row)throw new Error("Design not found.");const orderRef=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM order_items WHERE design_id=? LIMIT 1",id).toArray()[0]?.ok);const protectedAsset=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM assets WHERE design_id=? AND protected=1 LIMIT 1",id).toArray()[0]?.ok);const cartRef=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM cart_items WHERE design_id=? LIMIT 1",id).toArray()[0]?.ok);if(orderRef||protectedAsset)throw new Error("This design is protected by order/production history and cannot be deleted.");if(cartRef)throw new Error("Remove this design from active carts before deleting it.");const keys=this.ctx.storage.sql.exec<any>("SELECT storage_key AS storageKey FROM assets WHERE design_id=?",id).toArray().map((x:any)=>String(x.storageKey));this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("DELETE FROM designs WHERE id=?",id);this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'designer','designer.design.delete','design',?,?)",designer.userId,id,JSON.stringify({result:"success",metadata:{assetCount:keys.length}}));});return {designId:id,storageKeys:keys};
+  }
+
+  designs(): StudioDesign[] {
+    this.bootstrapCatalog();
+    return this.ctx.storage.sql.exec<StudioDesign>(`
+      SELECT d.id, d.title_ar AS titleAr, d.title_en AS titleEn, d.designer_id AS designerId,
+             a.id AS assetId, a.storage_key AS imageUrl, d.status,
+             CASE WHEN d.status = 'published' THEN 'visible' ELSE 'hidden' END AS visibility
+      FROM designs d
+      JOIN cover_asset_relations c ON c.design_id = d.id
+      JOIN assets a ON a.id = c.asset_id
+      WHERE d.status = 'published'
+      ORDER BY d.published_at, d.created_at, d.id
+    `).toArray().map((row) => ({ ...row, imageUrl: `/${row.imageUrl}` }));
+  }
+
+  navigationItems(): NavigationItem[] {
+    this.bootstrapCatalog();
+    return this.ctx.storage.sql.exec<NavigationItem>("SELECT id, title_en AS titleEn, title_ar AS titleAr, route, position, enabled, visibility FROM navigation_items ORDER BY position, id").toArray();
+  }
+
+  saveNavigationItems(items: Array<{ id?: string; titleEn: string; titleAr: string; route: string; position: number; enabled: boolean | number; visibility: "both" | "desktop" | "mobile" }>): NavigationItem[] {
+    this.bootstrapCatalog();
+    const clean = items.slice(0, 100).map((item, index) => ({ id: String(item.id || crypto.randomUUID()).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80) || crypto.randomUUID(), titleEn: String(item.titleEn || "").trim().slice(0, 120), titleAr: String(item.titleAr || "").trim().slice(0, 120), route: String(item.route || "/").trim().startsWith("/") ? String(item.route || "/").trim().slice(0, 240) : "/", position: Number.isFinite(Number(item.position)) ? Number(item.position) : index + 1, enabled: item.enabled ? 1 : 0, visibility: ["both","desktop","mobile"].includes(item.visibility) ? item.visibility : "both" as const })).filter(item => item.titleEn && item.titleAr);
+    this.ctx.storage.transactionSync(() => { this.ctx.storage.sql.exec("DELETE FROM navigation_items"); for (const item of clean) this.ctx.storage.sql.exec("INSERT INTO navigation_items (id,title_en,title_ar,route,position,enabled,visibility,updated_at) VALUES (?,?,?,?,?,?,?,CURRENT_TIMESTAMP)", item.id, item.titleEn, item.titleAr, item.route, item.position, item.enabled, item.visibility); });
+    return this.navigationItems();
+  }
+
+  products(): StudioProduct[] {
+    this.bootstrapCatalog();
+    return this.ctx.storage.sql.exec<StudioProduct>(`
+      SELECT m.id AS modelId, m.category_id AS categoryId,
+             CASE WHEN m.source = 'printify' THEN COALESCE(NULLIF(p.title_ar, ''), '') ELSE m.name_ar END AS nameAr,
+             CASE WHEN m.source = 'printify' THEN COALESCE(NULLIF(p.title_en, ''), '') ELSE m.name_en END AS nameEn,
+             v.id AS variantId, v.sku, v.color, v.size, CAST(v.retail_price_jod AS REAL) / 100.0 AS retailPriceJod,
+             CASE WHEN m.source = 'printify' THEN 'custom' ELSE m.source END AS source
+      FROM product_models m JOIN variants v ON v.model_id = m.id
+      LEFT JOIN printify_product_data p ON p.model_id = m.id
+      WHERE m.enabled = 1 AND v.enabled = 1
+        AND (m.source <> 'printify' OR (p.published = 1 AND p.title_en <> '' AND p.title_ar <> '' AND p.description_en <> '' AND p.description_ar <> '' AND p.display_image IS NOT NULL AND p.customer_price_jod > 0))
+      ORDER BY nameEn, v.sku
+    `).toArray();
+  }
+
+  printifyCatalogLocalState(): PrintifyCatalogLocalStateRow[] {
+    this.bootstrapCatalog();
+    return this.ctx.storage.sql.exec<PrintifyCatalogLocalStateRow>(`SELECT c.blueprint_id, c.imported_model_id, c.provider_id, c.source_available, c.sync_status, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream, p.selected_provider_id FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id`).toArray();
+  }
+
+  printifyCatalog(filters: { search?: string; imported?: string; published?: string } = {}): unknown[] {
+    this.bootstrapCatalog();
+    const rows = this.ctx.storage.sql.exec<any>(`SELECT c.*, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id ORDER BY c.source_title COLLATE NOCASE`).toArray();
+    const search = String(filters.search ?? '').trim().toLowerCase();
+    return rows.filter((row) => (!search || `${row.source_title} ${row.product_type}`.toLowerCase().includes(search)) && (filters.imported !== 'yes' || row.imported_model_id) && (filters.imported !== 'no' || !row.imported_model_id) && (filters.published !== 'yes' || Number(row.published) === 1) && (filters.published !== 'no' || Number(row.published ?? 0) !== 1)).map((row) => ({ ...row, variants: JSON.parse(row.variants_json || '[]'), images: JSON.parse(row.images_json || '[]'), source: 'printify' }));
+  }
+
+  printifyItem(blueprintId: string): unknown {
+    this.bootstrapCatalog();
+    const row = this.ctx.storage.sql.exec<any>(`SELECT c.*, p.title_en, p.title_ar, p.description_en, p.description_ar, p.customer_price_jod, p.display_image, p.published, p.print_your_dream FROM printify_catalog_items c LEFT JOIN printify_product_data p ON p.model_id = c.imported_model_id WHERE c.blueprint_id = ?`, blueprintId).toArray()[0];
+    return row ? { ...row, variants: JSON.parse(row.variants_json || '[]'), images: JSON.parse(row.images_json || '[]'), source: 'printify' } : null;
+  }
+
+  upsertPrintifyCatalogItem(item: { blueprintId: string; title: string; description?: string; productType?: string; providerId?: string; source?: unknown; variants?: unknown[]; images?: unknown[]; sourceAvailable?: boolean; syncStatus?: string }): { count: number; syncedAt: string } {
+    this.bootstrapCatalog(); const syncedAt = new Date().toISOString();
+    if (!/^[0-9]{1,20}$/.test(String(item.blueprintId))) throw new Error('Invalid blueprintId.');
+    const id = `printify-${item.blueprintId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100);
+    this.ctx.storage.transactionSync(() => { this.ctx.storage.sql.exec(`INSERT INTO printify_catalog_items (id, blueprint_id, source_title, source_description, product_type, provider_id, source_json, variants_json, images_json, sync_status, source_available, last_synced_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(blueprint_id) DO UPDATE SET source_title=excluded.source_title, source_description=excluded.source_description, product_type=excluded.product_type, provider_id=COALESCE(excluded.provider_id,printify_catalog_items.provider_id), source_json=excluded.source_json, variants_json=CASE WHEN json_array_length(excluded.variants_json)>0 THEN excluded.variants_json ELSE printify_catalog_items.variants_json END, images_json=excluded.images_json, sync_status=excluded.sync_status, source_available=excluded.source_available, last_synced_at=excluded.last_synced_at`, id, String(item.blueprintId).slice(0, 120), String(item.title).slice(0, 300), String(item.description ?? '').slice(0, 5000), String(item.productType ?? '').slice(0, 120), item.providerId ? String(item.providerId).slice(0, 120) : null, JSON.stringify(item.source ?? {}), JSON.stringify(item.variants ?? []), JSON.stringify(item.images ?? []), item.syncStatus ?? 'synced', item.sourceAvailable === false ? 0 : 1, syncedAt); });
+    return { count: 1, syncedAt };
+  }
+
+  savePrintifyCatalog(items: Array<{ blueprintId: string; title: string; description?: string; productType?: string; providerId?: string; source?: unknown; variants?: unknown[]; images?: unknown[]; sourceAvailable?: boolean; syncStatus?: string }>): { count: number; syncedAt: string } {
+    this.bootstrapCatalog(); const syncedAt = new Date().toISOString();
+    const cleanItems = items.slice(0, 500).filter((item) => /^[0-9]{1,20}$/.test(String(item.blueprintId)));
+    const seen = new Set(cleanItems.map((item) => String(item.blueprintId)));
+    this.ctx.storage.transactionSync(() => { for (const item of cleanItems) { const id = `printify-${item.blueprintId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100); this.ctx.storage.sql.exec(`INSERT INTO printify_catalog_items (id, blueprint_id, source_title, source_description, product_type, provider_id, source_json, variants_json, images_json, sync_status, source_available, last_synced_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(blueprint_id) DO UPDATE SET source_title=excluded.source_title, source_description=excluded.source_description, product_type=excluded.product_type, provider_id=COALESCE(excluded.provider_id,printify_catalog_items.provider_id), source_json=excluded.source_json, variants_json=CASE WHEN json_array_length(excluded.variants_json)>0 THEN excluded.variants_json ELSE printify_catalog_items.variants_json END, images_json=excluded.images_json, sync_status=excluded.sync_status, source_available=excluded.source_available, last_synced_at=excluded.last_synced_at`, id, String(item.blueprintId).slice(0, 120), String(item.title).slice(0, 300), String(item.description ?? '').slice(0, 5000), String(item.productType ?? '').slice(0, 120), item.providerId ? String(item.providerId).slice(0, 120) : null, JSON.stringify(item.source ?? {}), JSON.stringify(item.variants ?? []), JSON.stringify(item.images ?? []), item.syncStatus ?? 'synced', item.sourceAvailable === false ? 0 : 1, syncedAt); } for (const row of this.ctx.storage.sql.exec<{blueprint_id:string}>("SELECT blueprint_id FROM printify_catalog_items").toArray()) if (!seen.has(row.blueprint_id)) this.ctx.storage.sql.exec("UPDATE printify_catalog_items SET source_available=0,sync_status='source_unavailable',last_synced_at=? WHERE blueprint_id=?",syncedAt,row.blueprint_id); this.ctx.storage.sql.exec("INSERT OR REPLACE INTO business_settings (key,value_json,updated_at) VALUES ('printify_last_sync',?,CURRENT_TIMESTAMP)", JSON.stringify({ syncedAt, count: cleanItems.length, received: items.length })); });
+    return { count: items.length, syncedAt };
+  }
+
+  importPrintify(blueprintId: string, providerId?: string): unknown {
+    const item = this.printifyItem(blueprintId) as any; if (!item) throw new Error('Catalog item not found.'); const modelId = item.imported_model_id || `printify-model-${blueprintId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100);
+    this.ctx.storage.transactionSync(() => { const pid=String(providerId||item.provider_id||""); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO site_categories (id,name_ar,name_en,enabled,home_featured,home_order,mockup_mode) VALUES ('cat-printify','منتجات مخصصة','Custom products',1,0,999,'custom')"); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO product_models (id,category_id,name_ar,name_en,source,enabled) VALUES (?,?,?,?, 'printify',0)", modelId, 'cat-printify', item.source_title, item.source_title); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO printify_product_data (model_id) VALUES (?)", modelId); this.ctx.storage.sql.exec("UPDATE printify_catalog_items SET imported_model_id=? WHERE blueprint_id=?", modelId, blueprintId); for (const v of item.variants as any[]) { const nv=normalizePrintifyVariant(blueprintId,pid,v); if(!nv) continue; this.ctx.storage.sql.exec("INSERT OR REPLACE INTO printify_source_variants (blueprint_id,print_provider_id,variant_id,source_title,size,color,options_json,source_available,source_cost_internal,source_metadata_json,image_refs_json,placeholders_json,source_updated_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)",nv.blueprintId,nv.printProviderId,nv.variantId,nv.sourceTitle,nv.size,nv.color,JSON.stringify(nv.options),nv.sourceAvailable?1:0,nv.sourceCostInternal,JSON.stringify(nv.metadata),JSON.stringify(nv.images),JSON.stringify(nv.placeholders),new Date().toISOString()); const vid = `pv-${blueprintId}-${nv.variantId}`.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO variants (id,model_id,sku,color,size,options_json,retail_price_jod,enabled) VALUES (?,?,?,?,?,?,0,0)", vid, modelId, `PRINTIFY-${vid}`.slice(0, 120), nv.color, nv.size, JSON.stringify(nv)); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO printify_variant_settings (variant_id,source_cost_jod,enabled) VALUES (?,?,0)", vid, nv.sourceCostInternal); } }); return this.printifyItem(blueprintId);
+  }
+
+  updatePrintifyProduct(modelId: string, input: { titleEn?: string; titleAr?: string; descriptionEn?: string; descriptionAr?: string; displayImage?: string | null; categoryId?: string; customerPriceJod?: number | null; printYourDream?: boolean; enabled?: boolean; selectedProviderId?: string | null; enabledVariants?: string[] }): unknown {
+    this.bootstrapCatalog(); const current = this.ctx.storage.sql.exec<any>('SELECT * FROM printify_product_data WHERE model_id=?', modelId).toArray()[0]; if (!current) throw new Error('Imported product not found.');
+    const price = input.customerPriceJod === undefined ? (Number(current.customer_price_jod || 0) / 100) : Number(input.customerPriceJod);
+    if (!Number.isFinite(price) || price < 0 || price > 1000000) throw new Error('Customer price must be a finite non-negative value under 1,000,000.');
+    this.ctx.storage.transactionSync(() => {
+      this.ctx.storage.sql.exec('UPDATE printify_product_data SET title_en=?,title_ar=?,description_en=?,description_ar=?,display_image=?,customer_price_jod=?,print_your_dream=?,selected_provider_id=?,updated_at=CURRENT_TIMESTAMP WHERE model_id=?', String(input.titleEn ?? current.title_en).trim().slice(0,300), String(input.titleAr ?? current.title_ar).trim().slice(0,300), String(input.descriptionEn ?? current.description_en).trim().slice(0,5000), String(input.descriptionAr ?? current.description_ar).trim().slice(0,5000), input.displayImage === undefined ? current.display_image : String(input.displayImage || '').slice(0,1000) || null, Math.round(price*100), input.printYourDream === false ? 0 : 1, input.selectedProviderId === undefined ? current.selected_provider_id : (input.selectedProviderId ? String(input.selectedProviderId).slice(0,80) : null), modelId);
+      if (input.categoryId) this.ctx.storage.sql.exec('UPDATE product_models SET category_id=? WHERE id=?', input.categoryId.slice(0,100), modelId);
+      if (input.enabled !== undefined) this.ctx.storage.sql.exec('UPDATE product_models SET enabled=? WHERE id=?', input.enabled ? 1 : 0, modelId);
+      if (input.enabledVariants) { this.ctx.storage.sql.exec('UPDATE variants SET enabled=0 WHERE model_id=?', modelId); for (const id of input.enabledVariants.slice(0,100)) this.ctx.storage.sql.exec('UPDATE variants SET enabled=1 WHERE id=? AND model_id=?', String(id).slice(0,120), modelId); }
+    }); return this.printifyItem(this.ctx.storage.sql.exec<{ blueprint_id:string }>('SELECT blueprint_id FROM printify_catalog_items WHERE imported_model_id=?',modelId).one().blueprint_id);
+  }
+
+  publishPrintify(modelId: string, published: boolean): unknown {
+    this.bootstrapCatalog(); const row = this.ctx.storage.sql.exec<any>('SELECT p.*,c.blueprint_id,c.source_available FROM printify_product_data p JOIN printify_catalog_items c ON c.imported_model_id=p.model_id WHERE p.model_id=?',modelId).toArray()[0]; if (!row) throw new Error('Imported product not found.');
+    if (!published) { this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=0,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=0 WHERE id=?',modelId); return this.printifyItem(row.blueprint_id); }
+    const errors:string[]=[]; if(!String(row.title_en||'').trim()) errors.push('English title is required.'); if(!String(row.title_ar||'').trim()) errors.push('Arabic title is required.'); if(!String(row.description_en||'').trim()) errors.push('English description is required.'); if(!String(row.description_ar||'').trim()) errors.push('Arabic description is required.'); if(!(Number(row.customer_price_jod)>0&&Number.isFinite(Number(row.customer_price_jod)))) errors.push('A valid customer price is required.'); if(!row.display_image) errors.push('Main Display Image is required.'); if(!row.selected_provider_id) errors.push('A Print Provider must be selected.'); if(Number(row.source_available)!==1) errors.push('Source product is unavailable.'); const variants=this.ctx.storage.sql.exec<any>('SELECT v.id,v.enabled,v.options_json FROM variants v WHERE v.model_id=?',modelId).toArray(); const validVariants=variants.filter(v=>Number(v.enabled)===1 && JSON.parse(v.options_json||'{}').source_available!==false); if(!validVariants.length) errors.push('At least one valid enabled variant must be selected.'); if(errors.length) return {ok:false,errors}; this.ctx.storage.sql.exec('UPDATE printify_product_data SET published=1,updated_at=CURRENT_TIMESTAMP WHERE model_id=?',modelId); this.ctx.storage.sql.exec('UPDATE product_models SET enabled=1 WHERE id=?',modelId); return this.printifyItem(row.blueprint_id);
+  }
+
+  async registerUser(input: { displayName: string; email: string; password: string; role: "customer" | "designer" }): Promise<{userId:string;role:"customer"|"designer";sessionId:string}> {
+    this.bootstrapCatalog();
+    const displayName = String(input.displayName || "").trim().slice(0, 160);
+    const email = String(input.email || "").trim().toLowerCase().slice(0, 320);
+    const password = String(input.password || "");
+    const role: "customer" | "designer" = input.role === "designer" ? "designer" : "customer";
+    if (displayName.length < 2) throw new Error("Display name is required.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Enter a valid email address.");
+    if (password.length < 8) throw new Error("Password must be at least 8 characters.");
+    if (this.ctx.storage.sql.exec<any>("SELECT id FROM users WHERE email=?", email).toArray()[0]) throw new Error("An account with this email already exists.");
+
+    const userId = crypto.randomUUID();
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const hash = await hashPassword(password, salt);
+    const sessionId = crypto.randomUUID();
+    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+    const roleId = role === "designer" ? "role-designer" : "role-customer";
+
+    this.ctx.storage.transactionSync(() => {
+      this.ctx.storage.sql.exec("INSERT INTO users (id,email,display_name,status) VALUES (?,?,?,'active')", userId, email, displayName);
+      this.ctx.storage.sql.exec("INSERT INTO auth_credentials (user_id,password_salt,password_hash,updated_at) VALUES (?,?,?,CURRENT_TIMESTAMP)", userId, bytesToBase64(salt), hash);
+      this.ctx.storage.sql.exec("INSERT INTO user_roles (user_id,role_id) VALUES (?,?)", userId, roleId);
+      if (role === "designer") {
+        this.ctx.storage.sql.exec("INSERT INTO designer_profiles (user_id,authorization_status,created_at) VALUES (?,'pending',CURRENT_TIMESTAMP)", userId);
+      } else {
+        this.ctx.storage.sql.exec("INSERT INTO customer_profiles (user_id) VALUES (?)", userId);
+      }
+      this.ctx.storage.sql.exec("INSERT INTO sessions (id,user_id,expires_at,created_at) VALUES (?,?,?,CURRENT_TIMESTAMP)", sessionId, userId, expiresAt);
+    });
+
+    return { userId, role, sessionId };
+  }
+
+  async loginUser(identifier: string, password: string): Promise<{userId:string;role:"customer"|"designer";sessionId:string}|null> {
+    this.bootstrapCatalog();
+    const clean = String(identifier || "").trim().toLowerCase();
+    const suppliedPassword = String(password || "");
+    if (!clean || !suppliedPassword) return null;
+
+    const row = this.ctx.storage.sql.exec<any>(`
+      SELECT u.id, u.email, u.status, a.password_salt, a.password_hash, r.name AS role
+      FROM users u
+      JOIN auth_credentials a ON a.user_id = u.id
+      JOIN user_roles ur ON ur.user_id = u.id
+      JOIN roles r ON r.id = ur.role_id
+      LEFT JOIN customer_profiles cp ON cp.user_id = u.id
+      WHERE u.status = 'active'
+        AND (LOWER(u.email) = ? OR LOWER(COALESCE(cp.phone,'')) = ?)
+        AND r.name IN ('customer','designer')
+      ORDER BY CASE r.name WHEN 'designer' THEN 0 ELSE 1 END
+      LIMIT 1
+    `, clean, clean).toArray()[0];
+    if (!row) return null;
+
+    let valid = false;
+    try { valid = await verifyPassword(suppliedPassword, String(row.password_salt || ""), String(row.password_hash || "")); } catch { return null; }
+    if (!valid) return null;
+
+    const role: "customer" | "designer" = row.role === "designer" ? "designer" : "customer";
+    const sessionId = crypto.randomUUID();
+    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+    this.ctx.storage.transactionSync(() => {
+      this.ctx.storage.sql.exec("DELETE FROM sessions WHERE expires_at <= ?", Date.now());
+      this.ctx.storage.sql.exec("INSERT INTO sessions (id,user_id,expires_at,created_at) VALUES (?,?,?,CURRENT_TIMESTAMP)", sessionId, row.id, expiresAt);
+    });
+    return { userId: String(row.id), role, sessionId };
+  }
+
+  sessionIdentity(sessionId: string): {userId:string;role:"customer"|"designer";displayName:string;email:string}|null {
+    this.bootstrapCatalog();
+    const id=String(sessionId||"").trim(); if(!id) return null;
+    const now=Date.now();
+    this.ctx.storage.sql.exec("DELETE FROM sessions WHERE expires_at<=?",now);
+    const row=this.ctx.storage.sql.exec<any>(`SELECT s.user_id AS userId,u.display_name AS displayName,u.email,r.name AS role
+      FROM sessions s JOIN users u ON u.id=s.user_id JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id
+      WHERE s.id=? AND s.expires_at>? AND u.status='active' AND r.name IN ('customer','designer')
+      ORDER BY CASE r.name WHEN 'customer' THEN 0 ELSE 1 END LIMIT 1`,id,now).toArray()[0];
+    return row?{userId:String(row.userId),role:row.role==="designer"?"designer":"customer",displayName:String(row.displayName||""),email:String(row.email||"")}:null;
+  }
+
+  customerOrderSummary(sessionId:string,orderId:string):unknown{
+    this.bootstrapCatalog();const identity=this.sessionIdentity(sessionId);if(!identity)throw new Error("Customer sign-in is required.");const id=String(orderId||"").trim();
+    const order=this.ctx.storage.sql.exec<any>("SELECT o.id,o.status,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,o.total_jod AS totalJod,o.currency,o.created_at AS createdAt,ocd.subtotal_jod AS subtotalJod,ocd.delivery_fee_jod AS deliveryFeeJod,ocd.discount_jod AS discountJod,ocd.promotion_code AS promotionCode,ocd.customer_name AS customerName,ocd.customer_phone AS customerPhone,ocd.city,ocd.address,ocd.reservation_expires_at AS reservationExpiresAt FROM orders o LEFT JOIN order_checkout_details ocd ON ocd.order_id=o.id WHERE o.id=? AND o.user_id=?",id,identity.userId).toArray()[0];
+    if(!order)return null;
+    const items=this.ctx.storage.sql.exec<any>("SELECT oi.id,oi.quantity,oi.variant_id AS variantId,v.sku,v.color,v.size,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,oi.design_id AS designId,d.title_en AS designTitleEn,d.title_ar AS designTitleAr,oi.master_asset_id AS masterAssetId,oi.price_snapshot_json AS priceSnapshotJson FROM order_items oi JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id LEFT JOIN designs d ON d.id=oi.design_id WHERE oi.order_id=? ORDER BY oi.id",id).toArray().map((x:any)=>{let p:any={};try{p=JSON.parse(String(x.priceSnapshotJson||"{}"));}catch{}return {id:x.id,quantity:Number(x.quantity),variantId:x.variantId,sku:x.sku,color:x.color,size:x.size,productNameEn:x.productNameEn,productNameAr:x.productNameAr,designId:x.designId,designTitleEn:x.designTitleEn,designTitleAr:x.designTitleAr,masterAssetId:x.masterAssetId,unitPriceJod:Number(p.unitPriceJod||0)};});
+    const payment=this.ctx.storage.sql.exec<any>("SELECT method,status,created_at AS createdAt FROM payments WHERE order_id=? ORDER BY created_at DESC LIMIT 1",id).toArray()[0]??null;
+
+[721 more lines in file. Use offset=1204 to continue.]  }
+
+  private async adminPasswordHash(password: string, salt: Uint8Array): Promise<string> {
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+    const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt: salt.buffer as ArrayBuffer, iterations: 100000, hash: "SHA-256" }, key, 256);
+    return btoa(String.fromCharCode(...new Uint8Array(bits)));
+  }
+  private adminB64(bytes: Uint8Array): string { return btoa(String.fromCharCode(...bytes)); }
+  async adminIdentity(id: string): Promise<{id:string;username:string;role:"main_admin"|"printing_technician";groupId:string}|null> { this.bootstrapCatalog(); const row=this.ctx.storage.sql.exec<any>("SELECT id,username,role,COALESCE(group_id,CASE WHEN role='main_admin' THEN 'group-main-admin' ELSE 'group-printing-operator' END) AS group_id FROM admin_users WHERE id=? AND enabled=1",id).toArray()[0]; return row ? {id:row.id,username:row.username,role:row.role,groupId:row.group_id} : null; }
+  async getOrCreateAdminSessionKey(): Promise<string> { this.bootstrapCatalog(); const existing=this.ctx.storage.sql.exec<any>("SELECT secret_value FROM server_secrets WHERE key_name=?","ADMIN_WEB_KEY").toArray()[0]; if(existing?.secret_value) return existing.secret_value; const bytes=crypto.getRandomValues(new Uint8Array(32)); const value=btoa(String.fromCharCode(...bytes)).replaceAll("+","-").replaceAll("/","_").replaceAll("=",""); this.ctx.storage.sql.exec("INSERT OR IGNORE INTO server_secrets (key_name,secret_value) VALUES (?,?)","ADMIN_WEB_KEY",value); return this.ctx.storage.sql.exec<any>("SELECT secret_value FROM server_secrets WHERE key_name=?","ADMIN_WEB_KEY").toArray()[0].secret_value; }
+  async adminCount(): Promise<number> { this.bootstrapCatalog(); return this.ctx.storage.sql.exec<{count:number}>("SELECT COUNT(*) AS count FROM admin_users").one().count; }
+  async bootstrapAdmin(username: string, password: string, role: "main_admin"|"printing_technician" = "main_admin"): Promise<{id:string;username:string;role:string}> {
+    this.bootstrapCatalog(); const clean=String(username||"").trim().toLowerCase(); if(!/^[a-z0-9][a-z0-9._-]{2,63}$/.test(clean)) throw new Error("Username must be 3-64 characters and use letters, numbers, dot, underscore, or hyphen."); if(String(password||"").length<12) throw new Error("Password must be at least 12 characters."); if(await this.adminCount()>0) throw new Error("Admin bootstrap is already completed."); const salt=crypto.getRandomValues(new Uint8Array(16)); const id=crypto.randomUUID(); const hash=await this.adminPasswordHash(password,salt); const groupId=role==="main_admin"?"group-main-admin":"group-printing-operator"; this.ctx.storage.sql.exec("INSERT INTO admin_users (id,username,password_salt,password_hash,role,group_id) VALUES (?,?,?,?,?,?)",id,clean,this.adminB64(salt),hash,role,groupId); return {id,username:clean,role};
+  }
+  async updateAdminAccount(id: string, currentPassword: string, newUsername: string, newPassword: string): Promise<{id:string;username:string;role:"main_admin"|"printing_technician"}> {
+    this.bootstrapCatalog();
+    const row = this.ctx.storage.sql.exec<any>("SELECT id,username,password_salt,password_hash,role,enabled FROM admin_users WHERE id=? AND enabled=1", id).toArray()[0];
+    if (!row) throw new Error("Admin account not found.");
+    const currentHash = await this.adminPasswordHash(String(currentPassword || ""), base64ToBytes(String(row.password_salt || "")));
+    if (currentHash !== String(row.password_hash || "")) throw new Error("Current password is incorrect.");
+    const clean = String(newUsername || "").trim().toLowerCase();
+    if (!/^[a-z0-9][a-z0-9._-]{2,63}$/.test(clean)) throw new Error("Username must be 3-64 characters and use letters, numbers, dot, underscore, or hyphen.");
+    if (String(newPassword || "").length < 12) throw new Error("Password must be at least 12 characters.");
+    const duplicate = this.ctx.storage.sql.exec<any>("SELECT id FROM admin_users WHERE username=? AND id<>?", clean, id).toArray()[0];
+    if (duplicate) throw new Error("Username is already in use.");
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const hash = await this.adminPasswordHash(newPassword, salt);
+    this.ctx.storage.sql.exec("UPDATE admin_users SET username=?,password_salt=?,password_hash=?,updated_at=CURRENT_TIMESTAMP WHERE id=?", clean, this.adminB64(salt), hash, id);
+    return { id: String(row.id), username: clean, role: row.role };
+  }
+
+  private assertMainAdmin(actorId: string): void { const actor=this.ctx.storage.sql.exec<any>("SELECT id,group_id,enabled FROM admin_users WHERE id=?",actorId).toArray()[0]; if(!actor || Number(actor.enabled)!==1 || actor.group_id!=="group-main-admin") throw new Error("Main Administrator permission required."); }
+  async createAdminUserAsync(actorId: string, username: string, password: string, groupOrRole: string): Promise<unknown> {
+    this.bootstrapCatalog(); this.assertMainAdmin(actorId);
+    const clean=String(username||"").trim().toLowerCase();
+    if(!/^[a-z0-9][a-z0-9._-]{2,63}$/.test(clean)) throw new Error("Username must be 3-64 characters and use letters, numbers, dot, underscore, or hyphen.");
+    if(String(password||"").length<12) throw new Error("Password must be at least 12 characters.");
+    const requested=String(groupOrRole||"group-printing-operator");
+    const groupId=requested==="main_admin"?"group-main-admin":requested==="printing_technician"?"group-printing-operator":requested;
+    const group=this.ctx.storage.sql.exec<any>("SELECT id,enabled FROM admin_user_groups WHERE id=?",groupId).toArray()[0];
+    if(!group || Number(group.enabled)!==1) throw new Error("Invalid or disabled Admin User Group.");
+    if(this.ctx.storage.sql.exec<any>("SELECT id FROM admin_users WHERE username=?",clean).toArray()[0]) throw new Error("Username is already in use.");
+    const salt=crypto.getRandomValues(new Uint8Array(16)); const hash=await this.adminPasswordHash(password,salt); const id=crypto.randomUUID();
+    const role=groupId==="group-main-admin"?"main_admin":"printing_technician";
+    this.ctx.storage.sql.exec("INSERT INTO admin_users (id,username,password_salt,password_hash,role,group_id) VALUES (?,?,?,?,?,?)",id,clean,this.adminB64(salt),hash,role,groupId);
+    this.adminAudit(actorId,"admin.user.create","admin_user",id,"success",{username:clean,groupId});
+    return {id,username:clean,role,groupId,enabled:1};
+  }
+  setAdminUserEnabled(actorId: string, targetId: string, enabled: boolean): unknown {
+    this.bootstrapCatalog(); this.assertMainAdmin(actorId);
+    const row=this.ctx.storage.sql.exec<any>("SELECT id,group_id,enabled FROM admin_users WHERE id=?",targetId).toArray()[0];
+    if(!row) throw new Error("Admin user not found.");
+    if(!enabled && row.group_id==="group-main-admin" && Number(row.enabled)===1 && Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM admin_users WHERE group_id='group-main-admin' AND enabled=1").one().count)<=1) throw new Error("The last Main Administrator cannot be disabled.");
+    this.ctx.storage.sql.exec("UPDATE admin_users SET enabled=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",enabled?1:0,targetId);
+    this.adminAudit(actorId,"admin.user.set_enabled","admin_user",targetId,"success",{enabled});
+    return {id:targetId,enabled:enabled?1:0};
+  }
+  setAdminUserRole(actorId: string, targetId: string, role: "main_admin"|"printing_technician"): unknown {
+    const groupId=role==="main_admin"?"group-main-admin":"group-printing-operator";
+    const group=this.setAdminUserGroup(actorId,targetId,groupId);
+    return {id:targetId,role,group};
+  }
+  adminAuditLogs(filters: { search?:string; action?:string; resourceType?:string; actorId?:string; dateFrom?:string; dateTo?:string; page?:number; pageSize?:number } = {}): unknown {
+    this.bootstrapCatalog();
+    const conditions:string[]=[]; const args:any[]=[];
+    const search=String(filters.search??"").trim().toLowerCase();
+    if(search){conditions.push("(lower(a.action) LIKE ? OR lower(a.resource_type) LIKE ? OR lower(COALESCE(a.resource_id,'')) LIKE ? OR lower(COALESCE(a.actor_id,'')) LIKE ? OR lower(COALESCE(au.username,'')) LIKE ?)");const q="%"+search+"%";args.push(q,q,q,q,q);}
+    const action=String(filters.action??"").trim().toLowerCase();if(action){conditions.push("lower(a.action)=?");args.push(action);}
+    const resourceType=String(filters.resourceType??"").trim().toLowerCase();if(resourceType){conditions.push("lower(a.resource_type)=?");args.push(resourceType);}
+    const actorId=String(filters.actorId??"").trim();if(actorId){conditions.push("a.actor_id=?");args.push(actorId);}
+    const dateFrom=String(filters.dateFrom??"").trim();if(/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)){conditions.push("date(a.created_at)>=date(?)");args.push(dateFrom);}
+    const dateTo=String(filters.dateTo??"").trim();if(/^\d{4}-\d{2}-\d{2}$/.test(dateTo)){conditions.push("date(a.created_at)<=date(?)");args.push(dateTo);}
+    const where=conditions.length?" WHERE "+conditions.join(" AND "):"";
+    const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||25)));
+    const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM audit_logs a LEFT JOIN admin_users au ON au.id=a.actor_id"+where,...args).toArray()[0]?.count??0);
+    const pages=Math.max(1,Math.ceil(total/pageSize));const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1)));const offset=(page-1)*pageSize;
+    const rows=this.ctx.storage.sql.exec<any>("SELECT a.id,a.actor_id AS actorId,a.actor_role AS actorRole,au.username AS actorUsername,a.action,a.resource_type AS resourceType,a.resource_id AS resourceId,a.metadata_json AS metadataJson,a.created_at AS createdAt FROM audit_logs a LEFT JOIN admin_users au ON au.id=a.actor_id"+where+" ORDER BY a.id DESC LIMIT ? OFFSET ?",...args,pageSize,offset).toArray();
+    const items=rows.map((row:any)=>{let parsed:any={};try{parsed=JSON.parse(String(row.metadataJson??"{}"));}catch{parsed={invalidMetadata:true};}const safe=sanitizeAuditMetadataValue(parsed);return {id:row.id,actorId:row.actorId,actorRole:row.actorRole,actorUsername:row.actorUsername,action:row.action,resourceType:row.resourceType,resourceId:row.resourceId,metadata:safe,result:safe&&typeof safe==="object"&&!Array.isArray(safe)?String((safe as any).result??""):"",createdAt:row.createdAt};});
+    const actionOptions=this.ctx.storage.sql.exec<any>("SELECT DISTINCT action FROM audit_logs ORDER BY action LIMIT 500").toArray().map((x:any)=>String(x.action));
+    const resourceTypes=this.ctx.storage.sql.exec<any>("SELECT DISTINCT resource_type AS resourceType FROM audit_logs ORDER BY resource_type LIMIT 500").toArray().map((x:any)=>String(x.resourceType));
+    return {items,total,page,pageSize,pages,actionOptions,resourceTypes};
+  }
+
+  adminAuditList(limit=100): unknown[] {
+    const result=this.adminAuditLogs({page:1,pageSize:Math.max(1,Math.min(100,Math.floor(limit)))}) as any;
+    return Array.isArray(result.items)?result.items:[];
+  }
+
+  adminPermission(userId: string, resource: string, permission: "access"|"modify"): boolean { this.bootstrapCatalog(); const row=this.ctx.storage.sql.exec<any>("SELECT au.enabled,g.enabled AS group_enabled,g.id AS group_id FROM admin_users au JOIN admin_user_groups g ON g.id=au.group_id WHERE au.id=?",userId).toArray()[0]; if(!row || Number(row.enabled)!==1 || Number(row.group_enabled)!==1) return false; if(row.group_id==="group-main-admin") return true; return Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM admin_group_permissions WHERE group_id=? AND resource=? AND permission=?",row.group_id,resource,permission).toArray()[0]?.ok); }
+  adminGroupForUser(userId: string): unknown { this.bootstrapCatalog(); return this.ctx.storage.sql.exec<any>("SELECT g.id,g.name,g.is_system AS isSystem,g.protected,g.enabled FROM admin_users u JOIN admin_user_groups g ON g.id=u.group_id WHERE u.id=?",userId).toArray()[0] ?? null; }
+  adminGroupsDetailed(): unknown[] { this.bootstrapCatalog(); return this.ctx.storage.sql.exec<any>("SELECT g.id,g.name,g.is_system AS isSystem,g.protected,g.enabled,COUNT(u.id) AS userCount FROM admin_user_groups g LEFT JOIN admin_users u ON u.group_id=g.id GROUP BY g.id ORDER BY g.is_system DESC,g.name").toArray(); }
+  adminGroupPermissions(groupId: string): unknown[] { this.bootstrapCatalog(); return this.ctx.storage.sql.exec<any>("SELECT resource,permission FROM admin_group_permissions WHERE group_id=? ORDER BY resource,permission",groupId).toArray(); }
+  setAdminGroupPermissions(actorId: string, groupId: string, permissions: Array<{resource:string;access?:boolean;modify?:boolean}>): unknown[] { this.assertMainAdmin(actorId); const group=this.ctx.storage.sql.exec<any>("SELECT protected FROM admin_user_groups WHERE id=?",groupId).toArray()[0]; if(!group) throw new Error("Group not found."); if(Number(group.protected)===1 && groupId==="group-main-admin") throw new Error("Main Administrator permissions are immutable."); this.ctx.storage.transactionSync(()=>{ this.ctx.storage.sql.exec("DELETE FROM admin_group_permissions WHERE group_id=?",groupId); for(const p of permissions.slice(0,200)){const resource=String(p.resource||"").slice(0,120); if(!resource) continue; if(p.access) this.ctx.storage.sql.exec("INSERT OR IGNORE INTO admin_group_permissions (group_id,resource,permission) VALUES (?,?,?)",groupId,resource,"access"); if(p.modify) this.ctx.storage.sql.exec("INSERT OR IGNORE INTO admin_group_permissions (group_id,resource,permission) VALUES (?,?,?)",groupId,resource,"modify");} }); this.adminAudit(actorId,"admin.group.permissions.update","admin_group",groupId,"success",{count:permissions.length}); return this.adminGroupPermissions(groupId); }
+  createAdminGroup(actorId: string,name: string): unknown { this.assertMainAdmin(actorId); const clean=String(name||"").trim().slice(0,100); if(!clean) throw new Error("Group name is required."); if(this.ctx.storage.sql.exec<any>("SELECT id FROM admin_user_groups WHERE name=?",clean).toArray()[0]) throw new Error("Group already exists."); const id='group-'+crypto.randomUUID(); this.ctx.storage.sql.exec("INSERT INTO admin_user_groups (id,name) VALUES (?,?)",id,clean); this.adminAudit(actorId,"admin.group.create","admin_group",id,"success",{name:clean}); return {id,name:clean}; }
+  updateAdminGroup(actorId: string,groupId: string,name: string,enabled?: boolean): unknown { this.assertMainAdmin(actorId); const row=this.ctx.storage.sql.exec<any>("SELECT * FROM admin_user_groups WHERE id=?",groupId).toArray()[0]; if(!row) throw new Error("Group not found."); if(Number(row.protected)===1 && name && name!==row.name) throw new Error("Protected groups cannot be renamed."); if(Number(row.protected)===1 && enabled===false) throw new Error("Protected groups cannot be disabled."); this.ctx.storage.sql.exec("UPDATE admin_user_groups SET name=COALESCE(?,name),enabled=COALESCE(?,enabled),updated_at=CURRENT_TIMESTAMP WHERE id=?",name?String(name).trim().slice(0,100):null,enabled===undefined?null:(enabled?1:0),groupId); this.adminAudit(actorId,"admin.group.update","admin_group",groupId,"success",{name,enabled}); return this.ctx.storage.sql.exec<any>("SELECT * FROM admin_user_groups WHERE id=?",groupId).toArray()[0]; }
+  deleteAdminGroup(actorId: string,groupId: string): void { this.assertMainAdmin(actorId); const row=this.ctx.storage.sql.exec<any>("SELECT protected FROM admin_user_groups WHERE id=?",groupId).toArray()[0]; if(!row) throw new Error("Group not found."); if(Number(row.protected)===1) throw new Error("Protected groups cannot be deleted."); const count=this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM admin_users WHERE group_id=?",groupId).one().count; if(Number(count)>0) throw new Error("Reassign users before deleting this group."); this.ctx.storage.sql.exec("DELETE FROM admin_user_groups WHERE id=?",groupId); this.adminAudit(actorId,"admin.group.delete","admin_group",groupId,"success"); }
+  setAdminUserGroup(actorId: string,targetId: string,groupId: string): unknown {
+    this.assertMainAdmin(actorId);
+    const target=this.ctx.storage.sql.exec<any>("SELECT id,group_id,enabled FROM admin_users WHERE id=?",targetId).toArray()[0];
+    const group=this.ctx.storage.sql.exec<any>("SELECT id FROM admin_user_groups WHERE id=? AND enabled=1",groupId).toArray()[0];
+    if(!target||!group) throw new Error("Admin or group not found.");
+    if(target.group_id==="group-main-admin" && groupId!=="group-main-admin" && Number(target.enabled)===1 && Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM admin_users WHERE group_id='group-main-admin' AND enabled=1").one().count)<=1) throw new Error("The last Main Administrator cannot leave the protected group.");
+    const role=groupId==="group-main-admin"?"main_admin":"printing_technician";
+    this.ctx.storage.sql.exec("UPDATE admin_users SET group_id=?,role=?,updated_at=CURRENT_TIMESTAMP WHERE id=?",groupId,role,targetId);
+    this.adminAudit(actorId,"admin.user.assign_group","admin_user",targetId,"success",{groupId});
+    return this.adminGroupForUser(targetId);
+  }
+
+  adminCan(role: "main_admin"|"printing_technician", resource: string, action: string): boolean { this.bootstrapCatalog(); if (role === "main_admin") return true; return Boolean(this.ctx.storage.sql.exec<{ok:number}>("SELECT 1 AS ok FROM admin_permission_assignments WHERE role=? AND resource=? AND action=?", role, resource, action).toArray()[0]?.ok); }
+  adminUsers() { this.bootstrapCatalog(); return this.ctx.storage.sql.exec("SELECT id,username,role,enabled,created_at AS createdAt,updated_at AS updatedAt,last_login_at AS lastLoginAt FROM admin_users ORDER BY username").toArray(); }
+  adminUsersDetailed() { this.bootstrapCatalog(); return this.ctx.storage.sql.exec("SELECT u.id,u.username,u.role,u.enabled,u.group_id,g.name AS group_name,g.enabled AS group_enabled,u.created_at AS createdAt,u.updated_at AS updatedAt,u.last_login_at AS lastLoginAt FROM admin_users u LEFT JOIN admin_user_groups g ON g.id=u.group_id ORDER BY u.username").toArray(); }
+  adminGroups() { this.bootstrapCatalog(); return this.ctx.storage.sql.exec("SELECT role AS id, CASE role WHEN 'main_admin' THEN 'Main Administrator' ELSE 'Printing Operator' END AS name, role='main_admin' AS fullAccess, COUNT(*) AS userCount FROM admin_users GROUP BY role").toArray(); }
+  adminPermissionMatrix(role: "main_admin"|"printing_technician") { this.bootstrapCatalog(); if (role === "main_admin") return this.ctx.storage.sql.exec("SELECT DISTINCT resource, action, 1 AS allowed FROM admin_permission_assignments ORDER BY resource, action").toArray(); return this.ctx.storage.sql.exec("SELECT resource, action, 1 AS allowed FROM admin_permission_assignments WHERE role=? ORDER BY resource, action", role).toArray(); }
+  adminAudit(actorId: string, action: string, resourceType: string, resourceId: string|null, result: string, metadata: unknown = {}) { this.bootstrapCatalog(); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,?,?,?,?,?)", actorId, "admin", action, resourceType, resourceId, JSON.stringify({result, metadata})); }
+
+  adminOrdersList(filters: { search?:string; status?:string; paymentStatus?:string; fulfillmentMode?:string; dateFrom?:string; dateTo?:string; sort?:string; direction?:string; page?:number; pageSize?:number } = {}): unknown {
+    this.bootstrapCatalog();
+    const conditions:string[]=[]; const args:any[]=[];
+    const search=String(filters.search??"").trim().toLowerCase();
+    if(search){conditions.push("(lower(o.id) LIKE ? OR lower(COALESCE(u.display_name,'')) LIKE ? OR lower(COALESCE(u.email,'')) LIKE ? OR lower(COALESCE(cp.phone,'')) LIKE ?)"); const q="%"+search+"%"; args.push(q,q,q,q);}
+    const status=String(filters.status??"").trim().toLowerCase(); if(status){conditions.push("lower(o.status)=?");args.push(status);}
+    const paymentStatus=String(filters.paymentStatus??"").trim().toLowerCase(); if(paymentStatus){conditions.push("lower(o.payment_status)=?");args.push(paymentStatus);}
+    const fulfillmentMode=String(filters.fulfillmentMode??"").trim().toLowerCase(); if(fulfillmentMode){conditions.push("lower(o.fulfillment_mode)=?");args.push(fulfillmentMode);}
+    const dateFrom=String(filters.dateFrom??"").trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)){conditions.push("date(o.created_at)>=date(?)");args.push(dateFrom);}
+    const dateTo=String(filters.dateTo??"").trim(); if(/^\d{4}-\d{2}-\d{2}$/.test(dateTo)){conditions.push("date(o.created_at)<=date(?)");args.push(dateTo);}
+    const where=conditions.length?" WHERE "+conditions.join(" AND "):"";
+    const sortMap:Record<string,string>={date:"o.created_at",id:"o.id",customer:"COALESCE(u.display_name,u.email,o.user_id,'')",status:"o.status",payment:"o.payment_status",total:"o.total_jod"};
+    const sortColumn=sortMap[String(filters.sort??"date")]??sortMap.date;
+    const direction=String(filters.direction??"desc").toLowerCase()==="asc"?"ASC":"DESC";
+    const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||20)));
+    const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM orders o LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id"+where,...args).toArray()[0]?.count??0);
+    const pages=Math.max(1,Math.ceil(total/pageSize)); const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1))); const offset=(page-1)*pageSize;
+    const items=this.ctx.storage.sql.exec<any>(`SELECT o.id,o.status,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,o.total_jod AS totalJod,o.currency,o.created_at AS createdAt,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,(SELECT COUNT(*) FROM order_items oi WHERE oi.order_id=o.id) AS itemCount FROM orders o LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id${where} ORDER BY ${sortColumn} ${direction} LIMIT ? OFFSET ?`,...args,pageSize,offset).toArray();
+    return {items,total,page,pageSize,pages,sort:String(filters.sort??"date"),direction:direction.toLowerCase()};
+  }
+
+  adminOrderDetail(orderId: string): unknown {
+    this.bootstrapCatalog(); const id=String(orderId||"").trim();
+    const order=this.ctx.storage.sql.exec<any>("SELECT o.id,o.user_id AS userId,o.status,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,o.total_jod AS totalJod,o.currency,o.exchange_rate_json AS exchangeRateJson,o.created_at AS createdAt,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,cp.default_address_json AS defaultAddressJson FROM orders o LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id WHERE o.id=?",id).toArray()[0];
+    if(!order) return null;
+    const parse=(value:any,fallback:any)=>{try{return JSON.parse(String(value??""));}catch{return fallback;}};
+    const items=this.ctx.storage.sql.exec<any>("SELECT oi.id,oi.quantity,oi.variant_id AS variantId,v.sku,v.color,v.size,v.options_json AS variantOptionsJson,v.retail_price_jod AS currentRetailPriceJod,pm.id AS modelId,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,oi.design_id AS designId,d.title_en AS designTitleEn,d.title_ar AS designTitleAr,oi.master_asset_id AS masterAssetId,a.original_filename AS masterFilename,a.mime_type AS masterMimeType,a.storage_key AS masterStorageKey,a.protected AS masterProtected,oi.print_spec_json AS printSpecJson,oi.price_snapshot_json AS priceSnapshotJson,(SELECT pj.id FROM printing_jobs pj WHERE pj.order_item_id=oi.id ORDER BY pj.created_at DESC LIMIT 1) AS printingJobId,(SELECT pj.status FROM printing_jobs pj WHERE pj.order_item_id=oi.id ORDER BY pj.created_at DESC LIMIT 1) AS printingJobStatus,(SELECT pj.master_asset_id FROM printing_jobs pj WHERE pj.order_item_id=oi.id ORDER BY pj.created_at DESC LIMIT 1) AS printingJobMasterAssetId FROM order_items oi JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id LEFT JOIN designs d ON d.id=oi.design_id LEFT JOIN assets a ON a.id=oi.master_asset_id WHERE oi.order_id=? ORDER BY oi.id",id).toArray().map((row:any)=>({...row,variantOptions:parse(row.variantOptionsJson,{}),printSpec:parse(row.printSpecJson,{}),priceSnapshot:parse(row.priceSnapshotJson,{})}));
+    const payments=this.ctx.storage.sql.exec<any>("SELECT id,method,status,proof_storage_key AS proofStorageKey,confirmed_by AS confirmedBy,created_at AS createdAt FROM payments WHERE order_id=? ORDER BY created_at",id).toArray();
+    const history=this.ctx.storage.sql.exec<any>("SELECT h.id,h.event_type AS eventType,h.from_status AS fromStatus,h.to_status AS toStatus,h.payment_status AS paymentStatus,h.internal_comment AS internalComment,h.admin_actor_id AS adminActorId,a.username AS adminUsername,h.created_at AS createdAt FROM order_admin_history h LEFT JOIN admin_users a ON a.id=h.admin_actor_id WHERE h.order_id=? ORDER BY h.created_at DESC,h.id DESC",id).toArray();
+    const checkout=this.ctx.storage.sql.exec<any>("SELECT source_cart_id AS sourceCartId,subtotal_jod AS subtotalJod,delivery_fee_jod AS deliveryFeeJod,discount_jod AS discountJod,promotion_code AS promotionCode,customer_name AS customerNameSnapshot,customer_phone AS customerPhoneSnapshot,city,address,notes,reservation_expires_at AS reservationExpiresAt,created_at AS createdAt FROM order_checkout_details WHERE order_id=?",id).toArray()[0]??null;
+    return {...order,exchangeRate:parse(order.exchangeRateJson,null),defaultAddress:parse(order.defaultAddressJson,null),checkout,items,payments,history,allowedTransitions:[...allowedAdminOrderTransitions(order.status)]};
+  }
+
+  adminOrderUpdateStatus(actorId: string, orderId: string, nextStatus: string, comment = ""): unknown {
+    this.bootstrapCatalog(); const id=String(orderId||"").trim(); const row=this.ctx.storage.sql.exec<any>("SELECT id,status,payment_status AS paymentStatus FROM orders WHERE id=?",id).toArray()[0]; if(!row) throw new Error("Order not found.");
+    const next=normalizeAdminOrderStatus(nextStatus); if(!next) throw new Error("Invalid order status."); if(!canTransitionAdminOrder(row.status,next)) throw new Error(`Invalid status transition: ${row.status} → ${next}.`);
+    const note=String(comment||"").trim().slice(0,2000); const paymentStatus=next==="payment_confirmed"?"confirmed":String(row.paymentStatus||"pending"); const historyId=crypto.randomUUID();
+    this.ctx.storage.transactionSync(()=>{
+      if(next==="payment_confirmed"){
+        const checkout=this.ctx.storage.sql.exec<any>("SELECT source_cart_id AS sourceCartId FROM order_checkout_details WHERE order_id=?",id).toArray()[0];
+        const items=this.ctx.storage.sql.exec<any>("SELECT oi.id AS orderItemId,oi.variant_id AS variantId,oi.quantity,oi.design_id AS designId,oi.master_asset_id AS masterAssetId,oi.print_spec_json AS printSpecJson,oi.price_snapshot_json AS priceSnapshotJson FROM order_items oi WHERE oi.order_id=? ORDER BY oi.id",id).toArray();
+        this.ctx.storage.sql.exec("UPDATE reservations SET status='expired' WHERE status='pending' AND datetime(expires_at)<=datetime('now')");
+        const totals=new Map<string,number>(); for(const item of items) totals.set(String(item.variantId),(totals.get(String(item.variantId))||0)+Number(item.quantity||0));
+        for(const [variantId,qty] of totals){
+          const stock=this.ctx.storage.sql.exec<any>("SELECT quantity,tracked FROM stocks WHERE variant_id=?",variantId).toArray()[0];
+          if(stock&&Number(stock.tracked)===1){
+            const otherReserved=Number(this.ctx.storage.sql.exec<any>("SELECT COALESCE(SUM(quantity),0) AS qty FROM reservations WHERE variant_id=? AND status='pending' AND datetime(expires_at)>datetime('now') AND (? IS NULL OR cart_id<>?)",variantId,checkout?.sourceCartId??null,checkout?.sourceCartId??null).toArray()[0]?.qty??0);
+            if(Number(stock.quantity)-otherReserved<qty) throw new Error("Payment confirmation blocked because reserved stock is no longer available.");
+          }
+        }
+        for(const [variantId,qty] of totals){
+          const stock=this.ctx.storage.sql.exec<any>("SELECT tracked FROM stocks WHERE variant_id=?",variantId).toArray()[0];
+          if(stock&&Number(stock.tracked)===1){
+            const already=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM stock_movements WHERE variant_id=? AND reason='order_payment_confirmed' AND reference_id=? LIMIT 1",variantId,id).toArray()[0]?.ok);
+            if(!already){this.ctx.storage.sql.exec("UPDATE stocks SET quantity=quantity-? WHERE variant_id=?",qty,variantId);this.ctx.storage.sql.exec("INSERT INTO stock_movements (id,variant_id,quantity_delta,reason,reference_id) VALUES (?,?,?,?,?)",crypto.randomUUID(),variantId,-qty,"order_payment_confirmed",id);}
+          }
+        }
+        if(checkout?.sourceCartId)this.ctx.storage.sql.exec("UPDATE reservations SET status='consumed' WHERE cart_id=? AND status='pending'",checkout.sourceCartId);
+        for(const item of items){
+          if(!item.designId) continue;
+          if(!item.masterAssetId) throw new Error("Payment confirmation blocked because an order design has no approved Ready-to-Print Master.");
+          const existingJob=this.ctx.storage.sql.exec<any>("SELECT id FROM printing_jobs WHERE order_item_id=? LIMIT 1",item.orderItemId).toArray()[0]; if(existingJob) continue;
+          let snapshot:any={}; try{snapshot=JSON.parse(String(item.priceSnapshotJson||"{}"));}catch{}
+          const preflight=snapshot?.preflight; if(!preflight||String(preflight.status||"").toLowerCase()!=="passed") throw new Error("Payment confirmation blocked because the historical preflight snapshot is not passing.");
+          this.ctx.storage.sql.exec("INSERT INTO printing_jobs (id,order_item_id,status,master_asset_id,print_spec_snapshot_json,preflight_snapshot_json,protected_at) VALUES (?,?,'queued',?,?,?,CURRENT_TIMESTAMP)",crypto.randomUUID(),item.orderItemId,item.masterAssetId,String(item.printSpecJson||"{}"),JSON.stringify(preflight));
+          this.ctx.storage.sql.exec("UPDATE assets SET protected=1 WHERE id=?",item.masterAssetId);
+        }
+      }
+      if(next==="cancelled"){
+        const checkout=this.ctx.storage.sql.exec<any>("SELECT source_cart_id AS sourceCartId FROM order_checkout_details WHERE order_id=?",id).toArray()[0];
+        if(checkout?.sourceCartId)this.ctx.storage.sql.exec("UPDATE reservations SET status='released' WHERE cart_id=? AND status='pending'",checkout.sourceCartId);
+        const items=this.ctx.storage.sql.exec<any>("SELECT variant_id AS variantId,SUM(quantity) AS quantity FROM order_items WHERE order_id=? GROUP BY variant_id",id).toArray();
+        for(const item of items){
+          const deducted=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM stock_movements WHERE variant_id=? AND reason='order_payment_confirmed' AND reference_id=? LIMIT 1",item.variantId,id).toArray()[0]?.ok);
+          const restored=Boolean(this.ctx.storage.sql.exec<any>("SELECT 1 AS ok FROM stock_movements WHERE variant_id=? AND reason='order_cancel_restore' AND reference_id=? LIMIT 1",item.variantId,id).toArray()[0]?.ok);
+          if(deducted&&!restored){this.ctx.storage.sql.exec("UPDATE stocks SET quantity=quantity+? WHERE variant_id=?",Number(item.quantity),item.variantId);this.ctx.storage.sql.exec("INSERT INTO stock_movements (id,variant_id,quantity_delta,reason,reference_id) VALUES (?,?,?,?,?)",crypto.randomUUID(),item.variantId,Number(item.quantity),"order_cancel_restore",id);}
+        }
+        this.ctx.storage.sql.exec("UPDATE printing_jobs SET status='cancelled' WHERE order_item_id IN (SELECT id FROM order_items WHERE order_id=?) AND status IN ('queued','printing','qc')",id);
+      }
+      this.ctx.storage.sql.exec("UPDATE orders SET status=?,payment_status=? WHERE id=?",next,paymentStatus,id);
+      if(next==="payment_confirmed")this.ctx.storage.sql.exec("UPDATE payments SET status='confirmed',confirmed_by=? WHERE order_id=? AND status<>'confirmed'",actorId,id);
+      this.ctx.storage.sql.exec("INSERT INTO order_admin_history (id,order_id,event_type,from_status,to_status,payment_status,internal_comment,admin_actor_id) VALUES (?,?,'status_change',?,?,?,?,?)",historyId,id,String(row.status),next,paymentStatus,note||null,actorId);
+      this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.order.status_change','order',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{fromStatus:row.status,toStatus:next,paymentStatus,comment:note}}));
+    });
+    return this.adminOrderDetail(id);
+  }
+
+  adminOrderAddNote(actorId: string, orderId: string, comment: string): unknown {
+    this.bootstrapCatalog(); const id=String(orderId||"").trim(); const row=this.ctx.storage.sql.exec<any>("SELECT id,status,payment_status AS paymentStatus FROM orders WHERE id=?",id).toArray()[0]; if(!row) throw new Error("Order not found."); const note=String(comment||"").trim().slice(0,2000); if(!note) throw new Error("Internal note is required."); const historyId=crypto.randomUUID();
+    this.ctx.storage.transactionSync(()=>{ this.ctx.storage.sql.exec("INSERT INTO order_admin_history (id,order_id,event_type,from_status,to_status,payment_status,internal_comment,admin_actor_id) VALUES (?,?,'note',?,?,?, ?,?)",historyId,id,String(row.status),String(row.status),String(row.paymentStatus||"pending"),note,actorId); this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.order.note','order',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{comment:note}})); });
+    return this.adminOrderDetail(id);
+  }
+
+  adminProductionQueue(filters: { search?:string; status?:string; page?:number; pageSize?:number } = {}): unknown {
+    this.bootstrapCatalog(); const conditions:string[]=[]; const args:any[]=[];
+    const search=String(filters.search??"").trim().toLowerCase();
+    if(search){conditions.push("(lower(pj.id) LIKE ? OR lower(o.id) LIKE ? OR lower(COALESCE(u.display_name,'')) LIKE ? OR lower(COALESCE(u.email,'')) LIKE ? OR lower(COALESCE(v.sku,'')) LIKE ? OR lower(COALESCE(pm.name_en,'')) LIKE ?)"); const q="%"+search+"%"; args.push(q,q,q,q,q,q);}
+    const status=String(filters.status??"").trim().toLowerCase(); if(status){conditions.push("lower(pj.status)=?");args.push(status);}
+    const where=conditions.length?" WHERE "+conditions.join(" AND "):"";
+    const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||20)));
+    const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id JOIN orders o ON o.id=oi.order_id LEFT JOIN users u ON u.id=o.user_id JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id"+where,...args).toArray()[0]?.count??0);
+    const pages=Math.max(1,Math.ceil(total/pageSize)); const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1))); const offset=(page-1)*pageSize;
+    const rows=this.ctx.storage.sql.exec<any>(`SELECT pj.id AS jobId,pj.status,pj.created_at AS createdAt,pj.protected_at AS protectedAt,pj.order_item_id AS orderItemId,o.id AS orderId,o.status AS orderStatus,o.fulfillment_mode AS fulfillmentMode,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,oi.quantity,oi.variant_id AS variantId,v.sku,v.color,v.size,pm.id AS modelId,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,oi.design_id AS designId,oi.master_asset_id AS approvedMasterAssetId,pj.master_asset_id AS jobMasterAssetId,a.original_filename AS masterFilename,a.mime_type AS masterMimeType,a.storage_key AS masterStorageKey,pj.print_spec_snapshot_json AS printSpecSnapshotJson,pj.preflight_snapshot_json AS preflightSnapshotJson FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id JOIN orders o ON o.id=oi.order_id LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id LEFT JOIN assets a ON a.id=oi.master_asset_id${where} ORDER BY pj.created_at ASC,pj.id ASC LIMIT ? OFFSET ?`,...args,pageSize,offset).toArray();
+    const parse=(v:any)=>{try{return JSON.parse(String(v??"{}"));}catch{return {};}};
+    return {items:rows.map((r:any)=>({...r,masterReady:Boolean(r.approvedMasterAssetId&&r.jobMasterAssetId&&r.approvedMasterAssetId===r.jobMasterAssetId),printSpecSnapshot:parse(r.printSpecSnapshotJson),preflightSnapshot:parse(r.preflightSnapshotJson),allowedTransitions:[...allowedAdminProductionTransitions(r.status)]})),total,page,pageSize,pages};
+  }
+
+  adminProductionJob(jobId: string): unknown {
+    this.bootstrapCatalog(); const id=String(jobId||"").trim();
+    const row=this.ctx.storage.sql.exec<any>("SELECT pj.id AS jobId,pj.status,pj.created_at AS createdAt,pj.protected_at AS protectedAt,pj.order_item_id AS orderItemId,o.id AS orderId,o.status AS orderStatus,o.payment_status AS paymentStatus,o.fulfillment_mode AS fulfillmentMode,u.display_name AS customerName,u.email AS customerEmail,cp.phone AS customerPhone,oi.quantity,oi.variant_id AS variantId,v.sku,v.color,v.size,pm.id AS modelId,pm.name_en AS productNameEn,pm.name_ar AS productNameAr,oi.design_id AS designId,oi.master_asset_id AS approvedMasterAssetId,pj.master_asset_id AS jobMasterAssetId,a.original_filename AS masterFilename,a.mime_type AS masterMimeType,a.storage_key AS masterStorageKey,pj.print_spec_snapshot_json AS printSpecSnapshotJson,pj.preflight_snapshot_json AS preflightSnapshotJson FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id JOIN orders o ON o.id=oi.order_id LEFT JOIN users u ON u.id=o.user_id LEFT JOIN customer_profiles cp ON cp.user_id=o.user_id JOIN variants v ON v.id=oi.variant_id JOIN product_models pm ON pm.id=v.model_id LEFT JOIN assets a ON a.id=oi.master_asset_id WHERE pj.id=?",id).toArray()[0];
+    if(!row) return null; const parse=(v:any)=>{try{return JSON.parse(String(v??"{}"));}catch{return {};}};
+    return {...row,masterReady:Boolean(row.approvedMasterAssetId&&row.jobMasterAssetId&&row.approvedMasterAssetId===row.jobMasterAssetId),printSpecSnapshot:parse(row.printSpecSnapshotJson),preflightSnapshot:parse(row.preflightSnapshotJson),allowedTransitions:[...allowedAdminProductionTransitions(row.status)]};
+  }
+
+  adminProductionUpdateStatus(actorId: string, jobId: string, nextStatus: string): unknown {
+    this.bootstrapCatalog(); const id=String(jobId||"").trim();
+    const row=this.ctx.storage.sql.exec<any>("SELECT pj.id,pj.status,pj.master_asset_id AS jobMasterAssetId,pj.preflight_snapshot_json AS preflightSnapshotJson,oi.master_asset_id AS approvedMasterAssetId,oi.order_id AS orderId FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id WHERE pj.id=?",id).toArray()[0];
+    if(!row) throw new Error("Printing job not found."); const next=normalizeAdminProductionStatus(nextStatus); if(!next) throw new Error("Invalid production status."); if(!canTransitionAdminProduction(row.status,next)) throw new Error(`Invalid production transition: ${row.status} → ${next}.`);
+    if(next!=="cancelled"){
+      if(!row.approvedMasterAssetId||!row.jobMasterAssetId||String(row.approvedMasterAssetId)!==String(row.jobMasterAssetId)) throw new Error("Production is blocked until the printing job references the exact approved Ready-to-Print Master from the order item.");
+      let preflight:any={}; try{preflight=JSON.parse(String(row.preflightSnapshotJson||"{}"));}catch{}
+      if(!preflight||typeof preflight!=="object"||Object.keys(preflight).length===0) throw new Error("Production is blocked because the historical preflight snapshot is missing.");
+      const result=String(preflight.status??preflight.result??"").toLowerCase(); if(["failed","rejected","invalid"].includes(result)) throw new Error("Production is blocked because the approved master preflight snapshot is not passing.");
+    }
+    this.ctx.storage.transactionSync(()=>{this.ctx.storage.sql.exec("UPDATE printing_jobs SET status=?,protected_at=COALESCE(protected_at,CURRENT_TIMESTAMP) WHERE id=?",next,id);this.ctx.storage.sql.exec("INSERT INTO audit_logs (actor_id,actor_role,action,resource_type,resource_id,metadata_json) VALUES (?,'admin','admin.production.status_change','printing_job',?,?)",actorId,id,JSON.stringify({result:"success",metadata:{fromStatus:row.status,toStatus:next,orderId:row.orderId,masterAssetId:row.approvedMasterAssetId}}));});
+    return this.adminProductionJob(id);
+  }
+
+  adminProductionMasterAsset(jobId: string): unknown {
+    this.bootstrapCatalog(); const id=String(jobId||"").trim();
+    const row=this.ctx.storage.sql.exec<any>("SELECT pj.id AS jobId,pj.master_asset_id AS jobMasterAssetId,oi.master_asset_id AS approvedMasterAssetId,a.storage_key AS storageKey,a.original_filename AS filename,a.mime_type AS mimeType,a.byte_size AS byteSize,pj.preflight_snapshot_json AS preflightSnapshotJson FROM printing_jobs pj JOIN order_items oi ON oi.id=pj.order_item_id LEFT JOIN assets a ON a.id=oi.master_asset_id WHERE pj.id=?",id).toArray()[0];
+    if(!row) throw new Error("Printing job not found."); if(!row.approvedMasterAssetId||!row.jobMasterAssetId||String(row.approvedMasterAssetId)!==String(row.jobMasterAssetId)) throw new Error("The printing job is not linked to the exact approved Ready-to-Print Master."); if(!row.storageKey) throw new Error("Approved master file is unavailable."); return row;
+  }
+
+  adminProductsCatalog(filters: { search?:string; model?:string; priceFrom?:string; priceTo?:string; quantityFrom?:string; quantityTo?:string; category?:string; source?:string; enabled?:string; published?:string; sort?:string; order?:string; page?:number; pageSize?:number } = {}): unknown {
+    this.bootstrapCatalog(); const conditions:string[]=[]; const args:any[]=[];
+    const search=String(filters.search??"").trim().toLowerCase(); if(search){conditions.push("(lower(pm.id) LIKE ? OR lower(pm.name_en) LIKE ? OR lower(pm.name_ar) LIKE ?)");const q="%"+search+"%";args.push(q,q,q);} const model=String(filters.model??"").trim().toLowerCase(); if(model){conditions.push("(lower(pm.id) LIKE ? OR lower(pm.name_en) LIKE ? OR lower(pm.name_ar) LIKE ? OR EXISTS (SELECT 1 FROM variants vf WHERE vf.model_id=pm.id AND lower(vf.sku) LIKE ?))");const q="%"+model+"%";args.push(q,q,q,q);} for(const [key,op] of [["priceFrom",">="],["priceTo","<="] as const]){const v=String((filters as any)[key]??"").trim();if(v!==""&&Number.isFinite(Number(v))){conditions.push(`EXISTS (SELECT 1 FROM variants vx WHERE vx.model_id=pm.id AND CAST(vx.retail_price_jod AS REAL)/100 ${op} ?)`);args.push(Number(v));}} for(const [key,op] of [["quantityFrom",">="],["quantityTo","<="] as const]){const v=String((filters as any)[key]??"").trim();if(v!==""&&Number.isFinite(Number(v))){conditions.push(`COALESCE((SELECT SUM(COALESCE(sx.quantity,0)) FROM variants vx LEFT JOIN stocks sx ON sx.variant_id=vx.id WHERE vx.model_id=pm.id),0) ${op} ?`);args.push(Number(v));}}
+    const category=String(filters.category??"").trim(); if(category){conditions.push("pm.category_id=?");args.push(category);}
+    const source=String(filters.source??"").trim(); if(source){conditions.push("pm.source=?");args.push(source);}
+    const enabled=String(filters.enabled??"").trim(); if(enabled==="yes"||enabled==="no"){conditions.push("pm.enabled=?");args.push(enabled==="yes"?1:0);}
+    const published=String(filters.published??"").trim(); if(published==="yes"||published==="no"){conditions.push("(CASE WHEN pm.source='printify' THEN COALESCE(ppd.published,0) ELSE COALESCE(pad.published,pm.enabled) END)=?");args.push(published==="yes"?1:0);}
+    const where=conditions.length?" WHERE "+conditions.join(" AND "):""; const sortMap:Record<string,string>={name:"pm.name_en COLLATE NOCASE",model:"pm.id COLLATE NOCASE",price:"minRetailPriceJod",quantity:"quantity"}; const sortKey=sortMap[String(filters.sort||"name")]||sortMap.name; const direction=String(filters.order||"asc").toLowerCase()==="desc"?"DESC":"ASC";
+    const pageSize=Math.max(1,Math.min(100,Math.floor(Number(filters.pageSize)||20)));
+    const total=Number(this.ctx.storage.sql.exec<any>("SELECT COUNT(*) AS count FROM product_models pm LEFT JOIN product_admin_data pad ON pad.model_id=pm.id LEFT JOIN printify_product_data ppd ON ppd.model_id=pm.id"+where,...args).toArray()[0]?.count??0);
+    const pages=Math.max(1,Math.ceil(total/pageSize)); const page=Math.max(1,Math.min(pages,Math.floor(Number(filters.page)||1))); const offset=(page-1)*pageSize;
+    const items=this.ctx.storage.sql.exec<any>(`SELECT pm.id AS modelId,pm.category_id AS categoryId,sc.name_en AS categoryNameEn,sc.name_ar AS categoryNameAr,pm.name_en AS nameEn,pm.name_ar AS nameAr,pm.source,pm.enabled,CASE WHEN pm.source='printify' THEN COALESCE(ppd.description_en,'') ELSE COALESCE(pad.description_en,'') END AS descriptionEn,CASE WHEN pm.source='printify' THEN COALESCE(ppd.description_ar,'') ELSE COALESCE(pad.description_ar,'') END AS descriptionAr,CASE WHEN pm.source='printify' THEN ppd.display_image ELSE pad.display_image END AS displayImage,CASE WHEN pm.source='printify' THEN COALESCE(ppd.print_your_dream,1) ELSE COALESCE(pad.print_your_dream,1) END AS printYourDream,CASE WHEN pm.source='printify' THEN COALESCE(ppd.published,0) ELSE COALESCE(pad.published,pm.enabled) END AS published,(SELECT MIN(CAST(v.retail_price_jod AS REAL))/100.0 FROM variants v WHERE v.model_id=pm.id AND v.retail_price_jod>0) AS minRetailPriceJod,(SELECT SUM(COALESCE(s.quantity,0)) FROM variants v LEFT JOIN stocks s ON s.variant_id=v.id WHERE v.model_id=pm.id) AS quantity,(SELECT COUNT(*) FROM variants v WHERE v.model_id=pm.id) AS variantCount,(SELECT COUNT(*) FROM variants v WHERE v.model_id=pm.id AND v.enabled=1) AS enabledVariantCount,(SELECT COALESCE(SUM(CASE WHEN s.tracked=1 THEN s.quantity ELSE 0 END),0) FROM variants v LEFT JOIN stocks s ON s.variant_id=v.id WHERE v.model_id=pm.id) AS trackedStock FROM product_models pm JOIN site_categories sc ON sc.id=pm.category_id LEFT JOIN product_admin_data pad ON pad.model_id=pm.id LEFT JOIN printify_product_data ppd ON ppd.model_id=pm.id${where} ORDER BY ${sortKey} ${direction},pm.id LIMIT ? OFFSET ?`,...args,pageSize,offset).toArray();
+    const categories=this.ctx.storage.sql.exec<any>("SELECT id,name_en AS nameEn,name_ar AS nameAr,enabled,home_featured AS homeFeatured,home_order AS homeOrder,mockup_mode AS mockupMode FROM site_categories ORDER BY home_order,name_en").toArray();
+    return {items,categories,total,page,pageSize,pages};
+  }
+
+  adminProductDetail(modelId: string): unknown {
+    this.bootstrapCatalog(); const id=String(modelId||"").trim();
+    const product=this.ctx.storage.sql.exec<any>("SELECT pm.id AS modelId,pm.category_id AS categoryId,pm.name_en AS nameEn,pm.name_ar AS nameAr,pm.source,pm.enabled,CASE WHEN pm.source='printify' THEN COALESCE(ppd.description_en,'') ELSE COALESCE(pad.description_en,'') END AS descriptionEn,CASE WHEN pm.source='printify' THEN COALESCE(ppd.description_ar,'') ELSE COALESCE(pad.description_ar,'') END AS descriptionAr,CASE WHEN pm.source='printify' THEN ppd.display_image ELSE pad.display_image END AS displayImage,CASE WHEN pm.source='printify' THEN COALESCE(ppd.print_your_dream,1) ELSE COALESCE(pad.print_your_dream,1) END AS printYourDream,CASE WHEN pm.source='printify' THEN COALESCE(ppd.published,0) ELSE COALESCE(pad.published,pm.enabled) END AS published FROM product_models pm LEFT JOIN product_admin_data pad ON pad.model_id=pm.id LEFT JOIN printify_product_data ppd ON ppd.model_id=pm.id WHERE pm.id=?",id).toArray()[0];
+    if(!product) return null;
+    const parse=(v:any)=>{try{return JSON.parse(String(v??"{}"));}catch{return {};}};
+    const variants=this.ctx.storage.sql.exec<any>("SELECT v.id AS variantId,v.sku,v.color,v.size,v.options_json AS optionsJson,CAST(v.retail_price_jod AS REAL)/100.0 AS retailPriceJod,v.enabled,COALESCE(s.tracked,0) AS tracked,COALESCE(s.quantity,0) AS quantity FROM variants v LEFT JOIN stocks s ON s.variant_id=v.id WHERE v.model_id=? ORDER BY v.sku",id).toArray().map((v:any)=>({...v,options:parse(v.optionsJson)}));
+    const media=this.ctx.storage.sql.exec<any>("SELECT id AS mediaId,storage_key AS storageKey,media_kind AS mediaKind,alt_en AS altEn,alt_ar AS altAr FROM product_media WHERE model_id=? ORDER BY media_kind,id",id).toArray();
+    const eligibility=this.ctx.storage.sql.exec<any>("SELECT product_type AS productType,enabled FROM product_type_eligibility WHERE model_id=? ORDER BY product_type",id).toArray();
+    return {...product,variants,media,eligibility};
+  }
+
+  adminDownloads(filters:any={}):unknown {this.bootstrapCatalog();const q=String(filters.search||'').trim().toLowerCase(),like='%'+q+'%',where=q?' WHERE lower(name_en) LIKE ? OR lower(name_ar) LIKE ? OR lower(filename) LIKE ? OR lower(mask) LIKE ?':'',a=q?[like,like,like,like]:[],size=Math.max(1,Math.min(100,Number(filters.pageSize)||20)),total=Number(this.ctx.storage.sql.exec<any>('SELECT COUNT(*) count FROM catalog_downloads'+where,...a).toArray()[0]?.count||0),pages=Math.max(1,Math.ceil(total/size)),page=Math.max(1,Math.min(pages,Number(filters.page)||1)),items=this.ctx.storage.sql.exec<any>('SELECT id,name_en nameEn,name_ar nameAr,filename,mask,mime_type mimeType,byte_size byteSize,status,created_at createdAt FROM catalog_downloads'+where+' ORDER BY created_at DESC LIMIT ? OFFSET ?',...a,size,(page-1)*size).toArray();return {items,total,page,pageSize:size,pages};}
+  private safeDownloadFilename(value:string):string { const name=String(value||'').trim().replace(/[\\/\u0000-\u001f]/g,'_').replace(/^\.+/,'').slice(0,240); if(!name||name==='.'||name==='..') throw new Error('A safe display filename is required.'); return name; }
+
+[Showing lines 1205-1482 of 1924. Use offset=1483 to continue.]
