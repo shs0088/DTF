@@ -70,3 +70,8 @@ Final successful Actions run ID, final HEAD, and exact M4 counts/results will be
 The closure suite extends the original M4 evidence with analyzer rejection codes, scaling/DPI behavior, transparency-required rejection, master readability/analyzability gates, exact bilingual publishing gates and missing-master messaging, all seven current-preflight product combinations, stale-result precedence, printable-area validation, security/deletion regression coverage, and role/attachment cleanup. Existing M2 tests are explicitly reused for owner-scoped design access, locked-result immutability, qualification publishing denial, master ownership, explicit master selection, and the seven-value product selection.
 
 Final closure remains M4-only. M5 and M6 are deferred.
+
+
+## Final M4 closure evidence
+
+Final HEAD: `105b9b5bece9625c4ce89d331384b674fc3c3eaa`. GitHub Actions run `35932177544` completed SUCCESS. Verified: M1 static validation PASS; Docker Compose validation PASS; ARM64 manifest probe PASS; PostgreSQL startup PASS; installation of all 13 DTF addons PASS; M2 tests PASS; M3 tests PASS; expanded M4 tests PASS; Odoo/Nginx `/web` runtime PASS. The workflow completed without failed steps or errors. M4 remains limited to preflight, publishing, protected assets, and associated regression coverage. M5/M6 remain intentionally deferred.
