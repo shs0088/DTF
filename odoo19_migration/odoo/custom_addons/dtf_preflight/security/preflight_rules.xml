@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_dtf_preflight_result_own" model="ir.rule">
+        <field name="name">DTF designer can read own preflight results</field>
+        <field name="model_id" ref="model_dtf_preflight_result"/>
+        <field name="domain_force">[('asset_id.design_id.designer_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_designer'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_dtf_preflight_result_admin_all" model="ir.rule">
+        <field name="name">DTF administrator can access all preflight results</field>
+        <field name="model_id" ref="model_dtf_preflight_result"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_admin'))]"/>
+    </record>
+</odoo>
