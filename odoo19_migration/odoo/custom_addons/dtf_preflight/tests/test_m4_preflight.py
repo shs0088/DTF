@@ -66,7 +66,7 @@ class TestDTFM4Preflight(TransactionCase):
             values = {"title_en": "EN", "title_ar": "AR", "description_en": "EN desc", "description_ar": "AR desc"}; values[field] = False
             with self.assertRaisesRegex(ValidationError, label): self.design(**values).action_publish()
         design = self.design(); asset = self.asset(design, readable=False)
-        with self.assertRaisesRegex(ValidationError, "not readable"): design.action_set_ready_to_print_master(asset)
+        with self.assertRaisesRegex(ValidationError, "readable and analyzable"): design.action_set_ready_to_print_master(asset)
         design = self.design(); asset = self.asset(design); design.action_set_main_display_asset(asset)
         with self.assertRaisesRegex(ValidationError, "Please select the design that will be used for final print\.$"): design.action_publish()
         design.action_set_ready_to_print_master(asset)
@@ -84,7 +84,6 @@ class TestDTFM4Preflight(TransactionCase):
         with self.assertRaises(AccessError): rule.with_user(self.user).write({"name": "blocked"})
         with self.assertRaises(AccessError): result.with_user(self.user).write({"status": "rejected", "reasons_en": "blocked"})
         with self.assertRaises(AccessError): self.env["dtf.preflight.result"].with_user(self.user).create({"asset_id": asset.id, "rule_version_id": rule.id, "status": "accepted"})
-        with self.assertRaises(ValidationError): asset.unlink()
-        clean_design = self.design(); clean_asset = self.asset(clean_design); clean_attachment = clean_asset.attachment_id
-        clean_design.action_set_main_display_asset(clean_asset); clean_design.action_set_ready_to_print_master(clean_asset); clean_asset.unlink()
-        self.assertFalse(self.env["dtf.design.asset"].search([("id", "=", clean_asset.id)])); self.assertFalse(self.env["ir.attachment"].search([("id", "=", clean_attachment.id)]))
+        asset.unlink()
+        self.assertFalse(self.env["dtf.design.asset"].search([("id", "=", asset.id)])); self.assertFalse(self.env["ir.attachment"].search([("id", "=", attachment.id)]))
+        self.assertFalse(design.main_display_asset_id); self.assertFalse(design.ready_to_print_master_asset_id)
