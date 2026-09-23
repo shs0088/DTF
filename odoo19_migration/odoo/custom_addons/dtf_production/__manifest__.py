@@ -12,6 +12,6 @@
         "dtf_sale"
     ],
     "data": [],
-    "installable": true,
-    "application": false
+    "installable": True,
+    "application": False
 }
