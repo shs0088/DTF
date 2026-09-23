@@ -69,7 +69,7 @@ class DTFPreflightEngine(models.AbstractModel):
             if value is not None and maximum and value > maximum: reasons.append(("max_" + key, key + " exceeds the maximum."))
         if rule.require_transparency and snapshot.get("transparency") is not True:
             reasons.append(("transparency", "Transparency is required by the active rule."))
-        return {"status": "accepted" if not reasons else "rejected", "codes": [code for code, _ in reasons], "reasons_en": " \".join(text for _, text in reasons), "reasons_ar": "", "snapshot": snapshot}
+        return {"status": "accepted" if not reasons else "rejected", "codes": [code for code, _ in reasons], "reasons_en": " ".join(text for _, text in reasons), "reasons_ar": "", "snapshot": snapshot}
 
     @api.model
     def run(self, asset, rule, target_width_cm=None, target_height_cm=None):
