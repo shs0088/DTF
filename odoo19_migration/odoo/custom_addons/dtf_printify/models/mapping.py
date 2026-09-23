@@ -34,24 +34,56 @@ class DTFPrintifyMapping(models.Model):
         "A Printify shop variant can have only one mapping.",
     )
 
-    @api.constrains("import_key", "shop_id", "printify_variant_id")
-    def _check_mapping_uniqueness(self):
-        for record in self:
-            if record.import_key:
-                duplicate_import_key = self.search_count([
-                    ("id", "!=", record.id),
-                    ("import_key", "=", record.import_key),
-                ])
-                if duplicate_import_key:
+    def _validate_unique_values(self, vals, exclude_ids=None):
+        exclude_ids = list(exclude_ids or [])
+        import_key = vals.get("import_key")
+        shop_id = vals.get("shop_id")
+        printify_variant_id = vals.get("printify_variant_id")
+
+        if import_key:
+            domain = [("import_key", "=", import_key)]
+            if exclude_ids:
+                domain.append(("id", "not in", exclude_ids))
+            if self.search_count(domain):
+                raise ValidationError("A Printify mapping import key must be unique.")
+
+        if shop_id and printify_variant_id:
+            domain = [
+                ("shop_id", "=", shop_id),
+                ("printify_variant_id", "=", printify_variant_id),
+            ]
+            if exclude_ids:
+                domain.append(("id", "not in", exclude_ids))
+            if self.search_count(domain):
+                raise ValidationError("A Printify shop variant can have only one mapping.")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        seen_import_keys = set()
+        seen_shop_variants = set()
+        for vals in vals_list:
+            import_key = vals.get("import_key")
+            pair = (vals.get("shop_id"), vals.get("printify_variant_id"))
+            if import_key:
+                if import_key in seen_import_keys:
                     raise ValidationError("A Printify mapping import key must be unique.")
-            if record.shop_id and record.printify_variant_id:
-                duplicate_variant = self.search_count([
-                    ("id", "!=", record.id),
-                    ("shop_id", "=", record.shop_id),
-                    ("printify_variant_id", "=", record.printify_variant_id),
-                ])
-                if duplicate_variant:
+                seen_import_keys.add(import_key)
+            if pair[0] and pair[1]:
+                if pair in seen_shop_variants:
                     raise ValidationError("A Printify shop variant can have only one mapping.")
+                seen_shop_variants.add(pair)
+            self._validate_unique_values(vals)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        for record in self:
+            candidate = {
+                "import_key": vals.get("import_key", record.import_key),
+                "shop_id": vals.get("shop_id", record.shop_id),
+                "printify_variant_id": vals.get("printify_variant_id", record.printify_variant_id),
+            }
+            self._validate_unique_values(candidate, exclude_ids=record.ids)
+        return super().write(vals)
 
     def public_payload(self):
         return {"id": self.id, "product_id": self.product_tmpl_id.id}
