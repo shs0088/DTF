@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dtf_designer_profile_designer,dtf.designer.profile designer,model_dtf_designer_profile,dtf_core.group_dtf_designer,1,1,1,0
+access_dtf_designer_profile_admin,dtf.designer.profile admin,model_dtf_designer_profile,dtf_core.group_dtf_admin,1,1,1,1
