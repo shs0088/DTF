@@ -83,6 +83,8 @@ class TestDTFM4Preflight(TransactionCase):
         rule = self.rule("m4-security"); result = self.env["dtf.preflight.result"].create({"asset_id": asset.id, "rule_version_id": rule.id, "status": "accepted", "locked": True})
         with self.assertRaises(AccessError): self.env["dtf.preflight.rule.version"].with_user(self.user).write({"name": "blocked"})
         with self.assertRaises(AccessError): result.with_user(self.user).write({"status": "rejected", "reasons_en": "blocked"})
-        asset.unlink()
-        self.assertFalse(self.env["dtf.design.asset"].search([("id", "=", asset.id)])); self.assertFalse(self.env["ir.attachment"].search([("id", "=", attachment.id)]))
+        with self.assertRaises(ValidationError): asset.unlink()
+        clean_design = self.design(); clean_asset = self.asset(clean_design); clean_attachment = clean_asset.attachment_id
+        clean_design.action_set_main_display_asset(clean_asset); clean_design.action_set_ready_to_print_master(clean_asset); clean_asset.unlink()
+        self.assertFalse(self.env["dtf.design.asset"].search([("id", "=", clean_asset.id)])); self.assertFalse(self.env["ir.attachment"].search([("id", "=", clean_attachment.id)]))
 return 
