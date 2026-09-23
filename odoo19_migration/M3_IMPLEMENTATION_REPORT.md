@@ -62,3 +62,5 @@ The corrected CI must rerun M1 static validation, all 13 addon installation, M2 
 - DEPLOYED: NO
 - MERGED: NO
 - INVESTIGATION MODE USED: NO
+
+Additional correction: the first fix commit contained literal escape text in the mapping source; this was corrected to valid Python source before the final CI rerun.
