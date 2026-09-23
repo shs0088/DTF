@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dtf_stock_reservation_admin,dtf.stock.reservation admin,model_dtf_stock_reservation,dtf_core.group_dtf_admin,1,1,1,1
+access_dtf_stock_reservation_operator,dtf.stock.reservation operator,model_dtf_stock_reservation,dtf_core.group_dtf_printing_operator,1,0,0,0
