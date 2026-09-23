@@ -47,3 +47,42 @@ class TestDTFM4Preflight(TransactionCase):
         design = self.design(); asset = self.asset(design); snapshot = self.env["dtf.preflight.engine"].inspect_bytes(base64.b64encode(b"%PDF-1.7").decode(), "art.pdf", "application/pdf", 11, 9)
         result = self.env["dtf.preflight.engine"].evaluate(asset, rule, snapshot)
         self.assertIn("printable_area", result["codes"])
+
+    def test_analyzer_rejection_matrix(self):
+        engine = self.env["dtf.preflight.engine"]
+        asset = self.asset(self.design())
+        rule = self.rule("m4-errors")
+        for snapshot, code in [
+            ({"detected_format": "tiff", "signature_valid": True, "readable": True, "analyzable": True, "previewable": True}, "unsupported_format"),
+            ({"detected_format": "png", "signature_valid": True, "readable": False, "analyzable": False, "previewable": False}, "unreadable"),
+            ({"detected_format": "png", "signature_valid": False, "readable": True, "analyzable": True, "previewable": True}, "signature_mismatch"),
+        ]:
+            result = engine.evaluate(asset, rule, snapshot)
+            self.assertEqual(result["status"], "rejected")
+            self.assertIn(code, result["codes"])
+
+    def test_master_and_bilingual_publish_gates(self):
+        for field, label in (("title_ar", "Arabic Title"), ("title_en", "English Title"), ("description_ar", "Arabic Description"), ("description_en", "English Description")):
+            values = {"title_en": "EN", "title_ar": "AR", "description_en": "EN desc", "description_ar": "AR desc"}; values[field] = False
+            with self.assertRaisesRegex(ValidationError, label): self.design(**values).action_publish()
+        design = self.design(); asset = self.asset(design, readable=False)
+        with self.assertRaisesRegex(ValidationError, "not readable"): design.action_set_ready_to_print_master(asset)
+        design = self.design(); asset = self.asset(design); design.action_set_main_display_asset(asset)
+        with self.assertRaisesRegex(ValidationError, "Please select the design that will be used for final print\\.$"): design.action_publish()
+        design.action_set_ready_to_print_master(asset)
+        self.assertEqual(design.main_display_asset_id, design.ready_to_print_master_asset_id)
+
+    def test_all_seven_product_combinations_have_compatible_current_preflight(self):
+        for index, product_type in enumerate(("tshirt", "mug", "cap", "tshirt_mug", "tshirt_cap", "mug_cap", "tshirt_mug_cap")):
+            design = self.design(product_type=product_type); asset = self.asset(design, name="combo-%s.png" % index); design.action_set_main_display_asset(asset); design.action_set_ready_to_print_master(asset); rule = self.rule("m4-combo-%s" % index, product=product_type)
+            self.env["dtf.preflight.result"].create({"asset_id": asset.id, "rule_version_id": rule.id, "status": "accepted", "analyzer_snapshot": {"readable": True, "analyzable": True, "previewable": True}, "locked": True})
+            design.action_publish(); self.assertEqual(design.state, "published")
+
+    def test_security_and_unprotected_deletion_recovery(self):
+        design = self.design(); asset = self.asset(design); attachment = asset.attachment_id; design.action_set_main_display_asset(asset); design.action_set_ready_to_print_master(asset)
+        rule = self.rule("m4-security"); result = self.env["dtf.preflight.result"].create({"asset_id": asset.id, "rule_version_id": rule.id, "status": "accepted", "locked": True})
+        with self.assertRaises(AccessError): self.env["dtf.preflight.rule.version"].with_user(self.user).write({"name": "blocked"})
+        with self.assertRaises(AccessError): result.with_user(self.user).write({"status": "rejected", "reasons_en": "blocked"})
+        asset.unlink()
+        self.assertFalse(self.env["dtf.design.asset"].search([("id", "=", asset.id)])); self.assertFalse(self.env["ir.attachment"].search([("id", "=", attachment.id)]))
+return 
