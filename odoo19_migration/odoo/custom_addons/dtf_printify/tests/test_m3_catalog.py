@@ -21,11 +21,14 @@ class TestDTFM3Catalog(TransactionCase):
         self.assertTrue(product.product_variant_ids)
 
     def test_native_variants_and_stock_are_used(self):
-        product = self.env["product.template"].create({"name": "Variant Shirt", "attribute_line_ids": [(0, 0, {"attribute_id": self.env["product.attribute"].create({"name": "Size", "create_variant": "always"}).id, "value_ids": [(6, 0, [self.env["product.attribute.value"].create({"name": "M", "attribute_id": self.env["product.attribute"].search([("name", "=", "Size")], limit=1).id}).id])]})]})
+        size_attribute = self.env["product.attribute"].create({"name": "Size", "create_variant": "always"})
+        size_m = self.env["product.attribute.value"].create({"name": "M", "attribute_id": size_attribute.id})
+        product = self.env["product.template"].create({"name": "Variant Shirt", "attribute_line_ids": [(0, 0, {"attribute_id": size_attribute.id, "value_ids": [(6, 0, [size_m.id])]})]})
         variant = product.product_variant_ids[:1]
         self.assertTrue(variant)
         self.assertTrue(hasattr(variant, "qty_available"))
-        self.assertIn("M", variant.display_name)
+        self.assertIn(size_m, variant.product_template_attribute_value_ids.product_attribute_value_id)
+        self.assertEqual(variant.product_template_attribute_value_ids.product_attribute_value_id, size_m)
 
     def test_printify_mapping_uniqueness_and_public_hiding(self):
         product = self.env["product.template"].create({"name": "Supplier Shirt", "dtf_supplier_source": "printify", "dtf_printify_source_id": "bp-1", "dtf_public_published": True})
@@ -52,4 +55,4 @@ class TestDTFM3Catalog(TransactionCase):
         mapping_model = self.env["dtf.printify.mapping"]
         with self.assertRaises(AccessError): mapping_model.with_user(self.designer).search([])
         with self.assertRaises(AccessError): mapping_model.with_user(self.operator).search([])
-        with self.assertRaises(AccessError): mapping_model.with_user(self.env.ref("base.public_user")).search([])
+        with self.assertRaises(AccessError): mapping_model.with_user(self.env.ref("base.public_user").id).search([])
