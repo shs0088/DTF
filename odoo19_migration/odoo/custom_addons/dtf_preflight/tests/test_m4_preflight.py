@@ -68,7 +68,7 @@ class TestDTFM4Preflight(TransactionCase):
         design = self.design(); asset = self.asset(design, readable=False)
         with self.assertRaisesRegex(ValidationError, "not readable"): design.action_set_ready_to_print_master(asset)
         design = self.design(); asset = self.asset(design); design.action_set_main_display_asset(asset)
-        with self.assertRaisesRegex(ValidationError, "Please select the design that will be used for final print\\.$"): design.action_publish()
+        with self.assertRaisesRegex(ValidationError, "Please select the design that will be used for final print\.$"): design.action_publish()
         design.action_set_ready_to_print_master(asset)
         self.assertEqual(design.main_display_asset_id, design.ready_to_print_master_asset_id)
 
