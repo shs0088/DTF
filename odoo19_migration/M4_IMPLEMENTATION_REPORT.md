@@ -69,3 +69,8 @@ Run **35928809712** failed before M3/M4 because the M2 test command exited 255. 
 
 
 Run **35929191145** also stopped in the unchanged M2 stage before M3/M4. The added closure test had two real fixture defects: the effective-DPI fixture lacked PNG IHDR dimensions, and the exact missing-master regex was over-escaped. The fixture now contains dimensions and the assertion uses the correct regex.
+
+
+## Final M4 closure evidence
+
+Final HEAD: `105b9b5bece9625c4ce89d331384b674fc3c3eaa`. GitHub Actions run `35932177544` completed SUCCESS. Verified: M1 static validation PASS; Docker Compose validation PASS; ARM64 manifest probe PASS; PostgreSQL startup PASS; installation of all 13 DTF addons PASS; M2 tests PASS; M3 tests PASS; expanded M4 tests PASS; Odoo/Nginx `/web` runtime PASS. The workflow completed without failed steps or errors. M4 remains limited to preflight, publishing, protected assets, and associated regression coverage. M5/M6 remain intentionally deferred.
