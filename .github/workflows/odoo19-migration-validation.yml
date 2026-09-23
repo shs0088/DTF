@@ -97,6 +97,15 @@ jobs:
             --without-demo=all --stop-after-init -i dtf_printify \
             --test-enable --test-tags /dtf_printify
 
+      - name: Run M4 preflight, publishing, and protected asset tests
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo_m4 --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i dtf_preflight \
+            --test-enable --test-tags /dtf_preflight:TestDTFM4Preflight
+
       - name: Start Odoo and Nginx and verify /web
         shell: bash
         run: |
