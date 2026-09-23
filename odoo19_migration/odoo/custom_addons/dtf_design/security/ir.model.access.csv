@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dtf_design_designer,dtf.design designer,model_dtf_design,dtf_core.group_dtf_designer,1,1,1,1
+access_dtf_design_asset_designer,dtf.design.asset designer,model_dtf_design_asset,dtf_core.group_dtf_designer,1,1,1,1
+access_dtf_design_admin,dtf.design admin,model_dtf_design,dtf_core.group_dtf_admin,1,1,1,1
+access_dtf_design_asset_admin,dtf.design.asset admin,model_dtf_design_asset,dtf_core.group_dtf_admin,1,1,1,1
