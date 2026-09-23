@@ -1,0 +1,9 @@
+# Generated/runtime files
+.env
+.env.*
+!.env.example
+backups/
+*.dump
+*.sql.gz
+*.pem
+*.key
