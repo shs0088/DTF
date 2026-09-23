@@ -1,0 +1,16 @@
+name: Odoo 19 migration validation
+
+on:
+  push:
+    branches: [odoo19/headless-backend-migration-prep]
+  pull_request:
+
+jobs:
+  m1-static-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 odoo19_migration/validation/validate_m1.py
