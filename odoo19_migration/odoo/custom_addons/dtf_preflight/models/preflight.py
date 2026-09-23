@@ -25,6 +25,12 @@ class DTFPreflightRuleVersion(models.Model):
     require_transparency = fields.Boolean(default=False)
     max_scale_factor = fields.Float(default=1.0)
     notes = fields.Text()
+    printable_area_ids = fields.Many2many("dtf.product.printable.area", string="Applicable Printable Areas")
+    compatibility_evidence = fields.Json(default="_default_compatibility_evidence")
+
+    @api.model
+    def _default_compatibility_evidence(self):
+        return {"product_type": self.product_type or "unavailable", "components": []}
     _version_product_unique = models.Constraint("UNIQUE(version, product_type)", "A preflight rule version must be unique per product type.")
     @api.constrains("min_effective_dpi", "min_width_cm", "min_height_cm", "max_width_cm", "max_height_cm", "max_scale_factor")
     def _check_limits(self):
