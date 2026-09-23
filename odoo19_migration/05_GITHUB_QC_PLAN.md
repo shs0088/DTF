@@ -25,3 +25,17 @@ Never modify `main` or `camel-current` during migration preparation.
 
 ## Final acceptance report
 Must include branch, start/final SHA, commits/files, schema changes, tests and exact GitHub Actions IDs/results, failures fixed, runtime-only gaps, and explicit deployment/merge status.
+
+
+## Verified milestone evidence — 2026-09-23
+
+M1 final verified runtime workflow:
+- Run 35917170754 — SUCCESS.
+
+M2 verified workflow before documentation-only status commit:
+- Run 35919531989 — SUCCESS.
+- All 13 DTF addons installed on Odoo 19.
+- M2 Odoo tests executed with 0 failed / 0 errors.
+- PostgreSQL + Odoo + Nginx runtime validation passed.
+
+A documentation-only final-head workflow must also remain green before the branch is treated as the closed M2 handoff.
