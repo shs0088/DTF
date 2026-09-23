@@ -1,12 +1,11 @@
 {
-    "name": "DTF Studio dtf_backend_theme",
+    "name": "DTF Studio Backend Theme",
     "version": "19.0.1.0.0",
-    "summary": "M1 portable foundation skeleton",
+    "summary": "DTF Studio Black and Electric Blue backend theme foundation",
+    "category": "Themes/Backend",
     "license": "LGPL-3",
-    "depends": [
-        "web"
-    ],
+    "depends": ["web"],
     "data": [],
     "installable": True,
-    "application": False
+    "application": False,
 }
