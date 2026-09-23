@@ -15,6 +15,6 @@
         "dtf_notifications"
     ],
     "data": [],
-    "installable": true,
-    "application": true
+    "installable": True,
+    "application": True
 }
