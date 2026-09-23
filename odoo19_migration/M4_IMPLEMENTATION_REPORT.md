@@ -23,3 +23,14 @@ The lightweight inspector records None for embedded DPI, alpha/transparency, col
 ## Verification status
 
 Changes were committed through the connected GitHub repository API to odoo19/headless-backend-migration-prep. No deployment or merge was performed. CI/runtime verification is represented by the workflow changes and must complete on GitHub Actions.
+
+
+## Failed validation and correction record
+
+Run 35925594079 failed at the prior M4 HEAD 282c3c233a92c2df78a32b4924b0a1562a615bf0. M1 static validation, PostgreSQL startup, and all 13-addon installation passed; M2 failed, so M3/M4/runtime were skipped. The exact failures were the zero-argument JSON default callable and a newly-created accepted result not being seen by the publishing cache.
+
+Corrections: the JSON default callable now accepts Odoo's recordset argument; latest-result selection uses an ordered database query with cache invalidation after result mutations and before publishing; active native printable areas are evaluated; deprecated imghdr was removed; analyzer capability fields distinguish unavailable/unsupported analysis from measured values.
+
+Analyzer fields intentionally unavailable in the lightweight inspector: embedded DPI, alpha/transparency, color mode/profile, orientation, and general metadata. These are recorded as unavailable or unsupported rather than fabricated.
+
+M5/M6 are intentionally deferred. Final successful Actions run ID, final HEAD, and actual test counts/results remain pending until the final full workflow completes successfully.
