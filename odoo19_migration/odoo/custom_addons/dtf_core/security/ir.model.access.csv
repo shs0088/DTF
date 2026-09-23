@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dtf_site_category_admin,dtf.site.category admin,model_dtf_site_category,dtf_core.group_dtf_admin,1,1,1,1
+access_dtf_product_printable_area_admin,dtf.product.printable.area admin,model_dtf_product_printable_area,dtf_core.group_dtf_admin,1,1,1,1
