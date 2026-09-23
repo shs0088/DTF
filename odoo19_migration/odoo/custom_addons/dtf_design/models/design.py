@@ -213,6 +213,20 @@ class DTFDesignAsset(models.Model):
             asset.is_main_display_image = asset.design_id.main_display_asset_id == asset
             asset.is_ready_to_print_master = asset.design_id.ready_to_print_master_asset_id == asset
 
+    def unlink(self):
+        for asset in self:
+            if asset.preflight_result_ids.filtered("locked"):
+                raise ValidationError("Locked preflight evidence cannot be deleted.")
+            design = asset.design_id
+            if design.ready_to_print_master_asset_id == asset:
+                design.write({"ready_to_print_master_asset_id": False, "state": "draft" if design.state == "published" else design.state})
+            if design.main_display_asset_id == asset:
+                design.write({"main_display_asset_id": False})
+        attachments = self.mapped("attachment_id")
+        result = super().unlink()
+        attachments.unlink()
+        return result
+
     @api.constrains("size_bytes", "pixel_width", "pixel_height", "embedded_dpi")
     def _check_non_negative_metadata(self):
         for asset in self:
