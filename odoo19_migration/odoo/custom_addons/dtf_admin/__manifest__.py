@@ -1,7 +1,8 @@
 {
-    "name": "DTF Studio dtf_admin",
+    "name": "DTF Studio Admin",
     "version": "19.0.1.0.0",
-    "summary": "M1 portable foundation skeleton",
+    "summary": "DTF Studio administration foundation",
+    "category": "DTF Studio",
     "license": "LGPL-3",
     "depends": [
         "dtf_core",
@@ -12,9 +13,9 @@
         "dtf_production",
         "dtf_finance",
         "dtf_printify",
-        "dtf_notifications"
+        "dtf_notifications",
     ],
     "data": [],
     "installable": True,
-    "application": True
+    "application": True,
 }
