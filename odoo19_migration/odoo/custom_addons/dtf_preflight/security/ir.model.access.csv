@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dtf_preflight_rule_designer,dtf.preflight.rule.version designer,model_dtf_preflight_rule_version,dtf_core.group_dtf_designer,1,0,0,0
+access_dtf_preflight_result_designer,dtf.preflight.result designer,model_dtf_preflight_result,dtf_core.group_dtf_designer,1,0,0,0
+access_dtf_preflight_rule_admin,dtf.preflight.rule.version admin,model_dtf_preflight_rule_version,dtf_core.group_dtf_admin,1,1,1,1
+access_dtf_preflight_result_admin,dtf.preflight.result admin,model_dtf_preflight_result,dtf_core.group_dtf_admin,1,1,1,1
