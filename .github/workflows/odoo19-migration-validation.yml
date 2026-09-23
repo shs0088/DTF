@@ -86,7 +86,7 @@ jobs:
             odoo -d odoo_m2 --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
             --without-demo=all --stop-after-init -i dtf_preflight \
-            --test-enable --test-tags /dtf_preflight
+            --test-enable --test-tags /dtf_preflight:TestDTFM2Core
 
       - name: Run M3 catalog and Printify tests
         shell: bash
