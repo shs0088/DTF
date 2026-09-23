@@ -48,3 +48,18 @@ M3 verified implementation workflow:
 - M2 tests passed.
 - M3 catalog/Printify tests passed.
 - Odoo/Nginx runtime /web verification passed.
+
+
+## M4 validation correction record — 2026-09-23
+
+Failed run: **35925594079** at HEAD `282c3c233a92c2df78a32b4924b0a1562a615bf0`. M1 static validation, PostgreSQL startup, and installation of all 13 addons passed. M2 failed; M3, M4, and runtime were skipped.
+
+Exact corrections on the continuation head:
+- Replaced the zero-argument JSON default lambda with an Odoo-compatible callable accepting the recordset argument.
+- Made latest preflight selection a deterministic database query ordered by `evaluated_at desc, id desc`; invalidated the computed field cache after create/write/unlink and immediately before publishing. A newer rejected result therefore overrides an older accepted result.
+- Added native `dtf.product.printable.area` links to versioned rules and evaluation against active area dimensions.
+- Replaced deprecated `imghdr` detection with explicit PNG/JPEG/WEBP/PDF signatures plus SVG detection.
+- Added honest analyzer capability/status fields for values unavailable without a metadata parser.
+- Extended focused M4 tests for result ordering and printable-area rejection.
+
+Final successful Actions run ID, final HEAD, and exact M4 counts/results will be added only after the complete final-head workflow succeeds. M5 and M6 remain intentionally deferred.
