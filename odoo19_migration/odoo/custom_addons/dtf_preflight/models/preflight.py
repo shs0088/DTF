@@ -16,11 +16,7 @@ class DTFPreflightRuleVersion(models.Model):
     min_height_cm = fields.Float()
     max_width_cm = fields.Float()
     max_height_cm = fields.Float()
-    allowed_formats = fields.Json(default="_default_allowed_formats")
-
-    @api.model
-    def _default_allowed_formats(self):
-        return ["png", "jpg", "jpeg", "webp", "svg", "pdf"]
+    allowed_formats = fields.Json(default=lambda self: ["png", "jpg", "jpeg", "webp", "svg", "pdf"])
     require_previewable = fields.Boolean(default=True)
     require_transparency = fields.Boolean(default=False)
     max_scale_factor = fields.Float(default=1.0)
@@ -75,7 +71,7 @@ class DTFPreflightResult(models.Model):
         return result
     def _sync_asset_state(self):
         for asset in self.mapped("asset_id"):
-            latest = asset.preflight_result_ids.sorted(key=lambda r: (r.evaluated_at or fields.Datetime.from_string("1970-01-01 00:00:00"), r.id), reverse=True)[:1]
+            latest = self.env["dtf.preflight.result"].search([("asset_id", "=", asset.id)], order="evaluated_at desc, id desc", limit=1)
             asset.with_context(dtf_preflight_sync=True).write({"preflight_state": latest.status if latest else "pending", "preflight_summary": ((latest.reasons_en or latest.reasons_ar) if latest else False)})
     @api.constrains("status", "reasons_en", "reasons_ar")
     def _check_rejection_reason(self):
