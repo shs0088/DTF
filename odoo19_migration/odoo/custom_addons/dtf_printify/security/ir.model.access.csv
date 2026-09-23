@@ -1,3 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_dtf_printify_mapping_admin,dtf.printify.mapping admin,model_dtf_printify_mapping,dtf_core.group_dtf_admin,1,1,1,1
-access_dtf_printify_importer_admin,dtf.printify.snapshot.importer admin,model_dtf_printify_snapshot_importer,dtf_core.group_dtf_admin,1,1,1,0
