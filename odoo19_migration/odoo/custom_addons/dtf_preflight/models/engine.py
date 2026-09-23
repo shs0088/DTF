@@ -23,9 +23,7 @@ class DTFPreflightEngine(models.AbstractModel):
         elif raw.startswith(b"\xff\xd8\xff"): detected = "jpeg"
         elif raw.startswith(b"RIFF") and raw[8:12] == b"WEBP": detected = "webp"
         elif raw.startswith(b"%PDF-"): detected = "pdf"
-        if raw.startswith(b"%PDF-"): detected = "pdf"
         if re.search(br"<svg(?:\s|>)", raw[:65536], re.I): detected = "svg"
-        if raw.startswith(b"RIFF") and raw[8:12] == b"WEBP": detected = "webp"
         if detected == "jpeg": detected = "jpeg"
         pixels = {"width": None, "height": None}
         if detected == "png" and len(raw) >= 24:
