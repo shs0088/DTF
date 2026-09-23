@@ -1,12 +1,17 @@
 {
-    "name": "DTF Studio dtf_preflight",
-    "version": "19.0.1.0.0",
-    "summary": "M1 portable foundation skeleton",
+    "name": "DTF Studio Preflight",
+    "version": "19.0.2.0.0",
+    "summary": "DTF Studio versioned preflight rule/result data foundation",
+    "category": "DTF Studio",
     "license": "LGPL-3",
     "depends": [
-        "dtf_core"
+        "dtf_core",
+        "dtf_design"
     ],
-    "data": [],
+    "data": [
+        "security/ir.model.access.csv",
+        "security/preflight_rules.xml"
+    ],
     "installable": True,
     "application": False
 }
