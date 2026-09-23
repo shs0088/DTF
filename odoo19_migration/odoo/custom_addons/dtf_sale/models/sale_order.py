@@ -46,6 +46,9 @@ class SaleOrder(models.Model):
             if not order.order_line:
                 raise ValidationError("Checkout requires at least one order line.")
             order.order_line.action_capture_dtf_snapshots()
+            for line in order.order_line:
+                reservation = self.env["dtf.stock.reservation"].create_for_line(line)
+                line.dtf_reservation_id = reservation.id
             order.dtf_checkout_state = "reserved"
             order.dtf_checkout_expires_at = fields.Datetime.add(fields.Datetime.now(), minutes=30)
         return True
@@ -58,6 +61,7 @@ class SaleOrder(models.Model):
                 order.dtf_checkout_state = "cancelled"
                 raise ValidationError("The checkout reservation has expired.")
             order.action_confirm()
+            order.order_line.mapped("dtf_reservation_id").action_consume()
             order.write({"dtf_checkout_state": "confirmed", "dtf_payment_reference": payment_reference or False})
         return True
 
@@ -65,5 +69,6 @@ class SaleOrder(models.Model):
         for order in self:
             if order.dtf_checkout_state == "confirmed":
                 raise ValidationError("A confirmed checkout cannot be cancelled by the cart flow.")
+            order.order_line.mapped("dtf_reservation_id").action_release()
             order.dtf_checkout_state = "cancelled"
         return True
