@@ -41,6 +41,15 @@ Added M3 Odoo tests for bilingual categories, native products/variants, native s
 ## GitHub validation
 The workflow triggered from commit `84c533ffcc03d7e2e921056cd3ba80c7bbf023f2`. Final result must be recorded after that workflow completes; this report does not claim a PASS before GitHub reports success.
 
+## Final CI failure fixes
+
+The first M3 workflow failure was run 35921236776. M1 validation, 13-addon installation and M2 tests passed; exactly two M3 tests failed.
+
+1. Native variant test: Odoo 19 did not include the attribute value name in `product.product.display_name` for this product setup. The test was corrected to assert the native `product.template.attribute.value` relation and verify that the variant is linked to the Size attribute value M. Implementation was not changed to force display names.
+2. Printify mapping uniqueness: legacy `_sql_constraints` were not the correct Odoo 19 mechanism for this model. The mapping now uses `models.Constraint` for `UNIQUE(import_key)` and `UNIQUE(shop_id, printify_variant_id)`, retaining meaningful validation messages.
+
+The corrected CI must rerun M1 static validation, all 13 addon installation, M2 tests, M3 tests and the Odoo/Nginx runtime check before M3 is accepted.
+
 ## Remaining M4 work
 - Full file analyzer implementation.
 - Product-specific, versioned preflight rules and results.
