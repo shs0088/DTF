@@ -1,5 +1,5 @@
 import base64
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
 class TestDTFM4Preflight(TransactionCase):
