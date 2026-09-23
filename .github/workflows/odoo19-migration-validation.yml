@@ -2,8 +2,18 @@ name: Odoo 19 migration validation
 
 on:
   push:
-    branches: [odoo19/headless-backend-migration-prep]
+    branches:
+      - 'odoo19/headless-backend-migration-prep'
+    paths:
+      - 'odoo19_migration/**'
+      - '.github/workflows/odoo19-migration-validation.yml'
   pull_request:
+    paths:
+      - 'odoo19_migration/**'
+      - '.github/workflows/odoo19-migration-validation.yml'
+
+permissions:
+  contents: read
 
 jobs:
   m1-static-validation:
@@ -12,5 +22,19 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-      - run: python3 odoo19_migration/validation/validate_m1.py
+          python-version: '3.12'
+      - name: Validate M1 Python, manifests, XML, security, and addon graph
+        run: python3 odoo19_migration/validation/validate_m1.py
+      - name: Validate Docker Compose configuration
+        run: docker compose --env-file odoo19_migration/deployment/.env.example -f odoo19_migration/deployment/docker-compose.yml config >/dev/null
+      - name: Verify selected images publish linux/arm64 manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -a
+          source odoo19_migration/deployment/.env.example
+          set +a
+          for image in "$ODOO_IMAGE" "$POSTGRES_IMAGE" "$NGINX_IMAGE"; do
+            echo "Inspecting $image"
+            docker buildx imagetools inspect "$image" | grep -q "linux/arm64"
+          done
