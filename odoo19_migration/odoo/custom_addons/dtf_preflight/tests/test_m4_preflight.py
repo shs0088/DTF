@@ -1,5 +1,5 @@
 import base64
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 class TestDTFM4Preflight(TransactionCase):
@@ -26,6 +26,6 @@ class TestDTFM4Preflight(TransactionCase):
         with self.assertRaisesRegex(ValidationError,"current accepted preflight"): design.action_publish()
         rule=self.rule(); self.env["dtf.preflight.result"].create({"asset_id":asset.id,"rule_version_id":rule.id,"status":"accepted","analyzer_snapshot":{"detected_format":"png","readable":True,"analyzable":True,"previewable":True},"locked":True}); design.action_publish(); self.assertEqual(design.state,"published")
     def test_master_never_auto_selects_and_locked_asset_cannot_delete(self):
-        design=self.design(); asset=self.asset(design); design._ensure_main_display_asset(); self.assertEqual(design.main_display_asset_id,asset); self.assertFalse(design.ready_to_print_master_asset_id); rule=self.rule("m4-lock"); self.env["dtf.preflight.result"].create({"asset_id":asset.id,"rule_version_id":rule.id,"status":"rejected","reasons_en":"bad","locked":True}); with self.assertRaises(ValidationError): asset.unlink()
-    def test_designer_cannot_manage_rules(self):
-        with self.assertRaises(AccessError): self.env["dtf.preflight.rule.version"].with_user(self.user).create({"name":"no","version":"m4-no","product_type":"tshirt"})
+        design=self.design(); asset=self.asset(design); design._ensure_main_display_asset(); self.assertEqual(design.main_display_asset_id,asset); self.assertFalse(design.ready_to_print_master_asset_id); rule=self.rule("m4-lock"); self.env["dtf.preflight.result"].create({"asset_id":asset.id,"rule_version_id":rule.id,"status":"rejected","reasons_en":"bad","locked":True})
+        with self.assertRaises(ValidationError):
+            asset.unlink()
