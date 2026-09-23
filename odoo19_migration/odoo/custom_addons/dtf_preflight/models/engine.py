@@ -1,6 +1,5 @@
 import base64
 import hashlib
-import imghdr
 import re
 from odoo import api, models
 from odoo.exceptions import ValidationError
@@ -19,7 +18,11 @@ class DTFPreflightEngine(models.AbstractModel):
         raw = base64.b64decode(data) if isinstance(data, str) else bytes(data or b"")
         filename = filename or ""
         extension = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
-        detected = imghdr.what(None, raw) or ""
+        detected = ""
+        if raw.startswith(b"\x89PNG\r\n\x1a\n"): detected = "png"
+        elif raw.startswith(b"\xff\xd8\xff"): detected = "jpeg"
+        elif raw.startswith(b"RIFF") and raw[8:12] == b"WEBP": detected = "webp"
+        elif raw.startswith(b"%PDF-"): detected = "pdf"
         if raw.startswith(b"%PDF-"): detected = "pdf"
         if re.search(br"<svg(?:\s|>)", raw[:65536], re.I): detected = "svg"
         if raw.startswith(b"RIFF") and raw[8:12] == b"WEBP": detected = "webp"
@@ -36,8 +39,8 @@ class DTFPreflightEngine(models.AbstractModel):
         return {
             "extension": extension, "declared_mime": declared_mime, "detected_format": detected or "unknown",
             "signature_valid": signature_valid, "size_bytes": len(raw), "pixel_width": pixels["width"], "pixel_height": pixels["height"],
-            "embedded_dpi": None, "effective_dpi": dpi, "physical_size": {"width_cm": target_width_cm, "height_cm": target_height_cm},
-            "transparency": None, "alpha": None, "color_mode": None, "color_profile": None, "orientation": None, "metadata": {},
+            "embedded_dpi": None, "embedded_dpi_status": "unavailable_without_metadata_parser", "effective_dpi": dpi, "physical_size": {"width_cm": target_width_cm, "height_cm": target_height_cm},
+            "transparency": None, "transparency_status": "unsupported_analysis", "alpha": None, "color_mode": None, "color_profile": None, "orientation": None, "metadata": {},
             "readable": readable, "previewable": previewable, "analyzable": readable and (vector or bool(pixels["width"] and pixels["height"])),
             "aspect_ratio": round(pixels["width"] / pixels["height"], 6) if pixels["width"] and pixels["height"] else None,
             "scaling_factor": None, "scaling_risk": "unknown" if vector or dpi["minimum"] is None else ("high" if dpi["minimum"] < 150 else "medium" if dpi["minimum"] < 300 else "low"),
