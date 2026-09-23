@@ -52,7 +52,8 @@ class DTFPrintifySnapshotImporter(models.AbstractModel):
         mappings = 0
         for row in snapshot["products"]:
             supplier_product_id = str(row.get("blueprintId") or row.get("blueprint_id") or row.get("id") or "").strip()
-            if not supplier_product_id:\n                continue
+            if not supplier_product_id:
+                continue
             title = str(row.get("title") or "Printify Product").strip()
             product = self.env["product.template"].search([("dtf_supplier_source", "=", "printify"), ("dtf_printify_source_id", "=", supplier_product_id)], limit=1)
             values = {"name": title, "dtf_name_en": title, "dtf_supplier_source": "printify", "dtf_printify_source_id": supplier_product_id, "dtf_public_published": False}
