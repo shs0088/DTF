@@ -5,6 +5,6 @@
     "license": "LGPL-3",
     "depends": ["dtf_core", "mrp", "stock", "dtf_design", "dtf_preflight", "dtf_sale"],
     "data": ["security/ir.model.access.csv"],
-    "installable": true,
-    "application": false
+    "installable": True,
+    "application": False
 }
