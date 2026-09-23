@@ -57,3 +57,10 @@ No production-ready claim until module installs/tests, API contracts, core busin
   - Failed validation run 35925594079 identified an Odoo JSON default callable regression and a latest-result cache/query issue.
   - Corrections were committed on the M4 branch; final workflow verification is required before marking M4 complete.
 - M5/M6 remain intentionally deferred: sales/checkout/inventory and production/operator workflows have not been started.
+
+
+## M4 final closure coverage
+
+The closure suite extends the original M4 evidence with analyzer rejection codes, scaling/DPI behavior, transparency-required rejection, master readability/analyzability gates, exact bilingual publishing gates and missing-master messaging, all seven current-preflight product combinations, stale-result precedence, printable-area validation, security/deletion regression coverage, and role/attachment cleanup. Existing M2 tests are explicitly reused for owner-scoped design access, locked-result immutability, qualification publishing denial, master ownership, explicit master selection, and the seven-value product selection.
+
+Final closure remains M4-only. M5 and M6 are deferred.
