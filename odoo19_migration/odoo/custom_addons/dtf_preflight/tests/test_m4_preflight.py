@@ -29,3 +29,21 @@ class TestDTFM4Preflight(TransactionCase):
         design=self.design(); asset=self.asset(design); design._ensure_main_display_asset(); self.assertEqual(design.main_display_asset_id,asset); self.assertFalse(design.ready_to_print_master_asset_id); rule=self.rule("m4-lock"); self.env["dtf.preflight.result"].create({"asset_id":asset.id,"rule_version_id":rule.id,"status":"rejected","reasons_en":"bad","locked":True})
         with self.assertRaises(ValidationError):
             asset.unlink()
+
+    def test_newer_rejected_result_overrides_accepted(self):
+        design = self.design(); asset = self.asset(design); design.action_set_main_display_asset(asset); design.action_set_ready_to_print_master(asset); rule = self.rule("m4-order")
+        self.env["dtf.preflight.result"].create({"asset_id": asset.id, "rule_version_id": rule.id, "status": "accepted", "analyzer_snapshot": {"readable": True, "analyzable": True, "previewable": True}, "locked": True})
+        self.assertEqual(asset.latest_preflight_result_id.status, "accepted")
+        self.env["dtf.preflight.result"].create({"asset_id": asset.id, "rule_version_id": rule.id, "status": "rejected", "reasons_en": "newer failure", "analyzer_snapshot": {"readable": False}, "locked": True})
+        asset.invalidate_recordset(["latest_preflight_result_id"])
+        self.assertEqual(asset.latest_preflight_result_id.status, "rejected")
+        with self.assertRaisesRegex(ValidationError, "current accepted preflight"):
+            design.action_publish()
+
+    def test_printable_area_rejects_oversized_physical_asset(self):
+        product = self.env["product.template"].create({"name": "M4 T-Shirt", "dtf_product_type": "tshirt"})
+        area = self.env["dtf.product.printable.area"].create({"product_tmpl_id": product.id, "name": "Front", "width_cm": 10, "height_cm": 10})
+        rule = self.rule("m4-area"); rule.printable_area_ids = [(6, 0, [area.id])]
+        design = self.design(); asset = self.asset(design); snapshot = self.env["dtf.preflight.engine"].inspect_bytes(base64.b64encode(b"%PDF-1.7").decode(), "art.pdf", "application/pdf", 11, 9)
+        result = self.env["dtf.preflight.engine"].evaluate(asset, rule, snapshot)
+        self.assertIn("printable_area", result["codes"])
