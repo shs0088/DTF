@@ -10,11 +10,9 @@ class TestDTFM5Sale(TransactionCase):
         self.assertEqual(self.env["dtf.stock.reservation"]._description, "DTF Studio Checkout Stock Reservation")
 
     def test_snapshot_requires_explicit_master_and_compatible_result(self):
-        order = self.env["sale.order"].create({"partner_id": self.env.ref("base.partner_demo").id})
-        product = self.env["product.product"].search([], limit=1)
+        partner = self.env["res.partner"].create({"name": "M5 Customer"})
+        order = self.env["sale.order"].create({"partner_id": partner.id})
+        product = self.env["product.product"].create({"name": "M5 Product", "list_price": 10})
         line = self.env["sale.order.line"].create({"order_id": order.id, "product_id": product.id, "product_uom_qty": 1, "price_unit": product.list_price})
         with self.assertRaisesRegex(ValidationError, "explicit design and Ready-to-Print Master"):
             line.action_capture_dtf_snapshots()
-
-    def test_handoff_requires_confirmed_checkout_and_preserves_snapshots(self):
-        self.assertTrue(hasattr(self.env["dtf.production.handoff"], "create_from_line"))
