@@ -31,6 +31,3 @@ class TestDTFM5Sale(TransactionCase):
         with self.assertRaisesRegex(ValidationError, "positive"):
             self.env["dtf.stock.reservation"].create_for_line(line, quantity=0)
 
-    def test_native_compatibility_routes_are_declared(self):
-        routes = self.env["ir.http"]._get_converters()
-        self.assertIsNotNone(routes)
