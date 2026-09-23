@@ -77,7 +77,6 @@ jobs:
           MODULES='dtf_core,dtf_designer,dtf_design,dtf_preflight,dtf_customizer,dtf_sale,dtf_production,dtf_finance,dtf_printify,dtf_notifications,dtf_admin,dtf_backend_theme,dtf_api'
           docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
             odoo -d odoo --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
-            --admin-passwd=CHANGE_ME_STRONG_ODOO_MASTER_PASSWORD \
             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
             --without-demo=all --stop-after-init -i "$MODULES"
       - name: Start Odoo and Nginx and verify /web
