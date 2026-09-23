@@ -7,6 +7,6 @@
         "dtf_core"
     ],
     "data": [],
-    "installable": true,
-    "application": false
+    "installable": True,
+    "application": False
 }
