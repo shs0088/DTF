@@ -16,4 +16,21 @@ class TestDTFM5Sale(TransactionCase):
         line = self.env["sale.order.line"].create({"order_id": order.id, "product_id": product.id, "product_uom_qty": 1, "price_unit": product.list_price})
         with self.assertRaisesRegex(ValidationError, "explicit design and Ready-to-Print Master"):
             line.action_capture_dtf_snapshots()
-\n    def test_reservation_create_update_release_consume_and_expire(self):\n        self.assertTrue(hasattr(self.env["dtf.stock.reservation"], "create_for_line"))\n        self.assertTrue(hasattr(self.env["dtf.stock.reservation"], "action_consume"))\n        self.assertTrue(hasattr(self.env["sale.order"], "action_dtf_prepare_checkout"))\n        self.assertTrue(hasattr(self.env["sale.order"], "action_dtf_cancel_checkout"))\n\n    def test_zero_quantity_is_rejected_server_side(self):\n        partner = self.env["res.partner"].create({"name": "M5 Quantity"})\n        order = self.env["sale.order"].create({"partner_id": partner.id})\n        product = self.env["product.product"].create({"name": "M5 Quantity Product", "list_price": 10})\n        line = self.env["sale.order.line"].create({"order_id": order.id, "product_id": product.id, "product_uom_qty": 1, "price_unit": 10})\n        with self.assertRaisesRegex(ValidationError, "positive"):\n            self.env["dtf.stock.reservation"].create_for_line(line, quantity=0)\n\n    def test_native_compatibility_routes_are_declared(self):\n        routes = self.env["ir.http"]._get_converters()\n        self.assertIsNotNone(routes)\n
+
+    def test_reservation_create_update_release_consume_and_expire(self):
+        self.assertTrue(hasattr(self.env["dtf.stock.reservation"], "create_for_line"))
+        self.assertTrue(hasattr(self.env["dtf.stock.reservation"], "action_consume"))
+        self.assertTrue(hasattr(self.env["sale.order"], "action_dtf_prepare_checkout"))
+        self.assertTrue(hasattr(self.env["sale.order"], "action_dtf_cancel_checkout"))
+
+    def test_zero_quantity_is_rejected_server_side(self):
+        partner = self.env["res.partner"].create({"name": "M5 Quantity"})
+        order = self.env["sale.order"].create({"partner_id": partner.id})
+        product = self.env["product.product"].create({"name": "M5 Quantity Product", "list_price": 10})
+        line = self.env["sale.order.line"].create({"order_id": order.id, "product_id": product.id, "product_uom_qty": 1, "price_unit": 10})
+        with self.assertRaisesRegex(ValidationError, "positive"):
+            self.env["dtf.stock.reservation"].create_for_line(line, quantity=0)
+
+    def test_native_compatibility_routes_are_declared(self):
+        routes = self.env["ir.http"]._get_converters()
+        self.assertIsNotNone(routes)
