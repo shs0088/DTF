@@ -89,4 +89,3 @@ class TestDTFM4Preflight(TransactionCase):
         clean_design = self.design(); clean_asset = self.asset(clean_design); clean_attachment = clean_asset.attachment_id
         clean_design.action_set_main_display_asset(clean_asset); clean_design.action_set_ready_to_print_master(clean_asset); clean_asset.unlink()
         self.assertFalse(self.env["dtf.design.asset"].search([("id", "=", clean_asset.id)])); self.assertFalse(self.env["ir.attachment"].search([("id", "=", clean_attachment.id)]))
-return 
