@@ -1,7 +1,8 @@
 {
-    "name": "DTF Studio dtf_core",
-    "version": "19.0.1.0.0",
-    "summary": "M1 portable foundation skeleton",
+    "name": "DTF Studio Core",
+    "version": "19.0.2.0.0",
+    "summary": "DTF Studio native Odoo foundation and security groups",
+    "category": "DTF Studio",
     "license": "LGPL-3",
     "depends": [
         "base",
@@ -10,7 +11,9 @@
         "product",
         "stock"
     ],
-    "data": [],
+    "data": [
+        "security/dtf_security.xml"
+    ],
     "installable": True,
     "application": False
 }
