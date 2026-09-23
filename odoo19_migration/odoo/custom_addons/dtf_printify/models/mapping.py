@@ -25,15 +25,14 @@ class DTFPrintifyMapping(models.Model):
     active = fields.Boolean(default=True, index=True)
     import_key = fields.Char(required=True, index=True)
 
-    @api.constrains("import_key")
-    def _check_import_key_unique(self):
-        for record in self: \n            if self.search_count([("import_key", "=", record.import_key), ("id", "!=", record.id)]):
-                raise ValidationError("A Printify mapping import key must be unique.")
-
-    @api.constrains("shop_id", "printify_variant_id")
-    def _check_shop_variant_unique(self):
-        for record in self: \n            if self.search_count([("shop_id", "=", record.shop_id), ("printify_variant_id", "=", record.printify_variant_id), ("id", "!=", record.id)]):
-                raise ValidationError("A Printify shop variant can have only one mapping.")
+    _import_key_unique = models.Constraint(
+        "UNIQUE(import_key)",
+        "A Printify mapping import key must be unique.",
+    )
+    _shop_variant_unique = models.Constraint(
+        "UNIQUE(shop_id, printify_variant_id)",
+        "A Printify shop variant can have only one mapping.",
+    )
 
     def public_payload(self):
         return {"id": self.id, "product_id": self.product_tmpl_id.id}
