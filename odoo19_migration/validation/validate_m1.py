@@ -4,7 +4,7 @@ import ast,re,sys
 import xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[1]
 ADDONS=ROOT/'odoo/custom_addons'
-EXPECTED=["dtf_core","dtf_designer","dtf_design","dtf_preflight","dtf_customizer","dtf_sale","dtf_production","dtf_finance","dtf_printify","dtf_notifications","dtf_admin","dtf_backend_theme","dtf_api"]
+EXPECTED={"dtf_core","dtf_designer","dtf_design","dtf_preflight","dtf_customizer","dtf_sale","dtf_production","dtf_finance","dtf_printify","dtf_notifications","dtf_admin","dtf_backend_theme","dtf_api"}
 errors=[]
 actual={p.name for p in ADDONS.iterdir() if p.is_dir()}
 if actual != set(EXPECTED): errors.append("addon directory set mismatch")
