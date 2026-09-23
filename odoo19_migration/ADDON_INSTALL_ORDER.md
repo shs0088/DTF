@@ -1,12 +1,21 @@
-# M1 addon install order
+# DTF Studio Odoo 19 — Addon Install Order
 
-1. dtf_core
-2. dtf_designer, dtf_design, dtf_preflight, dtf_finance, dtf_notifications, dtf_backend_theme
-3. dtf_customizer
-4. dtf_sale
-5. dtf_production
-6. dtf_printify
-7. dtf_admin
-8. dtf_api
+M1 creates the installable module foundation only. DTF business models and workflows are implemented in later milestones.
 
-M1 skeletons only; business models are deferred to M2.
+Recommended dependency order:
+
+1. `dtf_core`
+2. `dtf_designer`
+3. `dtf_design`
+4. `dtf_preflight`
+5. `dtf_customizer`
+6. `dtf_sale`
+7. `dtf_production`
+8. `dtf_finance`
+9. `dtf_printify`
+10. `dtf_notifications`
+11. `dtf_admin`
+12. `dtf_backend_theme`
+13. `dtf_api`
+
+All DTF addons live under `odoo19_migration/odoo/custom_addons`. No Odoo core source is vendored or modified.
