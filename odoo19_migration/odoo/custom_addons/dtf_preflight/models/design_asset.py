@@ -17,17 +17,15 @@ class DTFDesignAsset(models.Model):
 
     def _compute_latest_preflight_result(self):
         for asset in self:
-            asset.latest_preflight_result_id = asset.preflight_result_ids.sorted(
-                key=lambda result: (result.evaluated_at or fields.Datetime.from_string("1970-01-01 00:00:00"), result.id),
-                reverse=True,
-            )[:1]
+            asset.latest_preflight_result_id = self.env["dtf.preflight.result"].search(
+                [("asset_id", "=", asset.id)], order="evaluated_at desc, id desc", limit=1
+            )
 
     def _recompute_preflight_from_results(self):
         for asset in self:
-            latest = asset.preflight_result_ids.sorted(
-                key=lambda result: (result.evaluated_at or fields.Datetime.from_string("1970-01-01 00:00:00"), result.id),
-                reverse=True,
-            )[:1]
+            latest = self.env["dtf.preflight.result"].search(
+                [("asset_id", "=", asset.id)], order="evaluated_at desc, id desc", limit=1
+            )
             if latest:
                 result = latest[0]
                 summary = (result.reasons_en or result.reasons_ar or "").strip()
