@@ -22,7 +22,7 @@ class TestDTFM2Core(TransactionCase):
                 "name": "Designer One",
                 "login": "designer1@example.test",
                 "partner_id": cls.partner_one.id,
-                "groups_id": [(6, 0, [cls.designer_group.id])],
+                "group_ids": [(6, 0, [cls.designer_group.id])],
             }
         )
         cls.user_two = cls.env["res.users"].with_context(no_reset_password=True).create(
@@ -30,7 +30,7 @@ class TestDTFM2Core(TransactionCase):
                 "name": "Designer Two",
                 "login": "designer2@example.test",
                 "partner_id": cls.partner_two.id,
-                "groups_id": [(6, 0, [cls.designer_group.id])],
+                "group_ids": [(6, 0, [cls.designer_group.id])],
             }
         )
         cls.profile_one = cls.env["dtf.designer.profile"].create(
@@ -189,7 +189,7 @@ class TestDTFM2Core(TransactionCase):
         self.assertEqual(visible, own_design)
 
         with self.assertRaises(AccessError):
-            other_design.with_user(self.user_one).check_access("write")
+            other_design.with_user(self.user_one).write({"title_en": "Forbidden"})
 
     def test_seven_product_combinations_are_exact(self):
         selection = dict(self.env["dtf.design"]._fields["product_type"].selection)
