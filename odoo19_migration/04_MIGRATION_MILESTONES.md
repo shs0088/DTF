@@ -53,4 +53,7 @@ No production-ready claim until module installs/tests, API contracts, core busin
 
 - M3 — Catalog + Printify: COMPLETE + CI VERIFIED.
 - Verified implementation run: 35923917690 — SUCCESS.
-- Next milestone after final-head documentation validation: M4 — Preflight + publishing.
+- M4 — Preflight + publishing: IN VALIDATION on the current branch head.
+  - Failed validation run 35925594079 identified an Odoo JSON default callable regression and a latest-result cache/query issue.
+  - Corrections were committed on the M4 branch; final workflow verification is required before marking M4 complete.
+- M5/M6 remain intentionally deferred: sales/checkout/inventory and production/operator workflows have not been started.
