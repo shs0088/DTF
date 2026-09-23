@@ -39,3 +39,12 @@ M2 verified workflow before documentation-only status commit:
 - PostgreSQL + Odoo + Nginx runtime validation passed.
 
 A documentation-only final-head workflow must also remain green before the branch is treated as the closed M2 handoff.
+
+
+M3 verified implementation workflow:
+- Run 35923917690 — SUCCESS.
+- M1 static + Compose + ARM64 manifest checks passed.
+- PostgreSQL startup and all 13 addon installation passed.
+- M2 tests passed.
+- M3 catalog/Printify tests passed.
+- Odoo/Nginx runtime /web verification passed.
