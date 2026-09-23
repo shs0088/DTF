@@ -6,21 +6,45 @@
         <field name="sequence">35</field>
     </record>
 
-    <record id="group_dtf_designer" model="res.groups">
+    <record id="privilege_dtf_designer" model="res.groups.privilege">
         <field name="name">DTF Designer</field>
+        <field name="description">Designer portal access for DTF Studio-owned design records.</field>
         <field name="category_id" ref="dtf_core.module_category_dtf_studio"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="privilege_dtf_operations" model="res.groups.privilege">
+        <field name="name">DTF Operations</field>
+        <field name="description">Least-privilege internal printing operations.</field>
+        <field name="category_id" ref="dtf_core.module_category_dtf_studio"/>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="privilege_dtf_admin" model="res.groups.privilege">
+        <field name="name">DTF Administration</field>
+        <field name="description">DTF Studio administration access.</field>
+        <field name="category_id" ref="dtf_core.module_category_dtf_studio"/>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="group_dtf_designer" model="res.groups">
+        <field name="name">Designer</field>
+        <field name="privilege_id" ref="dtf_core.privilege_dtf_designer"/>
+        <field name="sequence">10</field>
         <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
     </record>
 
     <record id="group_dtf_printing_operator" model="res.groups">
-        <field name="name">DTF Printing Operator</field>
-        <field name="category_id" ref="dtf_core.module_category_dtf_studio"/>
+        <field name="name">Printing Operator</field>
+        <field name="privilege_id" ref="dtf_core.privilege_dtf_operations"/>
+        <field name="sequence">10</field>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
     <record id="group_dtf_admin" model="res.groups">
-        <field name="name">DTF Administrator</field>
-        <field name="category_id" ref="dtf_core.module_category_dtf_studio"/>
+        <field name="name">Administrator</field>
+        <field name="privilege_id" ref="dtf_core.privilege_dtf_admin"/>
+        <field name="sequence">10</field>
         <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
 </odoo>
