@@ -16,7 +16,11 @@ class DTFPreflightRuleVersion(models.Model):
     min_height_cm = fields.Float()
     max_width_cm = fields.Float()
     max_height_cm = fields.Float()
-    allowed_formats = fields.Json(default=lambda: ["png", "jpg", "jpeg", "webp", "svg", "pdf"])
+    allowed_formats = fields.Json(default="_default_allowed_formats")
+
+    @api.model
+    def _default_allowed_formats(self):
+        return ["png", "jpg", "jpeg", "webp", "svg", "pdf"]
     require_previewable = fields.Boolean(default=True)
     require_transparency = fields.Boolean(default=False)
     max_scale_factor = fields.Float(default=1.0)
@@ -44,15 +48,25 @@ class DTFPreflightResult(models.Model):
     locked = fields.Boolean(default=False)
     @api.model_create_multi
     def create(self, vals_list):
-        records = super().create(vals_list); records._sync_asset_state(); return records
+        records = super().create(vals_list)
+        assets = records.mapped("asset_id")
+        assets.invalidate_recordset(["latest_preflight_result_id"])
+        records._sync_asset_state()
+        return records
     def write(self, vals):
         if any(record.locked for record in self) and not self.env.context.get("dtf_allow_locked_write"): raise ValidationError("Locked preflight results are immutable.")
         result = super().write(vals)
-        if {"status", "reasons_en", "reasons_ar", "failure_codes", "analyzer_snapshot", "locked"} & set(vals): self._sync_asset_state()
+        if {"status", "reasons_en", "reasons_ar", "failure_codes", "analyzer_snapshot", "locked", "evaluated_at"} & set(vals):
+            self.mapped("asset_id").invalidate_recordset(["latest_preflight_result_id"])
+            self._sync_asset_state()
         return result
     def unlink(self):
         if any(record.locked for record in self) and not self.env.context.get("dtf_allow_locked_write"): raise ValidationError("Locked preflight results cannot be deleted.")
-        assets = self.mapped("asset_id"); result = super().unlink(); assets._recompute_preflight_from_results(); return result
+        assets = self.mapped("asset_id")
+        result = super().unlink()
+        assets.invalidate_recordset(["latest_preflight_result_id"])
+        assets._recompute_preflight_from_results()
+        return result
     def _sync_asset_state(self):
         for asset in self.mapped("asset_id"):
             latest = asset.preflight_result_ids.sorted(key=lambda r: (r.evaluated_at or fields.Datetime.from_string("1970-01-01 00:00:00"), r.id), reverse=True)[:1]
