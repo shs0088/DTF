@@ -64,3 +64,34 @@ The corrected CI must rerun M1 static validation, all 13 addon installation, M2 
 - INVESTIGATION MODE USED: NO
 
 Additional correction: the first fix commit contained literal escape text in the mapping source; this was corrected to valid Python source before the final CI rerun.
+
+
+## Final independent CI verification
+
+A subsequent GitHub verification identified that Odoo 19 correctly enforced the new
+`models.Constraint` at PostgreSQL level, but the duplicate-create test expected an
+Odoo `ValidationError` while the database raised the underlying unique-violation first.
+
+The model was strengthened with pre-insert/pre-write uniqueness validation while
+retaining the PostgreSQL `models.Constraint` rules as the concurrency-safe final guard.
+
+Final verified implementation HEAD before this documentation-only update:
+`76dad60b0d8210256ebe654b0e223f0ae6210a3c`
+
+Final verification run:
+`35923917690`
+
+Result:
+`SUCCESS`
+
+Verified:
+- M1 static validation: PASS
+- Docker Compose validation: PASS
+- ARM64 image manifest probe: PASS
+- PostgreSQL startup: PASS
+- all 13 DTF addon installation: PASS
+- M2 Odoo tests: PASS
+- M3 catalog/Printify Odoo tests: PASS
+- Odoo/Nginx `/web` runtime verification: PASS
+
+M3 is therefore COMPLETE + CI VERIFIED at the implementation level.
