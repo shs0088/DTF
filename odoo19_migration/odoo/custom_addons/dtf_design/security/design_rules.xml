@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_dtf_design_own" model="ir.rule">
+        <field name="name">DTF designer can access own designs</field>
+        <field name="model_id" ref="model_dtf_design"/>
+        <field name="domain_force">[('designer_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_designer'))]"/>
+    </record>
+
+    <record id="rule_dtf_design_asset_own" model="ir.rule">
+        <field name="name">DTF designer can access own design assets</field>
+        <field name="model_id" ref="model_dtf_design_asset"/>
+        <field name="domain_force">[('design_id.designer_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_designer'))]"/>
+    </record>
+
+    <record id="rule_dtf_design_admin_all" model="ir.rule">
+        <field name="name">DTF administrator can access all designs</field>
+        <field name="model_id" ref="model_dtf_design"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_admin'))]"/>
+    </record>
+
+    <record id="rule_dtf_design_asset_admin_all" model="ir.rule">
+        <field name="name">DTF administrator can access all design assets</field>
+        <field name="model_id" ref="model_dtf_design_asset"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_admin'))]"/>
+    </record>
+</odoo>
