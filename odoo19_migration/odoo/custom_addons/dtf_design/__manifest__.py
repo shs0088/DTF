@@ -1,12 +1,17 @@
 {
-    "name": "DTF Studio dtf_design",
-    "version": "19.0.1.0.0",
-    "summary": "M1 portable foundation skeleton",
+    "name": "DTF Studio Design",
+    "version": "19.0.2.0.0",
+    "summary": "DTF Studio design, asset, qualification, display and master relationships",
+    "category": "DTF Studio",
     "license": "LGPL-3",
     "depends": [
-        "dtf_core"
+        "dtf_core",
+        "dtf_designer"
     ],
-    "data": [],
+    "data": [
+        "security/ir.model.access.csv",
+        "security/design_rules.xml"
+    ],
     "installable": True,
     "application": False
 }
