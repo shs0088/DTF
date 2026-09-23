@@ -25,10 +25,15 @@ class DTFPrintifyMapping(models.Model):
     active = fields.Boolean(default=True, index=True)
     import_key = fields.Char(required=True, index=True)
 
-    _sql_constraints = [
-        ("dtf_printify_import_key_unique", "unique(import_key)", "A Printify mapping import key must be unique."),
-        ("dtf_printify_variant_unique", "unique(shop_id, printify_variant_id)", "A Printify shop variant can have only one mapping."),
-    ]
+    @api.constrains("import_key")
+    def _check_import_key_unique(self):
+        for record in self: \n            if self.search_count([("import_key", "=", record.import_key), ("id", "!=", record.id)]):
+                raise ValidationError("A Printify mapping import key must be unique.")
+
+    @api.constrains("shop_id", "printify_variant_id")
+    def _check_shop_variant_unique(self):
+        for record in self: \n            if self.search_count([("shop_id", "=", record.shop_id), ("printify_variant_id", "=", record.printify_variant_id), ("id", "!=", record.id)]):
+                raise ValidationError("A Printify shop variant can have only one mapping.")
 
     def public_payload(self):
         return {"id": self.id, "product_id": self.product_tmpl_id.id}
@@ -48,12 +53,12 @@ class DTFPrintifySnapshotImporter(models.AbstractModel):
         mappings = 0
         for row in snapshot["products"]:
             supplier_product_id = str(row.get("blueprintId") or row.get("blueprint_id") or row.get("id") or "").strip()
-            if not supplier_product_id: continue
+            if not supplier_product_id:\n                continue
             title = str(row.get("title") or "Printify Product").strip()
             product = self.env["product.template"].search([("dtf_supplier_source", "=", "printify"), ("dtf_printify_source_id", "=", supplier_product_id)], limit=1)
             values = {"name": title, "dtf_name_en": title, "dtf_supplier_source": "printify", "dtf_printify_source_id": supplier_product_id, "dtf_public_published": False}
             if product: product.write(values)
-            else: product=self.env["product.template"].create(values); imported += 1
+            else: product = self.env["product.template"].create(values); imported += 1
             variants = row.get("variants") if isinstance(row.get("variants"), list) else []
             for variant in variants:
                 variant_id = str(variant.get("id") or variant.get("variant_id") or "").strip()
