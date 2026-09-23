@@ -66,3 +66,6 @@ M5 and M6 remain intentionally deferred.
 ## Expanded-coverage validation correction
 
 Run **35928809712** failed before M3/M4 because the M2 test command exited 255. Inspection showed the newly added security/deletion test attempted to delete an asset that intentionally carried locked preflight evidence. The test was corrected to assert that locked deletion raises `ValidationError`, then use a separate clean asset to verify normal attachment cleanup and role recovery. Existing working behavior was not weakened.
+
+
+Run **35929191145** also stopped in the unchanged M2 stage before M3/M4. The added closure test had two real fixture defects: the effective-DPI fixture lacked PNG IHDR dimensions, and the exact missing-master regex was over-escaped. The fixture now contains dimensions and the assertion uses the correct regex.
