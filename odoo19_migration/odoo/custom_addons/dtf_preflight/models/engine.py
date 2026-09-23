@@ -69,6 +69,10 @@ class DTFPreflightEngine(models.AbstractModel):
             if value is not None and maximum and value > maximum: reasons.append(("max_" + key, key + " exceeds the maximum."))
         if rule.require_transparency and snapshot.get("transparency") is not True:
             reasons.append(("transparency", "Transparency is required by the active rule."))
+        for area in rule.printable_area_ids.filtered("active"):
+            physical = snapshot.get("physical_size") or {}
+            if physical.get("width_cm") is not None and physical.get("height_cm") is not None and (physical["width_cm"] > area.width_cm or physical["height_cm"] > area.height_cm):
+                reasons.append(("printable_area", "Physical dimensions exceed the applicable printable area."))
         return {"status": "accepted" if not reasons else "rejected", "codes": [code for code, _ in reasons], "reasons_en": " ".join(text for _, text in reasons), "reasons_ar": "", "snapshot": snapshot}
 
     @api.model
