@@ -1,8 +1,7 @@
 {
-    "name": "DTF Studio API",
+    "name": "DTF Studio dtf_api",
     "version": "19.0.1.0.0",
-    "summary": "Versioned compatibility API foundation for the preserved DTF Studio frontend",
-    "category": "DTF Studio",
+    "summary": "M1 portable foundation skeleton",
     "license": "LGPL-3",
     "depends": [
         "dtf_core",
@@ -16,9 +15,9 @@
         "dtf_printify",
         "dtf_notifications",
         "dtf_admin",
-        "website_sale",
+        "website"
     ],
     "data": [],
     "installable": True,
-    "application": False,
+    "application": False
 }
