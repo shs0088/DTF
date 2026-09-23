@@ -61,3 +61,8 @@ Closure tests added on the continuation head cover the previously missing regres
 Analyzer fields still unavailable in the lightweight inspector: embedded DPI, alpha/transparency, color mode/profile, orientation, and general metadata. They are explicitly marked unavailable/unsupported and are not fabricated.
 
 M5 and M6 remain intentionally deferred.
+
+
+## Expanded-coverage validation correction
+
+Run **35928809712** failed before M3/M4 because the M2 test command exited 255. Inspection showed the newly added security/deletion test attempted to delete an asset that intentionally carried locked preflight evidence. The test was corrected to assert that locked deletion raises `ValidationError`, then use a separate clean asset to verify normal attachment cleanup and role recovery. Existing working behavior was not weakened.
