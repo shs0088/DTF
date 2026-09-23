@@ -47,3 +47,10 @@ No production-ready claim until module installs/tests, API contracts, core busin
   - DTF designer/design/asset/preflight foundation is implemented as Odoo addons.
   - M2 test evidence is recorded in `M2_IMPLEMENTATION_REPORT.md`.
 - Next milestone: M3 — Catalog + Printify.
+
+
+## M3 completion update — 2026-09-23
+
+- M3 — Catalog + Printify: COMPLETE + CI VERIFIED.
+- Verified implementation run: 35923917690 — SUCCESS.
+- Next milestone after final-head documentation validation: M4 — Preflight + publishing.
