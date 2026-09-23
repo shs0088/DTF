@@ -29,10 +29,26 @@ class DTFStockReservation(models.Model):
     @api.model
     def create_for_line(self, line, quantity=None):
         quantity = quantity or line.product_uom_qty
-        if quantity <= 0 or quantity > line.product_id.with_context(location=line.order_id.warehouse_id.lot_stock_id.id).qty_available:
-            raise ValidationError("Insufficient stock for checkout reservation.")
+        if quantity <= 0:
+            raise ValidationError("A checkout quantity must be positive.")
+        self.env.cr.execute("SELECT id FROM product_product WHERE id = %s FOR UPDATE", (line.product_id.id,))
+        self.action_expire_stale()
+        location = line.order_id.warehouse_id.lot_stock_id
+        native_available = line.product_id.with_context(location=location.id).qty_available
+        active_holds = sum(self.search([("product_id", "=", line.product_id.id), ("state", "=", "active")]).mapped("quantity"))
+        existing = self.search([("sale_order_line_id", "=", line.id), ("state", "=", "active")], limit=1)
+        existing_quantity = existing.quantity if existing else 0
+        if native_available - active_holds + existing_quantity < quantity:
+            raise ValidationError("Insufficient available stock for checkout reservation.")
         expires = fields.Datetime.add(fields.Datetime.now(), minutes=30)
-        return self.create({"sale_order_id": line.order_id.id, "sale_order_line_id": line.id, "product_id": line.product_id.id, "quantity": quantity, "expires_at": expires, "snapshot": line.dtf_product_snapshot or {}})
+        values = {"sale_order_id": line.order_id.id, "sale_order_line_id": line.id, "product_id": line.product_id.id, "quantity": quantity, "expires_at": expires, "snapshot": line.dtf_product_snapshot or {}}
+        if existing:
+            existing.write(values); return existing
+        return self.create(values)
+
+    def action_consume(self):
+        self.filtered(lambda r: r.state == "active").write({"state": "consumed"})
+        return True
 
     def action_release(self):
         self.filtered(lambda r: r.state == "active").write({"state": "released"})
