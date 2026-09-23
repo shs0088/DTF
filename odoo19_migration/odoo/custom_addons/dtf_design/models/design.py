@@ -157,8 +157,9 @@ class DTFDesign(models.Model):
             master = record.ready_to_print_master_asset_id
             if not master.readable or not master.analyzable:
                 raise ValidationError("The Ready-to-Print Master is not readable/analyzable.")
-            if master.preflight_state != "accepted":
-                raise ValidationError("The Ready-to-Print Master must pass preflight before publishing.")
+            latest = master.latest_preflight_result_id
+            if not latest or latest.status != "accepted" or latest.rule_version_id.product_type != record.product_type:
+                raise ValidationError("The Ready-to-Print Master must have a current accepted preflight for the selected product combination.")
             record.state = "published"
 
 
