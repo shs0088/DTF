@@ -35,3 +35,15 @@ Oracle/VPS deployment, domain/TLS, scheduled backups, restore drill, monitoring/
 
 ## M11 — Acceptance
 No production-ready claim until module installs/tests, API contracts, core business flows, browser/mobile regression, security matrix, ARM64 deployment, backup/restore and GitHub QC pass.
+
+
+## Current migration status — 2026-09-23
+
+- M0 — Evidence freeze: COMPLETE for migration preparation.
+- M1 — Portable Odoo foundation: COMPLETE + CI VERIFIED.
+- M2 — Core models/security: COMPLETE + CI VERIFIED.
+  - Native Odoo PostgreSQL remains the single target database.
+  - Odoo contacts/users/groups/attachments are reused.
+  - DTF designer/design/asset/preflight foundation is implemented as Odoo addons.
+  - M2 test evidence is recorded in `M2_IMPLEMENTATION_REPORT.md`.
+- Next milestone: M3 — Catalog + Printify.
