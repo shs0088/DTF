@@ -53,8 +53,21 @@ async function login(page, loginName, password, key) {
 async function openAction(page, xmlid) {
   await page.goto(`${BASE}/odoo/action-${xmlid}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1800);
-  if ((await page.locator(".modal.show:visible").count()) > 0) return false;
-  return (await page.locator(".o_action_manager").count()) > 0;
+
+  const visibleModal = page.locator(".modal.show:visible").first();
+  if (await visibleModal.count()) {
+    const modalText = (await visibleModal.innerText()).toLowerCase();
+    if (
+      modalText.includes("access error") ||
+      modalText.includes("خطأ في الوصول")
+    ) {
+      return false;
+    }
+  }
+
+  return (await page.locator(
+    ".o_graph_view, .o_pivot_view, .o_list_view, .o_form_view, .o_kanban_view"
+  ).count()) > 0;
 }
 
 async function direction(page) {
