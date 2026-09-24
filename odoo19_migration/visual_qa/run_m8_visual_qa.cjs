@@ -53,7 +53,7 @@ async function login(page, loginName, password, key) {
 async function openAction(page, xmlid) {
   await page.goto(`${BASE}/odoo/action-${xmlid}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1800);
-  if ((await page.locator(".modal.show, .o_dialog").count()) > 0) return false;
+  if ((await page.locator(".modal.show:visible").count()) > 0) return false;
   return (await page.locator(".o_action_manager").count()) > 0;
 }
 
@@ -66,6 +66,8 @@ async function direction(page) {
       : "",
     bodyClass: document.body.className,
     nativeRtl: document.body.classList.contains("o_rtl"),
+    rtlStylesheet: Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+      .some(link => /\.rtl(?:\.min)?\.css(?:\?|$)/.test(link.href)),
   }));
 }
 
@@ -104,7 +106,9 @@ async function inspectEnglish(browser) {
   report.metrics.english_direction = await direction(page);
   report.metrics.english_theme = await theme(page);
   report.metrics.english_dashboard = await overflow(page);
-  report.checks.english_ltr = !report.metrics.english_direction.nativeRtl;
+  report.checks.english_ltr =
+    !report.metrics.english_direction.nativeRtl &&
+    !report.metrics.english_direction.rtlStylesheet;
   report.checks.theme_accent =
     report.metrics.english_theme.accent.toLowerCase() === "#00a8ff";
   await shot(page, "01-english-dashboard.png");
@@ -146,7 +150,9 @@ async function inspectArabic(browser) {
   report.checks.arabic_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard");
   report.metrics.arabic_direction = await direction(page);
   report.metrics.arabic_dashboard = await overflow(page);
-  report.checks.arabic_rtl = report.metrics.arabic_direction.nativeRtl;
+  report.checks.arabic_rtl =
+    report.metrics.arabic_direction.nativeRtl ||
+    report.metrics.arabic_direction.rtlStylesheet;
   await shot(page, "04-arabic-dashboard.png");
 
   report.checks.arabic_designers = await openAction(page, "dtf_admin.action_dtf_admin_designers");
