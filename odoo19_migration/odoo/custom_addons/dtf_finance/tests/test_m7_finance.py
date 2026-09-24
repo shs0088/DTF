@@ -15,7 +15,11 @@ class TestDTFM7Finance(TestSaleCommon):
             company=cls.env.company,
             install_demo=False,
         )
-        cls.company_data = cls.collect_company_accounting_data(cls.env.company)
+        cls.company_data.update(
+            super(TestSaleCommon, cls).collect_company_accounting_data(
+                cls.env.company
+            )
+        )
         cls.product_category.with_company(cls.env.company).write({
             "property_account_income_categ_id": cls.company_data[
                 "default_account_revenue"
