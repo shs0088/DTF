@@ -50,7 +50,7 @@ Do not port the legacy PNG-only logic in `src/utils/preflight.ts` as the authori
 ## Reservation rule
 
 The current repository rule records state that 15 minutes is stale and fails the authoritative requirement.
-For this migration, use **30 minutes** unless a later explicit user-approved requirement supersedes it.
+The previously proposed custom **30-minute checkout stock hold is cancelled/superseded**. Do not implement a DTF-specific temporary hold; use Odoo Community native website-sale, stock, and payment behavior.
 
 Do not silently copy an older 15-minute configuration.
 
