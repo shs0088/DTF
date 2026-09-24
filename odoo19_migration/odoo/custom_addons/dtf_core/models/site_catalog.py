@@ -41,6 +41,10 @@ class ProductTemplate(models.Model):
         return record.with_context(lang=lang.code)[field_name] or ""
 
     @api.model
+    def _dtf_translated_text(self, record, field_name, lang):
+        return record.with_context(lang=lang)[field_name] or ""
+
+    @api.model
     def dtf_public_payload(self, products):
         return [{
             "id": p.id,
