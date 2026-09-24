@@ -52,7 +52,7 @@ async function login(page, loginName, password, key) {
 
 async function openAction(page, xmlid) {
   await page.goto(`${BASE}/odoo/action-${xmlid}`, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1800);
+  await page.waitForTimeout(800);
 
   const visibleModal = page.locator(".modal.show:visible").first();
   if (await visibleModal.count()) {
@@ -65,9 +65,15 @@ async function openAction(page, xmlid) {
     }
   }
 
-  return (await page.locator(
+  const rendered = page.locator(
     ".o_dtf_admin_dashboard, .o_graph_renderer, .o_pivot_renderer, .o_list_renderer, .o_form_view, .o_kanban_renderer"
-  ).count()) > 0;
+  ).first();
+  try {
+    await rendered.waitFor({ state: "visible", timeout: 10000 });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function direction(page) {
@@ -116,8 +122,15 @@ async function inspectEnglish(browser) {
   }
 
   report.checks.english_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard_client");
-  report.checks.english_dashboard_ready =
-    (await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").count()) > 0;
+  try {
+    await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").waitFor({
+      state: "visible",
+      timeout: 10000,
+    });
+    report.checks.english_dashboard_ready = true;
+  } catch {
+    report.checks.english_dashboard_ready = false;
+  }
   report.checks.english_dashboard_kpis =
     (await page.locator(".o_dtf_admin_dashboard .dtf-kpi-card").count()) >= 7;
   report.metrics.english_direction = await direction(page);
@@ -165,8 +178,15 @@ async function inspectArabic(browser) {
   }
 
   report.checks.arabic_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard");
-  report.checks.arabic_dashboard_ready =
-    (await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").count()) > 0;
+  try {
+    await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").waitFor({
+      state: "visible",
+      timeout: 10000,
+    });
+    report.checks.arabic_dashboard_ready = true;
+  } catch {
+    report.checks.arabic_dashboard_ready = false;
+  }
   report.checks.arabic_dashboard_kpis =
     (await page.locator(".o_dtf_admin_dashboard .dtf-kpi-card").count()) >= 7;
   report.checks.arabic_dashboard_title =

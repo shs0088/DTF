@@ -63,7 +63,7 @@
         border-bottom: 1px solid var(--dtf-admin-border, #243449);
     }
     .dtf-chart-bar {
-        width: min(42px, 70%); min-height: 5%; background: var(--dtf-admin-accent, #00a8ff);
+        width: 42px; max-width: 70%; min-height: 5%; background: var(--dtf-admin-accent, #00a8ff);
         border-radius: 6px 6px 0 0;
     }
     .dtf-chart-date, .dtf-chart-sales {
