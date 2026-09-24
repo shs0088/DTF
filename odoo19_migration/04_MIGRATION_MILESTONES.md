@@ -74,3 +74,8 @@ Final HEAD: `105b9b5bece9625c4ce89d331384b674fc3c3eaa`. GitHub Actions run `3593
 ## M5 implementation start
 
 M4 remains COMPLETE and unchanged. M5 has started from verified HEAD `5f5ff8399e2931c91f941b9700f047a4effe8fd1`. First M5 batch adds native Odoo sale-order DTF design/master/preflight/customer/product snapshots, a 30-minute checkout reservation model, checkout state/payment guards, and payment-confirmed production handoff snapshots. Existing frontend, Worker/old backend, and prior milestone behavior remain untouched. Deployment and merge are not performed. M6 and later milestones are not started.
+
+
+## Native reconciliation update
+
+The former custom 30-minute checkout stock hold is cancelled/superseded. The duplicate reservation model, timed fields, hold accounting, lock logic, ACLs, and tests were removed. M5 cart compatibility delegates to native website-sale methods and native computed totals. DTF sale-line snapshots and production evidence remain extensions. M6 is not started. See ODOO_NATIVE_RECONCILIATION_M1_M5.md.
