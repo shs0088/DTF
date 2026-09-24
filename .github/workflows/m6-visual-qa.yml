@@ -106,7 +106,7 @@ jobs:
           export ADMIN_PASSWORD="$M6_VISUAL_ADMIN_PASSWORD"
           export OPERATOR_LOGIN=m6-visual-operator@example.test
           export OPERATOR_PASSWORD="$M6_VISUAL_OPERATOR_PASSWORD"
-          node odoo19_migration/visual_qa/run_m6_visual_qa.js
+          node odoo19_migration/visual_qa/run_m6_visual_qa.cjs
 
       - name: Capture runtime logs on visual failure
         if: failure()
