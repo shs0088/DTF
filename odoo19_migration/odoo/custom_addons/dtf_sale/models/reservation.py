@@ -28,7 +28,7 @@ class DTFStockReservation(models.Model):
 
     @api.model
     def create_for_line(self, line, quantity=None):
-        quantity = quantity or line.product_uom_qty
+        quantity = line.product_uom_qty if quantity is None else quantity
         if quantity <= 0:
             raise ValidationError("A checkout quantity must be positive.")
         self.env.cr.execute("SELECT id FROM product_product WHERE id = %s FOR UPDATE", (line.product_id.id,))
