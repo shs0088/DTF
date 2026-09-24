@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dtf_core.group_dtf_admin" model="res.groups">
+        <field name="implied_ids" eval="[
+            (4, ref('sales_team.group_sale_manager')),
+            (4, ref('product.group_product_manager')),
+            (4, ref('stock.group_stock_manager'))
+        ]"/>
+    </record>
+</odoo>

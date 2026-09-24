@@ -25,6 +25,8 @@ class TestDTFM8Admin(TransactionCase):
             "dtf_admin.action_dtf_admin_design_review": "dtf.design",
             "dtf_admin.action_dtf_admin_products": "product.template",
             "dtf_admin.action_dtf_admin_orders": "sale.order",
+            "dtf_admin.action_dtf_admin_customers": "res.partner",
+            "dtf_admin.action_dtf_admin_inventory": "stock.quant",
             "dtf_admin.action_dtf_admin_reports": "sale.order",
             "dtf_admin.action_dtf_admin_supplier_mappings": "dtf.printify.mapping",
             "dtf_admin.action_dtf_admin_settings": "res.config.settings",
@@ -59,6 +61,28 @@ class TestDTFM8Admin(TransactionCase):
 
         self.assertNotIn(operator, finance_root.group_ids)
         self.assertNotIn(operator, settings.group_ids)
+
+    def test_admin_uses_native_functional_manager_groups_without_granting_operator(self):
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        operator_group = self.env.ref("dtf_core.group_dtf_printing_operator")
+        native_groups = [
+            self.env.ref("sales_team.group_sale_manager"),
+            self.env.ref("product.group_product_manager"),
+            self.env.ref("stock.group_stock_manager"),
+        ]
+        for native_group in native_groups:
+            self.assertIn(native_group, admin_group.implied_ids)
+            self.assertNotIn(native_group, operator_group.implied_ids)
+
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Native Access Admin",
+            "login": "m8-native-access-admin@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+        self.env["sale.order"].with_user(admin_user).check_access("read")
+        self.env["product.template"].with_user(admin_user).check_access("write")
+        self.env["stock.quant"].with_user(admin_user).check_access("read")
+        self.env["res.config.settings"].with_user(admin_user).check_access("read")
 
     def test_native_rejection_wizards_delegate_to_existing_business_rules(self):
         admin_group = self.env.ref("dtf_core.group_dtf_admin")

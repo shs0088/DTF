@@ -17,6 +17,7 @@
         "dtf_backend_theme",
     ],
     "data": [
+        "security/admin_security.xml",
         "security/ir.model.access.csv",
         "views/admin_wizards.xml",
         "views/admin_views.xml",

@@ -1,0 +1,79 @@
+# Translation of Odoo Server.
+# * dtf_design
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: dtf_design
+#: model:ir.model.fields,field_description:dtf_design.field_dtf_design__title_en
+msgid "English Title"
+msgstr "العنوان الإنجليزي"
+
+#. module: dtf_design
+#: model:ir.model.fields,field_description:dtf_design.field_dtf_design__title_ar
+msgid "Arabic Title"
+msgstr "العنوان العربي"
+
+#. module: dtf_design
+#: model:ir.model.fields,field_description:dtf_design.field_dtf_design__description_en
+msgid "English Description"
+msgstr "الوصف الإنجليزي"
+
+#. module: dtf_design
+#: model:ir.model.fields,field_description:dtf_design.field_dtf_design__description_ar
+msgid "Arabic Description"
+msgstr "الوصف العربي"
+
+#. module: dtf_design
+#: model:ir.model.fields,field_description:dtf_design.field_dtf_design__product_type
+msgid "Product Type"
+msgstr "نوع المنتج"
+
+#. module: dtf_design
+#: model:ir.model.fields,field_description:dtf_design.field_dtf_design__main_display_asset_id
+msgid "Main Display Image"
+msgstr "صورة العرض الرئيسية"
+
+#. module: dtf_design
+#: model:ir.model.fields,field_description:dtf_design.field_dtf_design__ready_to_print_master_asset_id
+msgid "Ready-to-Print Master"
+msgstr "الملف الرئيسي الجاهز للطباعة"
+
+#. module: dtf_design
+#: model:ir.model.fields.selection,name:dtf_design.selection__dtf_design__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: dtf_design
+#: model:ir.model.fields.selection,name:dtf_design.selection__dtf_design__state__published
+msgid "Published"
+msgstr "منشور"
+
+#. module: dtf_design
+#: model:ir.model.fields.selection,name:dtf_design.selection__dtf_design__state__rejected
+msgid "Rejected"
+msgstr "مرفوض"
+
+#. module: dtf_design
+#: model:ir.model.fields.selection,name:dtf_design.selection__dtf_design__state__archived
+msgid "Archived"
+msgstr "مؤرشف"
+
+#. module: dtf_design
+#: model:ir.model.fields.selection,name:dtf_design.selection__dtf_design__product_type__tshirt
+msgid "T-Shirt"
+msgstr "تي شيرت"
+
+#. module: dtf_design
+#: model:ir.model.fields.selection,name:dtf_design.selection__dtf_design__product_type__mug
+msgid "Mug"
+msgstr "كوب"
+
+#. module: dtf_design
+#: model:ir.model.fields.selection,name:dtf_design.selection__dtf_design__product_type__cap
+msgid "Cap"
+msgstr "قبعة"

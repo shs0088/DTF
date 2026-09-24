@@ -1,0 +1,46 @@
+# Translation of Odoo Server.
+# * dtf_finance
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: dtf_finance
+#: model:ir.ui.menu,name:dtf_finance.menu_dtf_finance_root
+msgid "DTF Finance"
+msgstr "مالية DTF"
+
+#. module: dtf_finance
+#: model:ir.actions.act_window,name:dtf_finance.action_dtf_finance_accounts
+#: model:ir.ui.menu,name:dtf_finance.menu_dtf_finance_accounts
+msgid "Designer Balances"
+msgstr "أرصدة المصممين"
+
+#. module: dtf_finance
+#: model:ir.actions.act_window,name:dtf_finance.action_dtf_finance_earnings
+msgid "Designer Earnings"
+msgstr "أرباح المصممين"
+
+#. module: dtf_finance
+#: model:ir.ui.menu,name:dtf_finance.menu_dtf_finance_earnings
+msgid "Earnings"
+msgstr "الأرباح"
+
+#. module: dtf_finance
+#: model:ir.actions.act_window,name:dtf_finance.action_dtf_finance_withdrawals
+#: model:ir.ui.menu,name:dtf_finance.menu_dtf_finance_withdrawals
+msgid "Withdrawals"
+msgstr "السحوبات"
+
+#. module: dtf_finance
+#: model:ir.actions.act_window,name:dtf_finance.action_dtf_finance_ledger
+msgid "Finance Ledger"
+msgstr "السجل المالي"
+
+#. module: dtf_finance
+#: model:ir.ui.menu,name:dtf_finance.menu_dtf_finance_ledger
+msgid "Ledger"
+msgstr "السجل"

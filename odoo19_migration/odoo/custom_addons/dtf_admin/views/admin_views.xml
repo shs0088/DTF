@@ -233,6 +233,19 @@
         <field name="domain">[('order_line.dtf_design_id', '!=', False)]</field>
     </record>
 
+    <record id="action_dtf_admin_customers" model="ir.actions.act_window">
+        <field name="name">Customers</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('customer_rank', '&gt;', 0)]</field>
+    </record>
+
+    <record id="action_dtf_admin_inventory" model="ir.actions.act_window">
+        <field name="name">Inventory</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">list</field>
+    </record>
+
     <record id="action_dtf_admin_reports" model="ir.actions.act_window">
         <field name="name">Reports</field>
         <field name="res_model">sale.order</field>
@@ -320,11 +333,25 @@
               sequence="20"
               groups="dtf_core.group_dtf_admin"/>
 
+    <menuitem id="menu_dtf_admin_inventory"
+              name="Inventory"
+              parent="menu_dtf_admin_catalog_root"
+              action="action_dtf_admin_inventory"
+              sequence="30"
+              groups="dtf_core.group_dtf_admin"/>
+
     <menuitem id="menu_dtf_admin_orders"
               name="Orders"
               parent="menu_dtf_admin_root"
               action="action_dtf_admin_orders"
               sequence="40"
+              groups="dtf_core.group_dtf_admin"/>
+
+    <menuitem id="menu_dtf_admin_customers"
+              name="Customers"
+              parent="menu_dtf_admin_root"
+              action="action_dtf_admin_customers"
+              sequence="45"
               groups="dtf_core.group_dtf_admin"/>
 
     <menuitem id="menu_dtf_admin_reports"

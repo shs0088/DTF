@@ -1,0 +1,60 @@
+# Translation of Odoo Server.
+# * dtf_production
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: dtf_production
+#: model:ir.ui.menu,name:dtf_production.menu_dtf_operations_root
+msgid "DTF Operations"
+msgstr "عمليات DTF"
+
+#. module: dtf_production
+#: model:ir.actions.act_window,name:dtf_production.action_dtf_print_jobs
+#: model_terms:ir.ui.view,arch_db:dtf_production.view_dtf_print_job_list
+msgid "Printing Jobs"
+msgstr "مهام الطباعة"
+
+#. module: dtf_production
+#: model:ir.ui.menu,name:dtf_production.menu_dtf_print_jobs
+msgid "Orders / Printing Jobs"
+msgstr "الطلبات / مهام الطباعة"
+
+#. module: dtf_production
+#: model_terms:ir.ui.view,arch_db:dtf_production.view_dtf_print_job_form
+msgid "DTF Printing Job"
+msgstr "مهمة طباعة DTF"
+
+#. module: dtf_production
+#: model_terms:ir.ui.view,arch_db:dtf_production.view_dtf_print_job_form
+msgid "Start Preparation"
+msgstr "بدء التجهيز"
+
+#. module: dtf_production
+#: model_terms:ir.ui.view,arch_db:dtf_production.view_dtf_print_job_form
+msgid "Mark Ready"
+msgstr "وضع جاهز"
+
+#. module: dtf_production
+#: model_terms:ir.ui.view,arch_db:dtf_production.view_dtf_print_job_form
+msgid "Complete"
+msgstr "إكمال"
+
+#. module: dtf_production
+#: model_terms:ir.ui.view,arch_db:dtf_production.view_dtf_print_job_form
+msgid "Cancel"
+msgstr "إلغاء"
+
+#. module: dtf_production
+#: model_terms:ir.ui.view,arch_db:dtf_production.view_dtf_print_job_form
+msgid "Ready-to-Print Master"
+msgstr "الملف الرئيسي الجاهز للطباعة"
+
+#. module: dtf_production
+#: model_terms:ir.ui.view,arch_db:dtf_production.view_dtf_print_job_form
+msgid "Download Print Master"
+msgstr "تنزيل ملف الطباعة الرئيسي"

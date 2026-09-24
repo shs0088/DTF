@@ -8,160 +8,216 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
 
 #. module: dtf_admin
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_root
 msgid "DTF Studio"
 msgstr "استوديو DTF"
 
 #. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_dashboard
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_dashboard
 msgid "Dashboard"
 msgstr "لوحة التحكم"
 
 #. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_designers
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_designers_root
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designer_list
 msgid "Designers"
 msgstr "المصممون"
 
 #. module: dtf_admin
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_designers
 msgid "All Designers"
 msgstr "جميع المصممين"
 
 #. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designer_form
 msgid "Designer Administration"
 msgstr "إدارة المصممين"
 
 #. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designer_form
 msgid "Designer"
 msgstr "المصمم"
 
 #. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designer_form
 msgid "Qualification"
 msgstr "التأهيل"
 
 #. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_qualification_review
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_qualification_review
 msgid "Qualification Review"
 msgstr "مراجعة التأهيل"
 
 #. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designer_form
 msgid "Qualification Designs"
 msgstr "تصاميم التأهيل"
 
 #. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designer_form
 msgid "Start Admin Review"
 msgstr "بدء مراجعة الإدارة"
 
 #. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designer_form
 msgid "Authorize"
 msgstr "اعتماد"
 
 #. module: dtf_admin
-msgid "Designs"
-msgstr "التصاميم"
-
-#. module: dtf_admin
-msgid "Design Review"
-msgstr "مراجعة التصميم"
-
-#. module: dtf_admin
-msgid "Bilingual Content"
-msgstr "المحتوى ثنائي اللغة"
-
-#. module: dtf_admin
-msgid "English Content"
-msgstr "المحتوى الإنجليزي"
-
-#. module: dtf_admin
-msgid "Arabic Content"
-msgstr "المحتوى العربي"
-
-#. module: dtf_admin
-msgid "Display and Production"
-msgstr "العرض والإنتاج"
-
-#. module: dtf_admin
-msgid "Assets"
-msgstr "الملفات"
-
-#. module: dtf_admin
-msgid "Publish"
-msgstr "نشر"
-
-#. module: dtf_admin
-msgid "Catalog"
-msgstr "الكتالوج"
-
-#. module: dtf_admin
-msgid "Products"
-msgstr "المنتجات"
-
-#. module: dtf_admin
-msgid "Supplier Catalog"
-msgstr "كتالوج المورد"
-
-#. module: dtf_admin
-msgid "Supplier Catalog Mappings"
-msgstr "ربط كتالوج المورد"
-
-#. module: dtf_admin
-msgid "Supplier Product ID"
-msgstr "معرف منتج المورد"
-
-#. module: dtf_admin
-msgid "Supplier Variant ID"
-msgstr "معرف متغير المورد"
-
-#. module: dtf_admin
-msgid "Orders"
-msgstr "الطلبات"
-
-#. module: dtf_admin
-msgid "Reports"
-msgstr "التقارير"
-
-#. module: dtf_admin
-msgid "System"
-msgstr "النظام"
-
-#. module: dtf_admin
-msgid "Settings"
-msgstr "الإعدادات"
-
-#. module: dtf_admin
-msgid "DTF Settings"
-msgstr "إعدادات DTF"
-
-#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designer_form
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_form
 msgid "Reject"
 msgstr "رفض"
 
 #. module: dtf_admin
-msgid "Reject Qualification"
-msgstr "رفض التأهيل"
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_designs
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_designs
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_list
+msgid "Designs"
+msgstr "التصاميم"
 
 #. module: dtf_admin
-msgid "Reject Design"
-msgstr "رفض التصميم"
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_design_review
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_design_review
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_form
+msgid "Design Review"
+msgstr "مراجعة التصميم"
 
 #. module: dtf_admin
-msgid "Rejection Reason"
-msgstr "سبب الرفض"
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_form
+msgid "Bilingual Content"
+msgstr "المحتوى ثنائي اللغة"
 
 #. module: dtf_admin
-msgid "Confirm Rejection"
-msgstr "تأكيد الرفض"
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_form
+msgid "English Content"
+msgstr "المحتوى الإنجليزي"
 
 #. module: dtf_admin
-msgid "Cancel"
-msgstr "إلغاء"
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_form
+msgid "Arabic Content"
+msgstr "المحتوى العربي"
 
 #. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_form
+msgid "Display and Production"
+msgstr "العرض والإنتاج"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_form
+msgid "Assets"
+msgstr "الملفات"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_form
+msgid "Publish"
+msgstr "نشر"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_form
 msgid "Admin Rejection"
 msgstr "رفض الإدارة"
 
 #. module: dtf_admin
-msgid "Rejected By"
-msgstr "تم الرفض بواسطة"
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_catalog_root
+msgid "Catalog"
+msgstr "الكتالوج"
 
 #. module: dtf_admin
-msgid "Rejected At"
-msgstr "وقت الرفض"
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_products
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_products
+msgid "Products"
+msgstr "المنتجات"
+
+#. module: dtf_admin
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_supplier_mappings
+msgid "Supplier Catalog"
+msgstr "كتالوج المورد"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_supplier_mappings
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_printify_mapping_list
+msgid "Supplier Catalog Mappings"
+msgstr "ربط كتالوج المورد"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_printify_mapping_list
+msgid "Supplier Product ID"
+msgstr "معرف منتج المورد"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_printify_mapping_list
+msgid "Supplier Variant ID"
+msgstr "معرف متغير المورد"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_inventory
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_inventory
+msgid "Inventory"
+msgstr "المخزون"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_orders
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_orders
+msgid "Orders"
+msgstr "الطلبات"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_customers
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_customers
+msgid "Customers"
+msgstr "العملاء"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_reports
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_reports
+msgid "Reports"
+msgstr "التقارير"
+
+#. module: dtf_admin
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_system_root
+msgid "System"
+msgstr "النظام"
+
+#. module: dtf_admin
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_settings
+msgid "Settings"
+msgstr "الإعدادات"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_settings
+msgid "DTF Settings"
+msgstr "إعدادات DTF"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_qualification_reject_wizard
+msgid "Reject Qualification"
+msgstr "رفض التأهيل"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_reject_wizard
+msgid "Reject Design"
+msgstr "رفض التصميم"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_qualification_reject_wizard
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_reject_wizard
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_qualification_reject_wizard
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_reject_wizard
+msgid "Confirm Rejection"
+msgstr "تأكيد الرفض"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_qualification_reject_wizard
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_reject_wizard
+msgid "Cancel"
+msgstr "إلغاء"

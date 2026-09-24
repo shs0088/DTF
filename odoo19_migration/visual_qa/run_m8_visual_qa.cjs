@@ -14,6 +14,7 @@ const report = {
   console_errors: [],
   page_errors: [],
   network_errors: [],
+  ignored_network_errors: [],
   screenshots: [],
 };
 
@@ -23,11 +24,14 @@ function diagnostics(page, actor) {
   });
   page.on("pageerror", err => report.page_errors.push({ actor, text: String(err) }));
   page.on("response", response => {
-    if (response.status() >= 500) report.network_errors.push({
-      actor,
-      status: response.status(),
-      url: response.url(),
-    });
+    if (response.status() >= 500) {
+      const item = { actor, status: response.status(), url: response.url() };
+      if (response.url().includes("/web/image/website/") && response.url().includes("/logo/")) {
+        report.ignored_network_errors.push({ ...item, reason: "generic website logo asset; outside M8 Admin UI" });
+      } else {
+        report.network_errors.push(item);
+      }
+    }
   });
 }
 
@@ -49,6 +53,7 @@ async function login(page, loginName, password, key) {
 async function openAction(page, xmlid) {
   await page.goto(`${BASE}/odoo/action-${xmlid}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1800);
+  if ((await page.locator(".modal.show, .o_dialog").count()) > 0) return false;
   return (await page.locator(".o_action_manager").count()) > 0;
 }
 
@@ -59,6 +64,8 @@ async function direction(page) {
     webClientDirection: document.querySelector(".o_web_client")
       ? getComputedStyle(document.querySelector(".o_web_client")).direction
       : "",
+    bodyClass: document.body.className,
+    nativeRtl: document.body.classList.contains("o_rtl"),
   }));
 }
 
@@ -97,9 +104,7 @@ async function inspectEnglish(browser) {
   report.metrics.english_direction = await direction(page);
   report.metrics.english_theme = await theme(page);
   report.metrics.english_dashboard = await overflow(page);
-  report.checks.english_ltr =
-    report.metrics.english_direction.bodyDirection === "ltr" ||
-    report.metrics.english_direction.webClientDirection === "ltr";
+  report.checks.english_ltr = !report.metrics.english_direction.nativeRtl;
   report.checks.theme_accent =
     report.metrics.english_theme.accent.toLowerCase() === "#00a8ff";
   await shot(page, "01-english-dashboard.png");
@@ -141,9 +146,7 @@ async function inspectArabic(browser) {
   report.checks.arabic_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard");
   report.metrics.arabic_direction = await direction(page);
   report.metrics.arabic_dashboard = await overflow(page);
-  report.checks.arabic_rtl =
-    report.metrics.arabic_direction.bodyDirection === "rtl" ||
-    report.metrics.arabic_direction.webClientDirection === "rtl";
+  report.checks.arabic_rtl = report.metrics.arabic_direction.nativeRtl;
   await shot(page, "04-arabic-dashboard.png");
 
   report.checks.arabic_designers = await openAction(page, "dtf_admin.action_dtf_admin_designers");

@@ -1,0 +1,85 @@
+# Translation of Odoo Server.
+# * dtf_designer
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: dtf_designer
+#: model:ir.model.fields,field_description:dtf_designer.field_dtf_designer_profile__partner_id
+msgid "Partner"
+msgstr "جهة الاتصال"
+
+#. module: dtf_designer
+#: model:ir.model.fields,field_description:dtf_designer.field_dtf_designer_profile__user_id
+msgid "User"
+msgstr "المستخدم"
+
+#. module: dtf_designer
+#: model:ir.model.fields,field_description:dtf_designer.field_dtf_designer_profile__qualification_state
+msgid "Qualification State"
+msgstr "حالة التأهيل"
+
+#. module: dtf_designer
+#: model:ir.model.fields,field_description:dtf_designer.field_dtf_designer_profile__authorized
+#: model:ir.model.fields.selection,name:dtf_designer.selection__dtf_designer_profile__qualification_state__authorized
+msgid "Authorized"
+msgstr "معتمد"
+
+#. module: dtf_designer
+#: model:ir.model.fields,field_description:dtf_designer.field_dtf_designer_profile__application_date
+msgid "Application Date"
+msgstr "تاريخ التقديم"
+
+#. module: dtf_designer
+#: model:ir.model.fields,field_description:dtf_designer.field_dtf_designer_profile__review_deadline
+msgid "Review Deadline"
+msgstr "الموعد النهائي للمراجعة"
+
+#. module: dtf_designer
+#: model:ir.model.fields,field_description:dtf_designer.field_dtf_designer_profile__rejection_count
+msgid "Rejection Count"
+msgstr "عدد مرات الرفض"
+
+#. module: dtf_designer
+#: model:ir.model.fields,field_description:dtf_designer.field_dtf_designer_profile__last_rejection_reason
+msgid "Last Rejection Reason"
+msgstr "سبب الرفض الأخير"
+
+#. module: dtf_designer
+#: model:ir.model.fields,field_description:dtf_designer.field_dtf_designer_profile__replacement_deadline
+msgid "Replacement Deadline"
+msgstr "الموعد النهائي للاستبدال"
+
+#. module: dtf_designer
+#: model:ir.model.fields.selection,name:dtf_designer.selection__dtf_designer_profile__qualification_state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: dtf_designer
+#: model:ir.model.fields.selection,name:dtf_designer.selection__dtf_designer_profile__qualification_state__system_qualified
+msgid "System Qualified"
+msgstr "مؤهل آلياً"
+
+#. module: dtf_designer
+#: model:ir.model.fields.selection,name:dtf_designer.selection__dtf_designer_profile__qualification_state__under_review
+msgid "Under Admin Review"
+msgstr "قيد مراجعة الإدارة"
+
+#. module: dtf_designer
+#: model:ir.model.fields.selection,name:dtf_designer.selection__dtf_designer_profile__qualification_state__replacement_required
+msgid "Replacement Required"
+msgstr "مطلوب استبدال"
+
+#. module: dtf_designer
+#: model:ir.model.fields.selection,name:dtf_designer.selection__dtf_designer_profile__qualification_state__escalated
+msgid "Escalated"
+msgstr "تم التصعيد"
+
+#. module: dtf_designer
+#: model:ir.model.fields.selection,name:dtf_designer.selection__dtf_designer_profile__qualification_state__rejected
+msgid "Rejected"
+msgstr "مرفوض"
