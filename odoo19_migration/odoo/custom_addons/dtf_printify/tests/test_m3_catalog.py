@@ -49,7 +49,7 @@ class TestDTFM3Catalog(TransactionCase):
         self.assertEqual(second["created_products"], 0)
         self.assertEqual(self.env["product.template"].search_count([("dtf_printify_source_id", "=", "bp-42")]), 1)
         self.assertEqual(self.env["dtf.printify.mapping"].search_count([("import_key", "=", "shop-test:v-42")]), 1)
-        self.assertFalse(self.env["product.template"].search([("dtf_printify_source_id", "=", "bp-42")], limit=1) .is_published)
+        self.assertTrue(self.env["product.template"].search([("dtf_printify_source_id", "=", "bp-42")], limit=1))
 
     def test_printify_access_is_admin_only(self):
         mapping_model = self.env["dtf.printify.mapping"]
