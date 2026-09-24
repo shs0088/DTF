@@ -430,3 +430,13 @@ class TestDTFM8Admin(TransactionCase):
         self.env["product.public.category"].with_user(admin_user).check_access("write")
         with self.assertRaises(AccessError):
             self.env["product.public.category"].with_user(operator_user).check_access("write")
+
+    def test_extended_reports_reuse_existing_authority_models(self):
+        expected = {
+            "dtf_admin.action_dtf_admin_report_products": "product.template",
+            "dtf_admin.action_dtf_admin_report_designers": "dtf.designer.profile",
+            "dtf_admin.action_dtf_admin_report_payouts": "dtf.designer.withdrawal",
+            "dtf_admin.action_dtf_admin_report_stock_moves": "stock.move",
+        }
+        for xmlid, model_name in expected.items():
+            self.assertEqual(self.env.ref(xmlid).res_model, model_name)
