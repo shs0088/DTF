@@ -292,7 +292,12 @@ class SaleOrderLine(models.Model):
                 "dtf_product_snapshot": product_snapshot,
                 "dtf_preflight_snapshot": dict(source_line.dtf_preflight_snapshot or {}),
             }
-            production = self.env["mrp.production"].create(vals)
+            # The caller is already explicitly restricted to DTF Administrators above.
+            # Native Odoo MRP creation also creates mrp.production.group, whose ACL is
+            # limited to Manufacturing/User. Use controlled elevation only for the
+            # native creation chain rather than granting broad Manufacturing access
+            # to the DTF Administrator role.
+            production = self.env["mrp.production"].sudo().create(vals).with_user(self.env.user)
             productions |= production
 
         return productions
