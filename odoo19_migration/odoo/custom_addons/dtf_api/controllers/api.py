@@ -9,12 +9,12 @@ class DTFAPI(http.Controller):
 
     @http.route('/api/dtf/v1/categories', type='http', auth='public', methods=['GET'], csrf=False)
     def categories(self, **kwargs):
-        categories = request.env['dtf.site.category'].sudo().search([('active', '=', True), ('published', '=', True)])
-        return request.make_json_response({'items': [{'id': c.id, 'name': c.name_en, 'name_ar': c.name_ar, 'slug': c.slug, 'parent_id': c.parent_id.id or None, 'sort_order': c.sort_order} for c in categories]})
+        categories = request.env['product.public.category'].sudo().search([], order='sequence, name, id')
+        return request.make_json_response({'items': [{'id': c.id, 'name': c.with_context(lang='en_US').name, 'name_ar': c.with_context(lang='ar_001').name, 'parent_id': c.parent_id.id or None, 'sequence': c.sequence, 'website_description': c.website_description} for c in categories]})
 
     @http.route('/api/dtf/v1/products', type='http', auth='public', methods=['GET'], csrf=False)
     def products(self, **kwargs):
-        products = request.env['product.template'].sudo().search([('sale_ok', '=', True), ('active', '=', True), ('dtf_public_published', '=', True)], limit=100)
+        products = request.env['product.template'].sudo().search(request.website.sale_product_domain(), limit=100)
         return request.make_json_response({'items': request.env['product.template'].dtf_public_payload(products)})
 
 
@@ -31,14 +31,14 @@ class DTFAPI(http.Controller):
     def _native_cart(self, force_create=False):
         if not request.website:
             return None
-        return request.website.sale_get_order(force_create=force_create)
+        return request.cart or (request.website._create_cart() if force_create else None)
 
     @http.route('/api/dtf/v1/cart', type='http', auth='user', methods=['GET'], csrf=False)
     def cart_get(self, **kwargs):
         order = self._native_cart()
         return request.make_json_response({'cart': self._cart_json(order) if order else None})
 
-    @http.route('/api/dtf/v1/cart/add', type='json', auth='user', methods=['POST'], csrf=False)
+    @http.route('/api/dtf/v1/cart/add', type='jsonrpc', auth='user', methods=['POST'], csrf=False)
     def cart_add(self, product_id=None, quantity=1, **kwargs):
         if float(quantity or 0) <= 0:
             return request.make_json_response({'error': 'quantity_must_be_positive'}, status=400)
