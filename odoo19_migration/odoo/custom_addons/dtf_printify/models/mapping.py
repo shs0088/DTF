@@ -107,7 +107,7 @@ class DTFPrintifySnapshotImporter(models.AbstractModel):
                 continue
             title = str(row.get("title") or "Printify Product").strip()
             product = self.env["product.template"].search([("dtf_supplier_source", "=", "printify"), ("dtf_printify_source_id", "=", supplier_product_id)], limit=1)
-            values = {"name": title, "dtf_name_en": title, "dtf_supplier_source": "printify", "dtf_printify_source_id": supplier_product_id, "dtf_public_published": False}
+            values = {"name": title, "dtf_supplier_source": "printify", "dtf_printify_source_id": supplier_product_id}
             if product: product.write(values)
             else: product = self.env["product.template"].create(values); imported += 1
             variants = row.get("variants") if isinstance(row.get("variants"), list) else []
