@@ -96,9 +96,9 @@ async function metrics(page, key) {
 async function checkMasterDownload(page) {
   report.checks.master_filename_visible = (await page.getByText(MASTER, { exact: false }).count()) > 0;
   const candidates = [
-    page.locator(`.o_field_binary_file:has-text("${MASTER}") a`).first(),
-    page.locator("a").filter({ hasText: MASTER }).first(),
-    page.getByRole("button", { name: /download/i }).first(),
+    page.getByRole("button", { name: "Download Print Master", exact: true }).first(),
+    page.locator('a[href*="/web/content/"]').filter({ hasText: MASTER }).first(),
+    page.locator(`.o_field_binary_file:has-text("${MASTER}") a[href*="/web/content/"]`).first(),
   ];
   for (const candidate of candidates) {
     if (await candidate.count()) {
@@ -143,10 +143,10 @@ async function adminInspection(browser) {
         (await page.getByText("Ready-to-Print Master", { exact: true }).count()) > 0;
       report.checks.admin_customer_visible =
         (await page.getByText("M6 Visual Customer", { exact: false }).count()) > 0;
-      await checkMasterDownload(page);
       await metrics(page, "admin_desktop_form");
       await screenshot(page, "02-admin-printing-job-form-desktop.png");
       await screenshot(page, "03-admin-ready-to-print-master.png");
+      await checkMasterDownload(page);
     }
   }
   await context.close();
