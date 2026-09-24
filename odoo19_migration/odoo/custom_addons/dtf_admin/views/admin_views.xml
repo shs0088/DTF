@@ -355,6 +355,13 @@
               sequence="45"
               groups="dtf_core.group_dtf_admin"/>
 
+    <menuitem id="menu_dtf_admin_promotions"
+              name="Promotions"
+              parent="menu_dtf_admin_root"
+              action="loyalty.loyalty_program_discount_loyalty_action"
+              sequence="65"
+              groups="dtf_core.group_dtf_admin"/>
+
     <menuitem id="menu_dtf_admin_reports"
               name="Reports"
               parent="menu_dtf_admin_root"

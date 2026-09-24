@@ -346,3 +346,26 @@ class TestDTFM8Admin(TransactionCase):
         })
         with self.assertRaises(ValidationError):
             self.env["dtf.admin.dashboard"].with_user(admin_user).get_metric_action("not-a-metric")
+
+    def test_promotions_reuse_native_odoo_loyalty(self):
+        menu = self.env.ref("dtf_admin.menu_dtf_admin_promotions")
+        action = self.env.ref("loyalty.loyalty_program_discount_loyalty_action")
+        self.assertEqual(menu.action, action)
+        self.assertEqual(action.res_model, "loyalty.program")
+
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        operator_group = self.env.ref("dtf_core.group_dtf_printing_operator")
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Promotions Admin",
+            "login": "m8-promotions-admin@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+        operator_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Promotions Operator",
+            "login": "m8-promotions-operator@example.test",
+            "group_ids": [(6, 0, [operator_group.id])],
+        })
+
+        self.env["loyalty.program"].with_user(admin_user).check_access("write")
+        with self.assertRaises(AccessError):
+            self.env["loyalty.program"].with_user(operator_user).check_access("write")

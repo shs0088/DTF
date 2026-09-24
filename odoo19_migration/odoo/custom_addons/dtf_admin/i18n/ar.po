@@ -434,3 +434,8 @@ msgstr "إعادة المحاولة"
 #: code:addons/dtf_admin/static/src/dashboard/dashboard.xml:0
 msgid "Loading dashboard…"
 msgstr "جارٍ تحميل لوحة التحكم…"
+
+#. module: dtf_admin
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_promotions
+msgid "Promotions"
+msgstr "العروض الترويجية"

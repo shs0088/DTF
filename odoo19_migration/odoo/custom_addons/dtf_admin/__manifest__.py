@@ -1,6 +1,6 @@
 {
     "name": "DTF Studio Admin",
-    "version": "19.0.5.0.0",
+    "version": "19.0.6.0.0",
     "summary": "Native Odoo administration shell and review workflows for DTF Studio",
     "category": "DTF Studio",
     "license": "LGPL-3",
@@ -11,6 +11,7 @@
         "dtf_design",
         "dtf_preflight",
         "dtf_sale",
+        "sale_loyalty",
         "dtf_production",
         "dtf_finance",
         "dtf_printify",
