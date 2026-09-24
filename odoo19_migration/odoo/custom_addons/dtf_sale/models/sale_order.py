@@ -10,7 +10,6 @@ class SaleOrderLine(models.Model):
     dtf_preflight_snapshot = fields.Json(default=dict, copy=False)
     dtf_customer_snapshot = fields.Json(default=dict, copy=False)
     dtf_product_snapshot = fields.Json(default=dict, copy=False)
-    dtf_reservation_id = fields.Many2one("dtf.stock.reservation", ondelete="set null", copy=False)
 
     @api.constrains("dtf_master_asset_id", "dtf_design_id")
     def _check_master_design(self):
@@ -36,39 +35,4 @@ class SaleOrderLine(models.Model):
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    dtf_checkout_state = fields.Selection([("cart", "Cart"), ("reserved", "Reserved"), ("confirmed", "Confirmed"), ("cancelled", "Cancelled")], default="cart", index=True, copy=False)
-    dtf_checkout_expires_at = fields.Datetime(copy=False, index=True)
-    dtf_delivery_method = fields.Selection([("delivery", "Delivery"), ("pickup", "Pickup")], copy=False)
-    dtf_payment_reference = fields.Char(copy=False)
 
-    def action_dtf_prepare_checkout(self):
-        for order in self:
-            if not order.order_line:
-                raise ValidationError("Checkout requires at least one order line.")
-            order.order_line.action_capture_dtf_snapshots()
-            for line in order.order_line:
-                reservation = self.env["dtf.stock.reservation"].create_for_line(line)
-                line.dtf_reservation_id = reservation.id
-            order.dtf_checkout_state = "reserved"
-            order.dtf_checkout_expires_at = fields.Datetime.add(fields.Datetime.now(), minutes=30)
-        return True
-
-    def action_dtf_confirm_payment(self, payment_reference=None):
-        for order in self:
-            if order.dtf_checkout_state != "reserved":
-                raise ValidationError("Only a reserved checkout can be payment-confirmed.")
-            if order.dtf_checkout_expires_at and order.dtf_checkout_expires_at < fields.Datetime.now():
-                order.dtf_checkout_state = "cancelled"
-                raise ValidationError("The checkout reservation has expired.")
-            order.action_confirm()
-            order.order_line.mapped("dtf_reservation_id").action_consume()
-            order.write({"dtf_checkout_state": "confirmed", "dtf_payment_reference": payment_reference or False})
-        return True
-
-    def action_dtf_cancel_checkout(self):
-        for order in self:
-            if order.dtf_checkout_state == "confirmed":
-                raise ValidationError("A confirmed checkout cannot be cancelled by the cart flow.")
-            order.order_line.mapped("dtf_reservation_id").action_release()
-            order.dtf_checkout_state = "cancelled"
-        return True
