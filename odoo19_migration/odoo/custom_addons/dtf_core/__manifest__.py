@@ -4,7 +4,7 @@
     "summary": "DTF Studio native catalog foundation and security groups",
     "category": "DTF Studio",
     "license": "LGPL-3",
-    "depends": ["base", "mail", "contacts", "product", "stock"],
+    "depends": ["base", "mail", "contacts", "product", "stock", "website_sale"],
     "data": ["security/dtf_security.xml", "security/ir.model.access.csv"],
     "installable": True,
     "application": False
