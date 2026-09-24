@@ -52,11 +52,21 @@ design = env["dtf.design"].create({
 png_bytes = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
 )
+
+# QA-only storage override: this database is ephemeral and the synthetic print
+# master must survive GitHub runner/container lifecycle independently of the
+# production filestore configuration.
+env["ir.config_parameter"].sudo().set_param("ir_attachment.location", "db")
+assert env["ir.config_parameter"].sudo().get_param("ir_attachment.location") == "db"
+
 attachment = env["ir.attachment"].create({
     "name": "m6-visual-master.png",
     "datas": base64.b64encode(png_bytes).decode(),
     "mimetype": "image/png",
 })
+assert not attachment.store_fname, "QA synthetic master unexpectedly used the filestore"
+assert attachment.raw == png_bytes, "QA synthetic master bytes were not stored intact"
+
 asset = env["dtf.design.asset"].with_context(dtf_preflight_migration=True).create({
     "design_id": design.id,
     "attachment_id": attachment.id,
