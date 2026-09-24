@@ -1,37 +1,98 @@
-# M5 Implementation Report — Sales, Checkout, Inventory Reservation, and Order Snapshots
+# M5 Implementation Report — Native Sales / Cart / API Reconciliation
 
-## Scope completed in this M5 batch
+## Correction scope
 
-- Added native Odoo sale-order-line DTF fields for explicit design/master linkage and immutable customer, product, and preflight snapshots.
-- Added current accepted product-compatible preflight enforcement before snapshot capture.
-- Added native 30-minute checkout state and expiry fields on `sale.order`.
-- Added `dtf.stock.reservation` with active/released/consumed/expired states, positive-quantity validation, expiry handling, and the authoritative 30-minute reservation duration.
-- Added payment-confirmation and checkout-cancellation guards.
-- Added `dtf.production.handoff` historical master/preflight/product snapshot foundation gated on confirmed checkout.
-- Added focused M5 sale, reservation, and production model tests.
-- Preserved the existing M1–M4 workflow checks and added a dedicated M5 test step.
+Correction-pass starting HEAD: `90ed07a52d367a58d6542c4adb4bd59e8f58e470`.
 
-## Validation evidence
+This report supersedes the earlier custom 30-minute reservation and premature production-handoff implementation notes. Those custom mechanisms were removed because native Odoo 19 Community sales, website cart, stock, payment, delivery and order behavior are the authoritative foundation.
 
-Implementation HEAD validated: `45de2c4028f6be05b9e6b6c8c1041bc43f75be75`.
-GitHub Actions run `35933694605` completed SUCCESS.
+## Current M5 architecture
+
+### Native Odoo authority
+
+- `sale.order` and `sale.order.line`
+- native website cart state via `request.cart`
+- cart creation via `request.website._create_cart()`
+- cart mutation via `sale.order._cart_add()`
+- cart quantity/remove behavior via `sale.order._cart_update_line_quantity()`
+- native product/publication/category fields
+- native price, tax, subtotal and total computation
+- native website product domain
+- native customer/partner ownership and sale-order history
+
+### DTF-specific extensions retained
+
+Native `sale.order.line` keeps only the DTF evidence required for printing continuity:
+
+- `dtf_design_id`
+- `dtf_master_asset_id`
+- `dtf_preflight_snapshot`
+- `dtf_customer_snapshot`
+- `dtf_product_snapshot`
+
+Snapshot capture requires an explicit design/master relationship and a current accepted product-compatible preflight result.
+
+### Removed from M5
+
+- custom 30-minute reservation model and timed-hold logic
+- custom reservation ACLs/tests
+- duplicate checkout/payment/delivery state fields associated with that hold flow
+- duplicate `dtf.site.category`
+- duplicate product publication/bilingual catalog authority
+- `dtf.production.handoff`
+- M5 production-handoff ACL/test/model
+
+Production/MRP/operator work remains deferred to M6.
+
+## API reconciliation
+
+- Product API uses `request.website.sale_product_domain()`.
+- Native `product.public.category`, `public_categ_ids`, `is_published`, translated product names/descriptions and native variants are authoritative.
+- Website-dependent routes declare `website=True`.
+- Cart/checkout mutations use `type="jsonrpc"`.
+- The adapter no longer uses `sale_get_order`.
+- Internal pricing/tax totals are not client-authored.
+
+## Tests added/corrected
+
+`TestDTFM5NativeAPI` now verifies:
+
+- native cart method availability
+- real authenticated HTTP JSON-RPC add-to-cart and checkout calls
+- website-aware public products endpoint
+- native product/category/publication authority
+- removal of duplicate custom catalog/reservation models
+- native price/tax/total relationships
+- customer order ownership filtering
+
+Existing M5 sale tests continue to verify DTF master/preflight snapshot requirements.
+
+## Final implementation evidence
+
+Code-verified HEAD: `be298dad8312120593065939aa3a3903559073fe`.
+
+GitHub Actions run: `35975667331` — **SUCCESS**.
 
 - M1 static validation: PASS
 - Docker Compose validation: PASS
-- ARM64 image manifest probe: PASS
+- ARM64 manifest probe: PASS
 - PostgreSQL startup: PASS
-- All 13 addon installation: PASS
+- all 13 DTF addon installation: PASS
 - M2 tests: PASS
-- M3 tests: PASS
+- M3 native catalog + Printify tests: PASS
 - M4 tests: PASS
-- M5 sales/reservation/production snapshot tests: PASS
-- Odoo/Nginx `/web` runtime: PASS
+- M5 native sales + API reconciliation tests: PASS
+- Odoo/Nginx `/web`: PASS
+
+Failures corrected during reconciliation included stale imports/tests, duplicate catalog/publication assumptions, inactive-language translation handling, invalid route-metadata introspection, and missing Odoo website request context on custom product/cart/checkout routes.
 
 ## Boundary
 
-This is the first M5 implementation batch, not a claim that all M5 work is complete. Payment-provider integration, delivery/pickup operational configuration, complete stock deduction/release transactions, cart/API compatibility, and full checkout business-flow coverage remain M5 work. M6 and later milestones were not started. No deployment or merge was performed.
+This closes the **native-reconciliation correction pass** with runtime evidence. It does not claim that every future payment-provider, delivery/pickup, security/concurrency, deployment, or production/operator requirement is implemented.
 
-
-## Native reconciliation correction
-
-The custom 30-minute reservation requirement was explicitly cancelled. The reservation model, timed checkout fields, custom hold accounting, lock logic, and ACLs were removed. Standard sales/cart/order behavior is delegated to native Odoo Community website-sale, sale, stock, payment, and delivery mechanisms. Remaining DTF M5 code is limited to sale-line snapshots, DTF linkage, production evidence, and a thin compatibility envelope.
+Frontend files changed: **NO**.  
+Old Worker/backend files changed: **NO**.  
+Odoo core modified: **NO**.  
+M6 started: **NO**.  
+Deployment: **NO**.  
+Merge: **NO**.
