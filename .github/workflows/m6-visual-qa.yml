@@ -56,12 +56,26 @@ jobs:
             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
             --without-demo=all --stop-after-init -i "$MODULES"
 
-      - name: Seed safe M6 visual QA data
+      - name: Start persistent Odoo runtime for filestore-backed QA fixture
         shell: bash
         run: |
-          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps -T \
-            -e M6_VISUAL_ADMIN_PASSWORD -e M6_VISUAL_OPERATOR_PASSWORD odoo \
-            odoo shell -d odoo_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d odoo
+          for i in {1..30}; do
+            if docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T odoo sh -c 'test -w /var/lib/odoo'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo
+          exit 1
+
+      - name: Seed safe M6 visual QA data in persistent Odoo runtime
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T \
+            -e M6_VISUAL_ADMIN_PASSWORD="$M6_VISUAL_ADMIN_PASSWORD" \
+            -e M6_VISUAL_OPERATOR_PASSWORD="$M6_VISUAL_OPERATOR_PASSWORD" \
+            odoo odoo shell -d odoo_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
             --no-http < odoo19_migration/visual_qa/seed_m6_visual.py
 
@@ -79,10 +93,11 @@ jobs:
           echo "JOB_ORDER_2=$JOB_ORDER_2" >> "$GITHUB_ENV"
           echo "Resolved visual QA action and two DTF orders."
 
-      - name: Start Odoo and Nginx for browser QA
+      - name: Restart Odoo and start Nginx for browser QA
         shell: bash
         run: |
-          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d odoo nginx
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml restart odoo
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d nginx
           for i in {1..40}; do
             if curl -fsS --max-time 10 'http://127.0.0.1/web/login?db=odoo_visual' >/dev/null; then
               exit 0
@@ -91,6 +106,19 @@ jobs:
           done
           docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx
           exit 1
+
+      - name: Verify seeded print master survived runtime restart
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T odoo \
+            odoo shell -d odoo_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --no-http <<'PY'
+          attachment = env["ir.attachment"].sudo().search([("name", "=", "m6-visual-master.png")], limit=1)
+          payload = attachment.raw if attachment else b""
+          assert payload and payload.startswith(b"\x89PNG\r\n\x1a\n"), "M6 visual master missing from persistent filestore"
+          print("M6_VISUAL_MASTER_PERSISTED", attachment.id, len(payload))
+          PY
 
       - name: Install Chromium browser automation
         shell: bash
