@@ -440,3 +440,38 @@ class TestDTFM8Admin(TransactionCase):
         }
         for xmlid, model_name in expected.items():
             self.assertEqual(self.env.ref(xmlid).res_model, model_name)
+
+    def test_protected_dtf_groups_cannot_be_deleted_or_renamed(self):
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        operator_group = self.env.ref("dtf_core.group_dtf_printing_operator")
+
+        for group in (admin_group, operator_group):
+            with self.assertRaises(ValidationError):
+                group.write({"name": "Do Not Rename"})
+            with self.assertRaises(ValidationError):
+                group.unlink()
+
+    def test_last_active_dtf_administrator_is_protected(self):
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        existing_admins = self.env["res.users"].sudo().search([
+            ("active", "=", True),
+            ("group_ids", "in", admin_group.id),
+        ])
+        if existing_admins:
+            existing_admins.write({"group_ids": [(3, admin_group.id)]})
+
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Protected Last Admin",
+            "login": "m8-protected-last-admin@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+
+        with self.assertRaises(ValidationError):
+            admin_user.write({"active": False})
+        with self.assertRaises(ValidationError):
+            admin_user.write({"group_ids": [(3, admin_group.id)]})
+        with self.assertRaises(ValidationError):
+            admin_user.sudo().unlink()
+
+        self.assertTrue(admin_user.active)
+        self.assertIn(admin_group, admin_user.group_ids)
