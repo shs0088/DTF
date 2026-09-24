@@ -369,3 +369,41 @@ class TestDTFM8Admin(TransactionCase):
         self.env["loyalty.program"].with_user(admin_user).check_access("write")
         with self.assertRaises(AccessError):
             self.env["loyalty.program"].with_user(operator_user).check_access("write")
+
+    def test_users_and_groups_reuse_native_odoo_access_rights(self):
+        users_menu = self.env.ref("dtf_admin.menu_dtf_admin_users")
+        groups_menu = self.env.ref("dtf_admin.menu_dtf_admin_user_groups")
+        users_action = self.env.ref("base.action_res_users")
+        groups_action = self.env.ref("base.action_res_groups")
+
+        self.assertEqual(users_menu.action, users_action)
+        self.assertEqual(groups_menu.action, groups_action)
+        self.assertEqual(users_action.res_model, "res.users")
+        self.assertEqual(groups_action.res_model, "res.groups")
+
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        operator_group = self.env.ref("dtf_core.group_dtf_printing_operator")
+        access_rights = self.env.ref("base.group_erp_manager")
+        technical_settings = self.env.ref("base.group_system")
+
+        self.assertIn(access_rights, admin_group.implied_ids)
+        self.assertNotIn(technical_settings, admin_group.implied_ids)
+        self.assertNotIn(access_rights, operator_group.implied_ids)
+
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 User Management Admin",
+            "login": "m8-user-management-admin@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+        operator_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 User Management Operator",
+            "login": "m8-user-management-operator@example.test",
+            "group_ids": [(6, 0, [operator_group.id])],
+        })
+
+        self.env["res.users"].with_user(admin_user).check_access("write")
+        self.env["res.groups"].with_user(admin_user).check_access("write")
+        with self.assertRaises(AccessError):
+            self.env["res.users"].with_user(operator_user).check_access("write")
+        with self.assertRaises(AccessError):
+            self.env["res.groups"].with_user(operator_user).check_access("write")

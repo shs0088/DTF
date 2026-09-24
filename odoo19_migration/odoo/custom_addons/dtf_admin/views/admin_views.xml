@@ -382,6 +382,20 @@
               sequence="10"
               groups="dtf_core.group_dtf_admin"/>
 
+    <menuitem id="menu_dtf_admin_users"
+              name="Users"
+              parent="menu_dtf_admin_system_root"
+              action="base.action_res_users"
+              sequence="50"
+              groups="dtf_core.group_dtf_admin"/>
+
+    <menuitem id="menu_dtf_admin_user_groups"
+              name="User Groups"
+              parent="menu_dtf_admin_system_root"
+              action="base.action_res_groups"
+              sequence="60"
+              groups="dtf_core.group_dtf_admin"/>
+
     <record id="dtf_production.menu_dtf_operations_root" model="ir.ui.menu">
         <field name="parent_id" ref="menu_dtf_admin_root"/>
         <field name="sequence">50</field>

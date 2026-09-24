@@ -439,3 +439,13 @@ msgstr "جارٍ تحميل لوحة التحكم…"
 #: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_promotions
 msgid "Promotions"
 msgstr "العروض الترويجية"
+
+#. module: dtf_admin
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_users
+msgid "Users"
+msgstr "المستخدمون"
+
+#. module: dtf_admin
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_user_groups
+msgid "User Groups"
+msgstr "مجموعات المستخدمين"
