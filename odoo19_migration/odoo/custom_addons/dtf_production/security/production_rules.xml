@@ -21,4 +21,26 @@
         <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="False"/>
     </record>
+
+    <record id="rule_dtf_workorder_operator" model="ir.rule">
+        <field name="name">DTF Printing Operator — work orders for DTF jobs only</field>
+        <field name="model_id" ref="mrp.model_mrp_workorder"/>
+        <field name="domain_force">[('production_id.dtf_is_print_job', '=', True)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_printing_operator'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_dtf_workorder_admin" model="ir.rule">
+        <field name="name">DTF Administrator — work orders for DTF jobs only</field>
+        <field name="model_id" ref="mrp.model_mrp_workorder"/>
+        <field name="domain_force">[('production_id.dtf_is_print_job', '=', True)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_admin'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
 </odoo>

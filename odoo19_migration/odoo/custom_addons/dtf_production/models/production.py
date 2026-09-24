@@ -224,6 +224,19 @@ class MrpProduction(models.Model):
         self.write({"dtf_operator_stage": "cancelled"})
         return True
 
+    def action_dtf_download_master(self):
+        self.ensure_one()
+        if not self.dtf_is_print_job or not self._dtf_user_is_operator_or_admin():
+            raise AccessError("Only DTF production staff may download the print master.")
+        attachment = self.dtf_master_attachment_id.sudo().exists()
+        if not attachment:
+            raise ValidationError("The Ready-to-Print Master attachment is unavailable.")
+        return {
+            "type": "ir.actions.act_url",
+            "url": "/web/content/%s?download=true" % attachment.id,
+            "target": "self",
+        }
+
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"

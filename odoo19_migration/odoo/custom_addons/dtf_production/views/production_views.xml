@@ -54,7 +54,11 @@
                     <group string="Ready-to-Print Master">
                         <field name="dtf_master_name" readonly="1"/>
                         <field name="dtf_master_filename" readonly="1"/>
-                        <field name="dtf_master_file" filename="dtf_master_filename" readonly="1"/>
+                        <field name="dtf_master_file" invisible="1"/>
+                        <button name="action_dtf_download_master"
+                                type="object"
+                                string="Download Print Master"
+                                class="btn-primary"/>
                     </group>
                     <group string="Protected Evidence" groups="dtf_core.group_dtf_admin">
                         <field name="dtf_sale_line_id" readonly="1"/>
