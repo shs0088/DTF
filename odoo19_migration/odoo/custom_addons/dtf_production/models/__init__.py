@@ -1,1 +1,1 @@
-# Production/MRP integration is intentionally deferred until M6.
+from . import production

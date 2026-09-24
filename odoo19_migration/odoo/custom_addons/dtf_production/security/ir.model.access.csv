@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dtf_mrp_production_operator,DTF printing jobs operator,mrp.model_mrp_production,dtf_core.group_dtf_printing_operator,1,1,0,0
+access_dtf_mrp_production_admin,DTF printing jobs admin,mrp.model_mrp_production,dtf_core.group_dtf_admin,1,1,1,0

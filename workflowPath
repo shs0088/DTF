@@ -1,0 +1,141 @@
+name: Odoo 19 migration validation
+
+on:
+  push:
+    branches:
+      - 'odoo19/headless-backend-migration-prep'
+    paths:
+      - 'odoo19_migration/**'
+      - '.github/workflows/odoo19-migration-validation.yml'
+  pull_request:
+    paths:
+      - 'odoo19_migration/**'
+      - '.github/workflows/odoo19-migration-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  m1-static-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate M1 Python, manifests, XML, security, and addon graph
+        run: python3 odoo19_migration/validation/validate_m1.py
+      - name: Validate Docker Compose configuration
+        run: docker compose --env-file odoo19_migration/deployment/.env.example -f odoo19_migration/deployment/docker-compose.yml config >/dev/null
+      - name: Probe selected image manifests for linux/arm64
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -a
+          source odoo19_migration/deployment/.env.example
+          set +a
+          for image in "$ODOO_IMAGE" "$POSTGRES_IMAGE" "$NGINX_IMAGE"; do
+            echo "Inspecting $image"
+            ok=0
+            for attempt in 1 2 3; do
+              if output="$(docker buildx imagetools inspect "$image" 2>&1)"; then
+                printf '%s\n' "$output" | grep -q 'linux/arm64'
+                ok=1
+                break
+              fi
+              printf '%s\n' "$output" >&2
+              sleep 3
+            done
+            if [ "$ok" -ne 1 ]; then
+              echo "Unable to prove linux/arm64 manifest for $image in this run." >&2
+              exit 1
+            fi
+          done
+
+  m1-odoo-runtime:
+    runs-on: ubuntu-latest
+    needs: m1-static-validation
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start PostgreSQL
+        shell: bash
+        run: |
+          cp odoo19_migration/deployment/.env.example odoo19_migration/deployment/.env
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d db
+          for i in {1..30}; do
+            if docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T db pg_isready -U odoo -d odoo; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs db
+          exit 1
+      - name: Install all 13 DTF addon skeletons in Odoo 19
+        shell: bash
+        run: |
+          MODULES='dtf_core,dtf_designer,dtf_design,dtf_preflight,dtf_customizer,dtf_sale,dtf_production,dtf_finance,dtf_printify,dtf_notifications,dtf_admin,dtf_backend_theme,dtf_api'
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i "$MODULES"
+      - name: Run M2 core model and security tests
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo_m2 --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i dtf_preflight \
+            --test-enable --test-tags /dtf_preflight:TestDTFM2Core
+
+      - name: Run M3 catalog and Printify tests
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo_m3 --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i dtf_printify \
+            --test-enable --test-tags /dtf_printify
+
+      - name: Run M4 preflight, publishing, and protected asset tests
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo_m4 --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i dtf_preflight \
+            --test-enable --test-tags /dtf_preflight:TestDTFM4Preflight
+
+      - name: Run M5 native sales and API reconciliation tests
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo_m5 --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i dtf_api \
+            --test-enable --test-tags /dtf_sale:TestDTFM5Sale,/dtf_api:TestDTFM5NativeAPI
+
+      - name: Run M6 production and Printing Operator tests
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo_m6 --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i dtf_production \
+            --test-enable --test-tags /dtf_production:TestDTFM6Production
+
+      - name: Start Odoo and Nginx and verify /web
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d odoo nginx
+          for i in {1..40}; do
+            if curl -fsS --max-time 10 http://127.0.0.1/web >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx
+          exit 1
+      - name: Cleanup
+        if: always()
+        run: docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml down -v --remove-orphans
