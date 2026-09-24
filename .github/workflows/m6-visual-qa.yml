@@ -1,0 +1,135 @@
+name: M6 visual QA
+
+on:
+  push:
+    branches:
+      - 'odoo19/headless-backend-migration-prep'
+    paths:
+      - 'odoo19_migration/odoo/custom_addons/dtf_production/**'
+      - 'odoo19_migration/deployment/nginx.conf'
+      - 'odoo19_migration/visual_qa/**'
+      - '.github/workflows/m6-visual-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  m6-visual-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      M6_SOURCE_HEAD: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create ephemeral QA credentials
+        shell: bash
+        run: |
+          ADMIN_PASS="$(openssl rand -hex 18)"
+          OPERATOR_PASS="$(openssl rand -hex 18)"
+          echo "::add-mask::$ADMIN_PASS"
+          echo "::add-mask::$OPERATOR_PASS"
+          echo "M6_VISUAL_ADMIN_PASSWORD=$ADMIN_PASS" >> "$GITHUB_ENV"
+          echo "M6_VISUAL_OPERATOR_PASSWORD=$OPERATOR_PASS" >> "$GITHUB_ENV"
+
+      - name: Start PostgreSQL
+        shell: bash
+        run: |
+          cp odoo19_migration/deployment/.env.example odoo19_migration/deployment/.env
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d db
+          for i in {1..30}; do
+            if docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T db pg_isready -U odoo -d odoo; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs db
+          exit 1
+
+      - name: Install DTF Studio addons into visual QA database
+        shell: bash
+        run: |
+          MODULES='dtf_core,dtf_designer,dtf_design,dtf_preflight,dtf_customizer,dtf_sale,dtf_production,dtf_finance,dtf_printify,dtf_notifications,dtf_admin,dtf_backend_theme,dtf_api'
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i "$MODULES"
+
+      - name: Seed safe M6 visual QA data
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps -T \
+            -e M6_VISUAL_ADMIN_PASSWORD -e M6_VISUAL_OPERATOR_PASSWORD odoo \
+            odoo shell -d odoo_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --no-http < odoo19_migration/visual_qa/seed_m6_visual.py
+
+      - name: Resolve QA references
+        shell: bash
+        run: |
+          ACTION_ID="$(docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T db \
+            psql -U odoo -d odoo_visual -Atc "select res_id from ir_model_data where module='dtf_production' and name='action_dtf_print_jobs' limit 1")"
+          JOB_ORDER_1="$(docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T db \
+            psql -U odoo -d odoo_visual -Atc "select dtf_order_name from mrp_production where dtf_is_print_job is true order by id asc limit 1")"
+          JOB_ORDER_2="$(docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T db \
+            psql -U odoo -d odoo_visual -Atc "select dtf_order_name from mrp_production where dtf_is_print_job is true order by id asc offset 1 limit 1")"
+          echo "DTF_ACTION_ID=$ACTION_ID" >> "$GITHUB_ENV"
+          echo "JOB_ORDER_1=$JOB_ORDER_1" >> "$GITHUB_ENV"
+          echo "JOB_ORDER_2=$JOB_ORDER_2" >> "$GITHUB_ENV"
+          echo "Resolved visual QA action and two DTF orders."
+
+      - name: Start Odoo and Nginx for browser QA
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d odoo nginx
+          for i in {1..40}; do
+            if curl -fsS --max-time 10 'http://127.0.0.1/web/login?db=odoo_visual' >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx
+          exit 1
+
+      - name: Install Chromium browser automation
+        shell: bash
+        run: |
+          mkdir -p /tmp/m6-visual-qa
+          cd /tmp/m6-visual-qa
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run M6 browser visual inspection
+        shell: bash
+        run: |
+          export NODE_PATH=/tmp/m6-visual-qa/node_modules
+          export BASE_URL=http://127.0.0.1
+          export ODOO_DB=odoo_visual
+          export ADMIN_LOGIN=m6-visual-admin@example.test
+          export ADMIN_PASSWORD="$M6_VISUAL_ADMIN_PASSWORD"
+          export OPERATOR_LOGIN=m6-visual-operator@example.test
+          export OPERATOR_PASSWORD="$M6_VISUAL_OPERATOR_PASSWORD"
+          node odoo19_migration/visual_qa/run_m6_visual_qa.cjs
+
+      - name: Capture runtime logs
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p odoo19_migration/visual_qa/output
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx \
+            > odoo19_migration/visual_qa/output/runtime.log || true
+
+      - name: Upload M6 visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m6-visual-evidence
+          path: odoo19_migration/visual_qa/output/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml down -v --remove-orphans
