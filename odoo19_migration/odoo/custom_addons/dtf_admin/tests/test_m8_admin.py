@@ -2,13 +2,19 @@ from odoo.tests.common import TransactionCase
 
 
 class TestDTFM8Admin(TransactionCase):
-    def test_admin_root_is_restricted_to_dtf_admin(self):
+    def test_admin_root_is_shared_without_exposing_admin_children(self):
         root = self.env.ref("dtf_admin.menu_dtf_admin_root")
         admin_group = self.env.ref("dtf_core.group_dtf_admin")
         operator_group = self.env.ref("dtf_core.group_dtf_printing_operator")
+        settings = self.env.ref("dtf_admin.menu_dtf_admin_settings")
+        finance_root = self.env.ref("dtf_finance.menu_dtf_finance_root")
 
         self.assertIn(admin_group, root.group_ids)
-        self.assertNotIn(operator_group, root.group_ids)
+        self.assertIn(operator_group, root.group_ids)
+        self.assertIn(admin_group, settings.group_ids)
+        self.assertNotIn(operator_group, settings.group_ids)
+        self.assertIn(admin_group, finance_root.group_ids)
+        self.assertNotIn(operator_group, finance_root.group_ids)
 
     def test_native_admin_actions_reuse_existing_authority_models(self):
         expected = {

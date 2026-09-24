@@ -240,7 +240,7 @@
     <menuitem id="menu_dtf_admin_root"
               name="DTF Studio"
               sequence="10"
-              groups="dtf_core.group_dtf_admin"/>
+              groups="dtf_core.group_dtf_admin,dtf_core.group_dtf_printing_operator"/>
 
     <menuitem id="menu_dtf_admin_dashboard"
               name="Dashboard"
