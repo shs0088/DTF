@@ -16,8 +16,8 @@ class DTFProductionHandoff(models.Model):
 
     @api.model
     def create_from_line(self, line):
-        if line.order_id.dtf_checkout_state != "confirmed":
-            raise ValidationError("Production handoff requires a payment-confirmed checkout.")
+        if line.order_id.state not in ("sale", "done"):
+            raise ValidationError("Production handoff requires a confirmed native sale order.")
         if not line.dtf_master_asset_id or not line.dtf_preflight_snapshot:
             raise ValidationError("Production handoff requires the historical master and preflight snapshots.")
         return self.create({"sale_order_id": line.order_id.id, "sale_order_line_id": line.id, "master_asset_id": line.dtf_master_asset_id.id, "preflight_snapshot": line.dtf_preflight_snapshot, "product_snapshot": line.dtf_product_snapshot or {}})
