@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_dtf_finance_account_own" model="ir.rule">
+        <field name="name">DTF designer can read own finance account</field>
+        <field name="model_id" ref="model_dtf_designer_finance_account"/>
+        <field name="domain_force">[('designer_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_designer'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_dtf_finance_account_admin_all" model="ir.rule">
+        <field name="name">DTF administrator can access all finance accounts</field>
+        <field name="model_id" ref="model_dtf_designer_finance_account"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_admin'))]"/>
+    </record>
+
+    <record id="rule_dtf_earning_own" model="ir.rule">
+        <field name="name">DTF designer can read own earnings</field>
+        <field name="model_id" ref="model_dtf_designer_earning"/>
+        <field name="domain_force">[('designer_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_designer'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_dtf_earning_admin_all" model="ir.rule">
+        <field name="name">DTF administrator can read all earnings</field>
+        <field name="model_id" ref="model_dtf_designer_earning"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_admin'))]"/>
+    </record>
+
+    <record id="rule_dtf_ledger_own" model="ir.rule">
+        <field name="name">DTF designer can read own ledger</field>
+        <field name="model_id" ref="model_dtf_finance_ledger"/>
+        <field name="domain_force">[('designer_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_designer'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_dtf_ledger_admin_all" model="ir.rule">
+        <field name="name">DTF administrator can read all ledger entries</field>
+        <field name="model_id" ref="model_dtf_finance_ledger"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_admin'))]"/>
+    </record>
+
+    <record id="rule_dtf_withdrawal_own" model="ir.rule">
+        <field name="name">DTF designer can access own withdrawals</field>
+        <field name="model_id" ref="model_dtf_designer_withdrawal"/>
+        <field name="domain_force">[('designer_id.partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_designer'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_dtf_withdrawal_admin_all" model="ir.rule">
+        <field name="name">DTF administrator can access all withdrawals</field>
+        <field name="model_id" ref="model_dtf_designer_withdrawal"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('dtf_core.group_dtf_admin'))]"/>
+    </record>
+</odoo>
