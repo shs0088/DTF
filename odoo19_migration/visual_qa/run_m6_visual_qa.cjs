@@ -93,29 +93,31 @@ async function metrics(page, key) {
   }));
 }
 
-async function checkMasterDownload(page) {
-  report.checks.master_filename_visible = (await page.getByText(MASTER, { exact: false }).count()) > 0;
-  const candidates = [
-    page.getByRole("button", { name: "Download Print Master", exact: true }).first(),
-    page.locator('a[href*="/web/content/"]').filter({ hasText: MASTER }).first(),
-    page.locator(`.o_field_binary_file:has-text("${MASTER}") a[href*="/web/content/"]`).first(),
-  ];
-  for (const candidate of candidates) {
-    if (await candidate.count()) {
-      try {
-        const downloadPromise = page.waitForEvent("download", { timeout: 5000 });
-        await candidate.click();
-        const download = await downloadPromise;
-        report.checks.master_download = true;
-        report.checks.master_download_filename = download.suggestedFilename();
-        await download.saveAs(path.join(OUT, "downloaded-" + download.suggestedFilename()));
-        return;
-      } catch (e) {
-        report.notes.push("Master control visible but no download event: " + String(e));
-      }
-    }
+async function checkMasterDownload(page, key) {
+  report.checks[`${key}_master_filename_visible`] =
+    (await page.getByText(MASTER, { exact: false }).count()) > 0;
+
+  const button = page.getByRole("button", { name: "Download Print Master", exact: true }).first();
+  report.checks[`${key}_master_download_button_visible`] =
+    (await button.count()) > 0 && (await button.isVisible());
+
+  if (!report.checks[`${key}_master_download_button_visible`]) {
+    report.checks[`${key}_master_download`] = false;
+    return;
   }
-  report.checks.master_download = false;
+
+  try {
+    const downloadPromise = page.waitForEvent("download", { timeout: 8000 });
+    await button.click();
+    const download = await downloadPromise;
+    const suggested = download.suggestedFilename();
+    report.checks[`${key}_master_download`] = true;
+    report.checks[`${key}_master_download_filename`] = suggested;
+    await download.saveAs(path.join(OUT, `${key}-downloaded-${suggested}`));
+  } catch (e) {
+    report.checks[`${key}_master_download`] = false;
+    report.notes.push(`${key} master download failed: ${String(e)}`);
+  }
 }
 
 async function adminInspection(browser) {
@@ -146,7 +148,7 @@ async function adminInspection(browser) {
       await metrics(page, "admin_desktop_form");
       await screenshot(page, "02-admin-printing-job-form-desktop.png");
       await screenshot(page, "03-admin-ready-to-print-master.png");
-      await checkMasterDownload(page);
+      await checkMasterDownload(page, "admin");
     }
   }
   await context.close();
@@ -186,6 +188,7 @@ async function operatorInspection(browser) {
     report.checks.operator_master_visible =
       (await page.getByText(MASTER, { exact: false }).count()) > 0;
     await screenshot(page, "05-operator-new.png");
+    await checkMasterDownload(page, "operator");
 
     report.checks.new_to_under_preparation = await clickButton(page, "Start Preparation");
     await screenshot(page, "06-operator-under-preparation.png");
@@ -242,9 +245,11 @@ async function responsive(browser, width, height, key, prefix) {
     const required = [
       "admin_login", "admin_list_opened", "admin_form_opened",
       "admin_protected_evidence_visible", "admin_master_section_visible",
-      "master_filename_visible", "master_download",
+      "admin_master_filename_visible", "admin_master_download_button_visible", "admin_master_download",
       "operator_login", "operator_list_opened", "operator_form_opened",
       "operator_protected_evidence_hidden", "operator_only_dtf_jobs",
+      "operator_master_visible", "operator_master_filename_visible",
+      "operator_master_download_button_visible", "operator_master_download",
       "operator_settings_not_exposed",
       "new_to_under_preparation", "under_preparation_to_ready",
       "ready_to_completed", "completed_cannot_restart", "new_to_cancelled",

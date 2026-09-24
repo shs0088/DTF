@@ -233,7 +233,10 @@ class MrpProduction(models.Model):
             raise ValidationError("The Ready-to-Print Master attachment is unavailable.")
         return {
             "type": "ir.actions.act_url",
-            "url": "/web/content/%s?download=true" % attachment.id,
+            "url": (
+                "/web/content/mrp.production/%s/dtf_master_file"
+                "?download=true&filename_field=dtf_master_filename"
+            ) % self.id,
             "target": "self",
         }
 
