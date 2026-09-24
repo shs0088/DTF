@@ -52,7 +52,7 @@
                 <field name="author_id"/>
                 <field name="model"/>
                 <field name="date"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter string="Model" name="group_model" context="{'group_by': 'model'}"/>
                     <filter string="Author" name="group_author" context="{'group_by': 'author_id'}"/>
                     <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>
