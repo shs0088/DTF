@@ -111,9 +111,18 @@ async function checkMasterDownload(page, key) {
     await button.click();
     const download = await downloadPromise;
     const suggested = download.suggestedFilename();
-    report.checks[`${key}_master_download`] = true;
+    const savedPath = path.join(OUT, `${key}-downloaded-${suggested}`);
+    await download.saveAs(savedPath);
+    const payload = fs.readFileSync(savedPath);
+    const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     report.checks[`${key}_master_download_filename`] = suggested;
-    await download.saveAs(path.join(OUT, `${key}-downloaded-${suggested}`));
+    report.checks[`${key}_master_download_nonempty`] = payload.length > 0;
+    report.checks[`${key}_master_download_png_signature`] =
+      payload.length >= pngSignature.length &&
+      payload.subarray(0, pngSignature.length).equals(pngSignature);
+    report.checks[`${key}_master_download`] =
+      report.checks[`${key}_master_download_nonempty`] &&
+      report.checks[`${key}_master_download_png_signature`];
   } catch (e) {
     report.checks[`${key}_master_download`] = false;
     report.notes.push(`${key} master download failed: ${String(e)}`);
