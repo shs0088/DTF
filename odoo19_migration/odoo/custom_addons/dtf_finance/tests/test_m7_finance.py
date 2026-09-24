@@ -2,10 +2,10 @@ import base64
 
 from odoo import fields
 from odoo.exceptions import AccessError, ValidationError
-from odoo.tests.common import TransactionCase
+from odoo.addons.sale.tests.common import TestSaleCommon
 
 
-class TestDTFM7Finance(TransactionCase):
+class TestDTFM7Finance(TestSaleCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -102,17 +102,18 @@ class TestDTFM7Finance(TransactionCase):
             "locked": False,
         })
 
-        cls.customer = cls.env["res.partner"].create({
+        cls.customer = cls.partner_a.copy({
             "name": "M7 Customer",
         })
-        cls.product_tmpl = cls.env["product.template"].create({
-            "name": "M7 Printable Shirt",
-            "list_price": 100.0,
-            "is_storable": True,
-            "invoice_policy": "order",
-            "dtf_product_type": "tshirt",
-        })
-        cls.product = cls.product_tmpl.product_variant_id
+        cls.product = cls._create_product(
+            name="M7 Printable Shirt",
+            lst_price=100.0,
+            standard_price=60.0,
+            is_storable=True,
+            invoice_policy="order",
+            dtf_product_type="tshirt",
+        )
+        cls.product_tmpl = cls.product.product_tmpl_id
 
         cls.env.company.write({
             "dtf_designer_compensation_mode": "percentage",
