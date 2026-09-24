@@ -4,7 +4,6 @@
     "summary": "Native Odoo sales with DTF historical order snapshots",
     "license": "LGPL-3",
     "depends": ["dtf_core", "sale_management", "dtf_design", "dtf_preflight"],
-    "data": ["security/ir.model.access.csv"],
     "installable": True,
     "application": False
 }
