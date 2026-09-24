@@ -102,6 +102,67 @@ Verified on that exact HEAD:
 - M6 production + Printing Operator tests: PASS
 - Odoo/Nginx `/web`: PASS
 
+## M6 visual-QA correction and closure
+
+Visual QA was executed against the native Odoo 19 DTF Operations UI on the migration branch. It was not performed against the preserved V48 frontend.
+
+Browser QA covered:
+- DTF Administrator login
+- Printing Operator login
+- DTF printing-job list and form
+- exact order/customer/phone/product/quantity display
+- Ready-to-Print Master filename and explicit download control
+- protected-evidence visibility for DTF Administrator
+- protected-evidence hiding for Printing Operator
+- Printing Operator isolation to DTF jobs only
+- New -> Under Preparation -> Ready for Delivery/Pickup -> Completed
+- New -> Cancelled
+- completed-state reversal protection
+- desktop 1440x900
+- tablet 1024x768
+- mobile 390x844
+- horizontal-overflow checks
+- browser console/network diagnostics
+- exact downloaded master payload for both Admin and Operator
+
+Visual QA exposed and corrected several issues before closure:
+- native MRP work-order read access required by the operator form was granted read-only and only for work orders linked to DTF printing jobs; no broad Manufacturing/User role was granted
+- an explicit protected master-download action was added
+- native Odoo backend proxy routes required by the M6 UI were added without enabling the preserved frontend cutover
+- the browser harness was corrected so it tests the explicit download control instead of navigating through a filename relation
+- a zero-byte download false positive was rejected; QA was strengthened to require a non-empty PNG payload
+- master download now uses an authenticated DTF production endpoint tied to the exact printing job and exact linked master attachment
+- the synthetic QA master is stored in the ephemeral QA database so its bytes survive the CI container lifecycle without changing production attachment-storage policy
+
+Final visual evidence:
+
+- Final M6 visual-QA HEAD: `4e1ef2fba65298ae5ea92551d911c972a09f9e7b`
+- Visual-QA run: `35996354715` — **SUCCESS**
+- Full migration validation run on the same HEAD: `35996355139` — **SUCCESS**
+- Admin downloaded master: `m6-visual-master.png`, 68 bytes
+- Operator downloaded master: `m6-visual-master.png`, 68 bytes
+- SHA-256 of both downloaded files: `431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460`
+- PNG signature validation: PASS
+- desktop/tablet/mobile overflow checks: PASS
+- M6 actionable console errors: NONE
+- M6 actionable network errors: NONE
+- page errors: NONE
+
+The ephemeral QA database still emitted generic Odoo website-logo/filestore and websocket warnings outside the M6 DTF Operations flow. They were not treated as M6 functional failures and do not change the M6 production/operator result. Final Admin theme/bilingual styling remains M8 scope.
+
+## Final M6 status
+
+M6 production/operator is **COMPLETE + CI VERIFIED + VISUAL QA VERIFIED**.
+
+Final functional/visual source HEAD before this documentation closure:
+`4e1ef2fba65298ae5ea92551d911c972a09f9e7b`
+
+Final evidence:
+- Visual QA: `35996354715` — SUCCESS
+- Full Odoo migration validation: `35996355139` — SUCCESS
+
+M7 was not started during M6 closure.
+
 ## Boundary / deferred work
 
 - M7 finance: NOT STARTED

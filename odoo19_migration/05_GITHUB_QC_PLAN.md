@@ -83,6 +83,38 @@ Verified:
 - M6 production/operator: PASS
 - Odoo/Nginx `/web`: PASS
 
+### M6 final visual-QA closure
+
+Final functional/visual HEAD:
+`4e1ef2fba65298ae5ea92551d911c972a09f9e7b`
+
+Final evidence:
+- M6 visual QA run `35996354715` — **SUCCESS**
+- Full Odoo migration validation run `35996355139` — **SUCCESS**
+- exact same HEAD for both runs
+- DTF Administrator login/list/form/protected evidence: PASS
+- Printing Operator login/list/form and DTF-only isolation: PASS
+- New -> Under Preparation -> Ready for Delivery/Pickup -> Completed: PASS
+- New -> Cancelled: PASS
+- completed-state reversal protection: PASS
+- explicit Ready-to-Print Master download: PASS for Admin and Operator
+- downloaded filename: `m6-visual-master.png`
+- downloaded size: 68 bytes for both actors
+- SHA-256: `431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460`
+- PNG signature: PASS
+- desktop/tablet/mobile: PASS
+- horizontal overflow: NONE
+- actionable M6 console errors: NONE
+- actionable M6 network errors: NONE
+- page errors: NONE
+
+Non-M6 QA-environment warnings:
+- generic Odoo website-logo/filestore requests can emit 500 in the ephemeral test database
+- realtime websocket can be unavailable in the single-process QA runtime
+- neither warning affected the DTF Operations production/operator flow and neither was accepted as evidence for a DTF M6 failure
+
+M6 status: **COMPLETE + CI VERIFIED + VISUAL QA VERIFIED**.
+
 ## Final acceptance report requirement
 
 Any later milestone closure must include branch, start/final SHA, commits/files, schema changes, exact GitHub Actions IDs/results, failures fixed, remaining gaps, and explicit deployment/merge status.

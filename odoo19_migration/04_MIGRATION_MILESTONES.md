@@ -48,13 +48,18 @@ No production-ready claim until module installs/tests, API contracts, core busin
 - M5 — native sales/cart/API reconciliation correction: COMPLETE + CI VERIFIED.
   - Code-verified HEAD: `be298dad8312120593065939aa3a3903559073fe`
   - Run: `35975667331` — SUCCESS.
-- M6 — production/operator: COMPLETE + CODE CI VERIFIED.
+- M6 — production/operator: COMPLETE + CI VERIFIED + VISUAL QA VERIFIED.
   - Native `mrp.production` is the printing-job authority.
   - Exact sale line/design/master/attachment/preflight references are preserved.
   - Printing Operator is restricted to DTF jobs and stage updates only.
   - Protected production evidence cannot be destructively changed/deleted.
-  - Code-verified HEAD: `6e369702bc2454628ec4c4d6eba33976d418d126`
-  - Run: `35982089855` — SUCCESS.
+  - Master download is authorized through the exact DTF printing job and exact linked attachment.
+  - Final functional/visual HEAD: `4e1ef2fba65298ae5ea92551d911c972a09f9e7b`
+  - Visual-QA run: `35996354715` — SUCCESS.
+  - Full migration validation run on the same HEAD: `35996355139` — SUCCESS.
+  - Admin and Operator downloaded the same non-empty 68-byte PNG; SHA-256 `431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460`.
+  - Desktop 1440x900, tablet 1024x768 and mobile 390x844 browser checks: PASS.
+  - M6 actionable console/network/page errors: NONE.
 - M7 — finance: NOT STARTED.
 
 ## M5 operational items still deferred where applicable
