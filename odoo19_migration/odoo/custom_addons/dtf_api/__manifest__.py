@@ -15,7 +15,7 @@
         "dtf_printify",
         "dtf_notifications",
         "dtf_admin",
-        "website"
+        "website_sale"
     ],
     "data": [],
     "installable": True,
