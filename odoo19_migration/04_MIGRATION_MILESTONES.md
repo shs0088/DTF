@@ -79,3 +79,8 @@ M4 remains COMPLETE and unchanged. M5 has started from verified HEAD `5f5ff8399e
 ## Native reconciliation update
 
 The former custom 30-minute checkout stock hold is cancelled/superseded. The duplicate reservation model, timed fields, hold accounting, lock logic, ACLs, and tests were removed. M5 cart compatibility delegates to native website-sale methods and native computed totals. DTF sale-line snapshots and production evidence remain extensions. M6 is not started. See ODOO_NATIVE_RECONCILIATION_M1_M5.md.
+
+
+## Native correction pass
+
+Native Odoo 19 website cart APIs (`request.cart` / `website._create_cart`) and `jsonrpc` routes are now required. Native `product.public.category`, translated product content, `public_categ_ids`, `is_published`, and `website.sale_product_domain()` are authoritative. The duplicate site category/product publication layer and premature production handoff workflow were removed/deferred. CI includes the DTF API controller test tag. M6 remains not started.
