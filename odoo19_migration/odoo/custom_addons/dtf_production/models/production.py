@@ -165,6 +165,16 @@ class MrpProduction(models.Model):
     def write(self, vals):
         dtf_jobs = self.filtered("dtf_is_print_job")
         if dtf_jobs:
+            is_operator_only = (
+                self.env.user.has_group("dtf_core.group_dtf_printing_operator")
+                and not self.env.user.has_group("dtf_core.group_dtf_admin")
+                and not self.env.is_superuser()
+            )
+            if is_operator_only:
+                disallowed = set(vals) - {"dtf_operator_stage"}
+                if disallowed:
+                    raise AccessError("Printing Operators may update only the DTF printing status.")
+
             protected = {
                 "dtf_is_print_job",
                 "dtf_sale_line_id",
@@ -190,15 +200,6 @@ class MrpProduction(models.Model):
                 if not self._dtf_user_is_operator_or_admin():
                     raise AccessError("Only DTF production staff may update the printing status.")
                 dtf_jobs._dtf_validate_stage_transition(vals["dtf_operator_stage"])
-
-            if (
-                self.env.user.has_group("dtf_core.group_dtf_printing_operator")
-                and not self.env.user.has_group("dtf_core.group_dtf_admin")
-                and not self.env.is_superuser()
-            ):
-                disallowed = set(vals) - {"dtf_operator_stage"}
-                if disallowed:
-                    raise AccessError("Printing Operators may update only the DTF printing status.")
 
         return super().write(vals)
 
