@@ -66,7 +66,7 @@ async function openAction(page, xmlid) {
   }
 
   return (await page.locator(
-    ".o_graph_view, .o_pivot_view, .o_list_view, .o_form_view, .o_kanban_view"
+    ".o_graph_renderer, .o_pivot_renderer, .o_list_renderer, .o_form_view, .o_kanban_renderer"
   ).count()) > 0;
 }
 
