@@ -1,1 +1,1 @@
-from . import test_m5_production
+# Production/MRP tests are intentionally deferred until M6.

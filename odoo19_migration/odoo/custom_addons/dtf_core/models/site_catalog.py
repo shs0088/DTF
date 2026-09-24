@@ -35,10 +35,16 @@ class ProductTemplate(models.Model):
         for product in self:
             if not product.is_published:
                 continue
-            english_name = product.with_context(lang="en_US").name
-            arabic_name = product.with_context(lang="ar_001").name
-            english_description = product.with_context(lang="en_US").website_description or product.with_context(lang="en_US").description_ecommerce
-            arabic_description = product.with_context(lang="ar_001").website_description or product.with_context(lang="ar_001").description_ecommerce
+            english_name = self._dtf_translated_text(product, "name", "en_US")
+            arabic_name = self._dtf_translated_text(product, "name", "ar_001")
+            english_description = (
+                self._dtf_translated_text(product, "website_description", "en_US")
+                or self._dtf_translated_text(product, "description_ecommerce", "en_US")
+            )
+            arabic_description = (
+                self._dtf_translated_text(product, "website_description", "ar_001")
+                or self._dtf_translated_text(product, "description_ecommerce", "ar_001")
+            )
             if not all([(english_name or "").strip(), (arabic_name or "").strip(), (english_description or "").strip(), (arabic_description or "").strip()]):
                 raise ValidationError("Published DTF products require English and Arabic native Odoo name and website description translations.")
 
@@ -46,10 +52,16 @@ class ProductTemplate(models.Model):
     def dtf_public_payload(self, products):
         return [{
             "id": p.id,
-            "name": p.with_context(lang="en_US").name,
-            "name_ar": p.with_context(lang="ar_001").name,
-            "description": p.with_context(lang="en_US").website_description or p.with_context(lang="en_US").description_ecommerce or "",
-            "description_ar": p.with_context(lang="ar_001").website_description or p.with_context(lang="ar_001").description_ecommerce or "",
+            "name": self._dtf_translated_text(p, "name", "en_US"),
+            "name_ar": self._dtf_translated_text(p, "name", "ar_001"),
+            "description": (
+                self._dtf_translated_text(p, "website_description", "en_US")
+                or self._dtf_translated_text(p, "description_ecommerce", "en_US")
+            ),
+            "description_ar": (
+                self._dtf_translated_text(p, "website_description", "ar_001")
+                or self._dtf_translated_text(p, "description_ecommerce", "ar_001")
+            ),
             "price": p.list_price,
             "currency": p.currency_id.name,
             "active": p.active,

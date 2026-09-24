@@ -47,4 +47,3 @@ class TestDTFM3Catalog(TransactionCase):
         self.assertTrue(admin_group)
         with self.assertRaises(AccessError):
             self.env["dtf.printify.mapping"].with_user(designer).search([])
-return 
