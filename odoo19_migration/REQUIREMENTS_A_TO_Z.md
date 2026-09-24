@@ -62,7 +62,7 @@ Paid order, printing and production references protect required design/master as
 - Immutable order snapshots.
 
 ## Reservation rule
-Read the current authoritative requirement records before coding. Do not silently reintroduce an obsolete reservation duration or no-response behavior.
+The former custom timed checkout reservation requirement is cancelled/superseded. Use Odoo Community native stock availability and reservation behavior; do not create a separate DTF temporary-hold model or duration.
 
 ## Order / production states
 New, Payment Pending, Payment Confirmed, Under Preparation, Ready for Delivery/Pickup, Given to Delivery, Under Delivery, Ready for Pickup, Completed, Cancelled.
