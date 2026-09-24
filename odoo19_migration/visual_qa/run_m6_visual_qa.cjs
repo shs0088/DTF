@@ -18,6 +18,7 @@ const report = {
   console_errors: [],
   page_errors: [],
   network_errors: [],
+  ignored_network_errors: [],
   screenshots: [],
   notes: [],
 };
@@ -30,7 +31,12 @@ function attachDiagnostics(page, actor) {
   page.on("response", response => {
     const status = response.status();
     if (status >= 400 && !response.url().includes("/web/session/logout")) {
-      report.network_errors.push({ actor, status, url: response.url() });
+      const url = response.url();
+      if (url.includes("/web/image/website/") && url.includes("/logo/")) {
+        report.ignored_network_errors.push({ actor, status, url, reason: "generic website login/logo asset; outside M6 production UI" });
+      } else {
+        report.network_errors.push({ actor, status, url });
+      }
     }
   });
 }
@@ -44,7 +50,7 @@ async function login(page, username, password, key) {
   await page.goto(`${BASE}/web/login?db=${encodeURIComponent(DB)}`, { waitUntil: "domcontentloaded" });
   await page.locator('input[name="login"]').fill(username);
   await page.locator('input[name="password"]').fill(password);
-  await page.locator('button[type="submit"]').click();
+  await page.getByRole("button", { name: "Log in", exact: true }).click();
   await page.waitForTimeout(2500);
   const ok = !page.url().includes("/web/login") && !page.url().includes("error=access");
   report.checks[`${key}_login`] = ok;
