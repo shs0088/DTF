@@ -2,11 +2,13 @@ import base64
 
 from odoo import fields
 from odoo.exceptions import AccessError, ValidationError
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.sale.tests.common import TestSaleCommon
 
 
 class TestDTFM7Finance(TestSaleCommon):
     @classmethod
+    @AccountTestInvoicingCommon.setup_chart_template("generic_coa")
     def setUpClass(cls):
         super().setUpClass()
         cls.designer_group = cls.env.ref("dtf_core.group_dtf_designer")
