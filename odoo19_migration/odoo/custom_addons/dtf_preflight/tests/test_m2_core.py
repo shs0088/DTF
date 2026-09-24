@@ -1,5 +1,7 @@
 import base64
 
+from psycopg2 import IntegrityError
+
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -205,3 +207,10 @@ class TestDTFM2Core(TransactionCase):
                 "tshirt_mug_cap",
             },
         )
+
+    def test_designer_profile_partner_uniqueness_is_enforced_by_odoo19_constraint(self):
+        with self.assertRaises(IntegrityError), self.env.cr.savepoint():
+            self.env["dtf.designer.profile"].create({
+                "partner_id": self.partner_one.id,
+                "user_id": self.user_one.id,
+            })

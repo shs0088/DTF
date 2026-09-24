@@ -52,18 +52,14 @@ class DTFDesignerProfile(models.Model):
     last_rejection_reason = fields.Text(readonly=True)
     replacement_deadline = fields.Datetime(readonly=True)
 
-    _sql_constraints = [
-        (
-            "dtf_designer_partner_unique",
-            "unique(partner_id)",
-            "A contact can have only one DTF Studio designer profile.",
-        ),
-        (
-            "dtf_designer_user_unique",
-            "unique(user_id)",
-            "A login user can be linked to only one DTF Studio designer profile.",
-        ),
-    ]
+    _dtf_designer_partner_unique = models.Constraint(
+        "UNIQUE(partner_id)",
+        "A contact can have only one DTF Studio designer profile.",
+    )
+    _dtf_designer_user_unique = models.Constraint(
+        "UNIQUE(user_id)",
+        "A login user can be linked to only one DTF Studio designer profile.",
+    )
 
     @api.constrains("user_id", "partner_id")
     def _check_user_partner(self):
