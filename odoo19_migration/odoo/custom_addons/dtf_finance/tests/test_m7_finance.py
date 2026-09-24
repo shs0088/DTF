@@ -12,13 +12,17 @@ class TestDTFM7Finance(TestSaleCommon):
         cls.designer_group = cls.env.ref("dtf_core.group_dtf_designer")
         cls.operator_group = cls.env.ref("dtf_core.group_dtf_printing_operator")
         cls.admin_group = cls.env.ref("dtf_core.group_dtf_admin")
+        cls.sale_manager_group = cls.env.ref("sales_team.group_sale_manager")
 
         cls.admin_user = cls.env["res.users"].with_context(
             no_reset_password=True
         ).create({
             "name": "M7 DTF Administrator",
             "login": "m7-admin@example.test",
-            "group_ids": [(6, 0, [cls.admin_group.id])],
+            "group_ids": [(6, 0, [
+                cls.admin_group.id,
+                cls.sale_manager_group.id,
+            ])],
         })
 
         cls.designer_partner = cls.env["res.partner"].create({
