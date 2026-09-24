@@ -1,0 +1,122 @@
+name: M6 visual QA
+
+on:
+  push:
+    branches:
+      - 'qa/m6-visual-20260924'
+    paths:
+      - '.github/qa/m6_visual_seed.py'
+      - '.github/qa/m6_visual_qa.py'
+      - '.github/workflows/m6-visual-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  m6-visual-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      M6_DB: odoo_m6_visual
+      M6_BASE_URL: http://127.0.0.1
+      M6_SOURCE_HEAD: bf19feae521be6273ddab35df259261fa6b10292
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Prepare ephemeral QA credentials
+        shell: bash
+        run: |
+          echo "M6_ADMIN_PASSWORD=$(openssl rand -hex 24)" >> "$GITHUB_ENV"
+          echo "M6_OPERATOR_PASSWORD=$(openssl rand -hex 24)" >> "$GITHUB_ENV"
+
+      - name: Start PostgreSQL
+        shell: bash
+        run: |
+          cp odoo19_migration/deployment/.env.example odoo19_migration/deployment/.env
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d db
+          for i in {1..30}; do
+            if docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T db pg_isready -U odoo -d odoo; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs db
+          exit 1
+
+      - name: Install DTF Studio modules in visual-QA database
+        shell: bash
+        run: |
+          MODULES='dtf_core,dtf_designer,dtf_design,dtf_preflight,dtf_customizer,dtf_sale,dtf_production,dtf_finance,dtf_printify,dtf_notifications,dtf_admin,dtf_backend_theme,dtf_api'
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d "$M6_DB" --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i "$MODULES"
+
+      - name: Seed isolated M6 visual-QA fixture
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps -T \
+            -e M6_ADMIN_PASSWORD="$M6_ADMIN_PASSWORD" \
+            -e M6_OPERATOR_PASSWORD="$M6_OPERATOR_PASSWORD" \
+            odoo odoo shell -d "$M6_DB" --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            < .github/qa/m6_visual_seed.py
+
+      - name: Resolve Printing Jobs action ID
+        shell: bash
+        run: |
+          M6_ACTION_ID="$(docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T db \
+            psql -U odoo -d "$M6_DB" -Atc "SELECT res_id FROM ir_model_data WHERE module='dtf_production' AND name='action_dtf_print_jobs' LIMIT 1;")"
+          test -n "$M6_ACTION_ID"
+          echo "M6_ACTION_ID=$M6_ACTION_ID" >> "$GITHUB_ENV"
+
+      - name: Start Odoo and Nginx
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d odoo nginx
+          for i in {1..50}; do
+            if curl -fsS --max-time 10 "http://127.0.0.1/web/login?db=$M6_DB" >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx
+          exit 1
+
+      - name: Install Chromium browser harness
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check 'playwright==1.55.0'
+          python -m playwright install --with-deps chromium
+
+      - name: Run M6 visual inspection
+        shell: bash
+        run: python .github/qa/m6_visual_qa.py
+
+      - name: Capture Odoo and Nginx logs
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts/m6-visual
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs --no-color > artifacts/m6-visual/docker.log 2>&1 || true
+
+      - name: Upload M6 visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m6-visual-qa
+          path: artifacts/m6-visual
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Cleanup
+        if: always()
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml down -v --remove-orphans || true
