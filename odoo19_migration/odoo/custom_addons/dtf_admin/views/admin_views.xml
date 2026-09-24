@@ -327,6 +327,13 @@
               sequence="10"
               groups="dtf_core.group_dtf_admin"/>
 
+    <menuitem id="menu_dtf_admin_categories"
+              name="Categories"
+              parent="menu_dtf_admin_catalog_root"
+              action="website_sale.product_public_category_action"
+              sequence="15"
+              groups="dtf_core.group_dtf_admin"/>
+
     <menuitem id="menu_dtf_admin_supplier_mappings"
               name="Supplier Catalog"
               parent="menu_dtf_admin_catalog_root"

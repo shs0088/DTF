@@ -407,3 +407,26 @@ class TestDTFM8Admin(TransactionCase):
             self.env["res.users"].with_user(operator_user).check_access("write")
         with self.assertRaises(AccessError):
             self.env["res.groups"].with_user(operator_user).check_access("write")
+
+    def test_categories_reuse_native_odoo_public_categories(self):
+        menu = self.env.ref("dtf_admin.menu_dtf_admin_categories")
+        action = self.env.ref("website_sale.product_public_category_action")
+        self.assertEqual(menu.action, action)
+        self.assertEqual(action.res_model, "product.public.category")
+
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        operator_group = self.env.ref("dtf_core.group_dtf_printing_operator")
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Category Admin",
+            "login": "m8-category-admin@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+        operator_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Category Operator",
+            "login": "m8-category-operator@example.test",
+            "group_ids": [(6, 0, [operator_group.id])],
+        })
+
+        self.env["product.public.category"].with_user(admin_user).check_access("write")
+        with self.assertRaises(AccessError):
+            self.env["product.public.category"].with_user(operator_user).check_access("write")

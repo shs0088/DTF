@@ -449,3 +449,8 @@ msgstr "المستخدمون"
 #: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_user_groups
 msgid "User Groups"
 msgstr "مجموعات المستخدمين"
+
+#. module: dtf_admin
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_categories
+msgid "Categories"
+msgstr "الفئات"
