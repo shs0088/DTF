@@ -15,7 +15,7 @@ class TestDTFM3Catalog(TransactionCase):
 
     def test_bilingual_site_category_and_native_product(self):
         category = self.env["product.public.category"].create({"name": "T-Shirts", "website_description": "Shirts"})
-        product = self.env["product.template"].create({"name": "DTF Shirt", "public_categ_ids": [(6, 0, [category.id])], "dtf_product_type": "tshirt", "dtf_catalog_type": "customizable", "dtf_print_your_dream_eligible": True, "dtf_designer_design_compatible": True, "is_published": True, "list_price": 12.5})
+        product = self.env["product.template"].create({"name": "DTF Shirt", "public_categ_ids": [(6, 0, [category.id])], "dtf_product_type": "tshirt", "dtf_catalog_type": "customizable", "dtf_print_your_dream_eligible": True, "dtf_designer_design_compatible": True, "is_published": False, "list_price": 12.5})
         self.assertIn(category, product.public_categ_ids)
         self.assertTrue(product.dtf_print_your_dream_eligible)
         self.assertTrue(product.product_variant_ids)
