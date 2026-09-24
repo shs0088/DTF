@@ -1,39 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_dtf_finance_policy_list" model="ir.ui.view">
-        <field name="name">dtf.finance.policy.list</field>
-        <field name="model">dtf.finance.policy</field>
+    <record id="res_config_settings_view_form_dtf_finance" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.dtf.finance</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <list string="Finance Policies" delete="0">
-                <field name="company_id"/>
-                <field name="compensation_mode"/>
-                <field name="commission_rate"/>
-                <field name="flat_royalty"/>
-                <field name="minimum_withdrawal"/>
-                <field name="currency_id"/>
-            </list>
-        </field>
-    </record>
-
-    <record id="view_dtf_finance_policy_form" model="ir.ui.view">
-        <field name="name">dtf.finance.policy.form</field>
-        <field name="model">dtf.finance.policy</field>
-        <field name="arch" type="xml">
-            <form string="DTF Finance Policy" delete="0">
-                <sheet>
-                    <group>
-                        <field name="company_id"/>
-                        <field name="currency_id" readonly="1"/>
-                        <field name="compensation_mode"/>
-                        <field name="commission_rate" invisible="compensation_mode != 'percentage'"/>
-                        <field name="flat_royalty" invisible="compensation_mode != 'flat'"/>
-                        <field name="minimum_withdrawal"/>
-                    </group>
-                    <p>
-                        Policy changes affect future earning snapshots only. Existing earnings remain immutable.
-                    </p>
-                </sheet>
-            </form>
+            <xpath expr="//form" position="inside">
+                <app data-string="DTF Finance"
+                     string="DTF Finance"
+                     name="dtf_finance"
+                     groups="base.group_system,dtf_core.group_dtf_admin">
+                    <block title="Designer Compensation"
+                           id="dtf_finance_designer_compensation">
+                        <setting string="Default designer compensation"
+                                 company_dependent="1"
+                                 help="Used only for future designer earning snapshots. Existing earning snapshots remain immutable.">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="dtf_designer_compensation_mode"
+                                           class="col-lg-5 o_light_label"/>
+                                    <field name="dtf_designer_compensation_mode"/>
+                                </div>
+                                <div class="row"
+                                     invisible="dtf_designer_compensation_mode != 'percentage'">
+                                    <label for="dtf_designer_commission_rate"
+                                           class="col-lg-5 o_light_label"/>
+                                    <field name="dtf_designer_commission_rate"/>
+                                </div>
+                                <div class="row"
+                                     invisible="dtf_designer_compensation_mode != 'flat'">
+                                    <label for="dtf_designer_flat_royalty"
+                                           class="col-lg-5 o_light_label"/>
+                                    <field name="dtf_designer_flat_royalty"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Minimum designer withdrawal"
+                                 company_dependent="1"
+                                 help="Minimum amount a designer may request for withdrawal.">
+                            <field name="dtf_minimum_withdrawal"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
         </field>
     </record>
 
@@ -41,7 +50,7 @@
         <field name="name">dtf.designer.finance.account.list</field>
         <field name="model">dtf.designer.finance.account</field>
         <field name="arch" type="xml">
-            <list string="Designer Finance Accounts" delete="0">
+            <list string="Designer Finance Accounts" create="0" delete="0">
                 <field name="designer_id"/>
                 <field name="company_id"/>
                 <field name="total_earned"/>
@@ -58,12 +67,12 @@
         <field name="name">dtf.designer.finance.account.form</field>
         <field name="model">dtf.designer.finance.account</field>
         <field name="arch" type="xml">
-            <form string="Designer Finance Account" delete="0">
+            <form string="Designer Finance Account" create="0" delete="0">
                 <sheet>
                     <group>
                         <group string="Designer">
-                            <field name="designer_id"/>
-                            <field name="company_id"/>
+                            <field name="designer_id" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
                             <field name="currency_id" readonly="1"/>
                         </group>
                         <group string="Balances">
@@ -245,12 +254,6 @@
         <field name="view_mode">list</field>
     </record>
 
-    <record id="action_dtf_finance_policy" model="ir.actions.act_window">
-        <field name="name">Finance Policy</field>
-        <field name="res_model">dtf.finance.policy</field>
-        <field name="view_mode">list,form</field>
-    </record>
-
     <menuitem id="menu_dtf_finance_root"
               name="DTF Finance"
               sequence="70"
@@ -282,12 +285,5 @@
               parent="menu_dtf_finance_root"
               action="action_dtf_finance_ledger"
               sequence="40"
-              groups="dtf_core.group_dtf_admin"/>
-
-    <menuitem id="menu_dtf_finance_policy"
-              name="Policy"
-              parent="menu_dtf_finance_root"
-              action="action_dtf_finance_policy"
-              sequence="50"
               groups="dtf_core.group_dtf_admin"/>
 </odoo>

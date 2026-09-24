@@ -1,7 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_dtf_finance_policy_admin,dtf.finance.policy admin,model_dtf_finance_policy,dtf_core.group_dtf_admin,1,1,1,0
 access_dtf_finance_account_designer,dtf.designer.finance.account designer,model_dtf_designer_finance_account,dtf_core.group_dtf_designer,1,0,0,0
-access_dtf_finance_account_admin,dtf.designer.finance.account admin,model_dtf_designer_finance_account,dtf_core.group_dtf_admin,1,1,1,0
+access_dtf_finance_account_admin,dtf.designer.finance.account admin,model_dtf_designer_finance_account,dtf_core.group_dtf_admin,1,1,0,0
 access_dtf_designer_earning_designer,dtf.designer.earning designer,model_dtf_designer_earning,dtf_core.group_dtf_designer,1,0,0,0
 access_dtf_designer_earning_admin,dtf.designer.earning admin,model_dtf_designer_earning,dtf_core.group_dtf_admin,1,0,0,0
 access_dtf_finance_ledger_designer,dtf.finance.ledger designer,model_dtf_finance_ledger,dtf_core.group_dtf_designer,1,0,0,0

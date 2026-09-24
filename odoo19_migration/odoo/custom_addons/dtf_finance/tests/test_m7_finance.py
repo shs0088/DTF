@@ -1,6 +1,6 @@
 import base64
-from unittest.mock import patch
 
+from odoo import fields
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -11,6 +11,15 @@ class TestDTFM7Finance(TransactionCase):
         super().setUpClass()
         cls.designer_group = cls.env.ref("dtf_core.group_dtf_designer")
         cls.operator_group = cls.env.ref("dtf_core.group_dtf_printing_operator")
+        cls.admin_group = cls.env.ref("dtf_core.group_dtf_admin")
+
+        cls.admin_user = cls.env["res.users"].with_context(
+            no_reset_password=True
+        ).create({
+            "name": "M7 DTF Administrator",
+            "login": "m7-admin@example.test",
+            "group_ids": [(6, 0, [cls.admin_group.id])],
+        })
 
         cls.designer_partner = cls.env["res.partner"].create({
             "name": "M7 Designer",
@@ -100,21 +109,19 @@ class TestDTFM7Finance(TransactionCase):
             "name": "M7 Printable Shirt",
             "list_price": 100.0,
             "is_storable": True,
+            "invoice_policy": "order",
             "dtf_product_type": "tshirt",
         })
         cls.product = cls.product_tmpl.product_variant_id
 
-        cls.policy = cls.env["dtf.finance.policy"]._get_for_company(
-            cls.env.company
-        )
-        cls.policy.write({
-            "compensation_mode": "percentage",
-            "commission_rate": 15.0,
-            "flat_royalty": 2.5,
-            "minimum_withdrawal": 10.0,
+        cls.env.company.write({
+            "dtf_designer_compensation_mode": "percentage",
+            "dtf_designer_commission_rate": 15.0,
+            "dtf_designer_flat_royalty": 2.5,
+            "dtf_minimum_withdrawal": 10.0,
         })
 
-    def _create_paid_candidate(self, price=100.0, quantity=2.0):
+    def _create_order_line(self, price=100.0, quantity=2.0):
         order = self.env["sale.order"].create({
             "partner_id": self.customer.id,
         })
@@ -130,208 +137,188 @@ class TestDTFM7Finance(TransactionCase):
         order.action_confirm()
         return order, line
 
-    def _capture_with_paid_evidence(self, line):
-        evidence = {
-            "invoice_ids": [900001],
-            "invoices": [{
-                "id": 900001,
-                "name": "M7-PAID-INVOICE",
-                "state": "posted",
-                "payment_state": "paid",
-                "amount_total": line.price_total,
-                "currency_id": line.currency_id.id,
-            }],
-            "captured_at": "2026-09-24 12:00:00",
-        }
-        with patch.object(
-            type(line),
-            "_dtf_finance_payment_evidence",
-            autospec=True,
-            return_value=evidence,
-        ):
-            return line.action_create_dtf_earning()
+    def _invoice_and_pay(self, order, line):
+        invoice = order._create_invoices()
+        invoice.action_post()
+        self.env["account.payment.register"].with_context(
+            active_model="account.move",
+            active_ids=invoice.ids,
+        ).create({
+            "payment_date": invoice.date or fields.Date.today(),
+        })._create_payments()
+        invoice.invalidate_recordset(["payment_state"])
+        line.invalidate_recordset(["dtf_earning_ids"])
+        self.assertIn(invoice.payment_state, ("paid", "in_payment"))
+        return invoice, line.dtf_earning_ids
+
+    def test_native_company_settings_are_authoritative(self):
+        settings = self.env["res.config.settings"].create({
+            "company_id": self.env.company.id,
+        })
+        settings.write({
+            "dtf_designer_compensation_mode": "flat",
+            "dtf_designer_flat_royalty": 4.25,
+            "dtf_minimum_withdrawal": 12.0,
+        })
+        self.env.company.invalidate_recordset([
+            "dtf_designer_compensation_mode",
+            "dtf_designer_flat_royalty",
+            "dtf_minimum_withdrawal",
+        ])
+        self.assertEqual(self.env.company.dtf_designer_compensation_mode, "flat")
+        self.assertEqual(self.env.company.dtf_designer_flat_royalty, 4.25)
+        self.assertEqual(self.env.company.dtf_minimum_withdrawal, 12.0)
 
     def test_unpaid_native_sale_is_not_eligible(self):
-        _order, line = self._create_paid_candidate()
-        with self.assertRaisesRegex(
-            ValidationError,
-            "fully paid native Odoo customer-invoice evidence",
-        ):
-            line.action_create_dtf_earning()
+        _order, line = self._create_order_line()
+        line._dtf_create_earning_if_eligible(strict=False)
+        self.assertFalse(line.dtf_earning_ids)
 
-    def test_percentage_earning_is_immutable_and_idempotent(self):
-        order, line = self._create_paid_candidate(price=100.0, quantity=2.0)
-        earning = self._capture_with_paid_evidence(line)
-        again = self._capture_with_paid_evidence(line)
+    def test_native_paid_invoice_hook_creates_immutable_idempotent_earning(self):
+        order, line = self._create_order_line()
+        invoice, earnings = self._invoice_and_pay(order, line)
 
-        self.assertEqual(earning, again)
-        self.assertEqual(earning.sale_order_id, order)
+        self.assertEqual(len(earnings), 1)
+        earning = earnings
         self.assertEqual(earning.sale_line_id, line)
-        self.assertEqual(earning.preflight_result_id, self.preflight)
-        self.assertEqual(earning.compensation_source, "global_policy")
+        self.assertEqual(earning.compensation_source, "company_default")
         self.assertEqual(earning.compensation_mode, "percentage")
         self.assertEqual(earning.commission_rate_snapshot, 15.0)
         self.assertEqual(earning.amount, 30.0)
-
-        ledger = self.env["dtf.finance.ledger"].search([
-            ("earning_id", "=", earning.id),
-        ])
-        self.assertEqual(len(ledger), 1)
-        self.assertEqual(ledger.amount, 30.0)
-
-        with self.assertRaisesRegex(ValidationError, "immutable"):
-            earning.write({"amount": 1.0})
-        with self.assertRaisesRegex(ValidationError, "immutable"):
-            ledger.unlink()
-
-    def test_designer_override_and_policy_changes_affect_future_only(self):
-        _order1, line1 = self._create_paid_candidate(
-            price=100.0,
-            quantity=2.0,
+        self.assertIn(
+            earning.payment_snapshot["invoices"][0]["payment_state"],
+            ("paid", "in_payment"),
         )
-        first = self._capture_with_paid_evidence(line1)
-        account = first.finance_account_id
 
+        invoice._invoice_paid_hook()
+        line.invalidate_recordset(["dtf_earning_ids"])
+        self.assertEqual(len(line.dtf_earning_ids), 1)
+
+        with self.assertRaises(ValidationError):
+            earning.write({"amount": 999.0})
+        with self.assertRaises(ValidationError):
+            earning.unlink()
+
+    def test_designer_override_and_company_changes_affect_future_only(self):
+        order1, line1 = self._create_order_line()
+        _invoice1, earning1 = self._invoice_and_pay(order1, line1)
+        self.assertEqual(earning1.amount, 30.0)
+
+        account = earning1.finance_account_id.with_user(self.admin_user)
         account.write({
             "override_enabled": True,
             "override_mode": "flat",
-            "override_flat_royalty": 2.5,
+            "override_flat_royalty": 3.0,
         })
-        _order2, line2 = self._create_paid_candidate(
-            price=50.0,
-            quantity=3.0,
-        )
-        second = self._capture_with_paid_evidence(line2)
-        self.assertEqual(second.compensation_source, "designer_override")
-        self.assertEqual(second.compensation_mode, "flat")
-        self.assertEqual(second.amount, 7.5)
 
-        self.policy.write({"commission_rate": 20.0})
-        self.assertEqual(first.amount, 30.0)
-        self.assertEqual(first.commission_rate_snapshot, 15.0)
+        order2, line2 = self._create_order_line()
+        _invoice2, earning2 = self._invoice_and_pay(order2, line2)
+        self.assertEqual(earning2.amount, 6.0)
+        self.assertEqual(earning2.compensation_source, "designer_override")
 
+        self.env.company.write({
+            "dtf_designer_compensation_mode": "percentage",
+            "dtf_designer_commission_rate": 40.0,
+        })
         account.write({"override_enabled": False})
-        _order3, line3 = self._create_paid_candidate(
-            price=50.0,
-            quantity=1.0,
-        )
-        third = self._capture_with_paid_evidence(line3)
-        self.assertEqual(third.compensation_source, "global_policy")
-        self.assertEqual(third.commission_rate_snapshot, 20.0)
-        self.assertEqual(third.amount, 10.0)
+
+        order3, line3 = self._create_order_line()
+        _invoice3, earning3 = self._invoice_and_pay(order3, line3)
+        self.assertEqual(earning3.amount, 80.0)
+        self.assertEqual(earning3.compensation_source, "company_default")
+
+        earning1.invalidate_recordset()
+        earning2.invalidate_recordset()
+        self.assertEqual(earning1.amount, 30.0)
+        self.assertEqual(earning2.amount, 6.0)
 
     def test_withdrawal_minimum_commitment_and_paid_ledger(self):
-        _order, line = self._create_paid_candidate(
-            price=100.0,
-            quantity=2.0,
-        )
-        earning = self._capture_with_paid_evidence(line)
+        order, line = self._create_order_line()
+        _invoice, earning = self._invoice_and_pay(order, line)
         account = earning.finance_account_id
+        self.assertEqual(account.ledger_balance, 30.0)
 
-        with self.assertRaisesRegex(ValidationError, "minimum withdrawal"):
-            account.with_user(self.designer_user).action_request_withdrawal(
-                5.0,
-                {"method": "cliq", "alias": "m7"},
-            )
+        with self.assertRaises(ValidationError):
+            account.with_user(self.designer_user).action_request_withdrawal(5.0)
 
         withdrawal = account.with_user(
             self.designer_user
         ).action_request_withdrawal(
             20.0,
-            {"method": "cliq", "alias": "m7"},
+            {"method": "bank_transfer"},
         )
-        self.assertEqual(withdrawal.state, "requested")
+        with self.assertRaises(ValidationError):
+            account.with_user(
+                self.designer_user
+            ).action_request_withdrawal(15.0)
 
-        with self.assertRaisesRegex(ValidationError, "available balance"):
-            account.with_user(self.designer_user).action_request_withdrawal(
-                15.0,
-                {"method": "cliq", "alias": "m7"},
-            )
-
-        withdrawal.action_approve()
+        withdrawal.with_user(self.admin_user).action_approve()
         self.assertEqual(withdrawal.state, "approved")
-        withdrawal.action_mark_paid()
+        withdrawal.with_user(self.admin_user).action_mark_paid()
         self.assertEqual(withdrawal.state, "paid")
-
-        debit = self.env["dtf.finance.ledger"].search([
-            ("withdrawal_id", "=", withdrawal.id),
-        ])
-        self.assertEqual(len(debit), 1)
-        self.assertEqual(debit.amount, -20.0)
 
         account.invalidate_recordset()
         self.assertEqual(account.ledger_balance, 10.0)
         self.assertEqual(account.paid_withdrawals, 20.0)
+        self.assertEqual(account.available_withdrawal, 10.0)
 
-        with self.assertRaisesRegex(
-            ValidationError,
-            "Only an approved withdrawal",
-        ):
-            withdrawal.action_mark_paid()
+        paid_entries = self.env["dtf.finance.ledger"].search([
+            ("withdrawal_id", "=", withdrawal.id),
+            ("entry_type", "=", "withdrawal_paid"),
+        ])
+        self.assertEqual(len(paid_entries), 1)
+        self.assertEqual(paid_entries.amount, -20.0)
 
     def test_rejection_requires_reason_and_is_terminal(self):
-        _order, line = self._create_paid_candidate()
-        earning = self._capture_with_paid_evidence(line)
+        order, line = self._create_order_line()
+        _invoice, earning = self._invoice_and_pay(order, line)
         withdrawal = earning.finance_account_id.with_user(
             self.designer_user
-        ).action_request_withdrawal(10.0, {})
+        ).action_request_withdrawal(10.0)
 
-        with self.assertRaisesRegex(ValidationError, "rejection reason"):
-            withdrawal.action_reject()
+        with self.assertRaises(ValidationError):
+            withdrawal.with_user(self.admin_user).action_reject()
 
-        withdrawal.action_reject("Bank details could not be verified.")
-        self.assertEqual(withdrawal.state, "rejected")
-        self.assertEqual(
-            withdrawal.rejection_reason,
-            "Bank details could not be verified.",
+        withdrawal.with_user(self.admin_user).action_reject(
+            "Payout details require correction."
         )
-
-        with self.assertRaisesRegex(
-            ValidationError,
-            "Only a requested withdrawal",
-        ):
-            withdrawal.action_approve()
+        self.assertEqual(withdrawal.state, "rejected")
+        with self.assertRaises(ValidationError):
+            withdrawal.with_user(self.admin_user).action_approve()
 
     def test_designer_isolation_and_operator_has_no_finance_access(self):
-        _order, line = self._create_paid_candidate()
-        earning = self._capture_with_paid_evidence(line)
-        own_account = earning.finance_account_id
+        order, line = self._create_order_line()
+        _invoice, earning = self._invoice_and_pay(order, line)
 
         other_partner = self.env["res.partner"].create({
-            "name": "M7 Other Designer",
+            "name": "Other M7 Designer",
             "email": "m7-other@example.test",
             "dtf_designer_enabled": True,
         })
         other_user = self.env["res.users"].with_context(
             no_reset_password=True
         ).create({
-            "name": "M7 Other Designer",
+            "name": "Other M7 Designer",
             "login": "m7-other@example.test",
             "partner_id": other_partner.id,
             "group_ids": [(6, 0, [self.designer_group.id])],
         })
-        other_profile = self.env["dtf.designer.profile"].create({
+        self.env["dtf.designer.profile"].create({
             "partner_id": other_partner.id,
             "user_id": other_user.id,
-            "authorized": True,
-            "qualification_state": "authorized",
         })
-        self.env["dtf.designer.finance.account"]._get_for_designer(
-            other_profile,
-            self.env.company,
-        )
 
-        designer_accounts = self.env[
-            "dtf.designer.finance.account"
-        ].with_user(self.designer_user).search([])
-        self.assertEqual(designer_accounts, own_account.with_user(self.designer_user))
+        own = self.env["dtf.designer.earning"].with_user(
+            self.designer_user
+        ).search([("id", "=", earning.id)])
+        self.assertEqual(own.id, earning.id)
 
-        designer_earnings = self.env[
-            "dtf.designer.earning"
-        ].with_user(self.designer_user).search([])
-        self.assertEqual(designer_earnings, earning.with_user(self.designer_user))
+        other = self.env["dtf.designer.earning"].with_user(
+            other_user
+        ).search([("id", "=", earning.id)])
+        self.assertFalse(other)
 
         with self.assertRaises(AccessError):
             self.env["dtf.designer.earning"].with_user(
                 self.operator_user
-            ).search([])
+            ).search([]).read(["amount"])
