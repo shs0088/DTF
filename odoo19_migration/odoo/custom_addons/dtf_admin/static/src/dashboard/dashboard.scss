@@ -11,6 +11,9 @@
     .dtf-dashboard-heading, .dtf-panel-heading {
         display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
+    h1, h2 {
+        color: var(--dtf-admin-text, #eaf4ff);
+    }
     .dtf-dashboard-heading {
         margin-bottom: 22px;
         h1 { margin: 0; font-size: 28px; font-weight: 700; }
@@ -72,7 +75,16 @@
     }
     .dtf-quick-links {
         display: grid; grid-template-columns: 1fr; gap: 9px; margin-top: 18px;
-        .btn { text-align: start; }
+        .btn {
+            text-align: start;
+            color: var(--dtf-admin-accent, #00a8ff);
+            border-color: var(--dtf-admin-accent, #00a8ff);
+        }
+        .btn:hover, .btn:focus-visible {
+            color: #00111d;
+            background: var(--dtf-admin-accent, #00a8ff);
+            border-color: var(--dtf-admin-accent, #00a8ff);
+        }
     }
     .dtf-dashboard-table {
         margin: 14px 0 0; color: var(--dtf-admin-text, #eaf4ff);
@@ -105,4 +117,8 @@
         .dtf-order-chart { gap: 5px; }
         .dtf-chart-sales { display: none; }
     }
+}
+
+.o_rtl .o_dtf_admin_dashboard .dtf-kpi-open i {
+    transform: scaleX(-1);
 }

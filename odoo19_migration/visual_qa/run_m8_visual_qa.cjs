@@ -177,7 +177,7 @@ async function inspectArabic(browser) {
     return;
   }
 
-  report.checks.arabic_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard");
+  report.checks.arabic_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard_client");
   try {
     await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").waitFor({
       state: "visible",
