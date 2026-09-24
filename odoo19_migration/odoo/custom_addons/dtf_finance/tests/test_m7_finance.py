@@ -142,7 +142,7 @@ class TestDTFM7Finance(TestSaleCommon):
             "dtf_design_id": self.design.id,
             "dtf_master_asset_id": self.asset.id,
         })
-        line.action_capture_dtf_snapshots()
+        line.with_user(self.admin_user).action_capture_dtf_snapshots()
         order.action_confirm()
         return order, line
 
@@ -156,9 +156,11 @@ class TestDTFM7Finance(TestSaleCommon):
             "payment_date": invoice.date or fields.Date.today(),
         })._create_payments()
         invoice.invalidate_recordset(["payment_state"])
-        line.invalidate_recordset(["dtf_earning_ids"])
         self.assertEqual(invoice.payment_state, "paid")
-        return invoice, line.dtf_earning_ids
+        earnings = self.env["dtf.designer.earning"].with_user(
+            self.admin_user
+        ).search([("sale_line_id", "=", line.id)])
+        return invoice, earnings
 
     def test_native_company_settings_are_authoritative(self):
         settings = self.env["res.config.settings"].create({
@@ -200,8 +202,10 @@ class TestDTFM7Finance(TestSaleCommon):
         )
 
         invoice._invoice_paid_hook()
-        line.invalidate_recordset(["dtf_earning_ids"])
-        self.assertEqual(len(line.dtf_earning_ids), 1)
+        earnings = self.env["dtf.designer.earning"].with_user(
+            self.admin_user
+        ).search([("sale_line_id", "=", line.id)])
+        self.assertEqual(len(earnings), 1)
 
         with self.assertRaises(ValidationError):
             earning.write({"amount": 999.0})
@@ -271,7 +275,9 @@ class TestDTFM7Finance(TestSaleCommon):
         self.assertEqual(account.paid_withdrawals, 20.0)
         self.assertEqual(account.available_withdrawal, 10.0)
 
-        paid_entries = self.env["dtf.finance.ledger"].search([
+        paid_entries = self.env["dtf.finance.ledger"].with_user(
+            self.admin_user
+        ).search([
             ("withdrawal_id", "=", withdrawal.id),
             ("entry_type", "=", "withdrawal_paid"),
         ])
