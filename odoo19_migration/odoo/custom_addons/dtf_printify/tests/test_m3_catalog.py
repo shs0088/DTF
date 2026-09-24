@@ -31,7 +31,7 @@ class TestDTFM3Catalog(TransactionCase):
         self.assertEqual(variant.product_template_attribute_value_ids.product_attribute_value_id, size_m)
 
     def test_printify_mapping_uniqueness_and_public_hiding(self):
-        product = self.env["product.template"].create({"name": "Supplier Shirt", "dtf_supplier_source": "printify", "dtf_printify_source_id": "bp-1", "dtf_public_published": True})
+        product = self.env["product.template"].create({"name": "Supplier Shirt", "dtf_supplier_source": "printify", "dtf_printify_source_id": "bp-1", "is_published": False})
         mapping = self.env["dtf.printify.mapping"].create({"shop_id": "shop-1", "printify_product_id": "bp-1", "printify_variant_id": "v-1", "product_tmpl_id": product.id, "import_key": "shop-1:v-1"})
         with self.assertRaises(ValidationError):
             self.env["dtf.printify.mapping"].create({"shop_id": "shop-1", "printify_product_id": "bp-1", "printify_variant_id": "v-1", "product_tmpl_id": product.id, "import_key": "other-key"})
