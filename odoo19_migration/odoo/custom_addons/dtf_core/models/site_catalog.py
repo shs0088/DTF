@@ -30,24 +30,6 @@ class ProductTemplate(models.Model):
     )
     dtf_printify_source_id = fields.Char(index=True, copy=False)
 
-    @api.constrains("is_published", "name", "website_description", "description_ecommerce")
-    def _check_dtf_bilingual_publication(self):
-        for product in self:
-            if not product.is_published:
-                continue
-            english_name = self._dtf_translated_text(product, "name", "en_US")
-            arabic_name = self._dtf_translated_text(product, "name", "ar_001")
-            english_description = (
-                self._dtf_translated_text(product, "website_description", "en_US")
-                or self._dtf_translated_text(product, "description_ecommerce", "en_US")
-            )
-            arabic_description = (
-                self._dtf_translated_text(product, "website_description", "ar_001")
-                or self._dtf_translated_text(product, "description_ecommerce", "ar_001")
-            )
-            if not all([(english_name or "").strip(), (arabic_name or "").strip(), (english_description or "").strip(), (arabic_description or "").strip()]):
-                raise ValidationError("Published DTF products require English and Arabic native Odoo name and website description translations.")
-
     @api.model
     def dtf_public_payload(self, products):
         return [{
