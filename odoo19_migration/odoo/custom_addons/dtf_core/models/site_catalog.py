@@ -39,7 +39,7 @@ class ProductTemplate(models.Model):
             arabic_name = product.with_context(lang="ar_001").name
             english_description = product.with_context(lang="en_US").website_description or product.with_context(lang="en_US").description_ecommerce
             arabic_description = product.with_context(lang="ar_001").website_description or product.with_context(lang="ar_001").description_ecommerce
-            if not all((english_name or "").strip(), (arabic_name or "").strip(), (english_description or "").strip(), (arabic_description or "").strip()):
+            if not all([(english_name or "").strip(), (arabic_name or "").strip(), (english_description or "").strip(), (arabic_description or "").strip()]):
                 raise ValidationError("Published DTF products require English and Arabic native Odoo name and website description translations.")
 
     @api.model
