@@ -42,10 +42,7 @@ class SaleOrderLine(models.Model):
             return False
 
         invoices = invoice_lines.mapped("move_id")
-        if any(
-            invoice.payment_state not in ("paid", "in_payment")
-            for invoice in invoices
-        ):
+        if any(invoice.payment_state != "paid" for invoice in invoices):
             return False
 
         return {
@@ -110,7 +107,7 @@ class SaleOrderLine(models.Model):
             payment_evidence = line._dtf_finance_payment_evidence()
             if not payment_evidence:
                 fail(
-                    "Designer earning requires native Odoo paid/in-payment invoice evidence."
+                    "Designer earning requires native Odoo paid invoice evidence."
                 )
                 continue
 

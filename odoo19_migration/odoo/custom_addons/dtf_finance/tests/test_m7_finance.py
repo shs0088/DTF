@@ -34,7 +34,9 @@ class TestDTFM7Finance(TestSaleCommon):
             "partner_id": cls.designer_partner.id,
             "group_ids": [(6, 0, [cls.designer_group.id])],
         })
-        cls.profile = cls.env["dtf.designer.profile"].create({
+        cls.profile = cls.env["dtf.designer.profile"].with_user(
+            cls.admin_user
+        ).create({
             "partner_id": cls.designer_partner.id,
             "user_id": cls.designer_user.id,
             "authorized": True,
@@ -49,7 +51,7 @@ class TestDTFM7Finance(TestSaleCommon):
             "group_ids": [(6, 0, [cls.operator_group.id])],
         })
 
-        cls.design = cls.env["dtf.design"].create({
+        cls.design = cls.env["dtf.design"].with_user(cls.admin_user).create({
             "designer_id": cls.profile.id,
             "title_en": "M7 Design",
             "title_ar": "تصميم M7",
@@ -57,14 +59,16 @@ class TestDTFM7Finance(TestSaleCommon):
             "description_ar": "اختبار التمويل",
             "product_type": "tshirt",
         })
-        cls.attachment = cls.env["ir.attachment"].create({
+        cls.attachment = cls.env["ir.attachment"].with_user(cls.admin_user).create({
             "name": "m7-master.png",
             "datas": base64.b64encode(
                 b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
             ).decode(),
             "mimetype": "image/png",
         })
-        cls.asset = cls.env["dtf.design.asset"].with_context(
+        cls.asset = cls.env["dtf.design.asset"].with_user(
+            cls.admin_user
+        ).with_context(
             dtf_preflight_migration=True
         ).create({
             "design_id": cls.design.id,
@@ -82,14 +86,18 @@ class TestDTFM7Finance(TestSaleCommon):
         cls.design.action_set_main_display_asset(cls.asset)
         cls.design.action_set_ready_to_print_master(cls.asset)
 
-        cls.rule = cls.env["dtf.preflight.rule.version"].create({
+        cls.rule = cls.env["dtf.preflight.rule.version"].with_user(
+            cls.admin_user
+        ).create({
             "name": "M7 rule",
             "version": "m7-v1",
             "product_type": "tshirt",
             "min_effective_dpi": 300,
             "allowed_formats": ["png", "jpg", "jpeg", "webp", "svg", "pdf"],
         })
-        cls.preflight = cls.env["dtf.preflight.result"].create({
+        cls.preflight = cls.env["dtf.preflight.result"].with_user(
+            cls.admin_user
+        ).create({
             "asset_id": cls.asset.id,
             "rule_version_id": cls.rule.id,
             "status": "accepted",
@@ -149,7 +157,7 @@ class TestDTFM7Finance(TestSaleCommon):
         })._create_payments()
         invoice.invalidate_recordset(["payment_state"])
         line.invalidate_recordset(["dtf_earning_ids"])
-        self.assertIn(invoice.payment_state, ("paid", "in_payment"))
+        self.assertEqual(invoice.payment_state, "paid")
         return invoice, line.dtf_earning_ids
 
     def test_native_company_settings_are_authoritative(self):
@@ -186,9 +194,9 @@ class TestDTFM7Finance(TestSaleCommon):
         self.assertEqual(earning.compensation_mode, "percentage")
         self.assertEqual(earning.commission_rate_snapshot, 15.0)
         self.assertEqual(earning.amount, 30.0)
-        self.assertIn(
+        self.assertEqual(
             earning.payment_snapshot["invoices"][0]["payment_state"],
-            ("paid", "in_payment"),
+            "paid",
         )
 
         invoice._invoice_paid_hook()
@@ -304,7 +312,7 @@ class TestDTFM7Finance(TestSaleCommon):
             "partner_id": other_partner.id,
             "group_ids": [(6, 0, [self.designer_group.id])],
         })
-        self.env["dtf.designer.profile"].create({
+        self.env["dtf.designer.profile"].with_user(other_user).create({
             "partner_id": other_partner.id,
             "user_id": other_user.id,
         })
