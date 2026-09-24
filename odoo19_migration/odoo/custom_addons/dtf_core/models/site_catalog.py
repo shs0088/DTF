@@ -31,7 +31,7 @@ class ProductTemplate(models.Model):
 
     @api.model
     def _dtf_translated_text(self, record, field_name, lang_code):
-        """Read a translated native Odoo field only when that language is active."""
+        """Read a native translated field only when that Odoo language is active."""
         lang = self.env["res.lang"].sudo().search(
             [("code", "=", lang_code), ("active", "=", True)],
             limit=1,
@@ -41,40 +41,36 @@ class ProductTemplate(models.Model):
         return record.with_context(lang=lang.code)[field_name] or ""
 
     @api.model
-    def _dtf_translated_text(self, record, field_name, lang):
-        return record.with_context(lang=lang)[field_name] or ""
-
-    @api.model
     def dtf_public_payload(self, products):
         return [{
-            "id": p.id,
-            "name": self._dtf_translated_text(p, "name", "en_US"),
-            "name_ar": self._dtf_translated_text(p, "name", "ar_001"),
+            "id": product.id,
+            "name": self._dtf_translated_text(product, "name", "en_US"),
+            "name_ar": self._dtf_translated_text(product, "name", "ar_001"),
             "description": (
-                self._dtf_translated_text(p, "website_description", "en_US")
-                or self._dtf_translated_text(p, "description_ecommerce", "en_US")
+                self._dtf_translated_text(product, "website_description", "en_US")
+                or self._dtf_translated_text(product, "description_ecommerce", "en_US")
             ),
             "description_ar": (
-                self._dtf_translated_text(p, "website_description", "ar_001")
-                or self._dtf_translated_text(p, "description_ecommerce", "ar_001")
+                self._dtf_translated_text(product, "website_description", "ar_001")
+                or self._dtf_translated_text(product, "description_ecommerce", "ar_001")
             ),
-            "price": p.list_price,
-            "currency": p.currency_id.name,
-            "active": p.active,
-            "published": p.is_published,
-            "category_ids": p.public_categ_ids.ids,
-            "product_type": p.dtf_product_type,
-            "catalog_type": p.dtf_catalog_type,
-            "print_your_dream_eligible": p.dtf_print_your_dream_eligible,
-            "image_1920": bool(p.image_1920),
+            "price": product.list_price,
+            "currency": product.currency_id.name,
+            "active": product.active,
+            "published": product.is_published,
+            "category_ids": product.public_categ_ids.ids,
+            "product_type": product.dtf_product_type,
+            "catalog_type": product.dtf_catalog_type,
+            "print_your_dream_eligible": product.dtf_print_your_dream_eligible,
+            "image_1920": bool(product.image_1920),
             "variants": [{
-                "id": v.id,
-                "name": v.display_name,
-                "price_extra": v.price_extra,
-                "active": v.active,
-                "stock_available": v.qty_available,
-            } for v in p.product_variant_ids],
-        } for p in products]
+                "id": variant.id,
+                "name": variant.display_name,
+                "price_extra": variant.price_extra,
+                "active": variant.active,
+                "stock_available": variant.qty_available,
+            } for variant in product.product_variant_ids],
+        } for product in products]
 
 
 class DTFProductPrintableArea(models.Model):
