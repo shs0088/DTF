@@ -50,9 +50,30 @@ async function login(page, loginName, password, key) {
   return report.checks[`${key}_login`];
 }
 
-async function openAction(page, xmlid) {
+async function dismissNativeChatWindows(page, actor) {
+  let dismissed = 0;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const closeButton = page.locator(
+      ".o-mail-ChatWindow .o-mail-ActionList-button[name='close']:visible"
+    ).first();
+    if (!(await closeButton.count())) {
+      break;
+    }
+    await closeButton.click();
+    dismissed++;
+    await page.waitForTimeout(250);
+  }
+  if (dismissed) {
+    report.metrics.native_chat_windows_dismissed ??= {};
+    report.metrics.native_chat_windows_dismissed[actor] =
+      (report.metrics.native_chat_windows_dismissed[actor] || 0) + dismissed;
+  }
+}
+
+async function openAction(page, xmlid, actor = "unknown") {
   await page.goto(`${BASE}/odoo/action-${xmlid}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(800);
+  await dismissNativeChatWindows(page, actor);
 
   const visibleModal = page.locator(".modal.show:visible").first();
   if (await visibleModal.count()) {
@@ -121,7 +142,7 @@ async function inspectEnglish(browser) {
     return;
   }
 
-  report.checks.english_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard_client");
+  report.checks.english_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard_client", "dashboard");
   try {
     await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").waitFor({
       state: "visible",
@@ -143,14 +164,17 @@ async function inspectEnglish(browser) {
     report.metrics.english_theme.accent.toLowerCase() === "#00a8ff";
   await shot(page, "01-english-dashboard.png");
 
-  report.checks.english_designers = await openAction(page, "dtf_admin.action_dtf_admin_designers");
+  report.checks.english_designers = await openAction(page, "dtf_admin.action_dtf_admin_designers", "designers");
   report.checks.english_designers_title =
     (await page.getByText("Designers", { exact: true }).count()) > 0;
   await shot(page, "02-english-designers.png");
 
-  report.checks.english_design_review = await openAction(page, "dtf_admin.action_dtf_admin_design_review");
+  report.checks.english_design_review = await openAction(page, "dtf_admin.action_dtf_admin_design_review", "design_review");
+  await dismissNativeChatWindows(page, key);
   const row = page.locator(".o_data_row").first();
   if (await row.count()) {
+    await row.scrollIntoViewIfNeeded();
+    await dismissNativeChatWindows(page, key);
     await row.click();
     await page.waitForTimeout(1200);
     report.checks.english_design_form = (await page.locator(".o_form_view").count()) > 0;
@@ -177,7 +201,7 @@ async function inspectArabic(browser) {
     return;
   }
 
-  report.checks.arabic_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard_client");
+  report.checks.arabic_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard_client", "dashboard");
   try {
     await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").waitFor({
       state: "visible",
@@ -198,13 +222,13 @@ async function inspectArabic(browser) {
     report.metrics.arabic_direction.rtlStylesheet;
   await shot(page, "04-arabic-dashboard.png");
 
-  report.checks.arabic_designers = await openAction(page, "dtf_admin.action_dtf_admin_designers");
+  report.checks.arabic_designers = await openAction(page, "dtf_admin.action_dtf_admin_designers", "designers");
   report.checks.arabic_translated_designers =
     (await page.getByText("المصممون", { exact: true }).count()) > 0 ||
     (await page.getByText("جميع المصممين", { exact: true }).count()) > 0;
   await shot(page, "05-arabic-designers.png");
 
-  report.checks.arabic_design_review = await openAction(page, "dtf_admin.action_dtf_admin_design_review");
+  report.checks.arabic_design_review = await openAction(page, "dtf_admin.action_dtf_admin_design_review", "design_review");
   const row = page.locator(".o_data_row").first();
   if (await row.count()) {
     await row.click();
