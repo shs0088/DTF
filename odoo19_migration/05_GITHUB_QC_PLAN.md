@@ -85,3 +85,8 @@ M4 remains COMPLETE and unchanged. M5 has started from verified HEAD `5f5ff8399e
 ## Native reconciliation QC
 
 Verify no custom timed reservation objects remain; verify API delegation to native website-sale cart methods; verify native sale states and computed prices/taxes/totals remain authoritative; verify DTF snapshots remain intact. Full current-head workflow evidence is required.
+
+
+## Native correction pass
+
+Native Odoo 19 website cart APIs (`request.cart` / `website._create_cart`) and `jsonrpc` routes are now required. Native `product.public.category`, translated product content, `public_categ_ids`, `is_published`, and `website.sale_product_domain()` are authoritative. The duplicate site category/product publication layer and premature production handoff workflow were removed/deferred. CI includes the DTF API controller test tag. M6 remains not started.
