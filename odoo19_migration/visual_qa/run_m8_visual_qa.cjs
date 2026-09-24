@@ -222,11 +222,104 @@ async function inspectArabic(browser) {
   await context.close();
 }
 
+async function inspectResponsive(browser, {
+  key,
+  viewport,
+  loginName,
+  password,
+  expectRtl,
+  dashboardShot,
+  formShot,
+}) {
+  const context = await browser.newContext({ viewport });
+  const page = await context.newPage();
+  diagnostics(page, key);
+
+  if (!(await login(page, loginName, password, key))) {
+    await shot(page, `00-${key}-login-failed.png`);
+    await context.close();
+    return;
+  }
+
+  report.checks[`${key}_dashboard`] = await openAction(
+    page,
+    "dtf_admin.action_dtf_admin_dashboard_client"
+  );
+  try {
+    await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").waitFor({
+      state: "visible",
+      timeout: 10000,
+    });
+    report.checks[`${key}_dashboard_ready`] = true;
+  } catch {
+    report.checks[`${key}_dashboard_ready`] = false;
+  }
+  report.checks[`${key}_dashboard_kpis`] =
+    (await page.locator(".o_dtf_admin_dashboard .dtf-kpi-card").count()) >= 7;
+  report.metrics[`${key}_direction`] = await direction(page);
+  report.metrics[`${key}_dashboard`] = await overflow(page);
+  report.checks[`${key}_direction_ok`] = expectRtl
+    ? (
+        report.metrics[`${key}_direction`].nativeRtl ||
+        report.metrics[`${key}_direction`].rtlStylesheet
+      )
+    : (
+        !report.metrics[`${key}_direction`].nativeRtl &&
+        !report.metrics[`${key}_direction`].rtlStylesheet
+      );
+  await shot(page, dashboardShot);
+
+  report.checks[`${key}_design_review`] = await openAction(
+    page,
+    "dtf_admin.action_dtf_admin_design_review"
+  );
+  const row = page.locator(".o_data_row").first();
+  if (await row.count()) {
+    await row.click();
+    await page.waitForTimeout(1200);
+    report.checks[`${key}_design_form`] =
+      (await page.locator(".o_form_view").count()) > 0;
+    report.metrics[`${key}_design_form`] = await overflow(page);
+    await shot(page, formShot);
+  } else {
+    report.checks[`${key}_design_form`] = false;
+  }
+
+  await context.close();
+}
+
 (async () => {
   const browser = await chromium.launch({ headless: true });
   try {
     await inspectEnglish(browser);
     await inspectArabic(browser);
+    await inspectResponsive(browser, {
+      key: "tablet_en",
+      viewport: { width: 1024, height: 768 },
+      loginName: process.env.ADMIN_LOGIN,
+      password: process.env.ADMIN_PASSWORD,
+      expectRtl: false,
+      dashboardShot: "07-tablet-english-dashboard.png",
+      formShot: "08-tablet-english-design-form.png",
+    });
+    await inspectResponsive(browser, {
+      key: "mobile_en",
+      viewport: { width: 390, height: 844 },
+      loginName: process.env.ADMIN_LOGIN,
+      password: process.env.ADMIN_PASSWORD,
+      expectRtl: false,
+      dashboardShot: "09-mobile-english-dashboard.png",
+      formShot: "10-mobile-english-design-form.png",
+    });
+    await inspectResponsive(browser, {
+      key: "mobile_ar",
+      viewport: { width: 390, height: 844 },
+      loginName: process.env.ARABIC_LOGIN,
+      password: process.env.ARABIC_PASSWORD,
+      expectRtl: true,
+      dashboardShot: "11-mobile-arabic-dashboard.png",
+      formShot: "12-mobile-arabic-design-form.png",
+    });
 
     const required = [
       "english_login",
@@ -253,6 +346,27 @@ async function inspectArabic(browser) {
       "arabic_design_form",
       "english_content_ltr_in_arabic_admin",
       "arabic_content_rtl",
+      "tablet_en_login",
+      "tablet_en_dashboard",
+      "tablet_en_dashboard_ready",
+      "tablet_en_dashboard_kpis",
+      "tablet_en_direction_ok",
+      "tablet_en_design_review",
+      "tablet_en_design_form",
+      "mobile_en_login",
+      "mobile_en_dashboard",
+      "mobile_en_dashboard_ready",
+      "mobile_en_dashboard_kpis",
+      "mobile_en_direction_ok",
+      "mobile_en_design_review",
+      "mobile_en_design_form",
+      "mobile_ar_login",
+      "mobile_ar_dashboard",
+      "mobile_ar_dashboard_ready",
+      "mobile_ar_dashboard_kpis",
+      "mobile_ar_direction_ok",
+      "mobile_ar_design_review",
+      "mobile_ar_design_form",
     ];
 
     const noOverflow = Object.values(report.metrics)
@@ -275,7 +389,7 @@ async function inspectArabic(browser) {
         "M8 Native Odoo Admin Visual QA",
         "Source HEAD: " + report.source_head,
         "Visual pass: " + report.visual_pass,
-        "English and Arabic screenshots are included in this artifact.",
+        "English/Arabic desktop plus tablet/mobile screenshots are included in this artifact.",
       ].join("\n")
     );
     await browser.close();
