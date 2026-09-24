@@ -18,7 +18,6 @@
         "website_sale"
     ],
     "data": [],
-    "test": ["tests/test_m5_api.py"],
     "installable": True,
     "application": False
 }
