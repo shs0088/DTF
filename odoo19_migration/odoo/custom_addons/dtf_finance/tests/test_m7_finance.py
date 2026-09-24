@@ -183,7 +183,10 @@ class TestDTFM7Finance(TestSaleCommon):
     def test_unpaid_native_sale_is_not_eligible(self):
         _order, line = self._create_order_line()
         line._dtf_create_earning_if_eligible(strict=False)
-        self.assertFalse(line.dtf_earning_ids)
+        earnings = self.env["dtf.designer.earning"].with_user(
+            self.admin_user
+        ).search([("sale_line_id", "=", line.id)])
+        self.assertFalse(earnings)
 
     def test_native_paid_invoice_hook_creates_immutable_idempotent_earning(self):
         order, line = self._create_order_line()

@@ -111,7 +111,7 @@ class SaleOrderLine(models.Model):
                 )
                 continue
 
-            designer = line.dtf_design_id.designer_id
+            designer = line.sudo().dtf_design_id.designer_id
             if not designer:
                 fail("The DTF design has no designer finance owner.")
                 continue
