@@ -371,3 +371,18 @@ STILL PENDING:
 4. Live protected deletion behavior when cart/order/production references exist.
 5. Global Arabic/English switching with RTL/LTR across active routes remains the next source-level requirement.
 6. Final deployed runtime/business-flow QA remains pending.
+
+============================================================
+M8 RECONCILIATION — CLOSED 2026-09-24
+============================================================
+M8 Admin + bilingual is no longer an unimplemented item.
+FINAL IMPLEMENTATION HEAD: 7054bfa6bb03d434d0b20e209c9a168f9e72ca3a
+FULL VALIDATION: 36058203854 — SUCCESS.
+M8 VISUAL QA: 36058203840 — SUCCESS.
+
+STILL NOT IMPLEMENTED / NOT AUTHORIZED AS PART OF M8:
+1. M9 frontend cutover to the Odoo compatibility API.
+2. M10 production VPS/Oracle deployment, domain/TLS, scheduled backups/restore drill and production monitoring.
+3. M11 final production acceptance.
+4. Merge to main.
+5. Any replacement/modification of protected dtf-studio-v48-safe-frontend deployment.

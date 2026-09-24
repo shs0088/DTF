@@ -612,3 +612,39 @@ DESIGNER NEW DESIGN UPLOAD SOURCE/CI CHECK — 2026-09-16
 646. GitHub Actions run 35121193690: PASS.
 647. install/typecheck/build/all Admin/Checkout/Designer Upload tests: PASS.
 648. Live R2/browser Designer upload verification: PENDING RUNTIME.
+
+============================================================
+M8 FINAL CLOSURE CHECK — 2026-09-24
+============================================================
+649. Final M8 implementation HEAD 7054bfa6bb03d434d0b20e209c9a168f9e72ca3a: VERIFIED.
+650. Full Odoo migration validation run 36058203854: PASS.
+651. M8 visual QA run 36058203840: PASS.
+652. All 13 DTF addons install on Odoo 19: PASS.
+653. M2 regression on final M8 HEAD: PASS.
+654. M3 Catalog/Printify regression on final M8 HEAD: PASS.
+655. M4 Preflight/publishing regression on final M8 HEAD: PASS.
+656. M5 Sales/API regression on final M8 HEAD: PASS.
+657. M6 Production/Printing Operator regression on final M8 HEAD: PASS.
+658. M7 Finance regression on final M8 HEAD: PASS.
+659. M8 native Admin shell tests on final M8 HEAD: PASS.
+660. Odoo/Nginx /web runtime verification on final M8 HEAD: PASS.
+661. Native Odoo backend theme Black + Electric Blue: PASS VISUAL.
+662. Database-backed operational Dashboard: PASS SOURCE/TEST/VISUAL.
+663. Qualification/design review and rejection workflows: PASS SOURCE/TEST.
+664. Native review/replacement/escalation Activities and designer notifications: PASS SOURCE/TEST.
+665. Native Products/Categories/Orders/Customers/Inventory surfaces: PASS SOURCE/TEST.
+666. Native Production and Finance/Withdrawals remain integrated under Admin: PASS.
+667. Native Odoo Promotions/Loyalty integration: PASS SOURCE/TEST.
+668. Native operational Reports and existing authority-model reuse: PASS SOURCE/TEST.
+669. Native Settings/Integrations/History/Activities surfaces: PASS SOURCE/TEST.
+670. Native Odoo Users/User Groups access for DTF Administrator: PASS SOURCE/TEST.
+671. Protected DTF system groups and last active DTF Administrator safeguards: PASS SOURCE/TEST.
+672. Native Arabic translation files: PASS.
+673. Native Odoo Arabic RTL + English LTR: PASS VISUAL.
+674. Content-field direction independent from Admin locale direction: PASS VISUAL.
+675. Desktop 1440x900, tablet 1024x768, mobile 390x844 responsive checks: PASS; tested horizontal overflow NONE.
+676. M8 actionable page/network errors: NONE; generic website-logo fixture 500 ignored as outside M8 Admin UI.
+677. M9 frontend cutover: NOT STARTED / NOT AUTHORIZED BY M8.
+678. M10 deployment: NOT STARTED / NOT AUTHORIZED BY M8.
+679. M11 production acceptance: NOT STARTED.
+680. Merge/deployment/protected V48 modification during M8: NONE.

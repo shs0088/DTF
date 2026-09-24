@@ -65,7 +65,22 @@ No production-ready claim until module installs/tests, API contracts, core busin
   - Final M7 closure HEAD: `95fb9c1069bd2ac1d46821f090bb7eba15d62256`
   - Odoo 19 migration validation run: `36014812563` — SUCCESS.
   - The workflow explicitly runs `/dtf_finance:TestDTFM7Finance`.
-- M8 — Admin + bilingual: NOT STARTED.
+- M8 — Admin + bilingual: COMPLETE + CI VERIFIED + VISUAL QA VERIFIED.
+  - Final implementation HEAD: `7054bfa6bb03d434d0b20e209c9a168f9e72ca3a`
+  - Odoo 19 migration validation run: `36058203854` — SUCCESS.
+  - M8 visual-QA run: `36058203840` — SUCCESS.
+  - Native Odoo 19 Admin shell uses existing Odoo/DTF authority models; no parallel Admin business-data authority was introduced.
+  - Black + Electric Blue backend theme is delivered through native Odoo backend assets.
+  - Operational Dashboard uses live Odoo/DTF data for orders, payment attention, production, qualification review, products, inventory attention and payouts.
+  - Native qualification/design review workflows, rejection reasons, notifications/activities and escalation are implemented.
+  - Native Catalog/Products/Categories, Orders, Customers, Production, Finance/Withdrawals, Promotions, Reports, Settings, Integrations, History, Users and User Groups are exposed through the DTF Admin shell with DTF role boundaries.
+  - Native Odoo Users/User Groups are used; protected DTF Administrator and Printing Operator system groups cannot be deleted/renamed, and at least one active DTF Administrator must remain.
+  - Arabic uses native Odoo `i18n/ar.po` translation files and native Odoo RTL assets/behavior; no custom Arabic/RTL engine exists.
+  - Admin locale direction is independent from bilingual content-field direction: English Admin remains LTR with Arabic content containers RTL; Arabic Admin remains RTL with English content containers LTR.
+  - Desktop 1440x900, tablet 1024x768 and mobile 390x844 browser checks: PASS with no horizontal overflow in tested Dashboard/design-review surfaces.
+  - The only ignored browser 500 in visual QA is the generic website-logo fixture outside the M8 Admin UI; actionable M8 page/network errors: NONE.
+  - Protected M6 visual regression remained green during M8 implementation.
+
 
 ## M5 operational items still deferred where applicable
 
@@ -77,5 +92,11 @@ No production-ready claim until module installs/tests, API contracts, core busin
 ## M7 closure boundary
 
 M7 includes designer finance/withdrawals and is complete + CI verified. It does not include the final Admin theme/bilingual M8 work, Fabric.js, frontend cutover, Oracle deployment, or merge.
+
+No deployment or merge has been performed.
+
+## M8 closure boundary
+
+M8 closes the Odoo 19 Admin + bilingual milestone only. It does not perform M9 frontend cutover, M10 production deployment/domain/TLS/backup operations, M11 final production acceptance, merge to main, or modification/deployment of the protected `dtf-studio-v48-safe-frontend` project.
 
 No deployment or merge has been performed.

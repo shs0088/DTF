@@ -600,3 +600,38 @@ RUNTIME BLOCKER:
 - DESIGN_ASSETS R2 bucket must exist in the deployment environment before real uploads can run live.
 DEPLOYMENT: NOT PERFORMED.
 MERGE/MAIN CHANGE: NONE.
+
+
+============================================================
+ODOO 19 M8 ADMIN + BILINGUAL MILESTONE CLOSED — 2026-09-24
+============================================================
+FINAL IMPLEMENTATION HEAD: 7054bfa6bb03d434d0b20e209c9a168f9e72ca3a
+FULL ODOO VALIDATION: 36058203854 — SUCCESS.
+M8 VISUAL QA: 36058203840 — SUCCESS.
+STATUS: M8 COMPLETE + CI VERIFIED + VISUAL QA VERIFIED.
+
+VERIFIED M8 SCOPE:
+- native Odoo 19 DTF Admin shell and Black + Electric Blue backend theme
+- database-backed operational Dashboard with seven live KPI groups and 7-day activity data
+- designer qualification and design review workflows, native rejection wizards, review/replacement/escalation activities and designer notifications
+- native Products, eCommerce Categories, Orders, Customers, Inventory, Production, Finance/Withdrawals and Promotions surfaces
+- native Reports for sales/orders, production, products, designers, earnings, payouts, inventory and stock movements
+- native Settings via res.config.settings
+- Printify/integration status from existing dtf.printify.mapping authority
+- read-only DTF History surface over native Odoo mail/chatter evidence
+- native Notifications & Activities via mail.activity
+- native Odoo Users and User Groups; DTF system-role protection and last-active-Administrator protection
+- native Arabic i18n/ar.po files and native Odoo RTL behavior
+- English Admin LTR / Arabic Admin RTL with local Arabic-content RTL and English-content LTR separation
+- responsive browser verification at desktop 1440x900, tablet 1024x768 and mobile 390x844 with no tested horizontal overflow
+
+M8 BOUNDARY:
+- M9 frontend cutover remains NOT STARTED.
+- M10 production deployment/domain/TLS remains NOT STARTED.
+- M11 production acceptance remains NOT STARTED.
+- No merge to main.
+- No deployment performed.
+- Protected dtf-studio-v48-safe-frontend remains untouched.
+
+NEXT UNFINISHED MIGRATION MILESTONE:
+M9 — Frontend cutover. Do not start unless separately authorized after M8 closure.
