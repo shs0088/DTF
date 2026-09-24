@@ -99,3 +99,30 @@ msgstr "الإعدادات"
 
 msgid "DTF Settings"
 msgstr "إعدادات DTF"
+
+msgid "Reject"
+msgstr "رفض"
+
+msgid "Reject Qualification"
+msgstr "رفض التأهيل"
+
+msgid "Reject Design"
+msgstr "رفض التصميم"
+
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+msgid "Confirm Rejection"
+msgstr "تأكيد الرفض"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Admin Rejection"
+msgstr "رفض الإدارة"
+
+msgid "Rejected By"
+msgstr "تم الرفض بواسطة"
+
+msgid "Rejected At"
+msgstr "وقت الرفض"

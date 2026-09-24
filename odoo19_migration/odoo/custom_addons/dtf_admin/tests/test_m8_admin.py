@@ -59,3 +59,66 @@ class TestDTFM8Admin(TransactionCase):
 
         self.assertNotIn(operator, finance_root.group_ids)
         self.assertNotIn(operator, settings.group_ids)
+
+    def test_native_rejection_wizards_delegate_to_existing_business_rules(self):
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Wizard Admin",
+            "login": "m8-wizard-admin@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+
+        partner = self.env["res.partner"].create({"name": "M8 Wizard Designer"})
+        profile = self.env["dtf.designer.profile"].create({"partner_id": partner.id})
+        profile.action_mark_system_qualified()
+
+        qualification_wizard = self.env[
+            "dtf.admin.qualification.reject.wizard"
+        ].with_user(admin_user).create({
+            "profile_id": profile.id,
+            "reason": "Qualification artwork needs replacement.",
+        })
+        qualification_wizard.action_confirm()
+
+        profile.invalidate_recordset()
+        self.assertEqual(profile.qualification_state, "replacement_required")
+        self.assertEqual(profile.rejection_count, 1)
+        self.assertEqual(
+            profile.last_rejection_reason,
+            "Qualification artwork needs replacement.",
+        )
+
+        design = self.env["dtf.design"].create({
+            "designer_id": profile.id,
+            "title_en": "M8 Review Design",
+            "title_ar": "تصميم مراجعة M8",
+            "description_en": "Review",
+            "description_ar": "مراجعة",
+            "product_type": "tshirt",
+        })
+        design_wizard = self.env["dtf.admin.design.reject.wizard"].with_user(
+            admin_user
+        ).create({
+            "design_id": design.id,
+            "reason": "Please correct the artwork before publishing.",
+        })
+        design_wizard.action_confirm()
+
+        design.invalidate_recordset()
+        self.assertEqual(design.state, "rejected")
+        self.assertEqual(
+            design.admin_rejection_reason,
+            "Please correct the artwork before publishing.",
+        )
+        self.assertEqual(design.admin_rejected_by_id, admin_user)
+
+    def test_reject_buttons_use_native_odoo_object_actions(self):
+        designer_arch = self.env.ref("dtf_admin.view_dtf_admin_designer_form").arch_db
+        design_arch = self.env.ref("dtf_admin.view_dtf_admin_design_form").arch_db
+
+        self.assertIn('name="action_open_qualification_reject_wizard"', designer_arch)
+        self.assertIn('type="object"', designer_arch)
+        self.assertIn('name="action_open_admin_reject_wizard"', design_arch)
+        self.assertIn('type="object"', design_arch)
+        self.assertIn("<chatter", designer_arch)
+        self.assertIn("<chatter", design_arch)

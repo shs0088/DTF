@@ -32,6 +32,11 @@
                             string="Authorize"
                             class="btn-primary"
                             invisible="qualification_state == 'authorized'"/>
+                    <button name="action_open_qualification_reject_wizard"
+                            type="object"
+                            string="Reject"
+                            groups="dtf_core.group_dtf_admin"
+                            invisible="qualification_state not in ('system_qualified', 'under_review')"/>
                     <field name="qualification_state"
                            widget="statusbar"
                            statusbar_visible="draft,system_qualified,under_review,replacement_required,escalated,authorized,rejected"
@@ -57,6 +62,7 @@
                         <field name="qualification_design_ids" readonly="1"/>
                     </group>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>
@@ -89,6 +95,11 @@
                             string="Publish"
                             class="btn-primary"
                             invisible="state == 'published' or is_qualification_sample"/>
+                    <button name="action_open_admin_reject_wizard"
+                            type="object"
+                            string="Reject"
+                            groups="dtf_core.group_dtf_admin"
+                            invisible="state != 'draft'"/>
                     <field name="state"
                            widget="statusbar"
                            statusbar_visible="draft,published,rejected,archived"
@@ -125,6 +136,12 @@
                         <field name="ready_to_print_master_asset_id" readonly="1"/>
                     </group>
 
+                    <group string="Admin Rejection" invisible="not admin_rejection_reason">
+                        <field name="admin_rejection_reason" readonly="1"/>
+                        <field name="admin_rejected_at" readonly="1"/>
+                        <field name="admin_rejected_by_id" readonly="1"/>
+                    </group>
+
                     <group string="Assets">
                         <field name="asset_ids" readonly="1">
                             <list create="0" edit="0" delete="0">
@@ -143,6 +160,7 @@
                         </field>
                     </group>
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>
