@@ -201,3 +201,16 @@ class TestDTFM6Production(TransactionCase):
         job = self.create_job().with_user(self.operator_user)
         self.assertEqual(job.dtf_master_filename, "m6-master.png")
         self.assertTrue(job.dtf_master_file)
+
+
+    def test_master_download_action_is_authorized_and_explicit(self):
+        job = self.create_job().with_user(self.operator_user)
+        action = job.action_dtf_download_master()
+        self.assertEqual(action["type"], "ir.actions.act_url")
+        self.assertIn("/web/content/%s" % self.attachment.id, action["url"])
+        self.assertIn("download=true", action["url"])
+
+    def test_operator_can_read_native_workorder_relation_without_broad_mrp_role(self):
+        job = self.create_job().with_user(self.operator_user)
+        self.assertEqual(job.workorder_ids, self.env["mrp.workorder"])
+        self.assertFalse(self.operator_user.has_group("mrp.group_mrp_user"))
