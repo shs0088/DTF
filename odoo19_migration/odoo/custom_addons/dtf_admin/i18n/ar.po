@@ -10,119 +10,158 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
 
+#. module: dtf_admin
 msgid "DTF Studio"
 msgstr "استوديو DTF"
 
+#. module: dtf_admin
 msgid "Dashboard"
 msgstr "لوحة التحكم"
 
+#. module: dtf_admin
 msgid "Designers"
 msgstr "المصممون"
 
+#. module: dtf_admin
 msgid "All Designers"
 msgstr "جميع المصممين"
 
+#. module: dtf_admin
 msgid "Designer Administration"
 msgstr "إدارة المصممين"
 
+#. module: dtf_admin
 msgid "Designer"
 msgstr "المصمم"
 
+#. module: dtf_admin
 msgid "Qualification"
 msgstr "التأهيل"
 
+#. module: dtf_admin
 msgid "Qualification Review"
 msgstr "مراجعة التأهيل"
 
+#. module: dtf_admin
 msgid "Qualification Designs"
 msgstr "تصاميم التأهيل"
 
+#. module: dtf_admin
 msgid "Start Admin Review"
 msgstr "بدء مراجعة الإدارة"
 
+#. module: dtf_admin
 msgid "Authorize"
 msgstr "اعتماد"
 
+#. module: dtf_admin
 msgid "Designs"
 msgstr "التصاميم"
 
+#. module: dtf_admin
 msgid "Design Review"
 msgstr "مراجعة التصميم"
 
+#. module: dtf_admin
 msgid "Bilingual Content"
 msgstr "المحتوى ثنائي اللغة"
 
+#. module: dtf_admin
 msgid "English Content"
 msgstr "المحتوى الإنجليزي"
 
+#. module: dtf_admin
 msgid "Arabic Content"
 msgstr "المحتوى العربي"
 
+#. module: dtf_admin
 msgid "Display and Production"
 msgstr "العرض والإنتاج"
 
+#. module: dtf_admin
 msgid "Assets"
 msgstr "الملفات"
 
+#. module: dtf_admin
 msgid "Publish"
 msgstr "نشر"
 
+#. module: dtf_admin
 msgid "Catalog"
 msgstr "الكتالوج"
 
+#. module: dtf_admin
 msgid "Products"
 msgstr "المنتجات"
 
+#. module: dtf_admin
 msgid "Supplier Catalog"
 msgstr "كتالوج المورد"
 
+#. module: dtf_admin
 msgid "Supplier Catalog Mappings"
 msgstr "ربط كتالوج المورد"
 
+#. module: dtf_admin
 msgid "Supplier Product ID"
 msgstr "معرف منتج المورد"
 
+#. module: dtf_admin
 msgid "Supplier Variant ID"
 msgstr "معرف متغير المورد"
 
+#. module: dtf_admin
 msgid "Orders"
 msgstr "الطلبات"
 
+#. module: dtf_admin
 msgid "Reports"
 msgstr "التقارير"
 
+#. module: dtf_admin
 msgid "System"
 msgstr "النظام"
 
+#. module: dtf_admin
 msgid "Settings"
 msgstr "الإعدادات"
 
+#. module: dtf_admin
 msgid "DTF Settings"
 msgstr "إعدادات DTF"
 
+#. module: dtf_admin
 msgid "Reject"
 msgstr "رفض"
 
+#. module: dtf_admin
 msgid "Reject Qualification"
 msgstr "رفض التأهيل"
 
+#. module: dtf_admin
 msgid "Reject Design"
 msgstr "رفض التصميم"
 
+#. module: dtf_admin
 msgid "Rejection Reason"
 msgstr "سبب الرفض"
 
+#. module: dtf_admin
 msgid "Confirm Rejection"
 msgstr "تأكيد الرفض"
 
+#. module: dtf_admin
 msgid "Cancel"
 msgstr "إلغاء"
 
+#. module: dtf_admin
 msgid "Admin Rejection"
 msgstr "رفض الإدارة"
 
+#. module: dtf_admin
 msgid "Rejected By"
 msgstr "تم الرفض بواسطة"
 
+#. module: dtf_admin
 msgid "Rejected At"
 msgstr "وقت الرفض"
