@@ -52,15 +52,16 @@ async function login(page, loginName, password, key) {
 
 async function dismissNativeChatWindows(page, actor) {
   let dismissed = 0;
-  for (let attempt = 0; attempt < 4; attempt++) {
+  for (let attempt = 0; attempt < 8; attempt++) {
     const closeButton = page.locator(
       ".o-mail-ChatWindow .o-mail-ActionList-button[name='close']:visible"
     ).first();
-    if (!(await closeButton.count())) {
-      break;
+    if (await closeButton.count()) {
+      await closeButton.click();
+      dismissed++;
+      await page.waitForTimeout(300);
+      continue;
     }
-    await closeButton.click();
-    dismissed++;
     await page.waitForTimeout(250);
   }
   if (dismissed) {
@@ -152,6 +153,7 @@ async function inspectEnglish(browser) {
   } catch {
     report.checks.english_dashboard_ready = false;
   }
+  await dismissNativeChatWindows(page, "english");
   report.checks.english_dashboard_kpis =
     (await page.locator(".o_dtf_admin_dashboard .dtf-kpi-card").count()) >= 7;
   report.metrics.english_direction = await direction(page);
@@ -211,6 +213,7 @@ async function inspectArabic(browser) {
   } catch {
     report.checks.arabic_dashboard_ready = false;
   }
+  await dismissNativeChatWindows(page, "arabic");
   report.checks.arabic_dashboard_kpis =
     (await page.locator(".o_dtf_admin_dashboard .dtf-kpi-card").count()) >= 7;
   report.checks.arabic_dashboard_title =
@@ -282,6 +285,7 @@ async function inspectResponsive(browser, {
   } catch {
     report.checks[`${key}_dashboard_ready`] = false;
   }
+  await dismissNativeChatWindows(page, key);
   report.checks[`${key}_dashboard_kpis`] =
     (await page.locator(".o_dtf_admin_dashboard .dtf-kpi-card").count()) >= 7;
   report.metrics[`${key}_direction`] = await direction(page);
@@ -302,11 +306,11 @@ async function inspectResponsive(browser, {
     "dtf_admin.action_dtf_admin_design_review",
     key
   );
-  await dismissNativeChatWindows(page, key);
+  await dismissNativeChatWindows(page, "english");
   const row = page.locator(".o_data_row").first();
   if (await row.count()) {
     await row.scrollIntoViewIfNeeded();
-    await dismissNativeChatWindows(page, key);
+    await dismissNativeChatWindows(page, "english");
     await row.click();
     await page.waitForTimeout(1200);
     report.checks[`${key}_design_form`] =
