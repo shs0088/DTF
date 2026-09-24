@@ -26,6 +26,10 @@ msgstr "لوحة التحكم"
 #: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_designers
 #: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_designers_root
 #: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designer_list
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_report_designers
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_report_designers
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designers_report_pivot
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_designers_report_graph
 msgid "Designers"
 msgstr "المصممون"
 
@@ -133,6 +137,10 @@ msgstr "الكتالوج"
 #. module: dtf_admin
 #: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_products
 #: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_products
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_report_products
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_report_products
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_products_report_pivot
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_products_report_graph
 msgid "Products"
 msgstr "المنتجات"
 
@@ -459,11 +467,14 @@ msgstr "الفئات"
 #. module: dtf_admin
 #: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_report_stock_moves
 #: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_report_stock_moves
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_stock_move_report_pivot
 msgid "Stock Movements"
 msgstr "حركات المخزون"
 
 #. module: dtf_admin
 #: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_report_payouts
 #: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_report_payouts
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_payouts_report_pivot
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_payouts_report_graph
 msgid "Payouts"
 msgstr "السحوبات"
