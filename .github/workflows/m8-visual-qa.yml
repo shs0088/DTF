@@ -1,0 +1,143 @@
+name: M8 visual QA
+
+on:
+  push:
+    branches:
+      - 'odoo19/headless-backend-migration-prep'
+    paths:
+      - 'odoo19_migration/odoo/custom_addons/dtf_admin/**'
+      - 'odoo19_migration/odoo/custom_addons/dtf_backend_theme/**'
+      - 'odoo19_migration/visual_qa/seed_m8_visual.py'
+      - 'odoo19_migration/visual_qa/run_m8_visual_qa.cjs'
+      - '.github/workflows/m8-visual-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  m8-visual-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      M8_SOURCE_HEAD: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create ephemeral QA credentials
+        shell: bash
+        run: |
+          ADMIN_PASS="$(openssl rand -hex 18)"
+          ARABIC_PASS="$(openssl rand -hex 18)"
+          echo "::add-mask::$ADMIN_PASS"
+          echo "::add-mask::$ARABIC_PASS"
+          echo "M8_VISUAL_ADMIN_PASSWORD=$ADMIN_PASS" >> "$GITHUB_ENV"
+          echo "M8_VISUAL_ARABIC_PASSWORD=$ARABIC_PASS" >> "$GITHUB_ENV"
+
+      - name: Start PostgreSQL
+        shell: bash
+        run: |
+          cp odoo19_migration/deployment/.env.example odoo19_migration/deployment/.env
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d db
+          for i in {1..30}; do
+            if docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T db pg_isready -U odoo -d odoo; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs db
+          exit 1
+
+      - name: Install DTF Studio addons in M8 visual database
+        shell: bash
+        run: |
+          MODULES='dtf_core,dtf_designer,dtf_design,dtf_preflight,dtf_customizer,dtf_sale,dtf_production,dtf_finance,dtf_printify,dtf_notifications,dtf_admin,dtf_backend_theme,dtf_api'
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo             odoo -d odoo_m8_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons             --without-demo=all --stop-after-init -i "$MODULES"
+
+      - name: Activate native Arabic language
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo             odoo shell -d odoo_m8_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons             --no-http <<'PY'
+          arabic = env["res.lang"].sudo().search([("iso_code", "=", "ar")], limit=1)
+          assert arabic, "Arabic language record missing"
+          arabic.active = True
+          env.cr.commit()
+          print("M8_NATIVE_ARABIC_ACTIVE", arabic.code)
+          PY
+
+      - name: Reload M8 modules for enabled Arabic translations
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo             odoo -d odoo_m8_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons             --without-demo=all --stop-after-init -u dtf_admin,dtf_backend_theme
+
+      - name: Start persistent Odoo runtime
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d odoo
+          for i in {1..30}; do
+            if docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T odoo sh -c 'test -w /var/lib/odoo'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+
+      - name: Seed M8 native Admin visual QA data
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T             -e M8_VISUAL_ADMIN_PASSWORD="$M8_VISUAL_ADMIN_PASSWORD"             -e M8_VISUAL_ARABIC_PASSWORD="$M8_VISUAL_ARABIC_PASSWORD"             odoo odoo shell -d odoo_m8_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons             --no-http < odoo19_migration/visual_qa/seed_m8_visual.py
+
+      - name: Restart Odoo and start Nginx
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml restart odoo
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d nginx
+          for i in {1..40}; do
+            if curl -fsS --max-time 10 'http://127.0.0.1/web/login?db=odoo_m8_visual' >/dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx
+          exit 1
+
+      - name: Install Chromium browser automation
+        shell: bash
+        run: |
+          mkdir -p /tmp/m8-visual-qa
+          cd /tmp/m8-visual-qa
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run M8 English and Arabic browser inspection
+        shell: bash
+        run: |
+          export NODE_PATH=/tmp/m8-visual-qa/node_modules
+          export BASE_URL=http://127.0.0.1
+          export ODOO_DB=odoo_m8_visual
+          export ADMIN_LOGIN=m8-visual-admin@example.test
+          export ADMIN_PASSWORD="$M8_VISUAL_ADMIN_PASSWORD"
+          export ARABIC_LOGIN=m8-visual-arabic@example.test
+          export ARABIC_PASSWORD="$M8_VISUAL_ARABIC_PASSWORD"
+          node odoo19_migration/visual_qa/run_m8_visual_qa.cjs
+
+      - name: Capture runtime logs
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p odoo19_migration/visual_qa/m8-output
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx             > odoo19_migration/visual_qa/m8-output/runtime.log || true
+
+      - name: Upload M8 visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m8-visual-evidence
+          path: odoo19_migration/visual_qa/m8-output/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml down -v --remove-orphans
