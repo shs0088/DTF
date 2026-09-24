@@ -1,5 +1,4 @@
 from odoo import api, fields, models
-from odoo.exceptions import ValidationError
 
 
 PRODUCT_TYPES = [
@@ -31,6 +30,17 @@ class ProductTemplate(models.Model):
     dtf_printify_source_id = fields.Char(index=True, copy=False)
 
     @api.model
+    def _dtf_translated_text(self, record, field_name, lang_code):
+        """Read a translated native Odoo field only when that language is active."""
+        lang = self.env["res.lang"].sudo().search(
+            [("code", "=", lang_code), ("active", "=", True)],
+            limit=1,
+        )
+        if not lang:
+            return ""
+        return record.with_context(lang=lang.code)[field_name] or ""
+
+    @api.model
     def dtf_public_payload(self, products):
         return [{
             "id": p.id,
@@ -53,13 +63,20 @@ class ProductTemplate(models.Model):
             "catalog_type": p.dtf_catalog_type,
             "print_your_dream_eligible": p.dtf_print_your_dream_eligible,
             "image_1920": bool(p.image_1920),
-            "variants": [{"id": v.id, "name": v.display_name, "price_extra": v.price_extra, "active": v.active, "stock_available": v.qty_available} for v in p.product_variant_ids],
+            "variants": [{
+                "id": v.id,
+                "name": v.display_name,
+                "price_extra": v.price_extra,
+                "active": v.active,
+                "stock_available": v.qty_available,
+            } for v in p.product_variant_ids],
         } for p in products]
 
 
 class DTFProductPrintableArea(models.Model):
     _name = "dtf.product.printable.area"
     _description = "DTF Product Printable Area"
+
     product_tmpl_id = fields.Many2one("product.template", required=True, ondelete="cascade", index=True)
     name = fields.Char(required=True)
     width_cm = fields.Float(required=True)
