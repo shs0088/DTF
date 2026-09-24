@@ -635,3 +635,16 @@ M8 BOUNDARY:
 
 NEXT UNFINISHED MIGRATION MILESTONE:
 M9 — Frontend cutover. Do not start unless separately authorized after M8 closure.
+
+============================================================
+ODOO 19 M8 CLOSED — NEXT MILESTONE NOT STARTED — 2026-09-24
+============================================================
+M8 Admin + bilingual: COMPLETE + CI VERIFIED + VISUAL QA VERIFIED.
+CODE HEAD: 7054bfa6bb03d434d0b20e209c9a168f9e72ca3a
+CI: 36058203854 — SUCCESS.
+VISUAL QA: 36058203840 — SUCCESS.
+
+NEXT ODOO MIGRATION MILESTONE:
+M9 — Frontend cutover: NOT STARTED.
+Do not begin M9, deploy, merge, or alter the preserved V48 project without separate authorization.
+

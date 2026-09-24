@@ -443,3 +443,28 @@ IMPLEMENTATION EVIDENCE:
 - M8 native Admin tests are executed by the successful full migration workflow.
 - M8 browser evidence includes English/Arabic desktop plus tablet/mobile Dashboard and design-review screenshots.
 - M3 catalog/Printify, M6 production/operator and M7 finance remained green under the final M8 implementation.
+
+============================================================
+ODOO 19 M8 ADMIN + BILINGUAL VERIFIED — 2026-09-24
+============================================================
+BRANCH: odoo19/headless-backend-migration-prep
+CODE-VERIFIED HEAD: 7054bfa6bb03d434d0b20e209c9a168f9e72ca3a
+FULL CI RUN: 36058203854 — SUCCESS.
+M8 VISUAL QA RUN: 36058203840 — SUCCESS.
+VERIFIED:
+- native Odoo Admin shell and database-backed operational Dashboard
+- native Arabic ar_001 / i18n PO / RTL asset behavior
+- English LTR + Arabic RTL + local bilingual field direction separation
+- Designer/qualification/design review workflows
+- native activities/chatter notifications
+- Orders, Production, Products, Categories, Customers, Promotions, Finance
+- Reports: sales/orders, products, designers, production, earnings, payouts, inventory, stock movements
+- Settings, Integrations, History, Notifications & Activities
+- native Users/User Groups via res.users/res.groups and Access Rights
+- protected DTF system roles and last active DTF Administrator safeguard
+- desktop/tablet/mobile browser QA
+- M1–M7 regression chain preserved
+OLD V48 PROJECT: UNTOUCHED.
+DEPLOYMENT: NO.
+M9: NOT STARTED.
+

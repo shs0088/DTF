@@ -386,3 +386,15 @@ STILL NOT IMPLEMENTED / NOT AUTHORIZED AS PART OF M8:
 3. M11 final production acceptance.
 4. Merge to main.
 5. Any replacement/modification of protected dtf-studio-v48-safe-frontend deployment.
+
+============================================================
+ODOO 19 MIGRATION — REMAINING AFTER M8 — 2026-09-24
+============================================================
+M8 Admin + bilingual is COMPLETE + CI VERIFIED + VISUAL QA VERIFIED.
+The following are NOT implemented by M8:
+1. M9 — preserved frontend cutover to the Odoo compatibility API.
+2. M10 — Oracle/VPS production deployment, domain/TLS, scheduled backup/restore and monitoring.
+3. M11 — final acceptance across deployed end-to-end customer/designer/admin/operator flows.
+4. Production merge/cutover authorization.
+The old dtf-studio-v48-safe-frontend project remains untouched.
+

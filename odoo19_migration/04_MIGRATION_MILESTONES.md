@@ -89,9 +89,9 @@ No production-ready claim until module installs/tests, API contracts, core busin
 - broader API security/concurrency coverage
 - deployed-database migration handling for any obsolete reservation schema
 
-## M7 closure boundary
+## M8 closure boundary
 
-M7 includes designer finance/withdrawals and is complete + CI verified. It does not include the final Admin theme/bilingual M8 work, Fabric.js, frontend cutover, Oracle deployment, or merge.
+M8 includes the native Odoo Admin/bilingual layer and is complete + CI + visual-QA verified. It does not include M9 frontend cutover, M10 Oracle/VPS deployment, M11 acceptance, or merge.
 
 No deployment or merge has been performed.
 
