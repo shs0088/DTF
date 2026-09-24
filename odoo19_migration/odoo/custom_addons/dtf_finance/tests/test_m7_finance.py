@@ -2,15 +2,28 @@ import base64
 
 from odoo import fields
 from odoo.exceptions import AccessError, ValidationError
-from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.sale.tests.common import TestSaleCommon
 
 
 class TestDTFM7Finance(TestSaleCommon):
     @classmethod
-    @AccountTestInvoicingCommon.setup_chart_template("generic_coa")
     def setUpClass(cls):
         super().setUpClass()
+
+        cls.env["account.chart.template"].try_loading(
+            "generic_coa",
+            company=cls.env.company,
+            install_demo=False,
+        )
+        cls.company_data = cls.collect_company_accounting_data(cls.env.company)
+        cls.product_category.with_company(cls.env.company).write({
+            "property_account_income_categ_id": cls.company_data[
+                "default_account_revenue"
+            ].id,
+            "property_account_expense_categ_id": cls.company_data[
+                "default_account_expense"
+            ].id,
+        })
         cls.designer_group = cls.env.ref("dtf_core.group_dtf_designer")
         cls.operator_group = cls.env.ref("dtf_core.group_dtf_printing_operator")
         cls.admin_group = cls.env.ref("dtf_core.group_dtf_admin")
