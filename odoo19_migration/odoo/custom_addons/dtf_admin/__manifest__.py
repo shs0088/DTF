@@ -1,6 +1,6 @@
 {
     "name": "DTF Studio Admin",
-    "version": "19.0.3.0.0",
+    "version": "19.0.4.0.0",
     "summary": "Native Odoo administration shell and review workflows for DTF Studio",
     "category": "DTF Studio",
     "license": "LGPL-3",
@@ -21,6 +21,7 @@
         "security/ir.model.access.csv",
         "views/admin_wizards.xml",
         "views/admin_views.xml",
+        "views/admin_operations_views.xml",
     ],
     "installable": True,
     "application": True,

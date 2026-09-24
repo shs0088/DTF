@@ -221,3 +221,67 @@ msgstr "تأكيد الرفض"
 #: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_design_reject_wizard
 msgid "Cancel"
 msgstr "إلغاء"
+
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_history
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_history
+msgid "History"
+msgstr "السجل"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_activities
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_activities
+msgid "Notifications & Activities"
+msgstr "الإشعارات والأنشطة"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_integrations
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_integrations
+msgid "Integrations"
+msgstr "التكاملات"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_integration_mapping_list
+msgid "Integration Status"
+msgstr "حالة التكامل"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_report_sales
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_report_sales
+msgid "Sales / Orders"
+msgstr "المبيعات / الطلبات"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_report_production
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_report_production
+msgid "Production"
+msgstr "الإنتاج"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_report_earnings
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_report_earnings
+msgid "Designer Earnings"
+msgstr "أرباح المصممين"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_report_inventory
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_report_inventory
+msgid "Inventory"
+msgstr "المخزون"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_history_list
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_history_search
+msgid "DTF History"
+msgstr "سجل DTF"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_history_form
+msgid "DTF History Entry"
+msgstr "إدخال سجل DTF"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_history_form
+msgid "Content"
+msgstr "المحتوى"

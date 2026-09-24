@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dtf_admin_history_list" model="ir.ui.view">
+        <field name="name">dtf.admin.history.list</field>
+        <field name="model">mail.message</field>
+        <field name="arch" type="xml">
+            <list string="DTF History" create="0" edit="0" delete="0" default_order="date desc">
+                <field name="date"/>
+                <field name="author_id"/>
+                <field name="subject"/>
+                <field name="model"/>
+                <field name="res_id"/>
+                <field name="message_type"/>
+                <field name="subtype_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_history_form" model="ir.ui.view">
+        <field name="name">dtf.admin.history.form</field>
+        <field name="model">mail.message</field>
+        <field name="arch" type="xml">
+            <form string="DTF History Entry" create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="date" readonly="1"/>
+                            <field name="author_id" readonly="1"/>
+                            <field name="subject" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="model" readonly="1"/>
+                            <field name="res_id" readonly="1"/>
+                            <field name="message_type" readonly="1"/>
+                            <field name="subtype_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Content">
+                        <field name="body" widget="html_mail" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_history_search" model="ir.ui.view">
+        <field name="name">dtf.admin.history.search</field>
+        <field name="model">mail.message</field>
+        <field name="arch" type="xml">
+            <search string="DTF History">
+                <field name="subject"/>
+                <field name="author_id"/>
+                <field name="model"/>
+                <field name="date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Model" name="group_model" context="{'group_by': 'model'}"/>
+                    <filter string="Author" name="group_author" context="{'group_by': 'author_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_integration_mapping_list" model="ir.ui.view">
+        <field name="name">dtf.admin.integration.mapping.list</field>
+        <field name="model">dtf.printify.mapping</field>
+        <field name="arch" type="xml">
+            <list string="Integration Status" create="0" edit="0" delete="0">
+                <field name="shop_id"/>
+                <field name="product_tmpl_id"/>
+                <field name="product_id"/>
+                <field name="last_sync_state"/>
+                <field name="last_sync_at"/>
+                <field name="last_sync_error" optional="show"/>
+                <field name="source_snapshot_version" optional="show"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_sales_report_pivot" model="ir.ui.view">
+        <field name="name">dtf.admin.sales.report.pivot</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <pivot string="Sales / Orders">
+                <field name="partner_id" type="row"/>
+                <field name="date_order" type="col" interval="month"/>
+                <field name="amount_total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_sales_report_graph" model="ir.ui.view">
+        <field name="name">dtf.admin.sales.report.graph</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <graph string="Sales / Orders" type="bar">
+                <field name="date_order" interval="month"/>
+                <field name="amount_total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_production_report_pivot" model="ir.ui.view">
+        <field name="name">dtf.admin.production.report.pivot</field>
+        <field name="model">mrp.production</field>
+        <field name="arch" type="xml">
+            <pivot string="Production">
+                <field name="dtf_operator_stage" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="product_qty" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_production_report_graph" model="ir.ui.view">
+        <field name="name">dtf.admin.production.report.graph</field>
+        <field name="model">mrp.production</field>
+        <field name="arch" type="xml">
+            <graph string="Production" type="bar">
+                <field name="dtf_operator_stage"/>
+                <field name="product_qty" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_earnings_report_pivot" model="ir.ui.view">
+        <field name="name">dtf.admin.earnings.report.pivot</field>
+        <field name="model">dtf.designer.earning</field>
+        <field name="arch" type="xml">
+            <pivot string="Designer Earnings">
+                <field name="designer_id" type="row"/>
+                <field name="create_date" type="col" interval="month"/>
+                <field name="amount" type="measure"/>
+                <field name="quantity" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_earnings_report_graph" model="ir.ui.view">
+        <field name="name">dtf.admin.earnings.report.graph</field>
+        <field name="model">dtf.designer.earning</field>
+        <field name="arch" type="xml">
+            <graph string="Designer Earnings" type="bar">
+                <field name="designer_id"/>
+                <field name="amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_dtf_admin_inventory_report_pivot" model="ir.ui.view">
+        <field name="name">dtf.admin.inventory.report.pivot</field>
+        <field name="model">stock.quant</field>
+        <field name="arch" type="xml">
+            <pivot string="Inventory">
+                <field name="location_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="quantity" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_dtf_admin_history" model="ir.actions.act_window">
+        <field name="name">History</field>
+        <field name="res_model">mail.message</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('model', 'in', ['dtf.designer.profile', 'dtf.design', 'dtf.designer.withdrawal', 'mrp.production', 'sale.order'])]</field>
+        <field name="search_view_id" ref="view_dtf_admin_history_search"/>
+        <field name="views" eval="[(ref('view_dtf_admin_history_list'), 'list'), (ref('view_dtf_admin_history_form'), 'form')]"/>
+    </record>
+
+    <record id="action_dtf_admin_activities" model="ir.actions.act_window">
+        <field name="name">Notifications &amp; Activities</field>
+        <field name="res_model">mail.activity</field>
+        <field name="view_mode">list,kanban,calendar,form</field>
+        <field name="domain">[('res_model', 'in', ['dtf.designer.profile', 'dtf.design', 'dtf.designer.withdrawal', 'mrp.production', 'sale.order'])]</field>
+        <field name="search_view_id" ref="mail.mail_activity_view_search"/>
+        <field name="context">{'force_search_count': 1}</field>
+        <field name="views" eval="[
+            (ref('mail.mail_activity_view_tree_open_target'), 'list'),
+            (ref('mail.mail_activity_view_kanban_open_target'), 'kanban'),
+            (ref('mail.mail_activity_view_calendar'), 'calendar'),
+            (ref('mail.mail_activity_view_form'), 'form')
+        ]"/>
+    </record>
+
+    <record id="action_dtf_admin_integrations" model="ir.actions.act_window">
+        <field name="name">Integrations</field>
+        <field name="res_model">dtf.printify.mapping</field>
+        <field name="view_mode">list</field>
+        <field name="views" eval="[(ref('view_dtf_admin_integration_mapping_list'), 'list')]"/>
+    </record>
+
+    <record id="action_dtf_admin_report_sales" model="ir.actions.act_window">
+        <field name="name">Sales / Orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">pivot,graph,list,form</field>
+        <field name="domain">[('order_line.dtf_design_id', '!=', False)]</field>
+        <field name="views" eval="[
+            (ref('view_dtf_admin_sales_report_pivot'), 'pivot'),
+            (ref('view_dtf_admin_sales_report_graph'), 'graph'),
+            (False, 'list'),
+            (False, 'form')
+        ]"/>
+    </record>
+
+    <record id="action_dtf_admin_report_production" model="ir.actions.act_window">
+        <field name="name">Production</field>
+        <field name="res_model">mrp.production</field>
+        <field name="view_mode">pivot,graph,list,form</field>
+        <field name="domain">[('dtf_is_print_job', '=', True)]</field>
+        <field name="views" eval="[
+            (ref('view_dtf_admin_production_report_pivot'), 'pivot'),
+            (ref('view_dtf_admin_production_report_graph'), 'graph'),
+            (False, 'list'),
+            (False, 'form')
+        ]"/>
+    </record>
+
+    <record id="action_dtf_admin_report_earnings" model="ir.actions.act_window">
+        <field name="name">Designer Earnings</field>
+        <field name="res_model">dtf.designer.earning</field>
+        <field name="view_mode">pivot,graph,list,form</field>
+        <field name="views" eval="[
+            (ref('view_dtf_admin_earnings_report_pivot'), 'pivot'),
+            (ref('view_dtf_admin_earnings_report_graph'), 'graph'),
+            (False, 'list'),
+            (False, 'form')
+        ]"/>
+    </record>
+
+    <record id="action_dtf_admin_report_inventory" model="ir.actions.act_window">
+        <field name="name">Inventory</field>
+        <field name="res_model">stock.quant</field>
+        <field name="view_mode">pivot,list</field>
+        <field name="views" eval="[(ref('view_dtf_admin_inventory_report_pivot'), 'pivot'), (False, 'list')]"/>
+    </record>
+
+    <record id="menu_dtf_admin_reports" model="ir.ui.menu">
+        <field name="action" eval="False"/>
+    </record>
+
+    <menuitem id="menu_dtf_admin_report_sales"
+              name="Sales / Orders"
+              parent="menu_dtf_admin_reports"
+              action="action_dtf_admin_report_sales"
+              sequence="10"
+              groups="dtf_core.group_dtf_admin"/>
+
+    <menuitem id="menu_dtf_admin_report_production"
+              name="Production"
+              parent="menu_dtf_admin_reports"
+              action="action_dtf_admin_report_production"
+              sequence="20"
+              groups="dtf_core.group_dtf_admin"/>
+
+    <menuitem id="menu_dtf_admin_report_earnings"
+              name="Designer Earnings"
+              parent="menu_dtf_admin_reports"
+              action="action_dtf_admin_report_earnings"
+              sequence="30"
+              groups="dtf_core.group_dtf_admin"/>
+
+    <menuitem id="menu_dtf_admin_report_inventory"
+              name="Inventory"
+              parent="menu_dtf_admin_reports"
+              action="action_dtf_admin_report_inventory"
+              sequence="40"
+              groups="dtf_core.group_dtf_admin"/>
+
+    <menuitem id="menu_dtf_admin_activities"
+              name="Notifications &amp; Activities"
+              parent="menu_dtf_admin_system_root"
+              action="action_dtf_admin_activities"
+              sequence="20"
+              groups="dtf_core.group_dtf_admin"/>
+
+    <menuitem id="menu_dtf_admin_history"
+              name="History"
+              parent="menu_dtf_admin_system_root"
+              action="action_dtf_admin_history"
+              sequence="30"
+              groups="dtf_core.group_dtf_admin"/>
+
+    <menuitem id="menu_dtf_admin_integrations"
+              name="Integrations"
+              parent="menu_dtf_admin_system_root"
+              action="action_dtf_admin_integrations"
+              sequence="40"
+              groups="dtf_core.group_dtf_admin"/>
+</odoo>

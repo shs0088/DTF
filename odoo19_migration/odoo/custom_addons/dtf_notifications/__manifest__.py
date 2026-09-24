@@ -1,13 +1,16 @@
 {
-    "name": "DTF Studio dtf_notifications",
-    "version": "19.0.1.0.0",
-    "summary": "M1 portable foundation skeleton",
+    "name": "DTF Studio Notifications",
+    "version": "19.0.2.0.0",
+    "summary": "Native Odoo activity and notification definitions for DTF Studio",
+    "category": "DTF Studio",
     "license": "LGPL-3",
     "depends": [
         "dtf_core",
         "mail"
     ],
-    "data": [],
+    "data": [
+        "data/activity_types.xml"
+    ],
     "installable": True,
     "application": False
 }

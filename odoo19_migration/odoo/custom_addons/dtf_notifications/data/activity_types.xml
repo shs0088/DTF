@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_activity_type_dtf_admin_review" model="mail.activity.type">
+        <field name="name">DTF Admin Review</field>
+        <field name="summary">Review DTF Studio item</field>
+        <field name="icon">fa-check-square-o</field>
+        <field name="decoration_type">warning</field>
+        <field name="category">default</field>
+    </record>
+</odoo>

@@ -1,0 +1,19 @@
+# Translation of Odoo Server.
+# * dtf_notifications
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. module: dtf_notifications
+#: model:mail.activity.type,name:dtf_notifications.mail_activity_type_dtf_admin_review
+msgid "DTF Admin Review"
+msgstr "مراجعة إدارة DTF"
+
+#. module: dtf_notifications
+#: model:mail.activity.type,summary:dtf_notifications.mail_activity_type_dtf_admin_review
+msgid "Review DTF Studio item"
+msgstr "مراجعة عنصر في استوديو DTF"

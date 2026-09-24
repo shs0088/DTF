@@ -30,6 +30,13 @@ class TestDTFM8Admin(TransactionCase):
             "dtf_admin.action_dtf_admin_reports": "sale.order",
             "dtf_admin.action_dtf_admin_supplier_mappings": "dtf.printify.mapping",
             "dtf_admin.action_dtf_admin_settings": "res.config.settings",
+            "dtf_admin.action_dtf_admin_history": "mail.message",
+            "dtf_admin.action_dtf_admin_activities": "mail.activity",
+            "dtf_admin.action_dtf_admin_integrations": "dtf.printify.mapping",
+            "dtf_admin.action_dtf_admin_report_sales": "sale.order",
+            "dtf_admin.action_dtf_admin_report_production": "mrp.production",
+            "dtf_admin.action_dtf_admin_report_earnings": "dtf.designer.earning",
+            "dtf_admin.action_dtf_admin_report_inventory": "stock.quant",
         }
         for xmlid, model_name in expected.items():
             action = self.env.ref(xmlid)
@@ -83,6 +90,40 @@ class TestDTFM8Admin(TransactionCase):
         self.env["product.template"].with_user(admin_user).check_access("write")
         self.env["stock.quant"].with_user(admin_user).check_access("read")
         self.env["res.config.settings"].with_user(admin_user).check_access("read")
+
+    def test_native_history_is_read_only_and_scoped_to_dtf_models(self):
+        history = self.env.ref("dtf_admin.view_dtf_admin_history_list").arch_db
+        action = self.env.ref("dtf_admin.action_dtf_admin_history")
+
+        self.assertIn('create="0"', history)
+        self.assertIn('edit="0"', history)
+        self.assertIn('delete="0"', history)
+        self.assertIn("dtf.designer.profile", action.domain)
+        self.assertIn("dtf.design", action.domain)
+        self.assertIn("dtf.designer.withdrawal", action.domain)
+        self.assertIn("mrp.production", action.domain)
+        self.assertIn("sale.order", action.domain)
+
+    def test_notifications_use_native_mail_activity_and_generic_dtf_review_type(self):
+        action = self.env.ref("dtf_admin.action_dtf_admin_activities")
+        activity_type = self.env.ref(
+            "dtf_notifications.mail_activity_type_dtf_admin_review"
+        )
+
+        self.assertEqual(action.res_model, "mail.activity")
+        self.assertFalse(activity_type.res_model)
+        self.assertEqual(activity_type.category, "default")
+
+    def test_reports_and_integrations_reuse_native_authority_models(self):
+        expected = {
+            "dtf_admin.action_dtf_admin_report_sales": "sale.order",
+            "dtf_admin.action_dtf_admin_report_production": "mrp.production",
+            "dtf_admin.action_dtf_admin_report_earnings": "dtf.designer.earning",
+            "dtf_admin.action_dtf_admin_report_inventory": "stock.quant",
+            "dtf_admin.action_dtf_admin_integrations": "dtf.printify.mapping",
+        }
+        for xmlid, model_name in expected.items():
+            self.assertEqual(self.env.ref(xmlid).res_model, model_name)
 
     def test_native_rejection_wizards_delegate_to_existing_business_rules(self):
         admin_group = self.env.ref("dtf_core.group_dtf_admin")
