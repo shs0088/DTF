@@ -1,0 +1,101 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * dtf_admin
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+
+msgid "DTF Studio"
+msgstr "استوديو DTF"
+
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "Designers"
+msgstr "المصممون"
+
+msgid "All Designers"
+msgstr "جميع المصممين"
+
+msgid "Designer Administration"
+msgstr "إدارة المصممين"
+
+msgid "Designer"
+msgstr "المصمم"
+
+msgid "Qualification"
+msgstr "التأهيل"
+
+msgid "Qualification Review"
+msgstr "مراجعة التأهيل"
+
+msgid "Qualification Designs"
+msgstr "تصاميم التأهيل"
+
+msgid "Start Admin Review"
+msgstr "بدء مراجعة الإدارة"
+
+msgid "Authorize"
+msgstr "اعتماد"
+
+msgid "Designs"
+msgstr "التصاميم"
+
+msgid "Design Review"
+msgstr "مراجعة التصميم"
+
+msgid "Bilingual Content"
+msgstr "المحتوى ثنائي اللغة"
+
+msgid "English Content"
+msgstr "المحتوى الإنجليزي"
+
+msgid "Arabic Content"
+msgstr "المحتوى العربي"
+
+msgid "Display and Production"
+msgstr "العرض والإنتاج"
+
+msgid "Assets"
+msgstr "الملفات"
+
+msgid "Publish"
+msgstr "نشر"
+
+msgid "Catalog"
+msgstr "الكتالوج"
+
+msgid "Products"
+msgstr "المنتجات"
+
+msgid "Supplier Catalog"
+msgstr "كتالوج المورد"
+
+msgid "Supplier Catalog Mappings"
+msgstr "ربط كتالوج المورد"
+
+msgid "Supplier Product ID"
+msgstr "معرف منتج المورد"
+
+msgid "Supplier Variant ID"
+msgstr "معرف متغير المورد"
+
+msgid "Orders"
+msgstr "الطلبات"
+
+msgid "Reports"
+msgstr "التقارير"
+
+msgid "System"
+msgstr "النظام"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "DTF Settings"
+msgstr "إعدادات DTF"

@@ -1,0 +1,69 @@
+// DTF Studio native Odoo backend theme.
+// Layout direction is intentionally not overridden here:
+// Odoo's active user language remains authoritative for LTR/RTL.
+
+.o_web_client {
+    --dtf-admin-bg: #05080d;
+    --dtf-admin-surface: #0b111a;
+    --dtf-admin-surface-2: #111a26;
+    --dtf-admin-border: #243449;
+    --dtf-admin-text: #eaf4ff;
+    --dtf-admin-muted: #9db0c5;
+    --dtf-admin-accent: #00a8ff;
+
+    background: var(--dtf-admin-bg);
+    color: var(--dtf-admin-text);
+
+    .o_main_navbar {
+        background: var(--dtf-admin-bg);
+        border-bottom: 1px solid var(--dtf-admin-border);
+    }
+
+    .o_action_manager,
+    .o_content,
+    .o_view_controller {
+        background: var(--dtf-admin-bg);
+    }
+
+    .o_control_panel,
+    .o_form_view .o_form_sheet_bg,
+    .o_list_view,
+    .o_kanban_renderer {
+        background: var(--dtf-admin-surface);
+        color: var(--dtf-admin-text);
+    }
+
+    .o_form_view .o_form_sheet {
+        background: var(--dtf-admin-surface-2);
+        border: 1px solid var(--dtf-admin-border);
+        color: var(--dtf-admin-text);
+    }
+
+    .o_list_table thead,
+    .o_list_table tfoot {
+        background: var(--dtf-admin-surface-2);
+    }
+
+    .o_list_table,
+    .o_list_table th,
+    .o_list_table td {
+        border-color: var(--dtf-admin-border);
+    }
+
+    .btn-primary,
+    .o_form_button_save {
+        background-color: var(--dtf-admin-accent);
+        border-color: var(--dtf-admin-accent);
+    }
+
+    a,
+    .o_field_widget a,
+    .o_menu_item.active {
+        color: var(--dtf-admin-accent);
+    }
+
+    .text-muted,
+    .o_form_label.o_light_label {
+        color: var(--dtf-admin-muted) !important;
+    }
+}
