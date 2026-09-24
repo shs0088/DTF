@@ -60,7 +60,12 @@ No production-ready claim until module installs/tests, API contracts, core busin
   - Admin and Operator downloaded the same non-empty 68-byte PNG; SHA-256 `431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460`.
   - Desktop 1440x900, tablet 1024x768 and mobile 390x844 browser checks: PASS.
   - M6 actionable console/network/page errors: NONE.
-- M7 — finance: NOT STARTED.
+- M7 — finance: COMPLETE + CI VERIFIED.
+  - Designer earning snapshots, finance accounts/balances, immutable ledger, withdrawals, company defaults, per-designer overrides, administrator transitions, and native paid-invoice triggering are implemented in `dtf_finance`.
+  - Final M7 closure HEAD: `95fb9c1069bd2ac1d46821f090bb7eba15d62256`
+  - Odoo 19 migration validation run: `36014812563` — SUCCESS.
+  - The workflow explicitly runs `/dtf_finance:TestDTFM7Finance`.
+- M8 — Admin + bilingual: NOT STARTED.
 
 ## M5 operational items still deferred where applicable
 
@@ -69,8 +74,8 @@ No production-ready claim until module installs/tests, API contracts, core busin
 - broader API security/concurrency coverage
 - deployed-database migration handling for any obsolete reservation schema
 
-## M6 closure boundary
+## M7 closure boundary
 
-M6 does not include designer finance/withdrawals, final Admin theme, Fabric.js, frontend cutover, Oracle deployment, or merge.
+M7 includes designer finance/withdrawals and is complete + CI verified. It does not include the final Admin theme/bilingual M8 work, Fabric.js, frontend cutover, Oracle deployment, or merge.
 
 No deployment or merge has been performed.
