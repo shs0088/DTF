@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_dtf_production_handoff_admin,dtf.production.handoff admin,model_dtf_production_handoff,dtf_core.group_dtf_admin,1,1,1,1
-access_dtf_production_handoff_operator,dtf.production.handoff operator,model_dtf_production_handoff,dtf_core.group_dtf_printing_operator,1,0,0,0
