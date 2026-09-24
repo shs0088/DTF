@@ -58,9 +58,7 @@ jobs:
         shell: bash
         run: |
           docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo             odoo shell -d odoo_m8_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons             --no-http <<'PY'
-          arabic = env["res.lang"].sudo().search([("iso_code", "=", "ar")], limit=1)
-          assert arabic, "Arabic language record missing"
-          arabic.active = True
+          arabic = env["res.lang"].sudo()._activate_lang("ar_001")
           env.cr.commit()
           print("M8_NATIVE_ARABIC_ACTIVE", arabic.code)
           PY

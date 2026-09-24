@@ -5,15 +5,8 @@ arabic_password = os.environ["M8_VISUAL_ARABIC_PASSWORD"]
 
 admin_group = env.ref("dtf_core.group_dtf_admin")
 
-arabic = env["res.lang"].sudo().search([("iso_code", "=", "ar")], limit=1)
-assert arabic, "Arabic language record was not found"
-if not arabic.active:
-    arabic.active = True
-
-english = env["res.lang"].sudo().search([("iso_code", "=", "en")], limit=1)
-if not english:
-    english = env["res.lang"].sudo().search([("code", "=", "en_US")], limit=1)
-assert english, "English language record was not found"
+arabic = env["res.lang"].sudo()._activate_lang("ar_001")
+english = env["res.lang"].sudo()._activate_lang("en_US")
 
 english_admin = env["res.users"].with_context(no_reset_password=True).create({
     "name": "M8 Visual English Admin",
