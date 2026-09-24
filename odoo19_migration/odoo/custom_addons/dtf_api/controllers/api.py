@@ -23,7 +23,7 @@ class DTFAPI(http.Controller):
             } for category in categories]
         })
 
-    @http.route('/api/dtf/v1/products', type='http', auth='public', methods=['GET'], csrf=False)
+    @http.route('/api/dtf/v1/products', type='http', auth='public', methods=['GET'], csrf=False, website=True)
     def products(self, **kwargs):
         products = request.env['product.template'].sudo().search(request.website.sale_product_domain(), limit=100)
         return request.make_json_response({'items': request.env['product.template'].dtf_public_payload(products)})
@@ -52,12 +52,12 @@ class DTFAPI(http.Controller):
             return None
         return request.cart or (request.website._create_cart() if force_create else None)
 
-    @http.route('/api/dtf/v1/cart', type='http', auth='user', methods=['GET'], csrf=False)
+    @http.route('/api/dtf/v1/cart', type='http', auth='user', methods=['GET'], csrf=False, website=True)
     def cart_get(self, **kwargs):
         order = self._native_cart()
         return request.make_json_response({'cart': self._cart_json(order) if order else None})
 
-    @http.route('/api/dtf/v1/cart/add', type='jsonrpc', auth='user', methods=['POST'], csrf=False)
+    @http.route('/api/dtf/v1/cart/add', type='jsonrpc', auth='user', methods=['POST'], csrf=False, website=True)
     def cart_add(self, product_id=None, quantity=1, **kwargs):
         quantity = float(quantity or 0)
         if quantity <= 0:
@@ -66,7 +66,7 @@ class DTFAPI(http.Controller):
         result = order._cart_add(int(product_id or 0), quantity, **kwargs)
         return {'result': result, 'cart': self._cart_json(order)}
 
-    @http.route('/api/dtf/v1/cart/line/<int:line_id>', type='jsonrpc', auth='user', methods=['PATCH'], csrf=False)
+    @http.route('/api/dtf/v1/cart/line/<int:line_id>', type='jsonrpc', auth='user', methods=['PATCH'], csrf=False, website=True)
     def cart_line_update(self, line_id, quantity=None, **kwargs):
         order = self._native_cart()
         if not order or line_id not in order.order_line.ids:
@@ -74,7 +74,7 @@ class DTFAPI(http.Controller):
         result = order._cart_update_line_quantity(line_id, float(quantity or 0), **kwargs)
         return {'result': result, 'cart': self._cart_json(order)}
 
-    @http.route('/api/dtf/v1/cart/line/<int:line_id>', type='jsonrpc', auth='user', methods=['DELETE'], csrf=False)
+    @http.route('/api/dtf/v1/cart/line/<int:line_id>', type='jsonrpc', auth='user', methods=['DELETE'], csrf=False, website=True)
     def cart_line_delete(self, line_id, **kwargs):
         order = self._native_cart()
         if not order or line_id not in order.order_line.ids:
@@ -82,7 +82,7 @@ class DTFAPI(http.Controller):
         result = order._cart_update_line_quantity(line_id, 0, **kwargs)
         return {'result': result, 'cart': self._cart_json(order)}
 
-    @http.route('/api/dtf/v1/checkout', type='jsonrpc', auth='user', methods=['POST'], csrf=False)
+    @http.route('/api/dtf/v1/checkout', type='jsonrpc', auth='user', methods=['POST'], csrf=False, website=True)
     def checkout(self, **kwargs):
         order = self._native_cart()
         if not order or not order.order_line:

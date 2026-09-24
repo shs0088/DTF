@@ -40,6 +40,12 @@ class TestDTFM5NativeAPI(HttpCase):
         self.assertNotIn("error", payload, payload)
         return payload.get("result")
 
+    def test_public_products_route_is_website_aware(self):
+        response = self.url_open("/api/dtf/v1/products")
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertIn("items", payload)
+
     def test_native_cart_and_jsonrpc_routes(self):
         self.assertTrue(hasattr(self.env["website"], "_create_cart"))
         self.assertTrue(hasattr(self.env["sale.order"], "_cart_add"))
