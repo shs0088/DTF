@@ -30,3 +30,8 @@ GitHub Actions run `35933694605` completed SUCCESS.
 ## Boundary
 
 This is the first M5 implementation batch, not a claim that all M5 work is complete. Payment-provider integration, delivery/pickup operational configuration, complete stock deduction/release transactions, cart/API compatibility, and full checkout business-flow coverage remain M5 work. M6 and later milestones were not started. No deployment or merge was performed.
+
+
+## Native reconciliation correction
+
+The custom 30-minute reservation requirement was explicitly cancelled. The reservation model, timed checkout fields, custom hold accounting, lock logic, and ACLs were removed. Standard sales/cart/order behavior is delegated to native Odoo Community website-sale, sale, stock, payment, and delivery mechanisms. Remaining DTF M5 code is limited to sale-line snapshots, DTF linkage, production evidence, and a thin compatibility envelope.
