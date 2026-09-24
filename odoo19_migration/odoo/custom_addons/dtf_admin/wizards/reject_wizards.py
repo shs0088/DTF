@@ -24,9 +24,7 @@ class DTFQualificationRejectWizard(models.TransientModel):
                 _("Only a qualification currently awaiting Admin review can be rejected.")
             )
         self.profile_id.action_reject(self.reason)
-        self.profile_id.message_post(
-            body=_("Qualification rejected: %s") % self.reason.strip()
-        )
+        self.profile_id._dtf_admin_after_qualification_rejection(self.reason)
         return {"type": "ir.actions.act_window_close"}
 
 

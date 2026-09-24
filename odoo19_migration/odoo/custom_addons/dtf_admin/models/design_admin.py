@@ -30,6 +30,18 @@ class DTFDesignAdmin(models.Model):
         ):
             raise AccessError(_("DTF Administrator permission is required."))
 
+    def _dtf_notify_designer(self, body):
+        self.ensure_one()
+        partner = self.designer_id.partner_id
+        self.message_post(body=body, partner_ids=partner.ids)
+
+    def action_admin_publish(self):
+        self.ensure_one()
+        self._dtf_admin_require_admin()
+        result = super().action_publish()
+        self._dtf_notify_designer(_("Your design has been approved and published."))
+        return result
+
     def action_open_admin_reject_wizard(self):
         self.ensure_one()
         self._dtf_admin_require_admin()
@@ -58,5 +70,5 @@ class DTFDesignAdmin(models.Model):
             "admin_rejected_at": fields.Datetime.now(),
             "admin_rejected_by_id": self.env.user.id,
         })
-        self.message_post(body=_("Design rejected: %s") % clean_reason)
+        self._dtf_notify_designer(_("Design rejected: %s") % clean_reason)
         return True

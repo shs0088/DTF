@@ -17,3 +17,23 @@ msgstr "مراجعة إدارة DTF"
 #: model:mail.activity.type,summary:dtf_notifications.mail_activity_type_dtf_admin_review
 msgid "Review DTF Studio item"
 msgstr "مراجعة عنصر في استوديو DTF"
+
+#. module: dtf_notifications
+#: model:mail.activity.type,name:dtf_notifications.mail_activity_type_dtf_designer_replacement
+msgid "DTF Qualification Replacement"
+msgstr "استبدال تصاميم تأهيل DTF"
+
+#. module: dtf_notifications
+#: model:mail.activity.type,summary:dtf_notifications.mail_activity_type_dtf_designer_replacement
+msgid "Replace rejected qualification designs"
+msgstr "استبدال تصاميم التأهيل المرفوضة"
+
+#. module: dtf_notifications
+#: model:mail.activity.type,name:dtf_notifications.mail_activity_type_dtf_qualification_escalation
+msgid "DTF Qualification Escalation"
+msgstr "تصعيد تأهيل DTF"
+
+#. module: dtf_notifications
+#: model:mail.activity.type,summary:dtf_notifications.mail_activity_type_dtf_qualification_escalation
+msgid "Handle escalated designer qualification"
+msgstr "معالجة تأهيل المصمم المصعّد"

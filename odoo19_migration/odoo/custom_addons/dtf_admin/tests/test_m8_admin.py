@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.tests.common import TransactionCase
 
 
@@ -124,6 +125,114 @@ class TestDTFM8Admin(TransactionCase):
         }
         for xmlid, model_name in expected.items():
             self.assertEqual(self.env.ref(xmlid).res_model, model_name)
+
+    def test_qualification_review_schedules_native_deadline_activity(self):
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Review Admin",
+            "login": "m8-review-admin@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+        partner = self.env["res.partner"].create({
+            "name": "M8 Review Designer",
+            "email": "m8-review-designer@example.test",
+        })
+        designer_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Review Designer",
+            "login": "m8-review-designer@example.test",
+            "partner_id": partner.id,
+        })
+        profile = self.env["dtf.designer.profile"].create({
+            "partner_id": partner.id,
+            "user_id": designer_user.id,
+        })
+        profile.action_mark_system_qualified()
+        profile.with_user(admin_user).action_start_admin_review()
+
+        review_type = self.env.ref(
+            "dtf_notifications.mail_activity_type_dtf_admin_review"
+        )
+        activity = self.env["mail.activity"].search([
+            ("res_model", "=", "dtf.designer.profile"),
+            ("res_id", "=", profile.id),
+            ("activity_type_id", "=", review_type.id),
+            ("user_id", "=", admin_user.id),
+        ])
+        self.assertEqual(len(activity), 1)
+        self.assertEqual(activity.date_deadline, fields.Date.to_date(profile.review_deadline))
+
+    def test_first_rejection_schedules_replacement_and_second_rejection_escalates(self):
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Escalation Admin",
+            "login": "m8-escalation-admin@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+        partner = self.env["res.partner"].create({
+            "name": "M8 Escalation Designer",
+            "email": "m8-escalation-designer@example.test",
+        })
+        designer_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Escalation Designer",
+            "login": "m8-escalation-designer@example.test",
+            "partner_id": partner.id,
+        })
+        profile = self.env["dtf.designer.profile"].create({
+            "partner_id": partner.id,
+            "user_id": designer_user.id,
+        })
+
+        profile.action_mark_system_qualified()
+        profile.with_user(admin_user).action_start_admin_review()
+        wizard = self.env["dtf.admin.qualification.reject.wizard"].with_user(admin_user).create({
+            "profile_id": profile.id,
+            "reason": "Replace the first submission.",
+        })
+        wizard.action_confirm()
+        profile.invalidate_recordset()
+
+        replacement_type = self.env.ref(
+            "dtf_notifications.mail_activity_type_dtf_designer_replacement"
+        )
+        replacement = self.env["mail.activity"].search([
+            ("res_model", "=", "dtf.designer.profile"),
+            ("res_id", "=", profile.id),
+            ("activity_type_id", "=", replacement_type.id),
+            ("user_id", "=", designer_user.id),
+        ])
+        self.assertEqual(profile.qualification_state, "replacement_required")
+        self.assertEqual(len(replacement), 1)
+        self.assertEqual(
+            replacement.date_deadline,
+            fields.Date.to_date(profile.replacement_deadline),
+        )
+
+        profile.action_mark_system_qualified()
+        profile.with_user(admin_user).action_start_admin_review()
+        wizard2 = self.env["dtf.admin.qualification.reject.wizard"].with_user(admin_user).create({
+            "profile_id": profile.id,
+            "reason": "Second qualification rejection.",
+        })
+        wizard2.action_confirm()
+        profile.invalidate_recordset()
+
+        escalation_type = self.env.ref(
+            "dtf_notifications.mail_activity_type_dtf_qualification_escalation"
+        )
+        escalation = self.env["mail.activity"].search([
+            ("res_model", "=", "dtf.designer.profile"),
+            ("res_id", "=", profile.id),
+            ("activity_type_id", "=", escalation_type.id),
+            ("user_id", "=", admin_user.id),
+        ])
+        self.assertEqual(profile.qualification_state, "escalated")
+        self.assertEqual(profile.rejection_count, 2)
+        self.assertEqual(len(escalation), 1)
+
+    def test_admin_design_form_uses_admin_publish_wrapper(self):
+        arch = self.env.ref("dtf_admin.view_dtf_admin_design_form").arch_db
+        self.assertIn('name="action_admin_publish"', arch)
+        self.assertNotIn('name="action_publish"', arch)
 
     def test_native_rejection_wizards_delegate_to_existing_business_rules(self):
         admin_group = self.env.ref("dtf_core.group_dtf_admin")

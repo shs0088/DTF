@@ -7,4 +7,20 @@
         <field name="decoration_type">warning</field>
         <field name="category">default</field>
     </record>
+
+    <record id="mail_activity_type_dtf_designer_replacement" model="mail.activity.type">
+        <field name="name">DTF Qualification Replacement</field>
+        <field name="summary">Replace rejected qualification designs</field>
+        <field name="icon">fa-refresh</field>
+        <field name="decoration_type">warning</field>
+        <field name="category">default</field>
+    </record>
+
+    <record id="mail_activity_type_dtf_qualification_escalation" model="mail.activity.type">
+        <field name="name">DTF Qualification Escalation</field>
+        <field name="summary">Handle escalated designer qualification</field>
+        <field name="icon">fa-exclamation-triangle</field>
+        <field name="decoration_type">danger</field>
+        <field name="category">default</field>
+    </record>
 </odoo>
