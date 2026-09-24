@@ -170,11 +170,11 @@ async function inspectEnglish(browser) {
   await shot(page, "02-english-designers.png");
 
   report.checks.english_design_review = await openAction(page, "dtf_admin.action_dtf_admin_design_review", "design_review");
-  await dismissNativeChatWindows(page, key);
+  await dismissNativeChatWindows(page, "english");
   const row = page.locator(".o_data_row").first();
   if (await row.count()) {
     await row.scrollIntoViewIfNeeded();
-    await dismissNativeChatWindows(page, key);
+    await dismissNativeChatWindows(page, "english");
     await row.click();
     await page.waitForTimeout(1200);
     report.checks.english_design_form = (await page.locator(".o_form_view").count()) > 0;
@@ -229,8 +229,11 @@ async function inspectArabic(browser) {
   await shot(page, "05-arabic-designers.png");
 
   report.checks.arabic_design_review = await openAction(page, "dtf_admin.action_dtf_admin_design_review", "design_review");
+  await dismissNativeChatWindows(page, "arabic");
   const row = page.locator(".o_data_row").first();
   if (await row.count()) {
+    await row.scrollIntoViewIfNeeded();
+    await dismissNativeChatWindows(page, "arabic");
     await row.click();
     await page.waitForTimeout(1200);
     report.checks.arabic_design_form = (await page.locator(".o_form_view").count()) > 0;
@@ -267,7 +270,8 @@ async function inspectResponsive(browser, {
 
   report.checks[`${key}_dashboard`] = await openAction(
     page,
-    "dtf_admin.action_dtf_admin_dashboard_client"
+    "dtf_admin.action_dtf_admin_dashboard_client",
+    key
   );
   try {
     await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").waitFor({
@@ -295,10 +299,14 @@ async function inspectResponsive(browser, {
 
   report.checks[`${key}_design_review`] = await openAction(
     page,
-    "dtf_admin.action_dtf_admin_design_review"
+    "dtf_admin.action_dtf_admin_design_review",
+    key
   );
+  await dismissNativeChatWindows(page, key);
   const row = page.locator(".o_data_row").first();
   if (await row.count()) {
+    await row.scrollIntoViewIfNeeded();
+    await dismissNativeChatWindows(page, key);
     await row.click();
     await page.waitForTimeout(1200);
     report.checks[`${key}_design_form`] =
