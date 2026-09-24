@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <div t-name="dtf_admin.Dashboard" class="o_action o_dtf_admin_dashboard">
+        <div class="dtf-dashboard-shell">
+            <div t-if="state.loading" class="dtf-dashboard-loading">
+                <i class="fa fa-spinner fa-spin me-2"/>
+                Loading dashboard…
+            </div>
+            <div t-elif="state.error" class="dtf-dashboard-error">
+                <div>
+                    <strong>Unable to load dashboard</strong>
+                    <div class="text-muted" t-esc="state.error"/>
+                </div>
+                <button class="btn btn-primary" t-on-click="load">
+                    <t t-esc="retryText"/>
+                </button>
+            </div>
+            <div t-else="" class="dtf-dashboard-ready">
+                <div class="dtf-dashboard-heading">
+                    <div>
+                        <h1 t-esc="state.data.texts.title"/>
+                        <p t-esc="state.data.texts.subtitle"/>
+                    </div>
+                    <button class="btn btn-primary" t-on-click="load">
+                        <i class="fa fa-refresh me-1"/>
+                        <t t-esc="state.data.texts.refresh"/>
+                    </button>
+                </div>
+
+                <div class="dtf-kpi-grid">
+                    <button t-foreach="state.data.kpis" t-as="kpi" t-key="kpi.key"
+                            class="dtf-kpi-card" t-att-data-metric="kpi.key"
+                            t-on-click="() => openMetric(kpi.key)">
+                        <span class="dtf-kpi-label" t-esc="kpi.label"/>
+                        <strong class="dtf-kpi-value" t-esc="kpi.value"/>
+                        <span class="dtf-kpi-open"><i class="fa fa-arrow-right"/></span>
+                    </button>
+                </div>
+
+                <div class="dtf-dashboard-grid">
+                    <section class="dtf-dashboard-panel dtf-chart-panel">
+                        <div class="dtf-panel-heading">
+                            <h2 t-esc="state.data.texts.order_activity"/>
+                            <div class="dtf-panel-meta">
+                                <span t-esc="state.data.texts.orders"/>
+                                <span>·</span>
+                                <span t-esc="state.data.texts.sales"/>
+                            </div>
+                        </div>
+                        <div class="dtf-order-chart">
+                            <div t-foreach="state.data.series" t-as="point" t-key="point.date"
+                                 class="dtf-chart-column"
+                                 t-att-title="state.data.texts.orders + ': ' + point.orders + ' · ' + state.data.texts.sales + ': ' + formatMoney(point.sales, state.data.company.currency)">
+                                <div class="dtf-chart-value" t-esc="point.orders"/>
+                                <div class="dtf-chart-track">
+                                    <div class="dtf-chart-bar" t-att-style="barHeight(point)"/>
+                                </div>
+                                <div class="dtf-chart-date" t-esc="shortDate(point.date)"/>
+                                <div class="dtf-chart-sales" t-esc="formatMoney(point.sales, state.data.company.currency)"/>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="dtf-dashboard-panel dtf-quick-panel">
+                        <div class="dtf-panel-heading"><h2 t-esc="state.data.texts.quick_links"/></div>
+                        <div class="dtf-quick-links">
+                            <button class="btn btn-outline-primary" t-on-click="() => openAction('dtf_admin.action_dtf_admin_orders')" t-esc="state.data.texts.orders"/>
+                            <button class="btn btn-outline-primary" t-on-click="() => openAction('dtf_admin.action_dtf_admin_designers')" t-esc="state.data.texts.designers"/>
+                            <button class="btn btn-outline-primary" t-on-click="() => openAction('dtf_production.action_dtf_print_jobs')" t-esc="state.data.texts.production"/>
+                            <button class="btn btn-outline-primary" t-on-click="() => openAction('dtf_finance.action_dtf_finance_withdrawals')" t-esc="state.data.texts.payouts"/>
+                            <button class="btn btn-outline-primary" t-on-click="() => openAction('dtf_admin.action_dtf_admin_report_sales')" t-esc="state.data.texts.reports"/>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="dtf-dashboard-grid dtf-dashboard-grid-lower">
+                    <section class="dtf-dashboard-panel dtf-recent-orders">
+                        <div class="dtf-panel-heading"><h2 t-esc="state.data.texts.recent_orders"/></div>
+                        <div class="table-responsive" t-if="state.data.recent_orders.length">
+                            <table class="table dtf-dashboard-table">
+                                <thead><tr>
+                                    <th t-esc="state.data.texts.order"/>
+                                    <th t-esc="state.data.texts.customer"/>
+                                    <th t-esc="state.data.texts.date"/>
+                                    <th t-esc="state.data.texts.total"/>
+                                    <th t-esc="state.data.texts.payment"/>
+                                    <th t-esc="state.data.texts.status"/>
+                                </tr></thead>
+                                <tbody>
+                                    <tr t-foreach="state.data.recent_orders" t-as="order" t-key="order.id">
+                                        <td><button class="btn btn-link p-0" t-on-click="() => openOrder(order.id)" t-esc="order.name"/></td>
+                                        <td t-esc="order.customer"/>
+                                        <td t-esc="formatDate(order.date)"/>
+                                        <td t-esc="formatMoney(order.amount, order.currency)"/>
+                                        <td><span class="badge" t-att-class="paymentClass(order.payment_state)" t-esc="order.payment_label"/></td>
+                                        <td t-esc="order.state_label"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div t-else="" class="dtf-empty-state" t-esc="state.data.texts.no_recent_orders"/>
+                    </section>
+
+                    <section class="dtf-dashboard-panel dtf-activity-panel">
+                        <div class="dtf-panel-heading"><h2 t-esc="state.data.texts.recent_activity"/></div>
+                        <div t-if="state.data.recent_activity.length" class="dtf-activity-list">
+                            <div t-foreach="state.data.recent_activity" t-as="entry" t-key="entry.id" class="dtf-activity-row">
+                                <div class="dtf-activity-dot"/>
+                                <div class="dtf-activity-copy">
+                                    <strong t-esc="entry.subject"/>
+                                    <span t-esc="entry.record_name"/>
+                                    <small><t t-esc="entry.actor"/><span> · </span><t t-esc="formatDate(entry.date)"/></small>
+                                </div>
+                            </div>
+                        </div>
+                        <div t-else="" class="dtf-empty-state" t-esc="state.data.texts.no_recent_activity"/>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</templates>

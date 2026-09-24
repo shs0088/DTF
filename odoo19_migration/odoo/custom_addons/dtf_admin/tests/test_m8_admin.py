@@ -1,4 +1,5 @@
 from odoo import fields
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -296,3 +297,52 @@ class TestDTFM8Admin(TransactionCase):
         self.assertIn('type="object"', design_arch)
         self.assertIn("<chatter", designer_arch)
         self.assertIn("<chatter", design_arch)
+
+    def test_operational_dashboard_is_native_database_backed(self):
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Dashboard Admin",
+            "login": "m8-dashboard-admin@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+        dashboard = self.env["dtf.admin.dashboard"].with_user(admin_user)
+        before = dashboard.get_dashboard()
+        self.assertEqual(len(before["kpis"]), 7)
+        self.assertEqual(len(before["series"]), 7)
+        before_review = next(
+            item["value"] for item in before["kpis"] if item["key"] == "designer_review"
+        )
+        partner = self.env["res.partner"].create({"name": "M8 Dashboard Review"})
+        profile = self.env["dtf.designer.profile"].create({"partner_id": partner.id})
+        profile.action_mark_system_qualified()
+        after = dashboard.get_dashboard()
+        after_review = next(
+            item["value"] for item in after["kpis"] if item["key"] == "designer_review"
+        )
+        self.assertEqual(after_review, before_review + 1)
+
+    def test_operational_dashboard_requires_dtf_admin(self):
+        plain_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Dashboard Plain User",
+            "login": "m8-dashboard-plain@example.test",
+            "group_ids": [(6, 0, [self.env.ref("base.group_user").id])],
+        })
+        with self.assertRaises(AccessError):
+            self.env["dtf.admin.dashboard"].with_user(plain_user).get_dashboard()
+
+    def test_dashboard_menu_uses_odoo19_client_action(self):
+        action = self.env.ref("dtf_admin.action_dtf_admin_dashboard_client")
+        menu = self.env.ref("dtf_admin.menu_dtf_admin_dashboard")
+        self.assertEqual(action._name, "ir.actions.client")
+        self.assertEqual(action.tag, "dtf_admin.dashboard")
+        self.assertEqual(menu.action, action)
+
+    def test_dashboard_rejects_unknown_metric(self):
+        admin_group = self.env.ref("dtf_core.group_dtf_admin")
+        admin_user = self.env["res.users"].with_context(no_reset_password=True).create({
+            "name": "M8 Dashboard Metric Admin",
+            "login": "m8-dashboard-metric@example.test",
+            "group_ids": [(6, 0, [admin_group.id])],
+        })
+        with self.assertRaises(ValidationError):
+            self.env["dtf.admin.dashboard"].with_user(admin_user).get_metric_action("not-a-metric")

@@ -1,10 +1,11 @@
 {
     "name": "DTF Studio Admin",
-    "version": "19.0.4.0.0",
+    "version": "19.0.5.0.0",
     "summary": "Native Odoo administration shell and review workflows for DTF Studio",
     "category": "DTF Studio",
     "license": "LGPL-3",
     "depends": [
+        "web",
         "dtf_core",
         "dtf_designer",
         "dtf_design",
@@ -22,7 +23,15 @@
         "views/admin_wizards.xml",
         "views/admin_views.xml",
         "views/admin_operations_views.xml",
+        "views/dashboard_views.xml",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "dtf_admin/static/src/dashboard/dashboard.js",
+            "dtf_admin/static/src/dashboard/dashboard.xml",
+            "dtf_admin/static/src/dashboard/dashboard.scss",
+        ],
+    },
     "installable": True,
     "application": True,
 }

@@ -16,7 +16,9 @@ msgstr "استوديو DTF"
 
 #. module: dtf_admin
 #: model:ir.actions.act_window,name:dtf_admin.action_dtf_admin_dashboard
+#: model:ir.actions.client,name:dtf_admin.action_dtf_admin_dashboard_client
 #: model:ir.ui.menu,name:dtf_admin.menu_dtf_admin_dashboard
+#: code:addons/dtf_admin/models/dashboard.py:0
 msgid "Dashboard"
 msgstr "لوحة التحكم"
 
@@ -285,3 +287,150 @@ msgstr "إدخال سجل DTF"
 #: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_history_form
 msgid "Content"
 msgstr "المحتوى"
+
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Operational overview"
+msgstr "نظرة تشغيلية عامة"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Refresh"
+msgstr "تحديث"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Total Orders"
+msgstr "إجمالي الطلبات"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Production Queue"
+msgstr "قائمة انتظار الإنتاج"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Designer Review"
+msgstr "مراجعة المصممين"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Inventory Attention"
+msgstr "تنبيهات المخزون"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Payout Requests"
+msgstr "طلبات السحب"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Order Activity — Last 7 Days"
+msgstr "نشاط الطلبات — آخر 7 أيام"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Recent Orders"
+msgstr "أحدث الطلبات"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Recent Admin Activity"
+msgstr "أحدث نشاطات الإدارة"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Quick Links"
+msgstr "روابط سريعة"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "No recent orders."
+msgstr "لا توجد طلبات حديثة."
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "No recent Admin activity."
+msgstr "لا يوجد نشاط إداري حديث."
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Order"
+msgstr "الطلب"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Customer"
+msgstr "العميل"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Total"
+msgstr "الإجمالي"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Payment"
+msgstr "الدفع"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Status"
+msgstr "الحالة"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Sales"
+msgstr "المبيعات"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Payouts"
+msgstr "السحوبات"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Paid"
+msgstr "مدفوع"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Partially Paid"
+msgstr "مدفوع جزئياً"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "In Payment"
+msgstr "قيد الدفع"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Admin activity"
+msgstr "نشاط إداري"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/models/dashboard.py:0
+msgid "Unknown dashboard metric."
+msgstr "مؤشر لوحة التحكم غير معروف."
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/static/src/dashboard/dashboard.js:0
+#: code:addons/dtf_admin/static/src/dashboard/dashboard.xml:0
+msgid "Unable to load dashboard"
+msgstr "تعذر تحميل لوحة التحكم"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/static/src/dashboard/dashboard.js:0
+msgid "Retry"
+msgstr "إعادة المحاولة"
+
+#. module: dtf_admin
+#: code:addons/dtf_admin/static/src/dashboard/dashboard.xml:0
+msgid "Loading dashboard…"
+msgstr "جارٍ تحميل لوحة التحكم…"

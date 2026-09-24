@@ -66,7 +66,7 @@ async function openAction(page, xmlid) {
   }
 
   return (await page.locator(
-    ".o_graph_renderer, .o_pivot_renderer, .o_list_renderer, .o_form_view, .o_kanban_renderer"
+    ".o_dtf_admin_dashboard, .o_graph_renderer, .o_pivot_renderer, .o_list_renderer, .o_form_view, .o_kanban_renderer"
   ).count()) > 0;
 }
 
@@ -115,7 +115,11 @@ async function inspectEnglish(browser) {
     return;
   }
 
-  report.checks.english_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard");
+  report.checks.english_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard_client");
+  report.checks.english_dashboard_ready =
+    (await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").count()) > 0;
+  report.checks.english_dashboard_kpis =
+    (await page.locator(".o_dtf_admin_dashboard .dtf-kpi-card").count()) >= 7;
   report.metrics.english_direction = await direction(page);
   report.metrics.english_theme = await theme(page);
   report.metrics.english_dashboard = await overflow(page);
@@ -161,6 +165,12 @@ async function inspectArabic(browser) {
   }
 
   report.checks.arabic_dashboard = await openAction(page, "dtf_admin.action_dtf_admin_dashboard");
+  report.checks.arabic_dashboard_ready =
+    (await page.locator(".o_dtf_admin_dashboard .dtf-dashboard-ready").count()) > 0;
+  report.checks.arabic_dashboard_kpis =
+    (await page.locator(".o_dtf_admin_dashboard .dtf-kpi-card").count()) >= 7;
+  report.checks.arabic_dashboard_title =
+    (await page.getByText("لوحة التحكم", { exact: true }).count()) > 0;
   report.metrics.arabic_direction = await direction(page);
   report.metrics.arabic_dashboard = await overflow(page);
   report.checks.arabic_rtl =
@@ -201,6 +211,8 @@ async function inspectArabic(browser) {
     const required = [
       "english_login",
       "english_dashboard",
+      "english_dashboard_ready",
+      "english_dashboard_kpis",
       "english_ltr",
       "theme_accent",
       "english_designers",
@@ -211,6 +223,9 @@ async function inspectArabic(browser) {
       "arabic_content_rtl_in_english_admin",
       "arabic_login",
       "arabic_dashboard",
+      "arabic_dashboard_ready",
+      "arabic_dashboard_kpis",
+      "arabic_dashboard_title",
       "arabic_rtl",
       "arabic_designers",
       "arabic_translated_designers",
