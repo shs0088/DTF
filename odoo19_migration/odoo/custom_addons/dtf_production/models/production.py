@@ -265,7 +265,7 @@ class SaleOrderLine(models.Model):
                 raise ValidationError("The snapshotted accepted preflight no longer matches the exact print master.")
 
             partner = source_line.order_id.partner_id
-            customer_phone = partner.mobile or partner.phone or ""
+            customer_phone = partner.phone or ""
             product_snapshot = dict(source_line.dtf_product_snapshot or {})
             product_snapshot.setdefault("ordered_quantity", source_line.product_uom_qty)
             product_snapshot.setdefault("uom_id", source_line.product_uom_id.id)
