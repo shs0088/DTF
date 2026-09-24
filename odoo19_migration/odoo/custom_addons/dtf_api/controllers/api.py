@@ -14,12 +14,12 @@ class DTFAPI(http.Controller):
         return request.make_json_response({
             'items': [{
                 'id': category.id,
-                'name': translator._dtf_translated_text(category, 'name', 'en_US'),
-                'name_ar': translator._dtf_translated_text(category, 'name', 'ar_001'),
+                'name': category.with_context(lang='en_US').name or '',
+                'name_ar': category.with_context(lang='ar_001').name or '',
                 'parent_id': category.parent_id.id or None,
                 'sequence': category.sequence,
-                'website_description': translator._dtf_translated_text(category, 'website_description', 'en_US'),
-                'website_description_ar': translator._dtf_translated_text(category, 'website_description', 'ar_001'),
+                'website_description': category.with_context(lang='en_US').website_description or '',
+                'website_description_ar': category.with_context(lang='ar_001').website_description or '',
             } for category in categories]
         })
 
