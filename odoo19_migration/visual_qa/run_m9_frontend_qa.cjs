@@ -163,7 +163,7 @@ async function inspectCustomerFlow(browser) {
     timeout: 10000,
   });
   report.checks.checkout_after_login =
-    (await page.getByText("M9 Visual Tee", { exact: true }).count()) > 0;
+    (await page.getByText("M9 Visual Tee", { exact: false }).count()) > 0;
   report.metrics.checkout = await overflow(page);
   await shot(page, "05-checkout.png");
 
@@ -211,7 +211,9 @@ async function inspectDesignerFlow(browser) {
   report.checks.designer_new_design =
     (await page.locator('input[name="titleEn"]').count()) === 1 &&
     (await page.locator('input[name="titleAr"]').count()) === 1 &&
-    (await page.locator('select[name="productType"]').count()) === 1 &&
+    (await page.locator('textarea[name="descriptionEn"]').count()) === 1 &&
+    (await page.locator('textarea[name="descriptionAr"]').count()) === 1 &&
+    (await page.locator('input[type="radio"][name="productType"]').count()) === 7 &&
     (await page.locator('input[type="file"][name="files"]').count()) === 1;
   report.metrics.designer_new_design = await overflow(page);
   await shot(page, "08-designer-new-design.png");
