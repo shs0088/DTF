@@ -4,17 +4,17 @@
         <field name="name">Primary Homepage Banner</field>
         <field name="sequence">10</field>
         <field name="active">1</field>
-        <field name="eyebrow_en">PREMIUM DTF PRINTING</field>
-        <field name="eyebrow_ar">طباعة DTF احترافية</field>
-        <field name="title_en">Bring your imagination to life.</field>
-        <field name="title_ar">حوّل خيالك إلى واقع.</field>
-        <field name="subtitle_en">Choose a product, select a designer artwork or upload your own, then build your print.</field>
-        <field name="subtitle_ar">اختر منتجاً أو تصميماً من المصممين أو ارفع تصميمك، ثم أنشئ طباعتك.</field>
-        <field name="primary_cta_label_en">Print Your Dream</field>
-        <field name="primary_cta_label_ar">اطبع حلمك</field>
+        <field name="eyebrow_en">DTF STUDIO</field>
+        <field name="eyebrow_ar">DTF STUDIO</field>
+        <field name="title_en">Turn your ideas&#10;into printed reality</field>
+        <field name="title_ar">حوّل أفكارك&#10;إلى واقع مطبوع</field>
+        <field name="subtitle_en">High-quality DTF prints on distinctive products. Create without limits.</field>
+        <field name="subtitle_ar">طباعات DTF عالية الجودة على منتجات مميزة بلا حدود للإبداع.</field>
+        <field name="primary_cta_label_en">Shop now</field>
+        <field name="primary_cta_label_ar">تسوق الآن</field>
         <field name="primary_cta_url">/customize</field>
-        <field name="secondary_cta_label_en">Design Gallery</field>
-        <field name="secondary_cta_label_ar">معرض التصاميم</field>
-        <field name="secondary_cta_url">/designs</field>
+        <field name="secondary_cta_label_en">Start designing</field>
+        <field name="secondary_cta_label_ar">ابدأ التصميم</field>
+        <field name="secondary_cta_url">/customize</field>
     </record>
 </odoo>
