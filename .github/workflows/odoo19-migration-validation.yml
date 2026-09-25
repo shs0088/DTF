@@ -6,10 +6,18 @@ on:
       - 'odoo19/headless-backend-migration-prep'
     paths:
       - 'odoo19_migration/**'
+      - 'app/**'
+      - 'workers/m9-frontend-cutover.test.ts'
+      - 'package.json'
+      - 'bun.lock'
       - '.github/workflows/odoo19-migration-validation.yml'
   pull_request:
     paths:
       - 'odoo19_migration/**'
+      - 'app/**'
+      - 'workers/m9-frontend-cutover.test.ts'
+      - 'package.json'
+      - 'bun.lock'
       - '.github/workflows/odoo19-migration-validation.yml'
 
 permissions:
@@ -52,6 +60,25 @@ jobs:
               exit 1
             fi
           done
+
+
+  m9-frontend-contract:
+    runs-on: ubuntu-latest
+    needs: m1-static-validation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+      - name: Install locked frontend dependencies
+        run: bun install --frozen-lockfile
+      - name: Typecheck preserved frontend
+        run: npm run typecheck
+      - name: Build preserved frontend
+        run: npm run build
+      - name: Run M9 Odoo compatibility adapter tests
+        run: bun test workers/m9-frontend-cutover.test.ts
 
   m1-odoo-runtime:
     runs-on: ubuntu-latest

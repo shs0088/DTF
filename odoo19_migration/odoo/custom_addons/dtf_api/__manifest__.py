@@ -1,7 +1,7 @@
 {
-    "name": "DTF Studio dtf_api",
-    "version": "19.0.1.0.0",
-    "summary": "M1 portable foundation skeleton",
+    "name": "DTF Studio API",
+    "version": "19.0.2.0.0",
+    "summary": "Versioned compatibility API for the preserved DTF Studio frontend",
     "license": "LGPL-3",
     "depends": [
         "dtf_core",

@@ -23,10 +23,35 @@ class DTFAPI(http.Controller):
             } for category in categories]
         })
 
+    def _frontend_product_payload(self, products):
+        payload = request.env['product.template'].dtf_public_payload(products)
+        products_by_id = {product.id: product for product in products}
+        for row in payload:
+            product = products_by_id.get(row.get('id'))
+            if not product:
+                continue
+            variants_by_id = {
+                variant.id: variant
+                for variant in product.product_variant_ids
+            }
+            for variant_row in row.get('variants', []):
+                variant = variants_by_id.get(variant_row.get('id'))
+                if not variant:
+                    continue
+                variant_row.update({
+                    'sku': variant.default_code or '',
+                    'price': variant.lst_price,
+                    'attributes': [{
+                        'attribute': value.attribute_id.name,
+                        'value': value.product_attribute_value_id.name,
+                    } for value in variant.product_template_attribute_value_ids],
+                })
+        return payload
+
     @http.route('/api/dtf/v1/products', type='http', auth='public', methods=['GET'], csrf=False, website=True)
     def products(self, **kwargs):
         products = request.env['product.template'].sudo().search(request.website.sale_product_domain(), limit=100)
-        return request.make_json_response({'items': request.env['product.template'].dtf_public_payload(products)})
+        return request.make_json_response({'items': self._frontend_product_payload(products)})
 
     def _cart_json(self, order):
         return {

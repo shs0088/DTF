@@ -23,6 +23,7 @@ class TestDTFM5NativeAPI(HttpCase):
             "is_published": True,
         })
         cls.product = cls.product_template.product_variant_id
+        cls.product.default_code = "M9-CATALOG-SKU"
 
     def _jsonrpc(self, path, params):
         response = self.url_open(
@@ -45,6 +46,23 @@ class TestDTFM5NativeAPI(HttpCase):
         self.assertEqual(response.status_code, 200)
         payload = response.json()
         self.assertIn("items", payload)
+
+        product = next(
+            item for item in payload["items"]
+            if item["id"] == self.product_template.id
+        )
+        variant = next(
+            item for item in product["variants"]
+            if item["id"] == self.product.id
+        )
+        self.assertEqual(variant["sku"], "M9-CATALOG-SKU")
+        self.assertEqual(variant["price"], self.product.lst_price)
+        self.assertIn("attributes", variant)
+
+        serialized = json.dumps(product).lower()
+        self.assertNotIn("printify", serialized)
+        self.assertNotIn("supplier", serialized)
+        self.assertNotIn("provider", serialized)
 
     def test_native_cart_and_jsonrpc_routes(self):
         self.assertTrue(hasattr(self.env["website"], "_create_cart"))
