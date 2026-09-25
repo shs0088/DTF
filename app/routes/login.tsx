@@ -3,8 +3,9 @@ import type { Route } from "./+types/login";
 import { ArrowLeft, ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
 import { localeDir, localeFromRequest, pick, useAppLocale } from "../i18n";
 import { appendOdooSessionCookies, fetchOdooResponse } from "../lib/odoo-api.server";
+import { normalizeReturnTo } from "../lib/return-to";
 
-export async function loader({ request }: Route.LoaderArgs) { return { returnTo: new URL(request.url).searchParams.get("returnTo") ?? "/" }; }
+export async function loader({ request }: Route.LoaderArgs) { return { returnTo: normalizeReturnTo(new URL(request.url).searchParams.get("returnTo")) }; }
 
 export async function action({ request, context }: Route.ActionArgs) {
   const form = await request.formData();
@@ -17,8 +18,8 @@ export async function action({ request, context }: Route.ActionArgs) {
     body: JSON.stringify({ identifier, password }),
   });
   if (!upstream.ok) return { ok: false, error: pick(locale,"The sign-in details were not recognized.","بيانات تسجيل الدخول غير صحيحة.") };
-  const returnTo = String(form.get("returnTo") ?? "/");
-  const headers = new Headers({ Location: returnTo.startsWith("/") ? returnTo : "/" });
+  const returnTo = normalizeReturnTo(form.get("returnTo"));
+  const headers = new Headers({ Location: returnTo });
   appendOdooSessionCookies(headers, upstream);
   return new Response(null, { status: 303, headers });
 }

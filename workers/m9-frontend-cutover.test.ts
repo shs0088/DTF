@@ -7,6 +7,7 @@ import {
   appendOdooSessionCookies,
   resolveOdooOrigin,
 } from "../app/lib/odoo-api.server";
+import { normalizeReturnTo } from "../app/lib/return-to";
 
 describe("M9 frontend Odoo compatibility adapter", () => {
   test("maps native Odoo categories to the preserved frontend contract", () => {
@@ -259,4 +260,19 @@ test("New Design upload no longer uses ItemStore, R2, or worker-side preflight a
   expect(source).toContain("/api/dtf/v1/designer/upload-config");
   expect(source).toContain("/api/dtf/v1/designer/designs/create");
   expect(source).toContain("fetchOdooResponse");
+});
+
+
+test("normalizes React Router data URLs before post-login navigation", () => {
+  expect(normalizeReturnTo("/checkout.data")).toBe("/checkout");
+  expect(
+    normalizeReturnTo("/checkout.data?coupon=SAVE10&_routes=routes%2Fcheckout")
+  ).toBe("/checkout?coupon=SAVE10");
+  expect(normalizeReturnTo("/designer.data#work")).toBe("/designer#work");
+});
+
+test("rejects external or malformed post-login return targets", () => {
+  expect(normalizeReturnTo("https://evil.example/checkout")).toBe("/");
+  expect(normalizeReturnTo("//evil.example/checkout")).toBe("/");
+  expect(normalizeReturnTo("/\\evil.example/checkout")).toBe("/");
 });
