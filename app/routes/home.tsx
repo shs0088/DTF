@@ -2,7 +2,7 @@ import { Link, useLoaderData } from "react-router";
 import type { Route } from "./+types/home";
 import {
   ArrowRight, Gem, Globe2, Headphones, Heart, Home as HomeIcon,
-  Menu, Palette, Search, ShieldCheck, ShoppingBag, Store, Truck, UserRound,
+  Menu, Palette, Search, ShieldCheck, ShoppingBag, ShoppingCart, Store, Truck, UserRound,
 } from "lucide-react";
 import { localeDir, pick, useAppLocale } from "../i18n";
 import { fetchOdooJson, mapOdooDesigns, type LegacyStudioDesign } from "../lib/odoo-api.server";
@@ -91,7 +91,7 @@ export default function Home() {
           <div className="f6-tools">
             <Link className="f6-account" to="/login"><UserRound/><span>{pick(locale,"My account","حسابي")}</span></Link>
             <Link className="f6-cart" to="/cart" aria-label={pick(locale,"Cart","السلة")}>
-              <ShoppingBag/><span>0</span>
+              <ShoppingCart/><span>0</span>
             </Link>
           </div>
         </header>
@@ -107,7 +107,7 @@ export default function Home() {
             <p>{subtitle}</p>
             <div className="f6-hero-actions">
               <Link className="btn primary" to={banner?.primary_cta_url || "/customize"}>
-                <ShoppingBag/>{text(banner?.primary_cta_label_en,banner?.primary_cta_label_ar,"Shop now","تسوق الآن")}
+                <ShoppingCart/>{text(banner?.primary_cta_label_en,banner?.primary_cta_label_ar,"Shop now","تسوق الآن")}
               </Link>
               <Link className="btn ghost" to={banner?.secondary_cta_url || "/customize"}>
                 {text(banner?.secondary_cta_label_en,banner?.secondary_cta_label_ar,"Start designing","ابدأ التصميم")}
@@ -168,7 +168,7 @@ export default function Home() {
         <Link className="active" to="/"><HomeIcon/><span>{pick(locale,"Home","الرئيسية")}</span></Link>
         <Link to="/customize"><Store/><span>{pick(locale,"Shop","المتجر")}</span></Link>
         <Link to="/customize"><Headphones/><span>{pick(locale,"Customize","التصميم")}</span></Link>
-        <Link to="/cart"><ShoppingBag/><span>{pick(locale,"Cart","السلة")}</span></Link>
+        <Link to="/cart"><ShoppingCart/><span>{pick(locale,"Cart","السلة")}</span></Link>
         <Link to="/login"><UserRound/><span>{pick(locale,"My account","حسابي")}</span></Link>
       </nav>
     </main>
