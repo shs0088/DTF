@@ -197,30 +197,207 @@ class DTFAPI(http.Controller):
         result = order._cart_update_line_quantity(line_id, 0, **kwargs)
         return {'result': result, 'cart': self._cart_json(order)}
 
-    @http.route('/api/dtf/v1/checkout', type='jsonrpc', auth='user', methods=['POST'], csrf=False, website=True)
-    def checkout(self, **kwargs):
+    def _checkout_settings(self):
+        company = request.env.company.sudo()
+        bank = company.partner_id.bank_ids[:1]
+        return {
+            'storePickupEnabled': False,
+            'codEnabled': False,
+            'bankTransferEnabled': True,
+            'bankDetails': {
+                'bankName': bank.bank_id.name if bank and bank.bank_id else '',
+                'accountName': company.name or '',
+                'iban': bank.acc_number if bank else '',
+                'cliqAlias': '',
+            },
+        }
+
+    def _checkout_issues(self, order):
+        issues = []
+        for line in order.website_order_line:
+            template = line.product_id.product_tmpl_id
+            if template.dtf_catalog_type != 'customizable':
+                continue
+            if not line.dtf_design_id or not line.dtf_master_asset_id:
+                issues.append(
+                    'A customizable DTF item requires an explicit design and Ready-to-Print Master.'
+                )
+                continue
+            master = line.dtf_master_asset_id
+            if master.design_id != line.dtf_design_id:
+                issues.append('The selected Ready-to-Print Master does not belong to the selected design.')
+                continue
+            latest = master.latest_preflight_result_id
+            if (
+                not latest
+                or latest.status != 'accepted'
+                or latest.rule_version_id.product_type != line.dtf_design_id.product_type
+            ):
+                issues.append(
+                    'The Ready-to-Print Master requires a current accepted product-compatible preflight.'
+                )
+        return issues
+
+    def _checkout_preview_payload(self, order):
+        order._verify_cart()
+        issues = self._checkout_issues(order)
+        delivery = sum(order.website_order_line.filtered('is_delivery').mapped('price_subtotal'))
+        return {
+            'lines': [self._cart_line_payload(line) for line in order.website_order_line],
+            'subtotalJod': order.amount_untaxed - delivery,
+            'deliveryFeeJod': delivery,
+            'taxJod': order.amount_tax,
+            'discountJod': 0.0,
+            'totalJod': order.amount_total,
+            'issues': issues,
+            'canCheckout': bool(order.website_order_line) and not issues,
+            'settings': self._checkout_settings(),
+        }
+
+    def _order_payment_status(self, order):
+        invoices = order.invoice_ids.filtered(
+            lambda move: move.move_type == 'out_invoice' and move.state != 'cancel'
+        )
+        if invoices and all(move.payment_state == 'paid' for move in invoices):
+            return 'paid'
+        states = set(invoices.mapped('payment_state'))
+        if 'partial' in states:
+            return 'partial'
+        if 'in_payment' in states:
+            return 'in_payment'
+        return 'pending'
+
+    def _order_payload(self, order):
+        translator = request.env['product.template'].sudo()
+        payment_status = self._order_payment_status(order)
+        return {
+            'id': order.id,
+            'name': order.name,
+            'nativeState': order.state,
+            'status': 'payment_confirmed' if payment_status == 'paid' else 'payment_pending',
+            'paymentStatus': payment_status,
+            'fulfillmentMode': 'delivery',
+            'promotionCode': '',
+            'discountJod': 0.0,
+            'subtotalJod': order.amount_untaxed,
+            'taxJod': order.amount_tax,
+            'totalJod': order.amount_total,
+            'reservationExpiresAt': None,
+            'settings': self._checkout_settings(),
+            'items': [{
+                'id': line.id,
+                'productId': line.product_id.id,
+                'productNameEn': translator._dtf_translated_text(
+                    line.product_id.product_tmpl_id, 'name', 'en_US'
+                ) or line.product_id.display_name,
+                'productNameAr': translator._dtf_translated_text(
+                    line.product_id.product_tmpl_id, 'name', 'ar_001'
+                ),
+                'quantity': line.product_uom_qty,
+                'unitPriceJod': line.price_unit,
+                'masterAssetId': line.dtf_master_asset_id.id or None,
+                'preflightSnapshot': line.dtf_preflight_snapshot,
+            } for line in order.order_line],
+        }
+
+    @http.route('/api/dtf/v1/checkout/preview', type='http', auth='user', methods=['GET'], csrf=False, website=True)
+    def checkout_preview(self, **kwargs):
+        order = self._native_cart()
+        if not order or not order.order_line:
+            return request.make_json_response({'ok': False, 'error': 'cart_not_found'}, status=404)
+        order._update_address(
+            request.env.user.partner_id.id,
+            ['partner_id', 'partner_invoice_id', 'partner_shipping_id'],
+        )
+        return request.make_json_response({
+            'ok': True,
+            'identity': self._session_payload(request.env.user),
+            'preview': self._checkout_preview_payload(order),
+        })
+
+    @http.route('/api/dtf/v1/checkout/coupon', type='jsonrpc', auth='user', methods=['POST'], csrf=False, website=True)
+    def checkout_coupon(self, coupon=None, **kwargs):
         order = self._native_cart()
         if not order or not order.order_line:
             return {'error': 'cart_not_found'}
-        return {'cart': self._cart_json(order), 'checkout': 'native_website_sale'}
+        code = str(coupon or '').strip()
+        if not code:
+            return {'error': 'coupon_required'}
+        status = order._try_apply_code(code)
+        if status.get('error'):
+            return {'error': str(status['error'])}
+        if status.get('not_found'):
+            return {'error': 'coupon_not_found'}
+        return {'ok': True, 'preview': self._checkout_preview_payload(order)}
+
+    @http.route('/api/dtf/v1/checkout/place', type='jsonrpc', auth='user', methods=['POST'], csrf=False, website=True)
+    def checkout_place(
+        self,
+        customer_name=None,
+        customer_phone=None,
+        city=None,
+        address=None,
+        notes=None,
+        payment_method='bank_transfer',
+        fulfillment='delivery',
+        **kwargs
+    ):
+        order = self._native_cart()
+        if not order or not order.order_line:
+            return {'error': 'cart_not_found'}
+        if payment_method != 'bank_transfer':
+            return {'error': 'payment_method_not_configured'}
+        if fulfillment != 'delivery':
+            return {'error': 'fulfillment_not_configured'}
+
+        partner = request.env.user.partner_id.sudo()
+        partner.write({
+            'name': str(customer_name or partner.name or '').strip() or partner.name,
+            'phone': str(customer_phone or partner.phone or '').strip(),
+            'city': str(city or partner.city or '').strip(),
+            'street': str(address or partner.street or '').strip(),
+        })
+        order._update_address(
+            partner.id,
+            ['partner_id', 'partner_invoice_id', 'partner_shipping_id'],
+        )
+        if notes:
+            order.note = str(notes).strip()
+
+        order._verify_cart()
+        issues = self._checkout_issues(order)
+        if issues:
+            return {'error': 'checkout_blocked', 'issues': issues}
+
+        customizable_lines = order.website_order_line.filtered(
+            lambda line: line.product_id.product_tmpl_id.dtf_catalog_type == 'customizable'
+        )
+        if customizable_lines:
+            customizable_lines.action_capture_dtf_snapshots()
+
+        order.action_confirm()
+        request.session['sale_last_order_id'] = order.id
+        payload = self._order_payload(order)
+        request.env['website'].get_current_website().sale_reset()
+        return {'ok': True, 'order': payload}
 
     @http.route('/api/dtf/v1/orders', type='http', auth='user', methods=['GET'], csrf=False)
     def orders(self, **kwargs):
-        orders = request.env['sale.order'].search([
+        orders = request.env['sale.order'].sudo().search([
             ('partner_id', '=', request.env.user.partner_id.id),
             ('state', 'in', ['sale', 'done']),
         ], order='id desc')
         return request.make_json_response({
-            'items': [{
-                'id': order.id,
-                'name': order.name,
-                'state': order.state,
-                'total': order.amount_total,
-                'lines': [{
-                    'product_id': line.product_id.id,
-                    'quantity': line.product_uom_qty,
-                    'master_asset_id': line.dtf_master_asset_id.id,
-                    'preflight_snapshot': line.dtf_preflight_snapshot,
-                } for line in order.order_line],
-            } for order in orders]
+            'items': [self._order_payload(order) for order in orders]
         })
+
+    @http.route('/api/dtf/v1/orders/<int:order_id>', type='http', auth='user', methods=['GET'], csrf=False)
+    def order_detail(self, order_id, **kwargs):
+        order = request.env['sale.order'].sudo().search([
+            ('id', '=', order_id),
+            ('partner_id', '=', request.env.user.partner_id.id),
+            ('state', 'in', ['sale', 'done']),
+        ], limit=1)
+        if not order:
+            return request.make_json_response({'ok': False, 'error': 'order_not_found'}, status=404)
+        return request.make_json_response({'ok': True, 'order': self._order_payload(order)})

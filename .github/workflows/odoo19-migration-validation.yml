@@ -133,6 +133,11 @@ jobs:
         run: |
           docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo             odoo -d odoo_m9_cart --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons             --without-demo=all --stop-after-init -i dtf_api             --test-enable --test-tags /dtf_api:TestDTFM9GuestCart
 
+      - name: Run M9 native checkout and owned-order tests
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo             odoo -d odoo_m9_checkout --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons             --without-demo=all --stop-after-init -i dtf_api             --test-enable --test-tags /dtf_api:TestDTFM9Checkout
+
       - name: Run M6 production and Printing Operator tests
         shell: bash
         run: |

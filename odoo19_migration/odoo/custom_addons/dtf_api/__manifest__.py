@@ -1,6 +1,6 @@
 {
     "name": "DTF Studio API",
-    "version": "19.0.4.0.0",
+    "version": "19.0.5.0.0",
     "summary": "Versioned compatibility API for the preserved DTF Studio frontend",
     "license": "LGPL-3",
     "depends": [
@@ -15,7 +15,8 @@
         "dtf_printify",
         "dtf_notifications",
         "dtf_admin",
-        "website_sale"
+        "website_sale",
+        "sale_loyalty"
     ],
     "data": [],
     "installable": True,

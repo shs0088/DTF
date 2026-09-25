@@ -161,3 +161,20 @@ describe("M9 frontend Odoo compatibility adapter", () => {
     expect(cartSource).toContain("Odoo stock and pricing revalidated at checkout");
   });
 });
+test("Checkout and Order confirmation no longer use ItemStore or timed reservation authority", async () => {
+  for (const file of ["app/routes/checkout.tsx", "app/routes/order.tsx"]) {
+    const source = await Bun.file(file).text();
+    expect(source).not.toContain("ItemStore");
+    expect(source).not.toContain("ITEMS");
+    expect(source).not.toContain("dtf_cart_session");
+    expect(source).not.toContain("sessionIdentity(");
+    expect(source).toContain("fetchOdooResponse");
+  }
+  const checkoutSource = await Bun.file("app/routes/checkout.tsx").text();
+  const orderSource = await Bun.file("app/routes/order.tsx").text();
+  expect(checkoutSource).toContain("/api/dtf/v1/checkout/preview");
+  expect(checkoutSource).toContain("/api/dtf/v1/checkout/place");
+  expect(checkoutSource).not.toContain("reservationMinutes");
+  expect(orderSource).not.toContain("reservationExpiresAt?");
+  expect(orderSource).toContain("No custom timed stock hold is used");
+});
