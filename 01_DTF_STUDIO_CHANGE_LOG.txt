@@ -712,3 +712,17 @@ RESULT:
 - M2-M8 regression chain and final /web runtime remained green.
 - No production deployment, no merge to main, and no modification/deployment of protected external dtf-studio-v48-safe-frontend.
 NEXT: M10 deployment on the separately planned Ubuntu/Docker VPS/new URL environment.
+
+
+DATE/TIME: 2026-09-25
+TASK: Verify M10 production deployment package and ARM64 CI preparation.
+SOURCE HEAD: 2b8d21c139e7abeded95e0f6b36873231280a07c
+FULL VALIDATION RUN: 36116480105 — SUCCESS.
+RESULT:
+- Production deployment bundle for separate Ubuntu ARM64 VPS/new URL is source-complete and CI-validated.
+- Odoo, PostgreSQL, Nginx and Certbot production image manifests all proved linux/arm64 support.
+- Native Odoo initialization, production Compose/TLS/WebSocket contracts, isolated frontend Worker, backup/checksum, non-destructive restore drill, monitoring/timers and smoke-test scripts are present and validated.
+- M9 frontend typecheck/build/contracts and M2-M8 runtime regression chain including /web remained green.
+- No live VPS/domain/TLS/frontend production deployment has been performed.
+- Protected external dtf-studio-v48-safe-frontend remains untouched.
+NEXT: execute M10 on the separate NEW Ubuntu ARM64 VPS/new domain, collect live runtime evidence, then proceed to M11 acceptance.

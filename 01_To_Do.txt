@@ -671,3 +671,38 @@ M9 BOUNDARY:
 
 NEXT UNFINISHED MIGRATION MILESTONE:
 M10 — Deployment. Requires the separately planned Ubuntu/Docker VPS/new URL environment; do not use or overwrite the protected V48 deployment.
+
+
+============================================================
+ODOO 19 M10 DEPLOYMENT PACKAGE / CI PREPARATION VERIFIED — 2026-09-25
+============================================================
+SOURCE HEAD: 2b8d21c139e7abeded95e0f6b36873231280a07c
+FULL ODOO/MIGRATION VALIDATION: 36116480105 — SUCCESS.
+STATUS: M10 SOURCE/DEPLOYMENT PACKAGE VERIFIED; LIVE PRODUCTION DEPLOYMENT STILL PENDING.
+
+VERIFIED M10 PREPARATION:
+- isolated new Odoo-backed frontend Worker profile prepared; protected V48 Worker/project remains untouched
+- production PostgreSQL/Odoo/Nginx/Certbot Compose bundle prepared
+- native Odoo initialization for all 13 DTF addons prepared and CI-validated
+- production Nginx TLS/database-manager/WebSocket routing contract validated
+- Ubuntu ARM64/aarch64 host preflight prepared
+- production image ARM64 manifests verified for Odoo, PostgreSQL, Nginx and Certbot
+- backup, checksum, isolated restore-drill, monitoring, TLS renewal and systemd timer scripts prepared
+- production smoke gate prepared
+- M9 frontend typecheck/build/contract tests remain green
+- M2-M8 regression chain and final Odoo/Nginx /web runtime remain green
+
+STILL REQUIRED TO COMPLETE M10:
+1. Provision the separate NEW Ubuntu ARM64 VPS / Oracle OCI host.
+2. Configure the NEW Odoo domain DNS.
+3. Create .env.production with real secrets and new host values.
+4. Run production host preflight and native Odoo initialization on that host.
+5. Issue real TLS certificate for the NEW Odoo domain.
+6. Deploy the isolated new frontend Worker with the NEW Odoo HTTPS origin.
+7. Run real production backup and fully isolated restore drill.
+8. Install/verify monitoring, log rotation and host timers.
+9. Run production smoke tests against the NEW backend/frontend URLs.
+10. Record runtime evidence and only then close M10.
+
+NEXT UNFINISHED ITEM:
+M10 live deployment execution on the separate NEW VPS/new URL environment. Do not use or overwrite dtf-studio-v48-safe-frontend.

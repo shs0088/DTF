@@ -122,3 +122,34 @@ No deployment or merge has been performed.
 M9 closes the preserved-frontend to Odoo compatibility-API cutover and its source/runtime/browser verification. It does not perform M10 production VPS/Oracle deployment, domain/TLS, scheduled backups, restore drill, monitoring/logging, M11 final production acceptance, merge to main, or modification/deployment of the protected external `dtf-studio-v48-safe-frontend` project.
 
 No production deployment or merge has been performed.
+
+
+## M10 preparation status — source/CI verified, live deployment pending
+
+- M10 production deployment package source HEAD: `2b8d21c139e7abeded95e0f6b36873231280a07c`.
+- Odoo 19 migration validation run: `36116480105` — SUCCESS.
+- Source/CI verified:
+  - separate production PostgreSQL/Odoo/Nginx/Certbot Compose stack
+  - isolated new Odoo-backed frontend Worker; protected V48 project/Worker remains untouched
+  - native Odoo initialization and verification of all 13 DTF addons
+  - Ubuntu ARM64/aarch64 host preflight
+  - production Nginx HTTPS, API, backend and WebSocket routing contracts
+  - blocked external Odoo database manager
+  - backup with compressed PostgreSQL dump, Odoo filestore archive and SHA-256 checksums
+  - fully isolated non-destructive restore drill
+  - monitoring, log rotation and host timers
+  - production smoke-test contract
+  - linux/arm64 image manifest proof for Odoo, PostgreSQL, Nginx and Certbot
+  - M9 frontend contract/typecheck/build regression and M2-M8 native Odoo regressions remain green
+  - final Odoo/Nginx `/web` runtime check remains green
+
+M10 is **not yet closed** because the following require the separate NEW production host:
+- real Ubuntu ARM64 VPS/Oracle provisioning
+- real NEW backend domain DNS
+- real TLS issuance/renewal
+- live isolated frontend Worker deployment against the NEW Odoo HTTPS origin
+- live production backup and restore drill
+- live monitoring/logging/timer acceptance
+- live production smoke tests
+
+No live production deployment or merge has been performed, and the protected external `dtf-studio-v48-safe-frontend` project/deployment remains untouched.

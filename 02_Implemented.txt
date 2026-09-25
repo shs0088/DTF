@@ -482,3 +482,30 @@ IMPLEMENTATION EVIDENCE:
 - exact-head native Odoo M9 test matrix passed in run 36109746971
 - exact-head preserved-frontend/Odoo browser run 36109746976 passed
 - protected M6 visual run 36109747163 passed
+
+
+============================================================
+ODOO 19 M10 DEPLOYMENT PACKAGE / CI PREPARATION VERIFIED — 2026-09-25
+============================================================
+SOURCE HEAD: 2b8d21c139e7abeded95e0f6b36873231280a07c
+FULL ODOO/MIGRATION VALIDATION: 36116480105 — SUCCESS.
+STATUS: M10 SOURCE/DEPLOYMENT PACKAGE VERIFIED; LIVE PRODUCTION DEPLOYMENT STILL PENDING.
+
+IMPLEMENTED / VERIFIED M10 SOURCE PACKAGE:
+- docker-compose.production.yml with PostgreSQL, Odoo 19, Nginx and Certbot
+- .env.production.example including isolated new domain, TLS email, image pins and backup retention
+- nginx.production.conf.template with HTTPS, /api/dtf/, /odoo, /web and /websocket routing and blocked database manager
+- preflight-production-host.sh enforcing Ubuntu ARM64/aarch64 and protected-V48 hostname guards
+- initialize-production.sh installing/verifying all 13 DTF addons with native Odoo CLI
+- deploy-frontend.sh + isolated wrangler.frontend.production.jsonc + workers/odoo-frontend.ts
+- provision-tls.sh / renew-tls.sh
+- backup-production.sh with PostgreSQL custom dump, Odoo filestore archive and SHA-256 checksums
+- restore-drill.sh using disposable Docker network/database/data volumes only
+- monitor-production.sh and install-host-timers.sh
+- smoke-production.sh
+- validate_m10.py and CI production Compose/shell/ARM64 checks
+- ARM64 manifest proof for Odoo, PostgreSQL, Nginx and Certbot
+- exact-head run 36116480105 SUCCESS including M9 frontend contract and M2-M8 runtime regressions
+
+BOUNDARY:
+This verifies the deployment package and CI preparation only. No live production VPS, DNS, TLS issuance, frontend deployment, backup/restore drill, monitoring acceptance, merge to main, or protected V48 modification has been performed.

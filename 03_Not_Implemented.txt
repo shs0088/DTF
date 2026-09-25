@@ -405,3 +405,30 @@ STILL NOT IMPLEMENTED / NOT PERFORMED:
 5. M11 final production acceptance.
 6. Merge to main.
 7. Any replacement/modification/deployment of protected external dtf-studio-v48-safe-frontend.
+
+
+============================================================
+ODOO 19 M10 DEPLOYMENT PACKAGE / CI PREPARATION VERIFIED — 2026-09-25
+============================================================
+SOURCE HEAD: 2b8d21c139e7abeded95e0f6b36873231280a07c
+FULL ODOO/MIGRATION VALIDATION: 36116480105 — SUCCESS.
+STATUS: M10 SOURCE/DEPLOYMENT PACKAGE VERIFIED; LIVE PRODUCTION DEPLOYMENT STILL PENDING.
+
+M10 IS NO LONGER "NOT STARTED" AT SOURCE/PACKAGE LEVEL.
+
+STILL NOT PERFORMED / NOT VERIFIED LIVE:
+1. Provisioning the separate production Ubuntu ARM64 VPS / Oracle OCI host.
+2. Real production DNS for the NEW Odoo backend domain.
+3. Real production .env.production secrets/configuration.
+4. Live native Odoo/PostgreSQL/Nginx startup on the production host.
+5. Real Let's Encrypt TLS issuance/renewal on the NEW domain.
+6. Live isolated frontend Worker deployment against the NEW Odoo HTTPS origin.
+7. Real scheduled backup execution and retention verification.
+8. Real isolated restore drill using a production backup.
+9. Real monitoring/logging/timer acceptance.
+10. Real production smoke tests including API, /odoo, /websocket and frontend URLs.
+11. M11 final production acceptance.
+12. Merge to main.
+13. Any modification/replacement/deployment of protected external dtf-studio-v48-safe-frontend.
+
+The source-level M10 deployment package and ARM64 CI proof are VERIFIED; the live-runtime items above remain pending.

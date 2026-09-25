@@ -690,3 +690,46 @@ M9 FINAL CLOSURE CHECK — 2026-09-25
 716. M10 deployment: NOT STARTED.
 717. M11 production acceptance: NOT STARTED.
 718. Merge/deployment/protected external V48 project modification during M9: NONE.
+
+
+============================================================
+ODOO 19 M10 DEPLOYMENT PACKAGE / CI PREPARATION VERIFIED — 2026-09-25
+============================================================
+SOURCE HEAD: 2b8d21c139e7abeded95e0f6b36873231280a07c
+FULL ODOO/MIGRATION VALIDATION: 36116480105 — SUCCESS.
+STATUS: M10 SOURCE/DEPLOYMENT PACKAGE VERIFIED; LIVE PRODUCTION DEPLOYMENT STILL PENDING.
+
+719. M10 production deployment package exists: PASS.
+720. Protected legacy root wrangler entrypoint/name unchanged: PASS.
+721. New frontend Worker is isolated from legacy Durable Objects/R2 authority: PASS.
+722. Production PostgreSQL host port 5432 not published: PASS.
+723. Production Nginx ports 80/443 configured: PASS.
+724. External Odoo database manager blocked by production Nginx contract: PASS.
+725. /api/dtf/, /odoo, /web and /websocket production routes present: PASS.
+726. Production TLS configuration contract present: PASS.
+727. Native Odoo initializer installs/verifies all 13 DTF addons: PASS STATIC/CI.
+728. Ubuntu ARM64/aarch64 host preflight: PASS STATIC/CI.
+729. Odoo production image linux/arm64 manifest: PASS.
+730. PostgreSQL production image linux/arm64 manifest: PASS.
+731. Nginx production image linux/arm64 manifest: PASS.
+732. Certbot production image linux/arm64 manifest: PASS.
+733. Production backup contains pg_dump -Fc: PASS.
+734. Production backup contains Odoo data/filestore archive: PASS.
+735. Production backup checksum manifest: PASS.
+736. Restore drill uses disposable Docker network/DB/Odoo volumes: PASS.
+737. Restore drill avoids production Compose volumes/services: PASS.
+738. Monitoring script present: PASS.
+739. Backup/restore/monitor/TLS renewal timers defined: PASS.
+740. Production smoke gate covers health/products/categories/database-manager/WebSocket: PASS.
+741. M9 frontend typecheck/build/contracts on M10 HEAD: PASS.
+742. M2-M8 regression chain on M10 HEAD: PASS.
+743. Final Odoo/Nginx /web runtime on M10 HEAD: PASS.
+744. Exact-head validation run 36116480105: SUCCESS.
+745. Live production VPS provisioned: PENDING.
+746. Live production DNS/TLS: PENDING.
+747. Live production backup + restore drill: PENDING.
+748. Live production monitoring/timers: PENDING.
+749. Live production smoke test: PENDING.
+750. M11 production acceptance: PENDING.
+751. Merge to main: NOT PERFORMED.
+752. Protected dtf-studio-v48-safe-frontend modification/deployment during M10 prep: NONE.
