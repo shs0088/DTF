@@ -3,6 +3,7 @@ set -eu
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)"
 CONFIG="$ROOT/odoo19_migration/deployment/wrangler.frontend.production.jsonc"
+GENERATED_CONFIG="$ROOT/build/server/wrangler.json"
 
 command -v npm >/dev/null 2>&1 || { echo "npm is required." >&2; exit 2; }
 command -v npx >/dev/null 2>&1 || { echo "npx is required." >&2; exit 2; }
@@ -22,4 +23,5 @@ fi
 cd "$ROOT"
 npm install
 npm run build
-npx wrangler deploy --config "$CONFIG"
+node "$ROOT/scripts/build-manifest.mjs" "$CONFIG"
+npx wrangler deploy --config "$GENERATED_CONFIG"

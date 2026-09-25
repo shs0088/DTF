@@ -109,8 +109,10 @@ jobs:
         run: npm run build
       - name: Run M9 Odoo compatibility adapter tests
         run: bun test workers/m9-frontend-cutover.test.ts
+      - name: Build isolated M10 production frontend Worker bundle
+        run: node scripts/build-manifest.mjs odoo19_migration/deployment/wrangler.frontend.production.jsonc
       - name: Dry-run isolated M10 production frontend Worker
-        run: npx wrangler deploy --dry-run --config odoo19_migration/deployment/wrangler.frontend.production.jsonc
+        run: npx wrangler deploy --dry-run --config build/server/wrangler.json
 
   m1-odoo-runtime:
     runs-on: ubuntu-latest

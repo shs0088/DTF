@@ -46,8 +46,17 @@ require("/web/database" in nginx and "return 404" in nginx,
 
 worker = (ROOT / "workers" / "odoo-frontend.ts").read_text()
 deploy_frontend = (DEPLOY / "deploy-frontend.sh").read_text()
+build_manifest = (ROOT / "scripts" / "build-manifest.mjs").read_text()
 require("npm install" in deploy_frontend and "npm ci" not in deploy_frontend,
         "Production frontend deploy must use the repository's verified npm install workflow.")
+require('node "$ROOT/scripts/build-manifest.mjs" "$CONFIG"' in deploy_frontend,
+        "Production frontend deploy must bundle the isolated config with the existing React Router build manifest tool.")
+require('--config "$GENERATED_CONFIG"' in deploy_frontend,
+        "Production frontend deploy must deploy the generated React Router Worker bundle.")
+require("process.argv[2]" in build_manifest and "resolve(configDir, config.main)" in build_manifest,
+        "Build manifest tool must support a config path and resolve its Worker entry relative to that config.")
+require("config.name ? { name: config.name }" in build_manifest,
+        "Generated Worker manifest must preserve the isolated production Worker name.")
 require("DTF_ODOO_ORIGIN" in worker, "Production frontend must require Odoo origin.")
 require("https:" in worker, "Production frontend must enforce HTTPS Odoo origin.")
 require("ItemStore" not in worker and "DESIGN_ASSETS" not in worker,

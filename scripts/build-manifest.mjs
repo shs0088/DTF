@@ -1,9 +1,13 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 
 mkdirSync("build/server", { recursive: true });
 
-const rawConfig = readFileSync("wrangler.jsonc", "utf8");
+const configPath = process.argv[2] ?? "wrangler.jsonc";
+const absoluteConfigPath = resolve(configPath);
+const configDir = dirname(absoluteConfigPath);
+const rawConfig = readFileSync(absoluteConfigPath, "utf8");
 const config = JSON.parse(rawConfig.replace(/\/\/[^\n]*/g, "").replace(/,(\s*[}\]])/g, "$1"));
 
 const sharedEsbuildArgs = [
@@ -27,8 +31,8 @@ if (config.main) {
   // Durable Object classes survive the build. The React Router server build is
   // aliased in for the virtual module the entry imports.
   execFileSync("node_modules/.bin/esbuild", [
-    config.main,
-    '--alias:virtual:react-router/server-build=./build/server/index.js',
+    resolve(configDir, config.main),
+    `--alias:virtual:react-router/server-build=${resolve("build/server/index.js")}`,
     '--define:import.meta.env.MODE="production"',
     ...sharedEsbuildArgs,
   ], { stdio: "inherit" });
@@ -71,6 +75,7 @@ if (config.main) {
 // (project-worker-bundle) selects modules strictly by these rules and
 // lifts vars/durable_objects/kv_namespaces/r2_buckets/ai/services into API bindings.
 const manifest = {
+  ...(config.name ? { name: config.name } : {}),
   main: "worker.js",
   no_bundle: true,
   rules: [{ type: "ESModule", globs: ["**/*.js", "**/*.mjs"] }],
