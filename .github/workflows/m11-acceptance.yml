@@ -31,6 +31,33 @@ jobs:
         run: python3 odoo19_migration/validation/validate_m10.py
       - name: Validate M11 source acceptance matrix
         run: python3 odoo19_migration/validation/validate_m11.py
+      - name: Prove strict gate rejects missing live evidence
+        run: |
+          if python3 odoo19_migration/validation/validate_m11.py \
+              --require-live \
+              --live-evidence /tmp/m11-live-evidence-missing.json; then
+            echo "Strict M11 gate unexpectedly accepted missing live evidence." >&2
+            exit 1
+          fi
+      - name: Prove strict gate rejects mismatched source HEAD
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          src = Path("odoo19_migration/acceptance/m11-live-evidence.example.json")
+          out = Path("/tmp/m11-live-evidence-wrong-head.json")
+          data = json.loads(src.read_text())
+          data["source_head"] = "0" * 40
+          data["collected_at_utc"] = "2026-09-25T00:00:00Z"
+          out.write_text(json.dumps(data))
+          PY
+          if python3 odoo19_migration/validation/validate_m11.py \
+              --require-live \
+              --live-evidence /tmp/m11-live-evidence-wrong-head.json; then
+            echo "Strict M11 gate unexpectedly accepted a mismatched source HEAD." >&2
+            exit 1
+          fi
       - name: Run strict live production acceptance
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.require_live }}
         run: python3 odoo19_migration/validation/validate_m11.py --require-live
