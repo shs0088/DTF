@@ -300,6 +300,14 @@ class DTFAPI(http.Controller):
             } for line in order.order_line],
         }
 
+    @http.route('/api/dtf/v1/checkout', type='jsonrpc', auth='user', methods=['POST'], csrf=False, website=True)
+    def checkout(self, **kwargs):
+        """M5 compatibility endpoint retained during M9 frontend cutover."""
+        order = self._native_cart()
+        if not order or not order.order_line:
+            return {'error': 'cart_not_found'}
+        return {'cart': self._cart_json(order), 'checkout': 'native_website_sale'}
+
     @http.route('/api/dtf/v1/checkout/preview', type='http', auth='user', methods=['GET'], csrf=False, website=True)
     def checkout_preview(self, **kwargs):
         order = self._native_cart()
