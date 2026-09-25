@@ -275,7 +275,9 @@ test("rejects external or malformed post-login return targets", () => {
   expect(normalizeReturnTo("https://evil.example/checkout")).toBe("/");
   expect(normalizeReturnTo("//evil.example/checkout")).toBe("/");
   expect(normalizeReturnTo("/\\evil.example/checkout")).toBe("/");
-  test("Home is Odoo-native and legacy V48 routes are retired", async () => {
+});
+
+test("Home is Odoo-native and legacy V48 routes are retired", async () => {
     const home = await Bun.file("app/routes/home.tsx").text();
     expect(home).toContain('data-home-source="odoo19"');
     expect(home).toContain("/api/dtf/v1/homepage");
@@ -285,6 +287,4 @@ test("rejects external or malformed post-login return targets", () => {
       expect(source).toContain("LEGACY_HOME_PATH");
       expect(source).toContain("Response.redirect");
     }
-  });
-
 });
