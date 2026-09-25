@@ -52,7 +52,32 @@ for script in (
     "provision-tls.sh",
     "renew-tls.sh",
     "monitor-production.sh",
+    "backup-production.sh",
+    "restore-drill.sh",
+    "install-host-timers.sh",
 ):
     require((DEPLOY / script).exists(), f"Missing M10 deployment script: {script}")
 
 print("M10 deployment static validation passed.")
+
+
+installer = (DEPLOY / "install-host-timers.sh").read_text()
+for unit in (
+    "dtf-studio-backup.timer",
+    "dtf-studio-restore-drill.timer",
+    "dtf-studio-monitor.timer",
+    "dtf-studio-tls-renew.timer",
+):
+    require(unit in installer, f"Missing host timer definition: {unit}")
+
+backup = (DEPLOY / "backup-production.sh").read_text()
+require("pg_dump -Fc" in backup and "SHA256SUMS" in backup,
+        "Production backup must include compressed PostgreSQL dump and checksums.")
+require("odoo-data.tar.gz" in backup,
+        "Production backup must include compressed Odoo data/filestore.")
+
+drill = (DEPLOY / "restore-drill.sh").read_text()
+require("pg_restore" in drill and "DRILL_DB" in drill,
+        "Restore drill must restore into a disposable database.")
+require("--stop-after-init" in drill,
+        "Restore drill must start Odoo against the restored database.")

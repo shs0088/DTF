@@ -8,3 +8,5 @@ coverage/
 !.env.example
 tmp/
 *.candidate.json
+
+odoo19_migration/deployment/backups/
