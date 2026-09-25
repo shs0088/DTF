@@ -1,29 +1,51 @@
-import { Form, Link, redirect } from "react-router";
+import { Form, Link, redirect, useLoaderData } from "react-router";
 import type { Route } from "./+types/customize";
-import type { ItemStore } from "../../workers/item-store";
 import { ArrowLeft, Check, Copy, FlipHorizontal2, Layers3, Minus, Move, Plus, Redo2, RotateCw, Ruler, ShoppingBag, Trash2, Undo2, Upload, ZoomIn } from "lucide-react";
 import { localeDir, pick, useAppLocale } from "../i18n";
+import {
+  appendOdooSessionCookies,
+  fetchOdooJson,
+  fetchOdooJsonRpc,
+  mapOdooProducts,
+} from "../lib/odoo-api.server";
 
-function cookieValue(request: Request, name: string): string {
-  const cookie=request.headers.get("cookie")??"";
-  const part=cookie.split(";").map((x)=>x.trim()).find((x)=>x.startsWith(name+"="));
-  return (part?.slice(name.length+1)??"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,120);
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const payload = await fetchOdooJson<any>(
+    request,
+    context,
+    "/api/dtf/v1/products",
+  );
+  const products = mapOdooProducts(payload);
+  const requested = new URL(request.url).searchParams.get("variantId") ?? "";
+  const selected = products.find((row) => row.variantId === requested)
+    ?? products.find((row) => row.source === "custom")
+    ?? products[0];
+  return { variantId: selected?.variantId ?? "" };
 }
 
 export async function action({ request, context }: Route.ActionArgs) {
   const form = await request.formData();
   if (form.get("intent") !== "add-to-cart") return null;
-  const namespace = context.cloudflare.env.ITEMS as DurableObjectNamespace<ItemStore>;
-  const store = namespace.get(namespace.idFromName("default"));
-  const existingCart=cookieValue(request,"dtf_cart_session");
-  const legacy=cookieValue(request,"dtf_session");
-  const legacyIsAuth=legacy?Boolean(await store.sessionIdentity(legacy)):false;
-  const sessionKey=existingCart||(!legacyIsAuth&&legacy?legacy:crypto.randomUUID().replaceAll("-",""));
-  await store.addCartItem({ sessionKey, variantId: String(form.get("variantId") ?? "variant-tshirt-white-m"), printSpecJson: JSON.stringify({ position: "front", widthCm: 25, heightCm: 30, xCm: 5, yCm: 10, rotation: 0 }) });
-  return redirect("/cart", { headers: { "Set-Cookie": `dtf_cart_session=${sessionKey}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000` } });
+  const variantId = Number(form.get("variantId") ?? 0);
+  if (!Number.isInteger(variantId) || variantId <= 0) {
+    throw new Response("A valid Odoo product variant is required.", { status: 400 });
+  }
+  const { result, response } = await fetchOdooJsonRpc<any>(
+    request,
+    context,
+    "/api/dtf/v1/cart/add",
+    { product_id: variantId, quantity: 1 },
+  );
+  if (result?.error) {
+    throw new Response("Unable to add this product to the cart.", { status: 400 });
+  }
+  const headers = new Headers({ Location: "/cart" });
+  appendOdooSessionCookies(headers, response);
+  return new Response(null, { status: 303, headers });
 }
 
 export default function Customize() {
+  const { variantId } = useLoaderData<typeof loader>();
   const locale=useAppLocale();
   const t=(en:string,ar:string)=>pick(locale,en,ar);
   return <main className="studio-shell inner-page" dir={localeDir(locale)}>
@@ -46,7 +68,7 @@ export default function Customize() {
         <div className="quality-card"><div className="quality-icon"><Check size={17} /></div><div><b>{t("Good print quality","جودة طباعة جيدة")}</b><p>{t("Effective DPI 300 · no scaling risk","دقة فعالة 300 DPI · لا يوجد خطر تحجيم")}</p></div></div>
         <div className="tool-section layer-section"><span className="tool-label">{t("Layers","الطبقات")}</span><div className="layer-row active"><span className="layer-thumb">◢</span><span>{t("Artwork · Master","التصميم · الماستر")}</span><Layers3 size={15} /></div><button className="layer-action"><Copy size={15} /> {t("Duplicate","نسخ")}</button><button className="layer-action"><Trash2 size={15} /> {t("Delete","حذف")}</button></div>
         <div className="history-row"><button><Undo2 size={16} /> {t("Undo","تراجع")}</button><button><Redo2 size={16} /> {t("Redo","إعادة")}</button></div>
-        <Form method="post"><input type="hidden" name="intent" value="add-to-cart" /><input type="hidden" name="variantId" value="variant-tshirt-white-m" /><button type="submit" className="button button-primary full-button">{t("Add to cart","أضف للسلة")} <ShoppingBag size={16} /></button></Form>
+        <Form method="post"><input type="hidden" name="intent" value="add-to-cart" /><input type="hidden" name="variantId" value={variantId} /><button type="submit" className="button button-primary full-button" disabled={!variantId}>{t("Add to cart","أضف للسلة")} <ShoppingBag size={16} /></button></Form>
         <p className="supplier-note">{t("Local preview is separate from any official supplier mockup. Supplier rendering becomes available after a mapped product is selected.","المعاينة المحلية منفصلة عن أي نموذج رسمي من المورّد. تتوفر معاينة المورّد بعد اختيار منتج مربوط بالنظام.")}</p>
       </aside>
     </div>

@@ -47,6 +47,45 @@ export type LegacyStudioCategory = {
   homeOrder: number;
 };
 
+export type LegacyCartLine = {
+  id: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  color: string | null;
+  size: string | null;
+  quantity: number;
+  unitPriceJod: number;
+  lineTotalJod: number;
+  designId: string | null;
+  masterAssetId: string | null;
+};
+
+export type LegacyCartSnapshot = {
+  cartId: string;
+  lines: LegacyCartLine[];
+  itemCount: number;
+  subtotalJod: number;
+};
+
+type OdooCart = {
+  id?: number;
+  lines?: Array<{
+    id?: number;
+    product_id?: number;
+    sku?: string;
+    product_name?: string;
+    color?: string | null;
+    size?: string | null;
+    quantity?: number;
+    unit_price?: number;
+    subtotal?: number;
+    design_id?: number | null;
+    master_asset_id?: number | null;
+  }>;
+  subtotal?: number;
+};
+
 export type LegacyStudioProduct = {
   modelId: string;
   categoryId: string;
@@ -168,4 +207,53 @@ export function mapOdooProducts(
     }
   }
   return rows;
+}
+
+
+export async function fetchOdooJsonRpc<T>(
+  request: Request,
+  context: OdooRequestContext,
+  path: string,
+  params: Record<string, unknown> = {},
+): Promise<{ result: T; response: Response }> {
+  const response = await fetchOdooResponse(request, context, path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      method: "call",
+      params,
+      id: 1,
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(`Odoo JSON-RPC request failed with status ${response.status}.`);
+  }
+  const payload = await response.json() as { result?: T; error?: unknown };
+  if (payload.error) throw new Error("Odoo JSON-RPC request failed.");
+  return { result: payload.result as T, response };
+}
+
+export function mapOdooCart(
+  cart: OdooCart | null | undefined,
+): LegacyCartSnapshot {
+  const lines = (cart?.lines ?? []).map((line) => ({
+    id: String(line.id ?? ""),
+    variantId: String(line.product_id ?? ""),
+    sku: String(line.sku ?? ""),
+    productName: String(line.product_name ?? ""),
+    color: line.color ? String(line.color) : null,
+    size: line.size ? String(line.size) : null,
+    quantity: Number(line.quantity ?? 0),
+    unitPriceJod: Number(line.unit_price ?? 0),
+    lineTotalJod: Number(line.subtotal ?? 0),
+    designId: line.design_id ? String(line.design_id) : null,
+    masterAssetId: line.master_asset_id ? String(line.master_asset_id) : null,
+  }));
+  return {
+    cartId: cart?.id ? String(cart.id) : "",
+    lines,
+    itemCount: lines.reduce((sum, line) => sum + line.quantity, 0),
+    subtotalJod: Number(cart?.subtotal ?? 0),
+  };
 }

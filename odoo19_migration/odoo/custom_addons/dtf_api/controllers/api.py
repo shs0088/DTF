@@ -128,20 +128,35 @@ class DTFAPI(http.Controller):
         products = request.env['product.template'].sudo().search(request.website.sale_product_domain(), limit=100)
         return request.make_json_response({'items': self._frontend_product_payload(products)})
 
+    def _cart_line_payload(self, line):
+        attributes = {
+            value.attribute_id.name.lower(): value.product_attribute_value_id.name
+            for value in line.product_id.product_template_attribute_value_ids
+        }
+        color = next((value for key, value in attributes.items() if key in ('color', 'colour', 'لون')), None)
+        size = next((value for key, value in attributes.items() if key in ('size', 'مقاس', 'حجم')), None)
+        return {
+            'id': line.id,
+            'product_id': line.product_id.id,
+            'variant': line.product_id.display_name,
+            'sku': line.product_id.default_code or '',
+            'product_name': line.product_id.product_tmpl_id.name,
+            'color': color,
+            'size': size,
+            'quantity': line.product_uom_qty,
+            'unit_price': line.price_unit,
+            'subtotal': line.price_subtotal,
+            'tax': line.price_tax,
+            'total': line.price_total,
+            'design_id': line.dtf_design_id.id or None,
+            'master_asset_id': line.dtf_master_asset_id.id or None,
+        }
+
     def _cart_json(self, order):
         return {
             'id': order.id,
             'state': order.state,
-            'lines': [{
-                'id': line.id,
-                'product_id': line.product_id.id,
-                'variant': line.product_id.display_name,
-                'quantity': line.product_uom_qty,
-                'unit_price': line.price_unit,
-                'subtotal': line.price_subtotal,
-                'tax': line.price_tax,
-                'total': line.price_total,
-            } for line in order.website_order_line],
+            'lines': [self._cart_line_payload(line) for line in order.website_order_line],
             'subtotal': order.amount_untaxed,
             'tax': order.amount_tax,
             'total': order.amount_total,
@@ -152,12 +167,12 @@ class DTFAPI(http.Controller):
             return None
         return request.cart or (request.website._create_cart() if force_create else None)
 
-    @http.route('/api/dtf/v1/cart', type='http', auth='user', methods=['GET'], csrf=False, website=True)
+    @http.route('/api/dtf/v1/cart', type='http', auth='public', methods=['GET'], csrf=False, website=True)
     def cart_get(self, **kwargs):
         order = self._native_cart()
         return request.make_json_response({'cart': self._cart_json(order) if order else None})
 
-    @http.route('/api/dtf/v1/cart/add', type='jsonrpc', auth='user', methods=['POST'], csrf=False, website=True)
+    @http.route('/api/dtf/v1/cart/add', type='jsonrpc', auth='public', methods=['POST'], csrf=False, website=True)
     def cart_add(self, product_id=None, quantity=1, **kwargs):
         quantity = float(quantity or 0)
         if quantity <= 0:
@@ -166,7 +181,7 @@ class DTFAPI(http.Controller):
         result = order._cart_add(int(product_id or 0), quantity, **kwargs)
         return {'result': result, 'cart': self._cart_json(order)}
 
-    @http.route('/api/dtf/v1/cart/line/<int:line_id>', type='jsonrpc', auth='user', methods=['PATCH'], csrf=False, website=True)
+    @http.route('/api/dtf/v1/cart/line/<int:line_id>', type='jsonrpc', auth='public', methods=['PATCH'], csrf=False, website=True)
     def cart_line_update(self, line_id, quantity=None, **kwargs):
         order = self._native_cart()
         if not order or line_id not in order.order_line.ids:
@@ -174,7 +189,7 @@ class DTFAPI(http.Controller):
         result = order._cart_update_line_quantity(line_id, float(quantity or 0), **kwargs)
         return {'result': result, 'cart': self._cart_json(order)}
 
-    @http.route('/api/dtf/v1/cart/line/<int:line_id>', type='jsonrpc', auth='user', methods=['DELETE'], csrf=False, website=True)
+    @http.route('/api/dtf/v1/cart/line/<int:line_id>', type='jsonrpc', auth='public', methods=['DELETE'], csrf=False, website=True)
     def cart_line_delete(self, line_id, **kwargs):
         order = self._native_cart()
         if not order or line_id not in order.order_line.ids:

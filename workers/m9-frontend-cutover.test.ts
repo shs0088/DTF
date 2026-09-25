@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  mapOdooCart,
   mapOdooCategories,
   mapOdooProducts,
   appendOdooSessionCookies,
@@ -99,5 +100,54 @@ describe("M9 frontend Odoo compatibility adapter", () => {
     expect(cookies.join("\n")).toContain("session_id=abc");
     expect(cookies.join("\n")).toContain("dtf_session=");
     expect(cookies.join("\n")).toContain("Max-Age=0");
+  });
+  test("maps native Odoo cart to the preserved Cart contract", () => {
+    expect(mapOdooCart({
+      id: 17,
+      subtotal: 28,
+      lines: [{
+        id: 9,
+        product_id: 91,
+        sku: "TEE-BLK-L",
+        product_name: "Classic Tee",
+        color: "Black",
+        size: "L",
+        quantity: 2,
+        unit_price: 14,
+        subtotal: 28,
+        design_id: null,
+        master_asset_id: null,
+      }],
+    })).toEqual({
+      cartId: "17",
+      itemCount: 2,
+      subtotalJod: 28,
+      lines: [{
+        id: "9",
+        variantId: "91",
+        sku: "TEE-BLK-L",
+        productName: "Classic Tee",
+        color: "Black",
+        size: "L",
+        quantity: 2,
+        unitPriceJod: 14,
+        lineTotalJod: 28,
+        designId: null,
+        masterAssetId: null,
+      }],
+    });
+  });
+
+  test("Customizer and Cart no longer use ItemStore cart/session authority", async () => {
+    for (const file of ["app/routes/customize.tsx", "app/routes/cart.tsx"]) {
+      const source = await Bun.file(file).text();
+      expect(source).not.toContain("ItemStore");
+      expect(source).not.toContain("ITEMS");
+      expect(source).not.toContain("dtf_cart_session");
+      expect(source).toContain("Odoo");
+    }
+    const cartSource = await Bun.file("app/routes/cart.tsx").text();
+    expect(cartSource).not.toContain("bankTransferReservationMinutes");
+    expect(cartSource).toContain("Odoo stock and pricing revalidated at checkout");
   });
 });
