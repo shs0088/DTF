@@ -1,126 +1,86 @@
 import { Form, Link, redirect, useActionData, useLoaderData, useNavigation } from "react-router";
 import type { Route } from "./+types/designer-new-design";
-import type { ItemStore } from "../../workers/item-store";
-import { analyzeAsset, DESIGN_PRODUCT_TYPES } from "../../workers/analyzer";
-import { inspectUpload } from "../../workers/upload-inspection";
 import { ArrowLeft, CheckCircle2, FileImage, Image as ImageIcon, Printer, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { localeDir, localeFromRequest, pick, productTypeLabel, useAppLocale } from "../i18n";
+import {
+  appendOdooSessionCookies,
+  fetchOdooResponse,
+} from "../lib/odoo-api.server";
 
-function cookieValue(request:Request,name:string){
-  const cookie=request.headers.get("cookie")??"";
-  const part=cookie.split(";").map(x=>x.trim()).find(x=>x.startsWith(name+"="));
-  return (part?.slice(name.length+1)??"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,120);
-}
-function store(context:Route.LoaderArgs["context"]|Route.ActionArgs["context"]){
-  const ns=context.cloudflare.env.ITEMS as DurableObjectNamespace<ItemStore>;
-  return ns.get(ns.idFromName("default"));
-}
-function designBucket(context:Route.ActionArgs["context"]){
-  return (context.cloudflare.env as any).DESIGN_ASSETS as R2Bucket|undefined;
-}
-const PRINT_AREAS:Record<string,{width:number;height:number}>={
-  "T-Shirt":{width:12,height:16},
-  "Mug":{width:9,height:3.75},
-  "Cap":{width:4,height:2.5},
-};
-function mimeLabel(mime:string){
-  return mime==="image/png"?"PNG":mime==="image/jpeg"?"JPEG":mime==="image/webp"?"WebP":mime==="image/svg+xml"?"SVG":mime==="application/pdf"?"PDF":mime;
-}
-function normalizeBrowserMime(value:string){return value.toLowerCase()==="image/jpg"?"image/jpeg":value.toLowerCase();}
 function message(locale:"en"|"ar",en:string,ar:string){return locale==="ar"?ar:en;}
 
-export async function loader({request,context}:Route.LoaderArgs){
-  const sessionId=cookieValue(request,"dtf_session"),s=store(context),identity=await s.sessionIdentity(sessionId);
-  if(!identity||identity.role!=="designer")throw redirect("/login?returnTo=%2Fdesigner%2Fnew-design");
-  try{await s.designerWorkspace(sessionId);}catch{throw redirect("/designer-qualification");}
-  const settings:any=(await s.businessSettingsSnapshot() as any).settings;
-  return {
-    locale: localeFromRequest(request),
-    productTypes:[...DESIGN_PRODUCT_TYPES],
-    maxFileSizeBytes:Number(settings.artworkValidationRules?.maxFileSizeBytes||20971520),
-    allowedFormats:Array.isArray(settings.artworkValidationRules?.allowedFormats)?settings.artworkValidationRules.allowedFormats:["image/png","image/jpeg","image/webp","image/svg+xml","application/pdf"],
-    minDpi:Number(settings.artworkValidationRules?.minDpi||300),
+function uploadError(locale:"en"|"ar",code:string){
+  const map:Record<string,[string,string]>={
+    bilingual_fields_required:["Complete all four bilingual design fields.","أكمل حقول التصميم الأربعة باللغتين."],
+    invalid_product_type:["Select one of the seven supported Product Type combinations.","اختر تركيبة واحدة من تركيبات أنواع المنتجات السبعة المعتمدة."],
+    files_required:["Upload at least one design file.","ارفع ملف تصميم واحداً على الأقل."],
+    too_many_files:["A design can contain up to 20 uploaded assets.","يمكن أن يحتوي التصميم على 20 ملفاً مرفوعاً كحد أقصى."],
+    master_selection_required:["Please explicitly select exactly one Ready-to-Print Master.","يرجى تحديد ملف طباعة رئيسي واحد بشكل صريح."],
+    cover_selection_invalid:["Main Display Image selection is invalid.","اختيار الصورة الرئيسية غير صالح."],
+    preflight_rule_missing:["Preflight rules are not configured for this Product Type.","لم يتم إعداد قواعد الفحص المسبق لنوع المنتج هذا."],
+    preflight_target_size_missing:["Printable dimensions must be configured before raster Master preflight.","يجب إعداد أبعاد الطباعة قبل فحص الملف الرئيسي النقطي."],
+    file_too_large:["One uploaded file exceeds the configured upload limit.","يتجاوز أحد الملفات المرفوعة الحد المسموح به."],
+    unsupported_file:["One uploaded file has an unsupported format or invalid signature.","أحد الملفات المرفوعة بتنسيق غير مدعوم أو توقيعه غير صالح."],
+    mime_mismatch:["A file MIME type does not match its real signature.","نوع MIME لأحد الملفات لا يطابق توقيعه الحقيقي."],
+    master_preflight_failed:["The selected Ready-to-Print Master failed native Odoo preflight.","فشل ملف الطباعة الرئيسي المحدد في الفحص المسبق الأصلي لأودو."],
   };
+  const pair=map[code]??["Design upload failed.","فشل رفع التصميم."];
+  return message(locale,pair[0],pair[1]);
+}
+
+export async function loader({request,context}:Route.LoaderArgs){
+  const upstream=await fetchOdooResponse(
+    request,
+    context,
+    "/api/dtf/v1/designer/upload-config",
+  );
+  const headers=new Headers();
+  appendOdooSessionCookies(headers,upstream);
+  if([301,302,303,401,403].includes(upstream.status)){
+    throw redirect("/login?returnTo=%2Fdesigner%2Fnew-design",{headers});
+  }
+  if(upstream.status===409){
+    throw redirect("/designer-qualification",{headers});
+  }
+  if(!upstream.ok) throw new Response("Designer upload configuration unavailable.",{status:502});
+  const payload=await upstream.json() as any;
+  return Response.json({
+    locale:localeFromRequest(request),
+    productTypes:payload.productTypes??[],
+    maxFileSizeBytes:Number(payload.maxFileSizeBytes??20971520),
+    allowedFormats:Array.isArray(payload.allowedFormats)?payload.allowedFormats:[],
+    minDpi:Number(payload.minDpi??300),
+  },{headers});
 }
 
 export async function action({request,context}:Route.ActionArgs){
   const locale=localeFromRequest(request);
-  const sessionId=cookieValue(request,"dtf_session"),s=store(context),identity=await s.sessionIdentity(sessionId);
-  if(!identity||identity.role!=="designer")throw redirect("/login?returnTo=%2Fdesigner%2Fnew-design");
-  let workspace:any;
-  try{workspace=await s.designerWorkspace(sessionId);}catch{return {ok:false,error:message(locale,"Designer Dashboard is available after qualification approval.","لوحة المصمم متاحة بعد اجتياز التأهيل والموافقة.")};}
-  const bucket=designBucket(context);
-  if(!bucket)return {ok:false,error:message(locale,"Private design asset storage is not configured in this environment.","لم يتم إعداد التخزين الخاص لملفات التصميم في هذه البيئة.")};
   const form=await request.formData();
-  const settings:any=(await s.businessSettingsSnapshot() as any).settings;
-  const artwork=settings.artworkValidationRules??{};
-  const maxBytes=Number(artwork.maxFileSizeBytes||20971520);
-  const minDpi=Number(artwork.minDpi||300);
-  const allowed=new Set<string>((artwork.allowedFormats??["image/png","image/jpeg","image/webp","image/svg+xml","application/pdf"]).map((x:any)=>String(x).toLowerCase()));
-  const titleEn=String(form.get("titleEn")??"").trim(),titleAr=String(form.get("titleAr")??"").trim();
-  const descriptionEn=String(form.get("descriptionEn")??"").trim(),descriptionAr=String(form.get("descriptionAr")??"").trim();
-  const productType=String(form.get("productType")??"").trim();
-  if(!DESIGN_PRODUCT_TYPES.includes(productType as any))return {ok:false,error:message(locale,"Select one of the seven supported Product Type combinations.","اختر تركيبة واحدة من تركيبات أنواع المنتجات السبعة المعتمدة.")};
-  const files=form.getAll("files").filter((x):x is File=>x instanceof File&&x.size>0);
-  if(!files.length)return {ok:false,error:message(locale,"Upload at least one design file.","ارفع ملف تصميم واحداً على الأقل.")};
-  if(files.length>20)return {ok:false,error:message(locale,"A design can contain up to 20 uploaded assets.","يمكن أن يحتوي التصميم على 20 ملفاً مرفوعاً كحد أقصى.")};
-  const masterIndex=Number(form.get("masterIndex"));
-  const coverIndex=Number(form.get("coverIndex")??-1);
-  if(!Number.isInteger(masterIndex)||masterIndex<0||masterIndex>=files.length)return {ok:false,error:message(locale,"Please explicitly select exactly one Ready-to-Print Master.","يرجى تحديد ملف طباعة رئيسي واحد بشكل صريح.")};
-  if(coverIndex>=files.length||coverIndex<-1)return {ok:false,error:message(locale,"Main Display Image selection is invalid.","اختيار الصورة الرئيسية غير صالح.")};
-  const designId="design-"+crypto.randomUUID();
-  const storedKeys:string[]=[];
-  try{
-    const assets:any[]=[];
-    for(let index=0;index<files.length;index++){
-      const file=files[index];
-      if(file.size>maxBytes)throw new Error(message(locale,`${file.name}: file exceeds the configured ${Math.round(maxBytes/1024/1024)} MB limit.`,`${file.name}: يتجاوز الملف الحد المسموح به وهو ${Math.round(maxBytes/1024/1024)} MB.`));
-      const bytes=await file.arrayBuffer();
-      const analysis=inspectUpload(bytes);
-      if(!analysis.signatureValid)throw new Error(message(locale,`${file.name}: file signature is not a supported artwork format.`,`${file.name}: توقيع الملف ليس من تنسيقات الأعمال الفنية المدعومة.`));
-      if(!allowed.has(analysis.mime))throw new Error(message(locale,`${file.name}: ${mimeLabel(analysis.mime)} is disabled in Artwork Settings.`,`${file.name}: تنسيق ${mimeLabel(analysis.mime)} معطل في إعدادات الأعمال الفنية.`));
-      const browserMime=normalizeBrowserMime(file.type||"");
-      if(browserMime&&browserMime!==analysis.mime)throw new Error(message(locale,`${file.name}: browser MIME and file signature do not match.`,`${file.name}: نوع MIME في المتصفح لا يطابق توقيع الملف.`));
-      const atoms=productType.split("+").map(x=>x.trim());
-      const results=atoms.map((atom)=>{
-        const area=PRINT_AREAS[atom];
-        if(!area)throw new Error(message(locale,"Unsupported Product Type component: "+atom,"مكوّن نوع المنتج غير مدعوم: "+atom));
-        return {atom,result:analyzeAsset({
-          format:analysis.format,mime:analysis.mime,byteSize:file.size,signatureValid:analysis.signatureValid,
-          pixelWidth:analysis.pixelWidth,pixelHeight:analysis.pixelHeight,embeddedDpi:analysis.embeddedDpi,
-          intendedWidthIn:area.width,intendedHeightIn:area.height,hasAlpha:analysis.hasAlpha,
-          previewable:analysis.previewable,productType:atom,minDpi
-        })};
-      });
-      const passed=results.every(x=>x.result.passed);
-      const errors=[...new Set(results.flatMap(x=>x.result.errors.map(e=>`${x.atom}: ${e}`)))];
-      const warnings=[...new Set(results.flatMap(x=>x.result.warnings.map(e=>`${x.atom}: ${e}`)))];
-      const dpiValues=results.map(x=>x.result.effectiveDpi?.minimum).filter((x):x is number=>typeof x==="number");
-      const riskRank:Record<string,number>={none:0,warning:1,critical:2};
-      const scalingRisk=results.map(x=>x.result.scalingRisk).sort((a,b)=>(riskRank[b]??0)-(riskRank[a]??0))[0]??"none";
-      const preflight={
-        passed,errors,warnings,readable:results.every(x=>x.result.readable),analyzable:results.every(x=>x.result.analyzable),
-        previewable:results.every(x=>x.result.previewable)&&analysis.previewable,
-        effectiveDpi:dpiValues.length?{minimum:Math.min(...dpiValues),width:null,height:null}:null,
-        physicalSizeIn:results[0]?.result.physicalSizeIn??null,scalingRisk,
-        placeholderCheck:results.map(x=>({productType:x.atom,...x.result.placeholderCheck})),
-        productChecks:results.map(x=>({productType:x.atom,passed:x.result.passed,effectiveDpi:x.result.effectiveDpi,errors:x.result.errors,warnings:x.result.warnings}))
-      };
-      if(index===masterIndex&&!passed)throw new Error(message(locale,`${file.name}: selected Ready-to-Print Master failed preflight. ${errors.join(" ")}`,`${file.name}: فشل ملف الطباعة الرئيسي المحدد في الفحص المسبق. ${errors.join(" ")}`));
-      const assetId="asset-"+crypto.randomUUID();
-      const safeName=(file.name||"asset").replace(/[^a-zA-Z0-9._-]/g,"_").slice(-160);
-      const storageKey=`designer/${workspace.designer.userId}/${designId}/${assetId}-${safeName}`;
-      await bucket.put(storageKey,bytes,{httpMetadata:{contentType:analysis.mime},customMetadata:{originalFilename:file.name.slice(0,240),designerId:String(workspace.designer.userId),designId}});
-      storedKeys.push(storageKey);
-      assets.push({assetId,storageKey,filename:file.name,mime:analysis.mime,byteSize:file.size,analysis,preflight,isMaster:index===masterIndex,isCover:index===coverIndex});
-    }
-    const created:any=await s.createDesignerDesign(sessionId,{designId,titleEn,titleAr,descriptionEn,descriptionAr,productType,minDpi,assets});
-    return redirect("/designer?created="+encodeURIComponent(String(created?.designId||designId)));
-  }catch(error){
-    for(const key of storedKeys)try{await bucket.delete(key);}catch{}
-    return {ok:false,error:error instanceof Error?error.message:message(locale,"Design upload failed.","فشل رفع التصميم.")};
+  const upstream=await fetchOdooResponse(
+    request,
+    context,
+    "/api/dtf/v1/designer/designs/create",
+    {method:"POST",body:form},
+  );
+  const headers=new Headers();
+  appendOdooSessionCookies(headers,upstream);
+  if([301,302,303,401,403].includes(upstream.status)){
+    throw redirect("/login?returnTo=%2Fdesigner%2Fnew-design",{headers});
   }
+  const payload=await upstream.json().catch(()=>({})) as any;
+  if(upstream.status===409&&payload?.error==="qualification_required"){
+    throw redirect("/designer-qualification",{headers});
+  }
+  if(!upstream.ok||!payload?.ok){
+    return Response.json({
+      ok:false,
+      error:uploadError(locale,String(payload?.error??"upload_failed")),
+    },{status:400,headers});
+  }
+  const designId=String(payload?.design?.designId??"");
+  headers.set("Location","/designer?created="+encodeURIComponent(designId));
+  return new Response(null,{status:303,headers});
 }
 
 export default function NewDesign(){

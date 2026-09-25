@@ -239,3 +239,23 @@ test("Designer Dashboard no longer uses ItemStore or R2 for workspace mutations"
   expect(dashboard).toContain("fetchOdooJsonRpc");
   expect(asset).toContain("/api/dtf/v1/designer/assets/");
 });
+
+
+test("New Design upload no longer uses ItemStore, R2, or worker-side preflight authority", async () => {
+  const source = await Bun.file("app/routes/designer-new-design.tsx").text();
+  for (const forbidden of [
+    "ItemStore",
+    "ITEMS",
+    "DESIGN_ASSETS",
+    "../../workers/analyzer",
+    "../../workers/upload-inspection",
+    "dtf_session",
+    "businessSettingsSnapshot",
+    "createDesignerDesign",
+  ]) {
+    expect(source).not.toContain(forbidden);
+  }
+  expect(source).toContain("/api/dtf/v1/designer/upload-config");
+  expect(source).toContain("/api/dtf/v1/designer/designs/create");
+  expect(source).toContain("fetchOdooResponse");
+});

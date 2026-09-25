@@ -460,6 +460,303 @@ class DTFAPI(http.Controller):
             return {'error': str(error)}
         return {'ok': True}
 
+
+    _DESIGN_PRODUCT_TYPE_COMPAT = {
+        'T-Shirt': 'tshirt',
+        'Mug': 'mug',
+        'Cap': 'cap',
+        'T-Shirt + Mug': 'tshirt_mug',
+        'T-Shirt + Cap': 'tshirt_cap',
+        'Mug + Cap': 'mug_cap',
+        'T-Shirt + Mug + Cap': 'tshirt_mug_cap',
+    }
+    _DESIGN_UPLOAD_MAX_BYTES = 20 * 1024 * 1024
+    _DESIGN_UPLOAD_MAX_ASSETS = 20
+    _FORMAT_MIME = {
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'webp': 'image/webp',
+        'svg': 'image/svg+xml',
+        'pdf': 'application/pdf',
+    }
+
+    def _designer_upload_rule(self, product_type):
+        return request.env['dtf.preflight.rule.version'].sudo().search([
+            ('active', '=', True),
+            ('product_type', '=', product_type),
+        ], order='create_date desc, id desc', limit=1)
+
+    def _designer_upload_target_cm(self, rule):
+        areas = rule.printable_area_ids.filtered('active')
+        area_widths = [value for value in areas.mapped('width_cm') if value]
+        area_heights = [value for value in areas.mapped('height_cm') if value]
+        width = rule.max_width_cm or (max(area_widths) if area_widths else 0.0) or rule.min_width_cm
+        height = rule.max_height_cm or (max(area_heights) if area_heights else 0.0) or rule.min_height_cm
+        return (width or None, height or None)
+
+    def _designer_upload_config_payload(self, profile):
+        rules = request.env['dtf.preflight.rule.version'].sudo().search([
+            ('active', '=', True),
+        ], order='product_type, create_date desc, id desc')
+        latest_by_type = {}
+        for rule in rules:
+            latest_by_type.setdefault(rule.product_type, rule)
+        allowed = set()
+        min_dpi = 0
+        for rule in latest_by_type.values():
+            allowed.update(rule.allowed_formats or [])
+            min_dpi = max(min_dpi, int(rule.min_effective_dpi or 0))
+        allowed_mimes = sorted({
+            self._FORMAT_MIME[fmt]
+            for fmt in allowed
+            if fmt in self._FORMAT_MIME
+        })
+        if not allowed_mimes:
+            allowed_mimes = [
+                'image/png', 'image/jpeg', 'image/webp',
+                'image/svg+xml', 'application/pdf',
+            ]
+        return {
+            'ok': True,
+            'authorized': bool(profile.authorized),
+            'qualificationState': profile.qualification_state,
+            'productTypes': list(self._DESIGN_PRODUCT_TYPE_COMPAT),
+            'configuredProductTypes': [
+                legacy
+                for legacy, native in self._DESIGN_PRODUCT_TYPE_COMPAT.items()
+                if native in latest_by_type
+            ],
+            'maxFileSizeBytes': self._DESIGN_UPLOAD_MAX_BYTES,
+            'maxAssets': self._DESIGN_UPLOAD_MAX_ASSETS,
+            'allowedFormats': allowed_mimes,
+            'minDpi': min_dpi or 300,
+        }
+
+    @http.route(
+        '/api/dtf/v1/designer/upload-config',
+        type='http',
+        auth='user',
+        methods=['GET'],
+        csrf=False,
+    )
+    def designer_upload_config(self, **kwargs):
+        profile = self._designer_profile()
+        if not profile:
+            return request.make_json_response(
+                {'ok': False, 'error': 'designer_profile_not_found'},
+                status=403,
+            )
+        if not profile.authorized or profile.qualification_state != 'authorized':
+            return request.make_json_response({
+                'ok': False,
+                'error': 'qualification_required',
+                'qualificationState': profile.qualification_state,
+            }, status=409)
+        return request.make_json_response(
+            self._designer_upload_config_payload(profile)
+        )
+
+    @http.route(
+        '/api/dtf/v1/designer/designs/create',
+        type='http',
+        auth='user',
+        methods=['POST'],
+        csrf=False,
+        readonly=False,
+    )
+    def designer_design_create(self, **kwargs):
+        profile = self._designer_profile()
+        if not profile:
+            return request.make_json_response(
+                {'ok': False, 'error': 'designer_profile_not_found'},
+                status=403,
+            )
+        if not profile.authorized or profile.qualification_state != 'authorized':
+            return request.make_json_response({
+                'ok': False,
+                'error': 'qualification_required',
+                'qualificationState': profile.qualification_state,
+            }, status=409)
+
+        form = request.httprequest.form
+        title_en = str(form.get('titleEn') or '').strip()
+        title_ar = str(form.get('titleAr') or '').strip()
+        description_en = str(form.get('descriptionEn') or '').strip()
+        description_ar = str(form.get('descriptionAr') or '').strip()
+        legacy_product_type = str(form.get('productType') or '').strip()
+        product_type = self._DESIGN_PRODUCT_TYPE_COMPAT.get(legacy_product_type)
+        if not all((title_en, title_ar, description_en, description_ar)):
+            return request.make_json_response(
+                {'ok': False, 'error': 'bilingual_fields_required'},
+                status=400,
+            )
+        if not product_type:
+            return request.make_json_response(
+                {'ok': False, 'error': 'invalid_product_type'},
+                status=400,
+            )
+
+        uploads = [
+            upload
+            for upload in request.httprequest.files.getlist('files')
+            if upload and upload.filename
+        ]
+        if not uploads:
+            return request.make_json_response(
+                {'ok': False, 'error': 'files_required'},
+                status=400,
+            )
+        if len(uploads) > self._DESIGN_UPLOAD_MAX_ASSETS:
+            return request.make_json_response(
+                {'ok': False, 'error': 'too_many_files'},
+                status=400,
+            )
+        try:
+            master_index = int(form.get('masterIndex'))
+        except (TypeError, ValueError):
+            master_index = -1
+        try:
+            cover_index = int(form.get('coverIndex', -1))
+        except (TypeError, ValueError):
+            cover_index = -2
+        if master_index < 0 or master_index >= len(uploads):
+            return request.make_json_response(
+                {'ok': False, 'error': 'master_selection_required'},
+                status=400,
+            )
+        if cover_index < -1 or cover_index >= len(uploads):
+            return request.make_json_response(
+                {'ok': False, 'error': 'cover_selection_invalid'},
+                status=400,
+            )
+
+        rule = self._designer_upload_rule(product_type)
+        if not rule:
+            return request.make_json_response(
+                {'ok': False, 'error': 'preflight_rule_missing'},
+                status=409,
+            )
+        target_width_cm, target_height_cm = self._designer_upload_target_cm(rule)
+        engine = request.env['dtf.preflight.engine'].sudo()
+
+        try:
+            with request.env.cr.savepoint():
+                design = request.env['dtf.design'].create({
+                    'designer_id': profile.id,
+                    'title_en': title_en,
+                    'title_ar': title_ar,
+                    'description_en': description_en,
+                    'description_ar': description_ar,
+                    'product_type': product_type,
+                    'is_qualification_sample': False,
+                })
+                assets = []
+                for index, upload in enumerate(uploads):
+                    raw = upload.read()
+                    if not raw:
+                        raise ValidationError('empty_file')
+                    if len(raw) > self._DESIGN_UPLOAD_MAX_BYTES:
+                        raise ValidationError('file_too_large')
+                    snapshot = engine.inspect_bytes(
+                        raw,
+                        upload.filename,
+                        upload.mimetype,
+                        target_width_cm,
+                        target_height_cm,
+                    )
+                    detected = snapshot.get('detected_format') or 'unknown'
+                    if (
+                        not snapshot.get('signature_valid')
+                        or not snapshot.get('readable')
+                        or detected not in (rule.allowed_formats or [])
+                    ):
+                        raise ValidationError('unsupported_file')
+                    expected_mime = self._FORMAT_MIME.get(detected)
+                    declared_mime = (upload.mimetype or '').lower()
+                    if (
+                        declared_mime
+                        and expected_mime
+                        and declared_mime != expected_mime
+                        and not (
+                            detected == 'jpeg'
+                            and declared_mime in ('image/jpeg', 'image/jpg')
+                        )
+                    ):
+                        raise ValidationError('mime_mismatch')
+                    if (
+                        index == master_index
+                        and not snapshot.get('vector')
+                        and rule.min_effective_dpi
+                        and (snapshot.get('effective_dpi') or {}).get('minimum') is None
+                    ):
+                        raise ValidationError('preflight_target_size_missing')
+
+                    attachment = request.env['ir.attachment'].sudo().create({
+                        'name': upload.filename,
+                        'raw': raw,
+                        'mimetype': expected_mime or declared_mime or 'application/octet-stream',
+                    })
+                    asset = request.env['dtf.design.asset'].create({
+                        'design_id': design.id,
+                        'attachment_id': attachment.id,
+                        'name': upload.filename,
+                        'file_format': detected,
+                        'mime_type': expected_mime or declared_mime or '',
+                        'size_bytes': len(raw),
+                        'pixel_width': snapshot.get('pixel_width') or 0,
+                        'pixel_height': snapshot.get('pixel_height') or 0,
+                        'embedded_dpi': snapshot.get('embedded_dpi') or 0,
+                        'has_alpha': bool(snapshot.get('alpha')),
+                        'previewable': bool(snapshot.get('previewable')),
+                        'readable': bool(snapshot.get('readable')),
+                        'analyzable': bool(snapshot.get('analyzable')),
+                    })
+                    attachment.sudo().write({
+                        'res_model': 'dtf.design.asset',
+                        'res_id': asset.id,
+                    })
+                    assets.append(asset)
+
+                master_asset = assets[master_index]
+                result = engine.run(
+                    master_asset.sudo(),
+                    rule.sudo(),
+                    target_width_cm,
+                    target_height_cm,
+                )
+                if result.status != 'accepted':
+                    detail = (
+                        result.reasons_en
+                        or result.reasons_ar
+                        or 'Selected Ready-to-Print Master failed preflight.'
+                    )
+                    raise ValidationError('master_preflight_failed: %s' % detail)
+                design.action_set_ready_to_print_master(master_asset)
+
+                if cover_index >= 0:
+                    design.action_set_main_display_asset(assets[cover_index])
+                else:
+                    design._ensure_main_display_asset()
+
+                payload = self._designer_design_payload(design)
+        except (ValidationError, AccessError) as error:
+            message = str(error)
+            code = message.split(':', 1)[0].strip()
+            status = 422
+            if code in ('preflight_target_size_missing',):
+                status = 409
+            return request.make_json_response({
+                'ok': False,
+                'error': code,
+                'message': message,
+            }, status=status)
+
+        return request.make_json_response({
+            'ok': True,
+            'design': payload,
+        }, status=201)
+
     def _cart_line_payload(self, line):
         attributes = {
             value.attribute_id.name.lower(): value.product_attribute_value_id.name
