@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "source_head": "FULL_GIT_SHA_USED_FOR_PRODUCTION",
+  "collected_at_utc": "YYYY-MM-DDTHH:MM:SSZ",
+  "host": {
+    "os": "Ubuntu 24.04",
+    "arch": "aarch64",
+    "preflight_pass": true
+  },
+  "dns": {
+    "backend_resolves": true,
+    "frontend_resolves": true
+  },
+  "tls": {
+    "issuance_pass": true,
+    "renewal_pass": true
+  },
+  "odoo": {
+    "addons_installed": 13,
+    "backend_https_pass": true,
+    "database_manager_blocked": true,
+    "websocket_pass": true
+  },
+  "frontend": {
+    "isolated_worker_live": true,
+    "new_odoo_origin_https": true,
+    "protected_v48_untouched": true
+  },
+  "backup_restore": {
+    "production_backup_pass": true,
+    "checksums_pass": true,
+    "isolated_restore_drill_pass": true
+  },
+  "operations": {
+    "monitoring_pass": true,
+    "logging_pass": true,
+    "timers_pass": true,
+    "production_smoke_pass": true
+  }
+}

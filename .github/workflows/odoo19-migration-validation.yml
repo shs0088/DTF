@@ -38,6 +38,8 @@ jobs:
         run: docker compose --env-file odoo19_migration/deployment/.env.example -f odoo19_migration/deployment/docker-compose.yml config >/dev/null
       - name: Validate M10 production deployment contracts
         run: python3 odoo19_migration/validation/validate_m10.py
+      - name: Validate M11 acceptance matrix
+        run: python3 odoo19_migration/validation/validate_m11.py
       - name: Validate M10 production Docker Compose configuration
         run: docker compose --env-file odoo19_migration/deployment/.env.production.example -f odoo19_migration/deployment/docker-compose.production.yml --profile tls-bootstrap config >/dev/null
       - name: Validate M10 deployment shell syntax

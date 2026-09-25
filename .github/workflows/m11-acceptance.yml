@@ -1,0 +1,36 @@
+name: M11 acceptance
+
+on:
+  push:
+    branches:
+      - 'odoo19/headless-backend-migration-prep'
+    paths:
+      - 'odoo19_migration/acceptance/**'
+      - 'odoo19_migration/validation/validate_m11.py'
+      - '.github/workflows/m11-acceptance.yml'
+  workflow_dispatch:
+    inputs:
+      require_live:
+        description: 'Require real production evidence and fail if it is missing'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate M10 deployment package contracts
+        run: python3 odoo19_migration/validation/validate_m10.py
+      - name: Validate M11 source acceptance matrix
+        run: python3 odoo19_migration/validation/validate_m11.py
+      - name: Run strict live production acceptance
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.require_live }}
+        run: python3 odoo19_migration/validation/validate_m11.py --require-live

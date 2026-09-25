@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "project": "DTF Studio Odoo 19 migration",
+  "branch": "odoo19/headless-backend-migration-prep",
+  "m6": {
+    "status": "complete_ci_visual",
+    "head": "4e1ef2fba65298ae5ea92551d911c972a09f9e7b",
+    "full_validation_run": 35996355139,
+    "visual_run": 35996354715
+  },
+  "m7": {
+    "status": "complete_ci",
+    "head": "95fb9c1069bd2ac1d46821f090bb7eba15d62256",
+    "validation_run": 36014812563
+  },
+  "m8": {
+    "status": "complete_ci_visual",
+    "head": "7054bfa6bb03d434d0b20e209c9a168f9e72ca3a",
+    "validation_run": 36058203854,
+    "visual_run": 36058203840
+  },
+  "m9": {
+    "status": "complete_ci_visual",
+    "head": "53654e6647ec71aeba973c86b451d66934e42a94",
+    "validation_run": 36109746971,
+    "visual_run": 36109746976,
+    "protected_m6_visual_run": 36109747163
+  },
+  "m10": {
+    "status": "closed_repository_deployment_package_boundary",
+    "package_head": "dcf7ae2bd7fbc550559cf02bac43cb38d6c0913d",
+    "package_validation_run": 36129713530,
+    "closure_baseline_head": "78ca65fee8a6b421d5427a5ac2b9f84c3dfc7175",
+    "closure_baseline_validation_run": 36131291121,
+    "formal_closure_commit": "0c950b7fd18813b6dbc4e874dcec6f5f5e226f86",
+    "live_execution_claimed": false
+  },
+  "protected_v48": {
+    "project": "dtf-studio-v48-safe-frontend",
+    "must_remain_untouched": true
+  }
+}
