@@ -64,6 +64,8 @@ for script in (
     "backup-production.sh",
     "restore-drill.sh",
     "install-host-timers.sh",
+    "preflight-production-host.sh",
+    "smoke-production.sh",
 ):
     require((DEPLOY / script).exists(), f"Missing M10 deployment script: {script}")
 
@@ -117,5 +119,21 @@ for module in (
             f"Production initializer missing required addon: {module}")
 require('[ "$INSTALLED" = "13" ]' in initializer,
         "Production initializer must verify all 13 DTF addons are installed.")
+
+preflight = (DEPLOY / "preflight-production-host.sh").read_text()
+require("aarch64" in preflight and "ubuntu" in preflight,
+        "Production host preflight must enforce the ARM64 Ubuntu target.")
+require("dtf-studio-v48-safe-frontend" in preflight,
+        "Production host preflight must guard the protected V48 deployment.")
+
+smoke = (DEPLOY / "smoke-production.sh").read_text()
+for path in ("/api/dtf/v1/health", "/api/dtf/v1/products", "/api/dtf/v1/categories"):
+    require(path in smoke, f"Production smoke test missing {path}.")
+require("/web/database/selector" in smoke and "404" in smoke,
+        "Production smoke test must verify the database manager is blocked.")
+require("/websocket" in smoke,
+        "Production smoke test must probe the WebSocket proxy.")
+require("dtf-studio-v48-safe-frontend" in smoke,
+        "Production smoke test must guard the protected V48 deployment.")
 
 print("M10 deployment static validation passed.")

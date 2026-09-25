@@ -52,14 +52,16 @@ jobs:
             monitor-production.sh \
             backup-production.sh \
             restore-drill.sh \
-            install-host-timers.sh; do
+            install-host-timers.sh \
+            preflight-production-host.sh \
+            smoke-production.sh; do
             sh -n "odoo19_migration/deployment/$script"
           done
       - name: Syntax-check M10 deployment scripts
         shell: bash
         run: |
           set -euo pipefail
-          for script in             odoo19_migration/deployment/initialize-production.sh             odoo19_migration/deployment/deploy-frontend.sh             odoo19_migration/deployment/provision-tls.sh             odoo19_migration/deployment/renew-tls.sh             odoo19_migration/deployment/monitor-production.sh             odoo19_migration/deployment/backup-production.sh             odoo19_migration/deployment/restore-drill.sh             odoo19_migration/deployment/install-host-timers.sh
+          for script in             odoo19_migration/deployment/initialize-production.sh             odoo19_migration/deployment/deploy-frontend.sh             odoo19_migration/deployment/provision-tls.sh             odoo19_migration/deployment/renew-tls.sh             odoo19_migration/deployment/monitor-production.sh             odoo19_migration/deployment/backup-production.sh             odoo19_migration/deployment/restore-drill.sh             odoo19_migration/deployment/install-host-timers.sh             odoo19_migration/deployment/preflight-production-host.sh             odoo19_migration/deployment/smoke-production.sh
           do
             sh -n "$script"
           done
