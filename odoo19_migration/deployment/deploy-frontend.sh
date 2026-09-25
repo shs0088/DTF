@@ -20,6 +20,6 @@ EOF
 fi
 
 cd "$ROOT"
-npm ci
+npm install
 npm run build
 npx wrangler deploy --config "$CONFIG"

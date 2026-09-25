@@ -42,6 +42,9 @@ require("/web/database" in nginx and "return 404" in nginx,
         "Production database manager must be blocked externally.")
 
 worker = (ROOT / "workers" / "odoo-frontend.ts").read_text()
+deploy_frontend = (DEPLOY / "deploy-frontend.sh").read_text()
+require("npm install" in deploy_frontend and "npm ci" not in deploy_frontend,
+        "Production frontend deploy must use the repository's verified npm install workflow.")
 require("DTF_ODOO_ORIGIN" in worker, "Production frontend must require Odoo origin.")
 require("https:" in worker, "Production frontend must enforce HTTPS Odoo origin.")
 require("ItemStore" not in worker and "DESIGN_ASSETS" not in worker,
