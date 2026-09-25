@@ -71,8 +71,8 @@ jobs:
         with:
           node-version: '22'
       - uses: oven-sh/setup-bun@v2
-      - name: Install locked frontend dependencies
-        run: bun install --frozen-lockfile
+      - name: Install frontend dependencies using verified npm method
+        run: npm install
       - name: Typecheck preserved frontend
         run: npm run typecheck
       - name: Build preserved frontend
