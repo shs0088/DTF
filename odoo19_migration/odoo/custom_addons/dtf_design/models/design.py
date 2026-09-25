@@ -223,9 +223,22 @@ class DTFDesignAsset(models.Model):
                 design.write({"ready_to_print_master_asset_id": False, "state": "draft" if design.state == "published" else design.state})
             if design.main_display_asset_id == asset:
                 design.write({"main_display_asset_id": False})
-        attachments = self.mapped("attachment_id")
+        attachments = self.mapped("attachment_id").sudo()
         result = super().unlink()
-        attachments.unlink()
+
+        # The design-asset record is the authorization boundary. Once it has
+        # been deleted, the original designer no longer has an ownership path
+        # to the underlying ir.attachment, so normal attachment record rules
+        # can reject the cleanup even though the business deletion succeeded.
+        # Clean up only attachments that are now truly orphaned; protected
+        # evidence is still blocked above before any deletion occurs.
+        remaining_attachment_ids = self.env["dtf.design.asset"].sudo().search([
+            ("attachment_id", "in", attachments.ids),
+        ]).mapped("attachment_id").ids
+        orphaned_attachments = attachments.filtered(
+            lambda attachment: attachment.id not in remaining_attachment_ids
+        )
+        orphaned_attachments.unlink()
         return result
 
     @api.constrains("size_bytes", "pixel_width", "pixel_height", "embedded_dpi")
