@@ -356,6 +356,26 @@ class DTFAPI(http.Controller):
             return {'error': str(error)}
         return {'ok': True}
 
+    def _designer_design_protected(self, design):
+        asset_ids = design.asset_ids.ids
+        if asset_ids and request.env['dtf.preflight.result'].sudo().search_count([
+            ('asset_id', 'in', asset_ids),
+            ('locked', '=', True),
+        ]):
+            return True
+        if request.env['sale.order.line'].sudo().search_count([
+            '|',
+            ('dtf_design_id', '=', design.id),
+            ('dtf_master_asset_id', 'in', asset_ids or [0]),
+        ]):
+            return True
+        return bool(request.env['mrp.production'].sudo().search_count([
+            ('dtf_is_print_job', '=', True),
+            '|',
+            ('dtf_design_id', '=', design.id),
+            ('dtf_master_asset_id', 'in', asset_ids or [0]),
+        ]))
+
     @http.route(
         '/api/dtf/v1/designer/designs/<int:design_id>/delete',
         type='jsonrpc',
@@ -372,6 +392,8 @@ class DTFAPI(http.Controller):
         ], limit=1)
         if not design:
             return {'error': 'design_not_found'}
+        if self._designer_design_protected(design):
+            return {'error': 'design_protected'}
         try:
             design.unlink()
         except (ValidationError, AccessError) as error:
