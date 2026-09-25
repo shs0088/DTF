@@ -30,6 +30,9 @@ function requireOdooOrigin(env: Env): string {
   if (url.protocol !== "https:") {
     throw new Error("DTF_ODOO_ORIGIN must use HTTPS in production.");
   }
+  if (url.hostname.includes("dtf-studio-v48-safe-frontend")) {
+    throw new Error("The protected V48 deployment cannot be used as the Odoo origin.");
+  }
   return url.origin;
 }
 
