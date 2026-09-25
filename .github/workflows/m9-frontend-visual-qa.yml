@@ -1,0 +1,172 @@
+name: M9 frontend visual QA
+
+on:
+  push:
+    branches:
+      - 'odoo19/headless-backend-migration-prep'
+    paths:
+      - 'app/**'
+      - 'src/**'
+      - 'public/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html'
+      - 'odoo19_migration/odoo/custom_addons/dtf_api/**'
+      - 'odoo19_migration/visual_qa/seed_m9_frontend.py'
+      - 'odoo19_migration/visual_qa/run_m9_frontend_qa.cjs'
+      - '.github/workflows/m9-frontend-visual-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  m9-frontend-visual-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      M9_SOURCE_HEAD: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Create ephemeral QA credentials
+        shell: bash
+        run: |
+          CUSTOMER_PASS="$(openssl rand -hex 18)"
+          DESIGNER_PASS="$(openssl rand -hex 18)"
+          echo "::add-mask::$CUSTOMER_PASS"
+          echo "::add-mask::$DESIGNER_PASS"
+          echo "M9_VISUAL_CUSTOMER_PASSWORD=$CUSTOMER_PASS" >> "$GITHUB_ENV"
+          echo "M9_VISUAL_DESIGNER_PASSWORD=$DESIGNER_PASS" >> "$GITHUB_ENV"
+
+      - name: Install preserved frontend dependencies
+        run: npm install
+
+      - name: Prepare M9 visual database environment
+        shell: bash
+        run: |
+          cp odoo19_migration/deployment/.env.example odoo19_migration/deployment/.env
+          sed -i 's/^POSTGRES_DB=.*/POSTGRES_DB=odoo_m9_visual/' odoo19_migration/deployment/.env
+
+      - name: Start PostgreSQL
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d db
+          for i in {1..30}; do
+            if docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T db pg_isready -U odoo -d odoo_m9_visual; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs db
+          exit 1
+
+      - name: Install all DTF Studio addons
+        shell: bash
+        run: |
+          MODULES='dtf_core,dtf_designer,dtf_design,dtf_preflight,dtf_customizer,dtf_sale,dtf_production,dtf_finance,dtf_printify,dtf_notifications,dtf_admin,dtf_backend_theme,dtf_api'
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo_m9_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i "$MODULES"
+
+      - name: Activate native Arabic language
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo shell -d odoo_m9_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --no-http <<'PY'
+          arabic = env["res.lang"].sudo()._activate_lang("ar_001")
+          english = env["res.lang"].sudo()._activate_lang("en_US")
+          env.cr.commit()
+          print("M9_NATIVE_LANGUAGES_ACTIVE", english.code, arabic.code)
+          PY
+
+      - name: Seed native Odoo M9 frontend data
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps \
+            -e M9_VISUAL_CUSTOMER_PASSWORD="$M9_VISUAL_CUSTOMER_PASSWORD" \
+            -e M9_VISUAL_DESIGNER_PASSWORD="$M9_VISUAL_DESIGNER_PASSWORD" \
+            odoo odoo shell -d odoo_m9_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --no-http < odoo19_migration/visual_qa/seed_m9_frontend.py
+
+      - name: Start Odoo and Nginx
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d odoo nginx
+          for i in {1..40}; do
+            if curl -fsS --max-time 10 http://127.0.0.1/api/dtf/v1/health | grep -q '"ok": true\|"ok":true'; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx
+          exit 1
+
+      - name: Start preserved React Router frontend against Odoo
+        shell: bash
+        run: |
+          cat > .dev.vars <<'EOF'
+          DTF_ODOO_ORIGIN=http://127.0.0.1
+          EOF
+          export DTF_ODOO_ORIGIN=http://127.0.0.1
+          nohup npm run dev -- --host 127.0.0.1 --port 5173 > /tmp/m9-frontend.log 2>&1 &
+          echo $! > /tmp/m9-frontend.pid
+          for i in {1..50}; do
+            if curl -fsS --max-time 10 http://127.0.0.1:5173/api/studio/products | grep -q '"source":"odoo19"'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/m9-frontend.log || true
+          exit 1
+
+      - name: Install Chromium browser automation
+        shell: bash
+        run: |
+          mkdir -p /tmp/m9-visual-qa
+          cd /tmp/m9-visual-qa
+          npm init -y >/dev/null 2>&1
+          npm install --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run preserved frontend / Odoo browser inspection
+        shell: bash
+        run: |
+          export NODE_PATH=/tmp/m9-visual-qa/node_modules
+          export BASE_URL=http://127.0.0.1:5173
+          export CUSTOMER_PASSWORD="$M9_VISUAL_CUSTOMER_PASSWORD"
+          export DESIGNER_PASSWORD="$M9_VISUAL_DESIGNER_PASSWORD"
+          node odoo19_migration/visual_qa/run_m9_frontend_qa.cjs
+
+      - name: Capture M9 runtime logs
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p odoo19_migration/visual_qa/m9-output
+          cp /tmp/m9-frontend.log odoo19_migration/visual_qa/m9-output/frontend.log 2>/dev/null || true
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx \
+            > odoo19_migration/visual_qa/m9-output/runtime.log || true
+
+      - name: Upload M9 visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m9-frontend-visual-evidence
+          path: odoo19_migration/visual_qa/m9-output/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Cleanup
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/m9-frontend.pid ]; then
+            kill "$(cat /tmp/m9-frontend.pid)" 2>/dev/null || true
+          fi
+          rm -f .dev.vars
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml down -v --remove-orphans
