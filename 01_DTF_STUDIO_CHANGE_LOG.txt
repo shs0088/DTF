@@ -726,3 +726,19 @@ RESULT:
 - No live VPS/domain/TLS/frontend production deployment has been performed.
 - Protected external dtf-studio-v48-safe-frontend remains untouched.
 NEXT: execute M10 on the separate NEW Ubuntu ARM64 VPS/new domain, collect live runtime evidence, then proceed to M11 acceptance.
+
+
+DATE/TIME: 2026-09-25
+TASK: Refresh M10 go-live preparation with deterministic deployment runbook and redacted runtime evidence collection.
+SOURCE HEAD: dcf7ae2bd7fbc550559cf02bac43cb38d6c0913d
+FULL VALIDATION RUN: 36129713530 — SUCCESS.
+RESULT:
+- Added M10_GO_LIVE_RUNBOOK.md with explicit NEW-host deployment order and protected-V48 boundary.
+- Added collect-production-evidence.sh for non-secret host/module/TLS/timer/backup/smoke evidence.
+- Deployment evidence output is excluded from Git.
+- validate_m10.py now enforces the runbook/evidence collector and V48 protections.
+- M10 static/Compose/shell/ARM64 checks passed.
+- Preserved frontend typecheck/build/M9 contracts and isolated new Worker build/dry-run passed.
+- M2-M9 regressions and final /web runtime passed.
+- No live VPS, DNS/TLS, frontend production deployment, backup/restore acceptance, merge, or V48 modification was performed.
+NEXT: execute M10 only on the separate NEW Ubuntu ARM64 VPS/new domain, collect live runtime evidence, then proceed to M11 acceptance.

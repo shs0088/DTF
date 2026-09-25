@@ -153,3 +153,20 @@ M10 is **not yet closed** because the following require the separate NEW product
 - live production smoke tests
 
 No live production deployment or merge has been performed, and the protected external `dtf-studio-v48-safe-frontend` project/deployment remains untouched.
+
+
+## M10 source/CI baseline refresh — live deployment still pending
+
+- Refreshed M10 go-live preparation HEAD: `dcf7ae2bd7fbc550559cf02bac43cb38d6c0913d`.
+- Exact-head Odoo 19 migration validation run: `36129713530` — SUCCESS.
+- Added deterministic `M10_GO_LIVE_RUNBOOK.md`.
+- Added redacted `collect-production-evidence.sh` runtime evidence collector.
+- Added Git exclusion for production evidence output.
+- M10 static deployment contracts, production Compose, shell syntax and all ARM64 image proofs: PASS.
+- Preserved frontend typecheck/build/M9 compatibility tests and isolated new Worker build/dry-run: PASS.
+- M2-M9 native Odoo regressions and final Odoo/Nginx `/web` runtime: PASS.
+- Protected external `dtf-studio-v48-safe-frontend` project/folder/Worker/URL remains untouched.
+
+M10 remains **OPEN** until live execution succeeds on the separate NEW Ubuntu ARM64 VPS/new domain, including real TLS, isolated frontend deployment, backup/restore drill, monitoring/timers, production smoke tests and redacted runtime evidence collection.
+
+M11 remains pending. No merge to main is authorized by this source/CI refresh.
