@@ -200,3 +200,13 @@ class TestDTFM9DesignerWorkspace(HttpCase):
         payload = response.json()
         self.assertEqual(payload["error"], "qualification_required")
         self.assertEqual(payload["qualificationState"], "draft")
+
+
+    def test_locked_evidence_protects_whole_design_from_delete(self):
+        self.authenticate(self.login, self.password)
+        result = self._jsonrpc(
+            f"/api/dtf/v1/designer/designs/{self.design.id}/delete"
+        )
+        self.assertEqual(result["error"], "design_protected")
+        self.assertTrue(self.design.exists())
+        self.assertTrue(self.master_asset.exists())
