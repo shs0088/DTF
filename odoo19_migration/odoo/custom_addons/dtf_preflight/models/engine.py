@@ -78,6 +78,6 @@ class DTFPreflightEngine(models.AbstractModel):
 
     @api.model
     def run(self, asset, rule, target_width_cm=None, target_height_cm=None):
-        snapshot = self.inspect_bytes(asset.attachment_id.datas or b"", asset.name, asset.attachment_id.mimetype, target_width_cm, target_height_cm)
+        snapshot = self.inspect_bytes(asset.attachment_id.raw or b"", asset.name, asset.attachment_id.mimetype, target_width_cm, target_height_cm)
         result = self.evaluate(asset, rule, snapshot)
         return self.env["dtf.preflight.result"].create({"asset_id": asset.id, "rule_version_id": rule.id, "status": result["status"], "reasons_en": result["reasons_en"], "reasons_ar": result["reasons_ar"], "failure_codes": result["codes"], "analyzer_snapshot": snapshot, "locked": True})
