@@ -5,6 +5,7 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ENV="$ROOT/.env.production"
 COMPOSE="$ROOT/docker-compose.production.yml"
 MODULES='dtf_core,dtf_designer,dtf_design,dtf_preflight,dtf_customizer,dtf_sale,dtf_production,dtf_finance,dtf_printify,dtf_notifications,dtf_admin,dtf_backend_theme,dtf_api'
+MODULE_SQL="'dtf_core','dtf_designer','dtf_design','dtf_preflight','dtf_customizer','dtf_sale','dtf_production','dtf_finance','dtf_printify','dtf_notifications','dtf_admin','dtf_backend_theme','dtf_api'"
 
 test -f "$ENV" || {
   echo "Missing $ENV. Copy .env.production.example and set the NEW production values." >&2
@@ -33,25 +34,42 @@ done
   exit 1
 }
 
-docker compose --env-file "$ENV" -f "$COMPOSE" run --rm --no-deps odoo \
-  odoo \
-    -d "$POSTGRES_DB" \
-    --db_host=db \
-    --db_port=5432 \
-    --db_user="$POSTGRES_USER" \
-    --db_password="$POSTGRES_PASSWORD" \
-    --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
-    --without-demo=all \
-    --stop-after-init \
-    -i "$MODULES"
+HAS_MODULE_TABLE="$(docker compose --env-file "$ENV" -f "$COMPOSE" exec -T db \
+  psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc \
+  "select case when to_regclass('public.ir_module_module') is null then '0' else '1' end;")"
+
+INSTALLED=0
+if [ "$HAS_MODULE_TABLE" = "1" ]; then
+  INSTALLED="$(docker compose --env-file "$ENV" -f "$COMPOSE" exec -T db \
+    psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc \
+    "select count(*) from ir_module_module where name in ($MODULE_SQL) and state = 'installed';")"
+fi
+
+case "$INSTALLED" in
+  ""|*[!0-9]*) echo "Unable to inspect production DTF module state." >&2; exit 1 ;;
+esac
+
+if [ "$INSTALLED" -lt 13 ]; then
+  echo "Initializing missing DTF Studio modules ($INSTALLED/13 currently installed)."
+  docker compose --env-file "$ENV" -f "$COMPOSE" run --rm --no-deps odoo \
+    odoo \
+      -d "$POSTGRES_DB" \
+      --db_host=db \
+      --db_port=5432 \
+      --db_user="$POSTGRES_USER" \
+      --db_password="$POSTGRES_PASSWORD" \
+      --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+      --without-demo=all \
+      --no-http \
+      --stop-after-init \
+      -i "$MODULES"
+else
+  echo "All 13 DTF addons are already installed; skipping native Odoo install."
+fi
 
 INSTALLED="$(docker compose --env-file "$ENV" -f "$COMPOSE" exec -T db \
   psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc \
-  "select count(*) from ir_module_module where name in (
-    'dtf_core','dtf_designer','dtf_design','dtf_preflight','dtf_customizer',
-    'dtf_sale','dtf_production','dtf_finance','dtf_printify',
-    'dtf_notifications','dtf_admin','dtf_backend_theme','dtf_api'
-  ) and state = 'installed';")"
+  "select count(*) from ir_module_module where name in ($MODULE_SQL) and state = 'installed';")"
 
 [ "$INSTALLED" = "13" ] || {
   echo "Expected 13 installed DTF addons, found $INSTALLED." >&2
