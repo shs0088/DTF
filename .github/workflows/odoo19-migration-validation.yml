@@ -208,6 +208,14 @@ jobs:
             --without-demo=all --stop-after-init -i dtf_api \
             --test-enable --test-tags /dtf_api:TestDTFM9DesignGallery
 
+      - name: Run M11 Odoo-native homepage API tests
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps odoo \
+            odoo -d odoo_m11_home --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
+            --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
+            --without-demo=all --stop-after-init -i dtf_api \
+            --test-enable --test-tags /dtf_api:TestDTFM11Homepage
+
       - name: Run M9 native Designer workspace tests
         shell: bash
         run: |
