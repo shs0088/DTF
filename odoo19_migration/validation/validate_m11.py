@@ -51,6 +51,13 @@ require(source["m10"].get("live_execution_claimed") is False,
 require(source["protected_v48"].get("must_remain_untouched") is True,
         "Protected V48 boundary is missing.")
 
+m11_source = source.get("m11", {})
+require(m11_source.get("source_acceptance_status") == "pass",
+        "M11 source acceptance is not PASS.")
+accepted_source_head = m11_source.get("source_acceptance_head")
+require(accepted_source_head,
+        "M11 source evidence is missing source_acceptance_head.")
+
 for path in (
     DEPLOY / "M10_GO_LIVE_RUNBOOK.md",
     DEPLOY / "collect-production-evidence.sh",
@@ -91,6 +98,10 @@ if not live_path.exists():
 live = json.loads(live_path.read_text())
 require(live.get("schema_version") == 1, "Unsupported M11 live evidence schema.")
 require(live.get("source_head"), "Live evidence missing source_head.")
+require(
+    live.get("source_head") == accepted_source_head,
+    "M11 STRICT ACCEPTANCE FAILED: live source_head does not match the accepted M11 source head.",
+)
 require(live.get("collected_at_utc"), "Live evidence missing collected_at_utc.")
 
 checks = [
