@@ -57,3 +57,13 @@ The runtime collector from M10 should be used and secrets must never be committe
 Reason: M10 was formally closed at the repository/deployment-package boundary, but no authorized production host was connected in the closing session and no real VPS/DNS/TLS/live-backup/live-restore/live-monitoring/live-smoke evidence has been supplied.
 
 M11 remains active until the strict production gate passes.
+
+
+## Source acceptance checkpoint — 2026-09-25
+
+- Source acceptance HEAD: `e2f6853a0bd2d152ed1d933288d600ca2c690e68`
+- M11 acceptance workflow `36137750545`: SUCCESS
+- Full migration validation `36137750531`: SUCCESS
+- Source acceptance result: **PASS**
+- Strict live production result: **EXTERNAL_EVIDENCE_REQUIRED**
+- Production Ready / Go-Live Accepted: **NO**

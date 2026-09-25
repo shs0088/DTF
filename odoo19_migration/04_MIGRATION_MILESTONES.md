@@ -188,3 +188,14 @@ M11 remains pending. No merge to main is authorized by this source/CI refresh.
 ## M11 acceptance status
 
 M11 is now **ACTIVE**.
+
+
+## M11 source acceptance checkpoint
+
+- Source acceptance HEAD: `e2f6853a0bd2d152ed1d933288d600ca2c690e68`.
+- M11 acceptance workflow: `36137750545` — SUCCESS.
+- Full Odoo 19 migration validation: `36137750531` — SUCCESS.
+- Frontend typecheck/build/contracts, all 13 addons, M2–M9 native business-flow suites, M6/M7/M8 regressions and final `/web` runtime: PASS.
+- M11 source acceptance: **PASS**.
+- M11 strict live production acceptance: **EXTERNAL EVIDENCE REQUIRED**.
+- Production Ready / Go-Live Accepted: **NO** until strict live evidence passes.

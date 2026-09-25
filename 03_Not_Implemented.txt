@@ -491,3 +491,35 @@ IMPORTANT CLOSURE BOUNDARY:
 NEXT: M11 ACCEPTANCE.
 
 M10 is no longer listed as an unfinished source/deployment-package milestone. The following are NOT implemented/verified live and are now M11 external acceptance evidence: real new VPS provisioning, real DNS/TLS issuance, live isolated frontend deployment, live production backup/restore, live monitoring/timer acceptance and live production smoke tests.
+
+
+============================================================
+M11 SOURCE ACCEPTANCE — 2026-09-25
+============================================================
+M11 SOURCE ACCEPTANCE HEAD: e2f6853a0bd2d152ed1d933288d600ca2c690e68
+M11 ACCEPTANCE WORKFLOW RUN: 36137750545 — SUCCESS.
+FULL ODOO 19 MIGRATION VALIDATION RUN: 36137750531 — SUCCESS.
+
+PASS EVIDENCE:
+- M11 acceptance matrix validator: PASS.
+- M10 deployment package validator: PASS.
+- frontend dependency install/typecheck/build: PASS.
+- M9 Odoo compatibility adapter tests: PASS.
+- isolated M10 production frontend Worker build + dry-run: PASS.
+- all 13 DTF addons install: PASS.
+- M2 core/security: PASS.
+- M3 catalog/Printify: PASS.
+- M4 preflight/publishing/protected assets: PASS.
+- M5 native sales/API: PASS.
+- M9 native auth/session, guest cart, checkout/owned order, Design Gallery, Designer workspace and upload: PASS.
+- M6 production/operator regression: PASS.
+- M7 finance regression: PASS.
+- M8 Admin regression: PASS.
+- final Odoo/Nginx /web runtime: PASS.
+
+M11 SOURCE ACCEPTANCE RESULT: PASS.
+M11 STRICT LIVE PRODUCTION ACCEPTANCE: EXTERNAL EVIDENCE REQUIRED.
+PRODUCTION READY / GO-LIVE ACCEPTED: NO.
+Reason: no authorized live production host was connected and no real VPS/DNS/TLS/live backup-restore/monitoring/timer/smoke evidence has been supplied.
+
+NOT YET VERIFIED LIVE: new VPS, DNS/TLS, isolated live frontend origin, production backup/restore, monitoring/logging/timers, production smoke tests.
