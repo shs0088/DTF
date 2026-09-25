@@ -733,3 +733,25 @@ STATUS: M10 SOURCE/DEPLOYMENT PACKAGE VERIFIED; LIVE PRODUCTION DEPLOYMENT STILL
 750. M11 production acceptance: PENDING.
 751. Merge to main: NOT PERFORMED.
 752. Protected dtf-studio-v48-safe-frontend modification/deployment during M10 prep: NONE.
+
+
+============================================================
+M10 GO-LIVE PREPARATION REFRESH — 2026-09-25
+============================================================
+753. Deterministic M10 live go-live runbook: PASS SOURCE/CI.
+754. Redacted production evidence collector: PASS SOURCE/CI.
+755. Deployment evidence directory excluded from Git: PASS.
+756. Evidence collector protected-V48 guard: PASS.
+757. M10 runbook protected-V48 boundary: PASS.
+758. validate_m10.py verifies runbook/evidence assets: PASS.
+759. Exact-head validation dcf7ae2bd7fbc550559cf02bac43cb38d6c0913d / run 36129713530: SUCCESS.
+760. Preserved frontend typecheck/build/M9 contracts on refreshed M10 HEAD: PASS.
+761. Isolated M10 frontend Worker build/dry-run: PASS.
+762. M2-M9 Odoo regression chain + final /web runtime on refreshed M10 HEAD: PASS.
+763. Live NEW VPS/domain/TLS deployment: PENDING.
+764. Live production backup + isolated restore drill: PENDING.
+765. Live monitoring/timers/smoke acceptance: PENDING.
+766. Live redacted runtime evidence collection: PENDING.
+767. M11 final production acceptance: PENDING.
+768. Merge to main: NOT PERFORMED.
+769. Protected dtf-studio-v48-safe-frontend modification/deployment: NONE.

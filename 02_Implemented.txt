@@ -509,3 +509,22 @@ IMPLEMENTED / VERIFIED M10 SOURCE PACKAGE:
 
 BOUNDARY:
 This verifies the deployment package and CI preparation only. No live production VPS, DNS, TLS issuance, frontend deployment, backup/restore drill, monitoring acceptance, merge to main, or protected V48 modification has been performed.
+
+
+============================================================
+ODOO 19 M10 GO-LIVE PREPARATION REFRESH — 2026-09-25
+============================================================
+SOURCE HEAD: dcf7ae2bd7fbc550559cf02bac43cb38d6c0913d
+FULL ODOO/MIGRATION VALIDATION: 36129713530 — SUCCESS.
+
+ADDITIONAL IMPLEMENTED / VERIFIED M10 SOURCE ASSETS:
+- M10_GO_LIVE_RUNBOOK.md with ordered new-host deployment sequence
+- collect-production-evidence.sh with protected-V48 guards
+- redacted evidence output for host/runtime/module/TLS/timers/backup/smoke proof
+- deployment/evidence output excluded from Git
+- validate_m10.py now enforces runbook/evidence-collector presence and V48 guard
+- exact-head frontend contract/build/isolated Worker dry-run: PASS
+- exact-head M2-M9 Odoo regression chain and final /web runtime: PASS
+
+BOUNDARY:
+This is still source/CI preparation only. No live VPS, DNS/TLS, new frontend deployment, production backup/restore drill, timers/monitoring acceptance, main merge or V48 modification has been performed.

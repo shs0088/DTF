@@ -706,3 +706,23 @@ STILL REQUIRED TO COMPLETE M10:
 
 NEXT UNFINISHED ITEM:
 M10 live deployment execution on the separate NEW VPS/new URL environment. Do not use or overwrite dtf-studio-v48-safe-frontend.
+
+
+============================================================
+ODOO 19 M10 GO-LIVE PREPARATION REFRESH — 2026-09-25
+============================================================
+SOURCE HEAD: dcf7ae2bd7fbc550559cf02bac43cb38d6c0913d
+FULL ODOO/MIGRATION VALIDATION: 36129713530 — SUCCESS.
+STATUS: SOURCE/CI GO-LIVE PACKAGE VERIFIED; LIVE M10 EXECUTION STILL PENDING.
+
+NEW VERIFIED PREPARATION:
+- deterministic M10 live go-live runbook added
+- redacted production runtime evidence collector added
+- evidence output excluded from Git
+- V48 guards preserved in preflight, Worker, smoke and evidence collection
+- M9 frontend typecheck/build/contracts remain green
+- M2-M8 regressions and final /web runtime remain green
+
+NEXT UNFINISHED ITEM:
+Execute M10 only on the separate NEW Ubuntu ARM64 VPS/new domain, collect live evidence, then close M10.
+Do not modify, rename, overwrite, redeploy or reuse dtf-studio-v48-safe-frontend.

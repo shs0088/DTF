@@ -165,3 +165,16 @@ U5. React Router internal data-request URLs such as *.data must never become cus
 U6. Ready-to-Print Master, preflight, protected deletion, finance, production and RBAC rules from M1-M8 remain authoritative through M9.
 U7. M9 completion requires frontend typecheck/build/adapter tests, native Odoo M9 API/business-flow tests, browser flow evidence and earlier-milestone regression PASS.
 U8. M9 source cutover does not authorize M10 production deployment, domain/TLS, backups, restore drill, monitoring, merge to main, or modification of the protected external V48 deployment.
+
+
+============================================================
+M10 LIVE DEPLOYMENT SAFETY RULES — 2026-09-25
+============================================================
+V1. M10 may execute only on a separate NEW Ubuntu ARM64/aarch64 VPS and NEW Odoo domain.
+V2. The external dtf-studio-v48-safe-frontend project/folder/Worker/URL is protected: never rename, overwrite, reuse, redirect, synchronize or redeploy it during M10.
+V3. Production secrets belong only in the untracked .env.production / provider secret stores; never commit passwords, tokens, private keys or populated production environment files.
+V4. Live deployment must follow the repository M10_GO_LIVE_RUNBOOK.md order and must pass preflight before initialization/TLS/frontend deployment.
+V5. M10 cannot be marked complete from source/CI evidence alone. Real host, DNS/TLS, frontend deployment, backup, isolated restore drill, timers/monitoring, production smoke and redacted runtime evidence are mandatory.
+V6. Runtime evidence must exclude secrets and private keys and must be stored only in the gitignored deployment/evidence area unless an explicitly sanitized record is later committed.
+V7. M11 production acceptance is separate from M10 deployment and may not start as COMPLETE until M10 live-runtime acceptance passes.
+V8. Passing M10 does not authorize a merge to main or any modification of the protected V48 deployment.

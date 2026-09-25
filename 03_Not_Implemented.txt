@@ -432,3 +432,27 @@ STILL NOT PERFORMED / NOT VERIFIED LIVE:
 13. Any modification/replacement/deployment of protected external dtf-studio-v48-safe-frontend.
 
 The source-level M10 deployment package and ARM64 CI proof are VERIFIED; the live-runtime items above remain pending.
+
+
+============================================================
+M10 LIVE-RUNTIME BOUNDARY REFRESH — 2026-09-25
+============================================================
+SOURCE/CI BASELINE: dcf7ae2bd7fbc550559cf02bac43cb38d6c0913d
+VALIDATION: 36129713530 — SUCCESS.
+
+SOURCE/PACKAGE PREPARATION IS VERIFIED, INCLUDING THE GO-LIVE RUNBOOK AND REDACTED EVIDENCE COLLECTOR.
+
+STILL NOT PERFORMED / NOT VERIFIED LIVE:
+1. Separate NEW Ubuntu ARM64 VPS provisioning.
+2. NEW backend domain DNS pointing to that VPS.
+3. Real .env.production secrets on the new host.
+4. Live PostgreSQL/Odoo/Nginx initialization and all 13 DTF addons on the new host.
+5. Real TLS issuance/renewal on the NEW domain.
+6. Live isolated dtf-studio-odoo19-frontend Worker deployment using the NEW HTTPS Odoo origin.
+7. Production backup and fully isolated restore drill using live backup data.
+8. Monitoring/logging/systemd timer acceptance.
+9. Production smoke tests against the NEW backend/frontend URLs.
+10. Redacted runtime evidence collection and review.
+11. M11 final production acceptance.
+12. Merge to main.
+13. Any change to protected dtf-studio-v48-safe-frontend — FORBIDDEN / NOT PERFORMED.
