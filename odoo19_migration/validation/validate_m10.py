@@ -60,9 +60,6 @@ for script in (
 ):
     require((DEPLOY / script).exists(), f"Missing M10 deployment script: {script}")
 
-print("M10 deployment static validation passed.")
-
-
 installer = (DEPLOY / "install-host-timers.sh").read_text()
 for unit in (
     "dtf-studio-backup.timer",
@@ -83,3 +80,5 @@ require("pg_restore" in drill and "DRILL_DB" in drill,
         "Restore drill must restore into a disposable database.")
 require("--stop-after-init" in drill,
         "Restore drill must start Odoo against the restored database.")
+
+print("M10 deployment static validation passed.")
