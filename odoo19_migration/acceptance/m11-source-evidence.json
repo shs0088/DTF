@@ -41,10 +41,11 @@
   },
   "m11": {
     "source_acceptance_status": "pass",
-    "source_acceptance_head": "e2f6853a0bd2d152ed1d933288d600ca2c690e68",
-    "acceptance_workflow_run": 36137750545,
-    "full_validation_run": 36137750531,
+    "source_acceptance_head": "ebaf53fcc7023f44a6fc51e682b8cc17a625e541",
+    "acceptance_workflow_run": null,
+    "full_validation_run": 36179334663,
     "strict_live_acceptance_status": "external_evidence_required",
-    "production_ready": false
+    "production_ready": false,
+    "homepage_visual_run": 36179028396
   }
 }
