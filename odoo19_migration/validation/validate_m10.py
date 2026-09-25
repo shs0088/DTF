@@ -19,12 +19,15 @@ require(root_wrangler.get("name") == "dtf-studio",
 
 require(new_wrangler.get("name") == "dtf-studio-odoo19-frontend",
         "New frontend Worker name must be isolated.")
-require(new_wrangler.get("main") == "./workers/odoo-frontend.ts",
-        "New frontend Worker must use the Odoo-backed entrypoint.")
+require(new_wrangler.get("main") == "../../workers/odoo-frontend.ts",
+        "New frontend Worker must use the Odoo-backed entrypoint relative to the deployment config.")
 require("durable_objects" not in new_wrangler,
         "New Odoo-backed frontend must not bind legacy Durable Objects.")
 require("r2_buckets" not in new_wrangler,
         "New Odoo-backed frontend must not bind legacy R2 business authority.")
+assets = new_wrangler.get("assets", {})
+require(assets.get("directory") == "../../build/client",
+        "New frontend assets path must resolve from the deployment config to build/client.")
 
 compose = (DEPLOY / "docker-compose.production.yml").read_text()
 require('5432:5432' not in compose and '"5432:5432"' not in compose,
