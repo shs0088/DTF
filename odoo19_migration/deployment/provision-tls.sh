@@ -27,6 +27,8 @@ case "$DTF_ODOO_DOMAIN" in
     ;;
 esac
 
+"$ROOT/initialize-production.sh"
+
 docker compose --env-file "$ENV" -f "$COMPOSE" up -d db odoo
 
 for i in $(seq 1 40); do

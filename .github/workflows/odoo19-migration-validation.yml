@@ -45,6 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           for script in \
+            initialize-production.sh \
             deploy-frontend.sh \
             provision-tls.sh \
             renew-tls.sh \
@@ -58,7 +59,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for script in             odoo19_migration/deployment/deploy-frontend.sh             odoo19_migration/deployment/provision-tls.sh             odoo19_migration/deployment/renew-tls.sh             odoo19_migration/deployment/monitor-production.sh             odoo19_migration/deployment/backup-production.sh             odoo19_migration/deployment/restore-drill.sh             odoo19_migration/deployment/install-host-timers.sh
+          for script in             odoo19_migration/deployment/initialize-production.sh             odoo19_migration/deployment/deploy-frontend.sh             odoo19_migration/deployment/provision-tls.sh             odoo19_migration/deployment/renew-tls.sh             odoo19_migration/deployment/monitor-production.sh             odoo19_migration/deployment/backup-production.sh             odoo19_migration/deployment/restore-drill.sh             odoo19_migration/deployment/install-host-timers.sh
           do
             sh -n "$script"
           done

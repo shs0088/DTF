@@ -56,6 +56,7 @@ require("dtf-studio-v48-safe-frontend" in worker,
         "Production frontend must contain the protected V48 deployment guard.")
 
 for script in (
+    "initialize-production.sh",
     "deploy-frontend.sh",
     "provision-tls.sh",
     "renew-tls.sh",
@@ -102,5 +103,19 @@ require('SCHEDULE_TZ="$TZ"' in installer,
         "Host timers must use the configured production timezone.")
 require("OnCalendar=*-*-* 02:15:00 $SCHEDULE_TZ" in installer,
         "Daily backup timer must have an explicit timezone.")
+
+initializer = (DEPLOY / "initialize-production.sh").read_text()
+require("--stop-after-init" in initializer and '-i "$MODULES"' in initializer,
+        "Production initializer must use the native Odoo install workflow.")
+for module in (
+    "dtf_core", "dtf_designer", "dtf_design", "dtf_preflight",
+    "dtf_customizer", "dtf_sale", "dtf_production", "dtf_finance",
+    "dtf_printify", "dtf_notifications", "dtf_admin",
+    "dtf_backend_theme", "dtf_api",
+):
+    require(module in initializer,
+            f"Production initializer missing required addon: {module}")
+require('[ "$INSTALLED" = "13" ]' in initializer,
+        "Production initializer must verify all 13 DTF addons are installed.")
 
 print("M10 deployment static validation passed.")

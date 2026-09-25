@@ -42,9 +42,21 @@ The deployment script refuses to continue when `DTF_ODOO_ORIGIN` is missing.
 
 ## Backend
 
-PostgreSQL/Odoo/Nginx continue to run on the separate Ubuntu/Docker VPS. The public Odoo origin must use HTTPS before the frontend Worker is pointed at it.
+PostgreSQL/Odoo/Nginx continue to run on the separate Ubuntu/Docker VPS.
 
-M10 is not complete until domain/TLS, scheduled backups, restore drill, monitoring/logging, ARM64 runtime checks, and production smoke tests all pass.
+On a new VPS/database, initialize the database with the native Odoo CLI and install all 13 DTF addons before TLS/public smoke testing:
+
+```sh
+cp odoo19_migration/deployment/.env.production.example odoo19_migration/deployment/.env.production
+# Edit every CHANGE_ME value first.
+sh odoo19_migration/deployment/initialize-production.sh
+```
+
+The initializer uses Docker Compose plus the native Odoo `-i` / `--stop-after-init` workflow and verifies all 13 DTF addons are installed. It does not create a parallel installer or business-data authority.
+
+The public Odoo origin must use HTTPS before the frontend Worker is pointed at it.
+
+M10 is not complete until initialization, domain/TLS, scheduled backups, restore drill, monitoring/logging, ARM64 runtime checks, and production smoke tests all pass.
 
 
 ## Backup, restore drill, monitoring, and renewal
