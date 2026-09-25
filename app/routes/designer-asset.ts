@@ -1,34 +1,37 @@
 import { redirect } from "react-router";
 import type { Route } from "./+types/designer-asset";
-import type { ItemStore } from "../../workers/item-store";
+import {
+  appendOdooSessionCookies,
+  fetchOdooResponse,
+} from "../lib/odoo-api.server";
 
-function cookieValue(request:Request,name:string){
-  const cookie=request.headers.get("cookie")??"";
-  const part=cookie.split(";").map(x=>x.trim()).find(x=>x.startsWith(name+"="));
-  return (part?.slice(name.length+1)??"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,120);
-}
-function store(context:Route.LoaderArgs["context"]){
-  const ns=context.cloudflare.env.ITEMS as DurableObjectNamespace<ItemStore>;
-  return ns.get(ns.idFromName("default"));
-}
 export async function loader({request,context,params}:Route.LoaderArgs){
-  const sessionId=cookieValue(request,"dtf_session");
-  const s=store(context),identity=await s.sessionIdentity(sessionId);
-  if(!identity||identity.role!=="designer")throw redirect("/login?returnTo="+encodeURIComponent(new URL(request.url).pathname));
-  let asset:any;
-  try{asset=await s.designerAssetAccess(sessionId,String(params.assetId??""));}catch{return new Response("Forbidden",{status:403});}
-  if(!asset)return new Response("Asset not found",{status:404});
-  const bucket=(context.cloudflare.env as any).DESIGN_ASSETS as R2Bucket|undefined;
-  if(!bucket)return new Response("Design asset storage is not configured",{status:503});
-  const object=await bucket.get(String(asset.storageKey));
-  if(!object)return new Response("Stored asset not found",{status:404});
+  const assetId=Number(params.assetId??0);
+  if(!Number.isInteger(assetId)||assetId<=0)return new Response("Asset not found",{status:404});
+  const upstream=await fetchOdooResponse(
+    request,
+    context,
+    `/api/dtf/v1/designer/assets/${assetId}`,
+  );
+  const sessionHeaders=new Headers();
+  appendOdooSessionCookies(sessionHeaders,upstream);
+  if([301,302,303,401,403].includes(upstream.status)){
+    throw redirect("/login?returnTo="+encodeURIComponent(new URL(request.url).pathname),{headers:sessionHeaders});
+  }
   const headers=new Headers();
-  headers.set("content-type",String(asset.mimeType||object.httpMetadata?.contentType||"application/octet-stream"));
-  headers.set("content-length",String(asset.byteSize||object.size));
-  const mime=String(asset.mimeType||object.httpMetadata?.contentType||"application/octet-stream");
-  headers.set("content-disposition",(mime==="application/pdf"?"attachment":"inline")+'; filename="'+String(asset.filename||"asset").replace(/["\r\n]/g,"_")+'"');
-  headers.set("cache-control","private, max-age=300");
-  headers.set("x-content-type-options","nosniff");
-  if(mime==="image/svg+xml")headers.set("content-security-policy","sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:");
-  return new Response(object.body,{headers});
+  for(const name of [
+    "content-type",
+    "content-length",
+    "content-disposition",
+    "cache-control",
+    "x-content-type-options",
+    "content-security-policy",
+  ]){
+    const value=upstream.headers.get(name);
+    if(value)headers.set(name,value);
+  }
+  for(const value of (sessionHeaders as Headers & {getSetCookie?:()=>string[]}).getSetCookie?.()??[]){
+    headers.append("Set-Cookie",value);
+  }
+  return new Response(upstream.body,{status:upstream.status,statusText:upstream.statusText,headers});
 }

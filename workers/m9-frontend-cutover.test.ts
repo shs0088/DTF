@@ -221,3 +221,20 @@ test("Design Gallery and public designs API no longer use ItemStore or hard-code
   expect(gallerySource).not.toContain('const designs = [');
   expect(assetProxy).toContain("/api/dtf/v1/design-assets/");
 });
+
+
+test("Designer Dashboard no longer uses ItemStore or R2 for workspace mutations", async () => {
+  const dashboard = await Bun.file("app/routes/designer.tsx").text();
+  const asset = await Bun.file("app/routes/designer-asset.ts").text();
+  for (const source of [dashboard, asset]) {
+    expect(source).not.toContain("ItemStore");
+    expect(source).not.toContain("ITEMS");
+    expect(source).not.toContain("DESIGN_ASSETS");
+    expect(source).not.toContain("dtf_session");
+    expect(source).toContain("/api/dtf/v1/designer/");
+  }
+  expect(dashboard).toContain("/api/dtf/v1/designer/workspace");
+  expect(dashboard).toContain("/cover");
+  expect(dashboard).toContain("/master");
+  expect(asset).toContain("/api/dtf/v1/designer/assets/");
+});

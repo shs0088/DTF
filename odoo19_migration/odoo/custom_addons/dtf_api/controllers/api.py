@@ -1,5 +1,5 @@
 from odoo import http
-from odoo.exceptions import AccessDenied
+from odoo.exceptions import AccessDenied, AccessError, ValidationError
 from odoo.http import request
 
 
@@ -190,6 +190,253 @@ class DTFAPI(http.Controller):
             ('Cache-Control', 'public, max-age=300'),
             ('X-Content-Type-Options', 'nosniff'),
         ])
+
+
+    def _designer_profile(self):
+        user = request.env.user
+        if not user.has_group('dtf_core.group_dtf_designer'):
+            return request.env['dtf.designer.profile']
+        return request.env['dtf.designer.profile'].search([
+            ('user_id', '=', user.id),
+            ('active', '=', True),
+        ], limit=1)
+
+    def _designer_asset_protected(self, asset):
+        if request.env['dtf.preflight.result'].sudo().search_count([
+            ('asset_id', '=', asset.id),
+            ('locked', '=', True),
+        ]):
+            return True
+        if request.env['sale.order.line'].sudo().search_count([
+            ('dtf_master_asset_id', '=', asset.id),
+        ]):
+            return True
+        return bool(request.env['mrp.production'].sudo().search_count([
+            ('dtf_master_asset_id', '=', asset.id),
+            ('dtf_is_print_job', '=', True),
+        ]))
+
+    def _designer_asset_payload(self, asset):
+        latest = asset.latest_preflight_result_id
+        snapshot = (latest.analyzer_snapshot or {}) if latest else {}
+        effective = snapshot.get('effective_dpi') or {}
+        effective_dpi = (
+            effective.get('minimum')
+            if isinstance(effective, dict)
+            else None
+        )
+        status = {
+            'accepted': 'passed',
+            'rejected': 'failed',
+            'pending': 'pending',
+        }.get(asset.preflight_state or 'pending', 'pending')
+        return {
+            'assetId': str(asset.id),
+            'filename': asset.name or '',
+            'mimeType': asset.mime_type or asset.attachment_id.mimetype or '',
+            'byteSize': asset.size_bytes or asset.attachment_id.file_size or 0,
+            'pixelWidth': asset.pixel_width or None,
+            'pixelHeight': asset.pixel_height or None,
+            'embeddedDpi': asset.embedded_dpi or None,
+            'effectiveDpi': effective_dpi,
+            'previewable': bool(asset.previewable),
+            'readable': bool(asset.readable),
+            'analyzable': bool(asset.analyzable),
+            'isCover': bool(asset.is_main_display_image),
+            'isMaster': bool(asset.is_ready_to_print_master),
+            'preflightStatus': status,
+            'preflightSummary': asset.preflight_summary or '',
+            'protected': self._designer_asset_protected(asset),
+        }
+
+    def _designer_design_payload(self, design):
+        return {
+            'designId': str(design.id),
+            'titleAr': design.title_ar or '',
+            'titleEn': design.title_en or '',
+            'descriptionAr': design.description_ar or '',
+            'descriptionEn': design.description_en or '',
+            'productType': design.product_type,
+            'status': design.state,
+            'assets': [
+                self._designer_asset_payload(asset)
+                for asset in design.asset_ids.sorted(key=lambda item: item.id)
+            ],
+        }
+
+    @http.route(
+        '/api/dtf/v1/designer/workspace',
+        type='http',
+        auth='user',
+        methods=['GET'],
+        csrf=False,
+    )
+    def designer_workspace(self, **kwargs):
+        profile = self._designer_profile()
+        if not profile:
+            return request.make_json_response(
+                {'ok': False, 'error': 'designer_profile_not_found'},
+                status=403,
+            )
+        if not profile.authorized or profile.qualification_state != 'authorized':
+            return request.make_json_response({
+                'ok': False,
+                'error': 'qualification_required',
+                'qualificationState': profile.qualification_state,
+            }, status=409)
+        designs = request.env['dtf.design'].search([
+            ('designer_id', '=', profile.id),
+            ('is_qualification_sample', '=', False),
+        ], order='create_date desc, id desc')
+        return request.make_json_response({
+            'ok': True,
+            'profile': {
+                'id': str(profile.id),
+                'authorized': bool(profile.authorized),
+                'qualificationState': profile.qualification_state,
+            },
+            'designs': [
+                self._designer_design_payload(design)
+                for design in designs
+            ],
+        })
+
+    @http.route(
+        '/api/dtf/v1/designer/assets/<int:asset_id>',
+        type='http',
+        auth='user',
+        methods=['GET'],
+        csrf=False,
+    )
+    def designer_asset(self, asset_id, **kwargs):
+        profile = self._designer_profile()
+        if not profile:
+            return request.not_found()
+        asset = request.env['dtf.design.asset'].search([
+            ('id', '=', asset_id),
+            ('design_id.designer_id', '=', profile.id),
+        ], limit=1)
+        if not asset:
+            return request.not_found()
+        attachment = asset.attachment_id.sudo().exists()
+        content = attachment.raw or b''
+        if not content:
+            return request.not_found()
+        mime = asset.mime_type or attachment.mimetype or 'application/octet-stream'
+        filename = (asset.name or attachment.name or 'asset').replace('"', '_').replace('\r', '_').replace('\n', '_')
+        headers = [
+            ('Content-Type', mime),
+            ('Content-Length', len(content)),
+            ('Content-Disposition', ('attachment' if mime == 'application/pdf' else 'inline') + '; filename="%s"' % filename),
+            ('Cache-Control', 'private, max-age=300'),
+            ('X-Content-Type-Options', 'nosniff'),
+        ]
+        if mime == 'image/svg+xml':
+            headers.append(('Content-Security-Policy', "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src data:"))
+        return request.make_response(content, headers)
+
+    @http.route(
+        '/api/dtf/v1/designer/assets/<int:asset_id>/delete',
+        type='jsonrpc',
+        auth='user',
+        methods=['POST'],
+        csrf=False,
+    )
+    def designer_asset_delete(self, asset_id, **kwargs):
+        profile = self._designer_profile()
+        asset = request.env['dtf.design.asset'].search([
+            ('id', '=', asset_id),
+            ('design_id.designer_id', '=', profile.id if profile else 0),
+        ], limit=1)
+        if not asset:
+            return {'error': 'asset_not_found'}
+        try:
+            asset.unlink()
+        except (ValidationError, AccessError) as error:
+            return {'error': str(error)}
+        return {'ok': True}
+
+    @http.route(
+        '/api/dtf/v1/designer/designs/<int:design_id>/delete',
+        type='jsonrpc',
+        auth='user',
+        methods=['POST'],
+        csrf=False,
+    )
+    def designer_design_delete(self, design_id, **kwargs):
+        profile = self._designer_profile()
+        design = request.env['dtf.design'].search([
+            ('id', '=', design_id),
+            ('designer_id', '=', profile.id if profile else 0),
+            ('is_qualification_sample', '=', False),
+        ], limit=1)
+        if not design:
+            return {'error': 'design_not_found'}
+        try:
+            design.unlink()
+        except (ValidationError, AccessError) as error:
+            return {'error': str(error)}
+        return {'ok': True}
+
+    def _designer_role_records(self, design_id, asset_id):
+        profile = self._designer_profile()
+        design = request.env['dtf.design'].search([
+            ('id', '=', design_id),
+            ('designer_id', '=', profile.id if profile else 0),
+            ('is_qualification_sample', '=', False),
+        ], limit=1)
+        asset = request.env['dtf.design.asset'].search([
+            ('id', '=', asset_id),
+            ('design_id', '=', design.id if design else 0),
+        ], limit=1)
+        return design, asset
+
+    @http.route(
+        '/api/dtf/v1/designer/designs/<int:design_id>/cover',
+        type='jsonrpc',
+        auth='user',
+        methods=['POST'],
+        csrf=False,
+    )
+    def designer_set_cover(self, design_id, asset_id=None, **kwargs):
+        design, asset = self._designer_role_records(
+            design_id,
+            int(asset_id or 0),
+        )
+        if not design or not asset:
+            return {'error': 'design_asset_not_found'}
+        try:
+            design.action_set_main_display_asset(asset)
+        except (ValidationError, AccessError) as error:
+            return {'error': str(error)}
+        return {'ok': True}
+
+    @http.route(
+        '/api/dtf/v1/designer/designs/<int:design_id>/master',
+        type='jsonrpc',
+        auth='user',
+        methods=['POST'],
+        csrf=False,
+    )
+    def designer_set_master(self, design_id, asset_id=None, **kwargs):
+        design, asset = self._designer_role_records(
+            design_id,
+            int(asset_id or 0),
+        )
+        if not design or not asset:
+            return {'error': 'design_asset_not_found'}
+        latest = asset.latest_preflight_result_id
+        if (
+            not latest
+            or latest.status != 'accepted'
+            or latest.rule_version_id.product_type != design.product_type
+        ):
+            return {'error': 'master_preflight_required'}
+        try:
+            design.action_set_ready_to_print_master(asset)
+        except (ValidationError, AccessError) as error:
+            return {'error': str(error)}
+        return {'ok': True}
 
     def _cart_line_payload(self, line):
         attributes = {

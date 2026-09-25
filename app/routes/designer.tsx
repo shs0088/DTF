@@ -1,50 +1,67 @@
 import { Form, Link, redirect, useActionData, useLoaderData } from "react-router";
 import type { Route } from "./+types/designer";
-import type { ItemStore } from "../../workers/item-store";
 import { ArrowLeft, CheckCircle2, FileImage, Plus, ShieldCheck, Trash2, UploadCloud } from "lucide-react";
 import { localeDir, localeFromRequest, pick, productTypeLabel, useAppLocale } from "../i18n";
-
-function cookieValue(request:Request,name:string){
-  const cookie=request.headers.get("cookie")??"";
-  const part=cookie.split(";").map(x=>x.trim()).find(x=>x.startsWith(name+"="));
-  return (part?.slice(name.length+1)??"").replace(/[^a-zA-Z0-9_-]/g,"").slice(0,120);
-}
-function store(context:Route.LoaderArgs["context"]|Route.ActionArgs["context"]){
-  const ns=context.cloudflare.env.ITEMS as DurableObjectNamespace<ItemStore>;
-  return ns.get(ns.idFromName("default"));
-}
-function bucket(context:Route.ActionArgs["context"]){return (context.cloudflare.env as any).DESIGN_ASSETS as R2Bucket|undefined;}
+import {
+  appendOdooSessionCookies,
+  fetchOdooJsonRpc,
+  fetchOdooResponse,
+} from "../lib/odoo-api.server";
 
 export async function loader({request,context}:Route.LoaderArgs){
-  const sessionId=cookieValue(request,"dtf_session");
-  const s=store(context),identity=await s.sessionIdentity(sessionId);
-  if(!identity||identity.role!=="designer")throw redirect("/login?returnTo=%2Fdesigner");
-  try{return await s.designerWorkspace(sessionId) as any;}
-  catch{throw redirect("/designer-qualification");}
+  const upstream=await fetchOdooResponse(
+    request,
+    context,
+    "/api/dtf/v1/designer/workspace",
+  );
+  const headers=new Headers();
+  appendOdooSessionCookies(headers,upstream);
+  if([301,302,303,401,403].includes(upstream.status)){
+    throw redirect("/login?returnTo=%2Fdesigner",{headers});
+  }
+  if(upstream.status===409){
+    throw redirect("/designer-qualification",{headers});
+  }
+  if(!upstream.ok) throw new Response("Designer workspace unavailable.",{status:502});
+  return Response.json(await upstream.json(),{headers});
 }
 
 export async function action({request,context}:Route.ActionArgs){
-  const sessionId=cookieValue(request,"dtf_session"),s=store(context),form=await request.formData();
+  const form=await request.formData();
   const locale=localeFromRequest(request);
   const intent=String(form.get("intent")??"");
+  const designId=Number(form.get("designId")??0);
+  const assetId=Number(form.get("assetId")??0);
   try{
-    if(intent==="delete-asset"){
-      const result:any=await s.deleteDesignerAsset(sessionId,String(form.get("assetId")??""));
-      try{await bucket(context)?.delete(String(result.storageKey));}catch{}
-      return {ok:true,message:pick(locale,"Asset deleted.","تم حذف الملف.")};
+    let path="";
+    let params:Record<string,unknown>={};
+    if(intent==="delete-asset"&&Number.isInteger(assetId)&&assetId>0){
+      path=`/api/dtf/v1/designer/assets/${assetId}/delete`;
+    }else if(intent==="delete-design"&&Number.isInteger(designId)&&designId>0){
+      path=`/api/dtf/v1/designer/designs/${designId}/delete`;
+    }else if((intent==="set-cover"||intent==="set-master")&&Number.isInteger(designId)&&designId>0&&Number.isInteger(assetId)&&assetId>0){
+      path=`/api/dtf/v1/designer/designs/${designId}/${intent==="set-cover"?"cover":"master"}`;
+      params={asset_id:assetId};
+    }else{
+      return {ok:false,error:pick(locale,"Unsupported Designer action.","إجراء المصمم غير مدعوم.")};
     }
-    if(intent==="delete-design"){
-      const result:any=await s.deleteDesignerDesign(sessionId,String(form.get("designId")??""));
-      for(const key of result.storageKeys??[])try{await bucket(context)?.delete(String(key));}catch{}
-      return {ok:true,message:pick(locale,"Design deleted.","تم حذف التصميم.")};
+    const {result,response}=await fetchOdooJsonRpc<any>(request,context,path,params);
+    const headers=new Headers();
+    appendOdooSessionCookies(headers,response);
+    if(result?.error){
+      return Response.json({ok:false,error:String(result.error)},{status:400,headers});
     }
-    if(intent==="set-cover"||intent==="set-master"){
-      const designId=String(form.get("designId")??""),assetId=String(form.get("assetId")??"");
-      await s.setDesignerAssetRoles(sessionId,designId,assetId,intent==="set-cover"?{cover:true}:{master:true});
-      return {ok:true,message:intent==="set-cover"?pick(locale,"Main Display Image updated.","تم تحديث الصورة الرئيسية."):pick(locale,"Ready-to-Print Master updated.","تم تحديث ملف الطباعة الرئيسي.")};
-    }
-    return {ok:false,error:pick(locale,"Unsupported Designer action.","إجراء المصمم غير مدعوم.")};
-  }catch(error){return {ok:false,error:error instanceof Error?error.message:pick(locale,"Designer action failed.","فشل إجراء المصمم.")};}
+    const message=intent==="delete-asset"
+      ? pick(locale,"Asset deleted.","تم حذف الملف.")
+      : intent==="delete-design"
+        ? pick(locale,"Design deleted.","تم حذف التصميم.")
+        : intent==="set-cover"
+          ? pick(locale,"Main Display Image updated.","تم تحديث الصورة الرئيسية.")
+          : pick(locale,"Ready-to-Print Master updated.","تم تحديث ملف الطباعة الرئيسي.");
+    return Response.json({ok:true,message},{headers});
+  }catch(error){
+    return {ok:false,error:error instanceof Error?error.message:pick(locale,"Designer action failed.","فشل إجراء المصمم.")};
+  }
 }
 
 function statusClass(value:string){return String(value).toLowerCase()==="passed"?"designer-status passed":String(value).toLowerCase()==="failed"?"designer-status failed":"designer-status pending";}
