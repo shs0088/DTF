@@ -8,6 +8,9 @@ interface Env {
   DTF_ODOO_ORIGIN: string;
 }
 
+const LEGACY_HOME_PATH = "/DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html";
+const LEGACY_HOME_PATH_NO_EXT = "/DTF_Studio_V48.22E_VIEW_ALL_SYNCED";
+
 const handler = createRequestHandler(build as any, "production");
 
 function shouldServeAsset(request: Request): boolean {
@@ -23,6 +26,15 @@ function shouldServeAsset(request: Request): boolean {
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+    const requestUrl = new URL(request.url);
+    if (
+      (request.method === "GET" || request.method === "HEAD") &&
+      (requestUrl.pathname === LEGACY_HOME_PATH || requestUrl.pathname === LEGACY_HOME_PATH_NO_EXT)
+    ) {
+      requestUrl.pathname = "/";
+      return Response.redirect(requestUrl, 302);
+    }
+
     if (env.ASSETS && shouldServeAsset(request)) {
       const assetResponse = await env.ASSETS.fetch(request);
       if (assetResponse.status !== 404) {

@@ -275,4 +275,16 @@ test("rejects external or malformed post-login return targets", () => {
   expect(normalizeReturnTo("https://evil.example/checkout")).toBe("/");
   expect(normalizeReturnTo("//evil.example/checkout")).toBe("/");
   expect(normalizeReturnTo("/\\evil.example/checkout")).toBe("/");
+  test("Home is Odoo-native and legacy V48 routes are retired", async () => {
+    const home = await Bun.file("app/routes/home.tsx").text();
+    expect(home).toContain('data-home-source="odoo19"');
+    expect(home).toContain("/api/dtf/v1/homepage");
+    expect(home).not.toContain("DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html");
+    for (const file of ["workers/odoo-frontend.ts", "odoo19_migration/visual_qa/m9-frontend-worker.ts"]) {
+      const source = await Bun.file(file).text();
+      expect(source).toContain("LEGACY_HOME_PATH");
+      expect(source).toContain("Response.redirect");
+    }
+  });
+
 });
