@@ -29,6 +29,10 @@ assets = new_wrangler.get("assets", {})
 require(assets.get("directory") == "../../build/client",
         "New frontend assets path must resolve from the deployment config to build/client.")
 
+production_env = (DEPLOY / ".env.production.example").read_text()
+require("CERTBOT_IMAGE=" in production_env,
+        "Production environment template must define the Certbot image.")
+
 compose = (DEPLOY / "docker-compose.production.yml").read_text()
 require('5432:5432' not in compose and '"5432:5432"' not in compose,
         "Production PostgreSQL must not publish port 5432.")

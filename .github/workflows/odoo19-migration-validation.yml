@@ -91,6 +91,31 @@ jobs:
             fi
           done
 
+      - name: Probe M10 production image manifests for linux/arm64
+        shell: bash
+        run: |
+          set -euo pipefail
+          set -a
+          source odoo19_migration/deployment/.env.production.example
+          set +a
+          for image in "$ODOO_IMAGE" "$POSTGRES_IMAGE" "$NGINX_IMAGE" "$CERTBOT_IMAGE"; do
+            echo "Inspecting production image $image"
+            ok=0
+            for attempt in 1 2 3; do
+              if output="$(docker buildx imagetools inspect "$image" 2>&1)"; then
+                printf '%s\n' "$output" | grep -q 'linux/arm64'
+                ok=1
+                break
+              fi
+              printf '%s\n' "$output" >&2
+              sleep 3
+            done
+            if [ "$ok" -ne 1 ]; then
+              echo "Unable to prove linux/arm64 manifest for production image $image." >&2
+              exit 1
+            fi
+          done
+
 
   m9-frontend-contract:
     runs-on: ubuntu-latest
