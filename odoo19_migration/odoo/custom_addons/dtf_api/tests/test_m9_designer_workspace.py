@@ -182,6 +182,7 @@ class TestDTFM9DesignerWorkspace(HttpCase):
         )
         self.assertTrue(deleted["ok"])
         self.assertFalse(disposable.exists())
+        self.assertFalse(disposable_attachment.exists())
 
         protected = self._jsonrpc(
             f"/api/dtf/v1/designer/assets/{self.master_asset.id}/delete"
