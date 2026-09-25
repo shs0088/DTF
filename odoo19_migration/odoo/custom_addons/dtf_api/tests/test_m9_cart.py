@@ -42,6 +42,6 @@ class TestDTFM9GuestCart(HttpCase):
         self.assertEqual(fetched["id"],cart["id"])
         self.assertEqual(fetched["lines"][0]["id"],line_id)
 
-        deleted=self._jsonrpc(f"/api/dtf/v1/cart/line/{line_id}",{})
+        deleted=self._jsonrpc(f"/api/dtf/v1/cart/line/{line_id}/delete",{})
         self.assertFalse(deleted.get("error"))
         self.assertFalse(deleted["cart"]["lines"])

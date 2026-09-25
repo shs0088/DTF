@@ -43,7 +43,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   const { result, response } = await fetchOdooJsonRpc<any>(
     request,
     context,
-    `/api/dtf/v1/cart/line/${lineId}`,
+    `/api/dtf/v1/cart/line/${lineId}/delete`,
     {},
   );
   const headers = new Headers();

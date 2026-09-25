@@ -138,6 +138,16 @@ describe("M9 frontend Odoo compatibility adapter", () => {
     });
   });
 
+  test("uses explicit JSON-RPC POST endpoints for line mutation", async () => {
+    const source = await Bun.file("odoo19_migration/odoo/custom_addons/dtf_api/controllers/api.py").text();
+    expect(source).toContain("/cart/line/<int:line_id>/update");
+    expect(source).toContain("/cart/line/<int:line_id>/delete");
+    expect(source).not.toContain("methods=['PATCH']");
+    expect(source).not.toContain("methods=['DELETE']");
+    const cartSource = await Bun.file("app/routes/cart.tsx").text();
+    expect(cartSource).toContain("/delete");
+  });
+
   test("Customizer and Cart no longer use ItemStore cart/session authority", async () => {
     for (const file of ["app/routes/customize.tsx", "app/routes/cart.tsx"]) {
       const source = await Bun.file(file).text();
