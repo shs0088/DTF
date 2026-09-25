@@ -478,3 +478,70 @@ msgstr "حركات المخزون"
 #: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_admin_payouts_report_graph
 msgid "Payouts"
 msgstr "السحوبات"
+
+#. module: dtf_admin
+#: model:ir.actions.act_window,name:dtf_admin.action_dtf_homepage_banners
+#: model:ir.ui.menu,name:dtf_admin.menu_dtf_homepage
+msgid "Homepage"
+msgstr "الصفحة الرئيسية"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_list
+msgid "Homepage Banners"
+msgstr "بانرات الصفحة الرئيسية"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Homepage Banner"
+msgstr "بانر الصفحة الرئيسية"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Bilingual Banner Content"
+msgstr "محتوى البانر ثنائي اللغة"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "English"
+msgstr "الإنجليزية"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Arabic"
+msgstr "العربية"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Actions"
+msgstr "الإجراءات"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Eyebrow"
+msgstr "النص العلوي"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Title"
+msgstr "العنوان"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Subtitle"
+msgstr "العنوان الفرعي"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Image Alt Text"
+msgstr "النص البديل للصورة"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Primary Button Label"
+msgstr "نص الزر الرئيسي"
+
+#. module: dtf_admin
+#: model_terms:ir.ui.view,arch_db:dtf_admin.view_dtf_homepage_banner_form
+msgid "Secondary Button Label"
+msgstr "نص الزر الثانوي"
+

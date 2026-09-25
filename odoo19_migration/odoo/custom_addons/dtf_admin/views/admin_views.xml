@@ -440,20 +440,24 @@
                     </group>
                     <group string="Bilingual Banner Content" col="2">
                         <group string="English">
-                            <field name="eyebrow_en"/>
-                            <field name="title_en"/>
-                            <field name="subtitle_en"/>
-                            <field name="image_alt_en"/>
-                            <field name="primary_cta_label_en"/>
-                            <field name="secondary_cta_label_en"/>
+                            <div dir="ltr">
+                                <field name="eyebrow_en" string="Eyebrow"/>
+                                <field name="title_en" string="Title"/>
+                                <field name="subtitle_en" string="Subtitle"/>
+                                <field name="image_alt_en" string="Image Alt Text"/>
+                                <field name="primary_cta_label_en" string="Primary Button Label"/>
+                                <field name="secondary_cta_label_en" string="Secondary Button Label"/>
+                            </div>
                         </group>
                         <group string="Arabic">
-                            <field name="eyebrow_ar"/>
-                            <field name="title_ar"/>
-                            <field name="subtitle_ar"/>
-                            <field name="image_alt_ar"/>
-                            <field name="primary_cta_label_ar"/>
-                            <field name="secondary_cta_label_ar"/>
+                            <div dir="rtl">
+                                <field name="eyebrow_ar" string="Eyebrow"/>
+                                <field name="title_ar" string="Title"/>
+                                <field name="subtitle_ar" string="Subtitle"/>
+                                <field name="image_alt_ar" string="Image Alt Text"/>
+                                <field name="primary_cta_label_ar" string="Primary Button Label"/>
+                                <field name="secondary_cta_label_ar" string="Secondary Button Label"/>
+                            </div>
                         </group>
                     </group>
                     <group string="Actions">
