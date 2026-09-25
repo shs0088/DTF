@@ -5,3 +5,5 @@ from . import test_m9_checkout
 from . import test_m9_designs
 from . import test_m9_designer_workspace
 from . import test_m9_designer_upload
+
+from . import test_m11_homepage

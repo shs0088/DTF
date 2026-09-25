@@ -104,10 +104,18 @@ async function inspectCustomerFlow(browser) {
 
   await page.goto(BASE + "/?lang=en", { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1000);
-  report.checks.preserved_v48_home =
-    page.url().includes("DTF_Studio_V48.22E_VIEW_ALL_SYNCED.html");
+  const homeRoot = page.locator('[data-home-source="odoo19"]');
+  const homeHero = page.locator('[data-home-visible="hero"]');
+  const homeCategories = page.locator('[data-home-visible="categories"]');
+  const homeProducts = page.locator('[data-home-visible="products"]');
+  report.checks.odoo_native_home =
+    (await homeRoot.count()) === 1 &&
+    (await homeHero.isVisible()) &&
+    (await homeCategories.isVisible()) &&
+    (await homeProducts.isVisible()) &&
+    (await homeRoot.evaluate((node) => (node.textContent || "").trim().length)) > 80;
   report.metrics.home = await overflow(page);
-  await shot(page, "01-preserved-v48-home.png");
+  await shot(page, "01-odoo-native-home.png");
 
   await page.goto(BASE + "/designs?lang=en", { waitUntil: "domcontentloaded" });
   await page.getByText("M9 Visual Gallery", { exact: true }).waitFor({
@@ -252,7 +260,7 @@ async function inspectMobile(browser) {
       "products_api",
       "categories_api",
       "designs_api",
-      "preserved_v48_home",
+      "odoo_native_home",
       "gallery_english",
       "gallery_arabic",
       "customizer_product",
@@ -289,10 +297,10 @@ async function inspectMobile(browser) {
     fs.writeFileSync(
       path.join(OUT, "README.txt"),
       [
-        "M9 Preserved Frontend / Odoo Cutover Visual QA",
+        "M9 Odoo-Native Frontend / Odoo Cutover Visual QA",
         "Source HEAD: " + report.source_head,
         "Visual pass: " + report.visual_pass,
-        "Evidence covers preserved V48 home, English/Arabic Gallery, guest cart,",
+        "Evidence covers Odoo-native dynamic Home, English/Arabic Gallery, guest cart,",
         "customer login/checkout/order, Designer Dashboard/New Design, and mobile RTL.",
       ].join("\n")
     );

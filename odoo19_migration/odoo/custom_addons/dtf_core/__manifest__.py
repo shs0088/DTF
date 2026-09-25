@@ -5,7 +5,7 @@
     "category": "DTF Studio",
     "license": "LGPL-3",
     "depends": ["base", "mail", "contacts", "product", "stock", "website_sale"],
-    "data": ["security/dtf_security.xml", "security/ir.model.access.csv"],
+    "data": ["security/dtf_security.xml", "security/ir.model.access.csv", "data/homepage_data.xml"],
     "installable": True,
     "application": False
 }

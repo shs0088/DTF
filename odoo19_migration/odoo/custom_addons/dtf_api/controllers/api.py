@@ -6,6 +6,25 @@ from odoo.http import request
 
 class DTFAPI(http.Controller):
 
+    def _public_image_response(self, encoded):
+        content = base64.b64decode(encoded or b"")
+        if not content:
+            return request.not_found()
+        if content.startswith(b"\x89PNG\r\n\x1a\n"):
+            mimetype = "image/png"
+        elif content.startswith(b"\xff\xd8\xff"):
+            mimetype = "image/jpeg"
+        elif content.startswith(b"RIFF") and content[8:12] == b"WEBP":
+            mimetype = "image/webp"
+        else:
+            mimetype = "application/octet-stream"
+        return request.make_response(content, [
+            ("Content-Type", mimetype),
+            ("Content-Length", len(content)),
+            ("Cache-Control", "public, max-age=300"),
+            ("X-Content-Type-Options", "nosniff"),
+        ])
+
     def _role_for_user(self, user):
         return 'designer' if user.has_group('dtf_core.group_dtf_designer') else 'customer'
 
@@ -107,13 +126,7 @@ class DTFAPI(http.Controller):
         ], limit=1)
         if not banner or not banner.image_1920:
             return request.not_found()
-        content = base64.b64decode(banner.image_1920)
-        return request.make_response(content, [
-            ('Content-Type', 'image/webp'),
-            ('Content-Length', len(content)),
-            ('Cache-Control', 'public, max-age=300'),
-            ('X-Content-Type-Options', 'nosniff'),
-        ])
+        return self._public_image_response(banner.image_1920)
 
     @http.route('/api/dtf/v1/categories', type='http', auth='public', methods=['GET'], csrf=False)
     def categories(self, **kwargs):
@@ -169,13 +182,7 @@ class DTFAPI(http.Controller):
         product = request.env['product.template'].sudo().search(domain, limit=1)
         if not product or not product.image_1920:
             return request.not_found()
-        content = base64.b64decode(product.image_1920)
-        return request.make_response(content, [
-            ('Content-Type', 'image/webp'),
-            ('Content-Length', len(content)),
-            ('Cache-Control', 'public, max-age=300'),
-            ('X-Content-Type-Options', 'nosniff'),
-        ])
+        return self._public_image_response(product.image_1920)
 
     @http.route('/api/dtf/v1/products', type='http', auth='public', methods=['GET'], csrf=False, website=True)
     def products(self, **kwargs):

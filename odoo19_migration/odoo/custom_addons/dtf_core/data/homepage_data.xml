@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="homepage_banner_default" model="dtf.homepage.banner">
+        <field name="name">Primary Homepage Banner</field>
+        <field name="sequence">10</field>
+        <field name="active">1</field>
+        <field name="eyebrow_en">PREMIUM DTF PRINTING</field>
+        <field name="eyebrow_ar">طباعة DTF احترافية</field>
+        <field name="title_en">Bring your imagination to life.</field>
+        <field name="title_ar">حوّل خيالك إلى واقع.</field>
+        <field name="subtitle_en">Choose a product, select a designer artwork or upload your own, then build your print.</field>
+        <field name="subtitle_ar">اختر منتجاً أو تصميماً من المصممين أو ارفع تصميمك، ثم أنشئ طباعتك.</field>
+        <field name="primary_cta_label_en">Print Your Dream</field>
+        <field name="primary_cta_label_ar">اطبع حلمك</field>
+        <field name="primary_cta_url">/customize</field>
+        <field name="secondary_cta_label_en">Design Gallery</field>
+        <field name="secondary_cta_label_ar">معرض التصاميم</field>
+        <field name="secondary_cta_url">/designs</field>
+    </record>
+</odoo>
