@@ -1,0 +1,13 @@
+{
+  "name": "dtf-studio-odoo19-frontend",
+  "main": "./workers/odoo-frontend.ts",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./build/client",
+    "binding": "ASSETS",
+    "html_handling": "none"
+  }
+}
