@@ -175,6 +175,7 @@ test("Checkout and Order confirmation no longer use ItemStore or timed reservati
   const orderSource = await Bun.file("app/routes/order.tsx").text();
   expect(checkoutSource).toContain("/api/dtf/v1/checkout/preview");
   expect(checkoutSource).toContain("/api/dtf/v1/checkout/place");
+  expect(checkoutSource).toContain("upstream.status>=300&&upstream.status<400");
   expect(checkoutSource).not.toContain("reservationMinutes");
   expect(orderSource).not.toContain("reservationExpiresAt?");
   expect(orderSource).toContain("No custom timed stock hold is used");

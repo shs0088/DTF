@@ -13,7 +13,11 @@ function money(value:number){return "JOD "+Number(value||0).toFixed(2);}
 export async function loader({request,context}:Route.LoaderArgs){
   const url=new URL(request.url);
   const upstream=await fetchOdooResponse(request,context,"/api/dtf/v1/checkout/preview");
-  if(upstream.status===401||upstream.status===403){
+  if(
+    upstream.status===401||
+    upstream.status===403||
+    (upstream.status>=300&&upstream.status<400)
+  ){
     throw redirect("/login?returnTo="+encodeURIComponent(url.pathname+url.search));
   }
   if(upstream.status===404) throw redirect("/cart");

@@ -1,3 +1,4 @@
+import base64
 import os
 
 customer_password = os.environ["M9_VISUAL_CUSTOMER_PASSWORD"]
@@ -100,11 +101,17 @@ svg = (
     b'<text x="600" y="610" text-anchor="middle" fill="#00a8ff" '
     b'font-size="120">M9 DTF</text></svg>'
 )
+# QA-only deterministic storage: keep the synthetic gallery image in the
+# ephemeral database so browser evidence does not depend on container filestore
+# lifecycle. Production storage policy is unchanged.
+env["ir.config_parameter"].sudo().set_param("ir_attachment.location", "db")
 attachment = env["ir.attachment"].sudo().create({
     "name": "m9-gallery.svg",
-    "raw": svg,
+    "datas": base64.b64encode(svg).decode(),
     "mimetype": "image/svg+xml",
 })
+assert not attachment.store_fname, "M9 QA gallery asset unexpectedly used the filestore"
+assert attachment.raw == svg, "M9 QA gallery asset bytes were not stored intact"
 asset = env["dtf.design.asset"].sudo().create({
     "design_id": gallery_design.id,
     "attachment_id": attachment.id,
