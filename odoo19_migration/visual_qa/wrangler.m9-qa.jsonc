@@ -1,0 +1,15 @@
+{
+  "name": "dtf-studio-m9-qa",
+  "main": "./m9-frontend-worker.ts",
+  "compatibility_date": "2026-06-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "../../build/client",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "DTF_ODOO_ORIGIN": "http://127.0.0.1"
+  }
+}

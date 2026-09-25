@@ -84,20 +84,34 @@ jobs:
           print("M9_NATIVE_LANGUAGES_ACTIVE", english.code, arabic.code)
           PY
 
-      - name: Seed native Odoo M9 frontend data
+      - name: Start persistent Odoo runtime for filestore-backed M9 fixture
         shell: bash
         run: |
-          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml run --rm --no-deps \
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d odoo
+          for i in {1..30}; do
+            if docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T odoo sh -c 'test -w /var/lib/odoo'; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo
+          exit 1
+
+      - name: Seed native Odoo M9 frontend data in persistent runtime
+        shell: bash
+        run: |
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml exec -T \
             -e M9_VISUAL_CUSTOMER_PASSWORD="$M9_VISUAL_CUSTOMER_PASSWORD" \
             -e M9_VISUAL_DESIGNER_PASSWORD="$M9_VISUAL_DESIGNER_PASSWORD" \
             odoo odoo shell -d odoo_m9_visual --db_host=db --db_port=5432 --db_user=odoo --db_password=CHANGE_ME_STRONG_DB_PASSWORD \
             --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons \
             --no-http < odoo19_migration/visual_qa/seed_m9_frontend.py
 
-      - name: Start Odoo and Nginx
+      - name: Restart Odoo and start Nginx
         shell: bash
         run: |
-          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d odoo nginx
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml restart odoo
+          docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml up -d nginx
           for i in {1..40}; do
             if curl -fsS --max-time 10 http://127.0.0.1/api/dtf/v1/health | grep -q '"ok": true\|"ok":true'; then
               exit 0
@@ -107,16 +121,18 @@ jobs:
           docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml logs odoo nginx
           exit 1
 
-      - name: Start preserved React Router frontend against Odoo
+      - name: Build preserved frontend for Cloudflare Worker runtime
+        run: npm run build
+
+      - name: Start preserved React Router frontend in QA Worker runtime
         shell: bash
         run: |
-          cat > .dev.vars <<'EOF'
-          DTF_ODOO_ORIGIN=http://127.0.0.1
-          EOF
-          export DTF_ODOO_ORIGIN=http://127.0.0.1
-          nohup npm run dev -- --host 127.0.0.1 --port 5173 > /tmp/m9-frontend.log 2>&1 &
+          nohup npx wrangler dev \
+            --config odoo19_migration/visual_qa/wrangler.m9-qa.jsonc \
+            --ip 127.0.0.1 --port 5173 \
+            > /tmp/m9-frontend.log 2>&1 &
           echo $! > /tmp/m9-frontend.pid
-          for i in {1..50}; do
+          for i in {1..60}; do
             if curl -fsS --max-time 10 http://127.0.0.1:5173/api/studio/products | grep -q '"source":"odoo19"'; then
               exit 0
             fi
@@ -168,5 +184,4 @@ jobs:
           if [ -f /tmp/m9-frontend.pid ]; then
             kill "$(cat /tmp/m9-frontend.pid)" 2>/dev/null || true
           fi
-          rm -f .dev.vars
           docker compose --env-file odoo19_migration/deployment/.env -f odoo19_migration/deployment/docker-compose.yml down -v --remove-orphans
