@@ -742,3 +742,36 @@ RESULT:
 - M2-M9 regressions and final /web runtime passed.
 - No live VPS, DNS/TLS, frontend production deployment, backup/restore acceptance, merge, or V48 modification was performed.
 NEXT: execute M10 only on the separate NEW Ubuntu ARM64 VPS/new domain, collect live runtime evidence, then proceed to M11 acceptance.
+
+
+============================================================
+M10 FORMAL CLOSURE / M11 HANDOFF — 2026-09-25
+============================================================
+STATUS: M10 CLOSED AT THE REPOSITORY / DEPLOYMENT-PACKAGE BOUNDARY + CI VERIFIED.
+CLOSURE BASELINE HEAD: 78ca65fee8a6b421d5427a5ac2b9f84c3dfc7175
+EXACT-HEAD VALIDATION RUN: 36131291121 — SUCCESS.
+
+VERIFIED M10 DELIVERABLES:
+- separate production PostgreSQL/Odoo/Nginx/Certbot stack
+- isolated new Odoo-backed frontend Worker with protected V48 boundary
+- native Odoo initialization for all DTF addons
+- Ubuntu ARM64/aarch64 host preflight
+- production HTTPS/API/backend/WebSocket routing contracts
+- external database-manager blocking
+- backup/checksum and isolated restore-drill tooling
+- monitoring/logging/timer tooling
+- production smoke-test contract
+- linux/arm64 image proof
+- deterministic go-live runbook
+- redacted production-evidence collector
+- M9 frontend/build/contracts and M2-M9 regression chain green
+
+IMPORTANT CLOSURE BOUNDARY:
+- This M10 closure DOES NOT claim that a real VPS/domain/TLS production deployment was executed.
+- No authorized remote production host was available in the current ChatGPT session.
+- Real VPS provisioning, DNS/TLS issuance, live isolated frontend deployment, live backup/restore, monitoring/timer acceptance and live smoke evidence are transferred to M11 as EXTERNAL PRODUCTION-ACCEPTANCE EVIDENCE.
+- Production Ready / Go-Live Accepted remains prohibited until M11 resolves those external evidence items.
+- Protected external dtf-studio-v48-safe-frontend remains untouched.
+- No merge to main is authorized by this closure.
+
+NEXT: M11 ACCEPTANCE.

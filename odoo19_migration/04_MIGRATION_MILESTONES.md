@@ -170,3 +170,21 @@ No live production deployment or merge has been performed, and the protected ext
 M10 remains **OPEN** until live execution succeeds on the separate NEW Ubuntu ARM64 VPS/new domain, including real TLS, isolated frontend deployment, backup/restore drill, monitoring/timers, production smoke tests and redacted runtime evidence collection.
 
 M11 remains pending. No merge to main is authorized by this source/CI refresh.
+
+
+## M10 formal closure — repository/deployment-package boundary
+
+- M10 status: **CLOSED + CI VERIFIED** at the repository/deployment-package boundary.
+- Closure baseline HEAD: `78ca65fee8a6b421d5427a5ac2b9f84c3dfc7175`.
+- Exact-head Odoo 19 migration validation run: `36131291121` — SUCCESS.
+- The deployment stack, ARM64 proof, initialization, TLS/Nginx/WebSocket contracts, backups/restore tooling, monitoring/timers, smoke contract, go-live runbook and redacted evidence collector are source-complete and verified.
+- This closure does **not** claim real VPS/domain/TLS production execution.
+- No authorized remote production host was connected during closure.
+- Real host/DNS/TLS/frontend-origin/backup-restore/monitoring/smoke evidence is transferred into M11 as external production-acceptance evidence.
+- Production Ready / Go-Live Accepted remains prohibited until M11 resolves those evidence requirements.
+- Protected external `dtf-studio-v48-safe-frontend` remains untouched.
+- No merge to main is authorized.
+
+## M11 acceptance status
+
+M11 is now **ACTIVE**.

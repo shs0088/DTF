@@ -178,3 +178,39 @@ V5. M10 cannot be marked complete from source/CI evidence alone. Real host, DNS/
 V6. Runtime evidence must exclude secrets and private keys and must be stored only in the gitignored deployment/evidence area unless an explicitly sanitized record is later committed.
 V7. M11 production acceptance is separate from M10 deployment and may not start as COMPLETE until M10 live-runtime acceptance passes.
 V8. Passing M10 does not authorize a merge to main or any modification of the protected V48 deployment.
+
+
+============================================================
+M10 FORMAL CLOSURE / M11 HANDOFF — 2026-09-25
+============================================================
+STATUS: M10 CLOSED AT THE REPOSITORY / DEPLOYMENT-PACKAGE BOUNDARY + CI VERIFIED.
+CLOSURE BASELINE HEAD: 78ca65fee8a6b421d5427a5ac2b9f84c3dfc7175
+EXACT-HEAD VALIDATION RUN: 36131291121 — SUCCESS.
+
+VERIFIED M10 DELIVERABLES:
+- separate production PostgreSQL/Odoo/Nginx/Certbot stack
+- isolated new Odoo-backed frontend Worker with protected V48 boundary
+- native Odoo initialization for all DTF addons
+- Ubuntu ARM64/aarch64 host preflight
+- production HTTPS/API/backend/WebSocket routing contracts
+- external database-manager blocking
+- backup/checksum and isolated restore-drill tooling
+- monitoring/logging/timer tooling
+- production smoke-test contract
+- linux/arm64 image proof
+- deterministic go-live runbook
+- redacted production-evidence collector
+- M9 frontend/build/contracts and M2-M9 regression chain green
+
+IMPORTANT CLOSURE BOUNDARY:
+- This M10 closure DOES NOT claim that a real VPS/domain/TLS production deployment was executed.
+- No authorized remote production host was available in the current ChatGPT session.
+- Real VPS provisioning, DNS/TLS issuance, live isolated frontend deployment, live backup/restore, monitoring/timer acceptance and live smoke evidence are transferred to M11 as EXTERNAL PRODUCTION-ACCEPTANCE EVIDENCE.
+- Production Ready / Go-Live Accepted remains prohibited until M11 resolves those external evidence items.
+- Protected external dtf-studio-v48-safe-frontend remains untouched.
+- No merge to main is authorized by this closure.
+
+NEXT: M11 ACCEPTANCE.
+
+M10/M11 CLOSURE RULE:
+M10 may be marked CLOSED for the repository/deployment-package scope after exact-head CI passes, provided the record explicitly states that live infrastructure execution was not performed. Any missing real VPS/DNS/TLS/backup/restore/monitoring/smoke evidence must be carried into M11 and blocks any Production Ready / Go-Live Accepted claim. Never convert missing live evidence into a PASS by documentation wording.
