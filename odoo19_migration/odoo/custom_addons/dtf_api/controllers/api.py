@@ -1,3 +1,4 @@
+import base64
 from odoo import http
 from odoo.exceptions import AccessDenied, AccessError, ValidationError
 from odoo.http import request
@@ -82,6 +83,38 @@ class DTFAPI(http.Controller):
     def health(self, **kwargs):
         return request.make_json_response({'ok': True, 'service': 'dtf-studio-odoo19', 'api_version': 'v1'})
 
+    @http.route('/api/dtf/v1/homepage', type='http', auth='public', methods=['GET'], csrf=False)
+    def homepage(self, **kwargs):
+        banners = request.env['dtf.homepage.banner'].sudo().search(
+            [('active', '=', True)],
+            order='sequence, id',
+        )
+        return request.make_json_response({
+            'banners': [banner.dtf_public_payload() for banner in banners],
+        })
+
+    @http.route(
+        '/api/dtf/v1/homepage/banners/<int:banner_id>/image',
+        type='http',
+        auth='public',
+        methods=['GET'],
+        csrf=False,
+    )
+    def homepage_banner_image(self, banner_id, **kwargs):
+        banner = request.env['dtf.homepage.banner'].sudo().search([
+            ('id', '=', banner_id),
+            ('active', '=', True),
+        ], limit=1)
+        if not banner or not banner.image_1920:
+            return request.not_found()
+        content = base64.b64decode(banner.image_1920)
+        return request.make_response(content, [
+            ('Content-Type', 'image/webp'),
+            ('Content-Length', len(content)),
+            ('Cache-Control', 'public, max-age=300'),
+            ('X-Content-Type-Options', 'nosniff'),
+        ])
+
     @http.route('/api/dtf/v1/categories', type='http', auth='public', methods=['GET'], csrf=False)
     def categories(self, **kwargs):
         categories = request.env['product.public.category'].sudo().search([], order='sequence, name, id')
@@ -122,6 +155,27 @@ class DTFAPI(http.Controller):
                     } for value in variant.product_template_attribute_value_ids],
                 })
         return payload
+
+    @http.route(
+        '/api/dtf/v1/products/<int:product_id>/image',
+        type='http',
+        auth='public',
+        methods=['GET'],
+        csrf=False,
+        website=True,
+    )
+    def product_image(self, product_id, **kwargs):
+        domain = request.website.sale_product_domain() + [('id', '=', product_id)]
+        product = request.env['product.template'].sudo().search(domain, limit=1)
+        if not product or not product.image_1920:
+            return request.not_found()
+        content = base64.b64decode(product.image_1920)
+        return request.make_response(content, [
+            ('Content-Type', 'image/webp'),
+            ('Content-Length', len(content)),
+            ('Cache-Control', 'public, max-age=300'),
+            ('X-Content-Type-Options', 'nosniff'),
+        ])
 
     @http.route('/api/dtf/v1/products', type='http', auth='public', methods=['GET'], csrf=False, website=True)
     def products(self, **kwargs):

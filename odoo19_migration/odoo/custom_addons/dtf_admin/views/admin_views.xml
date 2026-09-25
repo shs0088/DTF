@@ -412,4 +412,71 @@
         <field name="parent_id" ref="menu_dtf_admin_root"/>
         <field name="sequence">60</field>
     </record>
+    <record id="view_dtf_homepage_banner_list" model="ir.ui.view">
+        <field name="name">dtf.homepage.banner.list</field>
+        <field name="model">dtf.homepage.banner</field>
+        <field name="arch" type="xml">
+            <list string="Homepage Banners" default_order="sequence,id">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="title_en"/>
+                <field name="title_ar"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dtf_homepage_banner_form" model="ir.ui.view">
+        <field name="name">dtf.homepage.banner.form</field>
+        <field name="model">dtf.homepage.banner</field>
+        <field name="arch" type="xml">
+            <form string="Homepage Banner">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="active"/>
+                        <field name="sequence"/>
+                        <field name="image_1920" widget="image" class="oe_avatar"/>
+                    </group>
+                    <group string="Bilingual Banner Content" col="2">
+                        <group string="English">
+                            <field name="eyebrow_en"/>
+                            <field name="title_en"/>
+                            <field name="subtitle_en"/>
+                            <field name="image_alt_en"/>
+                            <field name="primary_cta_label_en"/>
+                            <field name="secondary_cta_label_en"/>
+                        </group>
+                        <group string="Arabic">
+                            <field name="eyebrow_ar"/>
+                            <field name="title_ar"/>
+                            <field name="subtitle_ar"/>
+                            <field name="image_alt_ar"/>
+                            <field name="primary_cta_label_ar"/>
+                            <field name="secondary_cta_label_ar"/>
+                        </group>
+                    </group>
+                    <group string="Actions">
+                        <field name="primary_cta_url"/>
+                        <field name="secondary_cta_url"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_dtf_homepage_banners" model="ir.actions.act_window">
+        <field name="name">Homepage</field>
+        <field name="res_model">dtf.homepage.banner</field>
+        <field name="view_mode">list,form</field>
+        <field name="views" eval="[(ref('view_dtf_homepage_banner_list'), 'list'), (ref('view_dtf_homepage_banner_form'), 'form')]"/>
+    </record>
+
+    <menuitem id="menu_dtf_homepage"
+              name="Homepage"
+              parent="menu_dtf_admin_root"
+              action="action_dtf_homepage_banners"
+              sequence="15"
+              groups="dtf_core.group_dtf_admin"/>
+
 </odoo>
