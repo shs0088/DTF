@@ -234,7 +234,8 @@ test("Designer Dashboard no longer uses ItemStore or R2 for workspace mutations"
     expect(source).toContain("/api/dtf/v1/designer/");
   }
   expect(dashboard).toContain("/api/dtf/v1/designer/workspace");
-  expect(dashboard).toContain("/cover");
-  expect(dashboard).toContain("/master");
+  expect(dashboard).toContain('intent==="set-cover"');
+  expect(dashboard).toContain('?"cover":"master"');
+  expect(dashboard).toContain("fetchOdooJsonRpc");
   expect(asset).toContain("/api/dtf/v1/designer/assets/");
 });
