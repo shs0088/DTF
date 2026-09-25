@@ -648,3 +648,45 @@ M8 FINAL CLOSURE CHECK — 2026-09-24
 678. M10 deployment: NOT STARTED / NOT AUTHORIZED BY M8.
 679. M11 production acceptance: NOT STARTED.
 680. Merge/deployment/protected V48 modification during M8: NONE.
+
+============================================================
+M9 FINAL CLOSURE CHECK — 2026-09-25
+============================================================
+681. Final M9 closure HEAD 53654e6647ec71aeba973c86b451d66934e42a94: VERIFIED.
+682. Full Odoo/migration validation run 36109746971: PASS.
+683. M9 preserved-frontend visual QA run 36109746976: PASS.
+684. Protected M6 visual regression run 36109747163: PASS.
+685. Preserved frontend typecheck: PASS.
+686. Preserved frontend production build: PASS.
+687. M9 Odoo compatibility-adapter tests: PASS.
+688. Products API sourced from Odoo: PASS TEST/VISUAL.
+689. Categories API sourced from Odoo: PASS TEST/VISUAL.
+690. Public Designs/Gallery sourced from Odoo: PASS TEST/VISUAL.
+691. Native Odoo auth/session authority: PASS TEST/VISUAL.
+692. Guest cart on native Odoo authority: PASS TEST/VISUAL.
+693. Login-required checkout continuity: PASS VISUAL.
+694. Post-login checkout return target normalization: PASS TEST/VISUAL.
+695. Native checkout/customer-owned order flow: PASS TEST/VISUAL.
+696. Order confirmation created from native Odoo order: PASS VISUAL.
+697. Designer Dashboard/workspace on Odoo: PASS TEST/VISUAL.
+698. Protected Designer asset/design operations: PASS TEST.
+699. New Design upload on native Odoo attachment/preflight/design authority: PASS TEST/VISUAL.
+700. Four bilingual design fields present in New Design: PASS VISUAL.
+701. Seven approved Product Type combinations present: PASS TEST/VISUAL.
+702. Explicit Ready-to-Print Master rule preserved: PASS SOURCE/TEST.
+703. Preserved V48 home surface retained: PASS VISUAL.
+704. English Gallery: PASS VISUAL.
+705. Arabic Gallery RTL: PASS VISUAL.
+706. Mobile Arabic Gallery RTL: PASS VISUAL.
+707. Tested M9 horizontal overflow: NONE.
+708. M9 actionable console errors: NONE.
+709. M9 actionable page errors: NONE.
+710. M9 actionable network errors: NONE.
+711. M2-M5 regression chain on M9 closure HEAD: PASS.
+712. M6 Production/Printing Operator regression on M9 closure HEAD: PASS.
+713. M7 Finance regression on M9 closure HEAD: PASS.
+714. M8 Admin/bilingual regression on M9 closure HEAD: PASS.
+715. Odoo/Nginx /web runtime on M9 closure HEAD: PASS.
+716. M10 deployment: NOT STARTED.
+717. M11 production acceptance: NOT STARTED.
+718. Merge/deployment/protected external V48 project modification during M9: NONE.

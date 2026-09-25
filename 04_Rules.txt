@@ -153,3 +153,15 @@ FINAL CAMEL REFERENCE RULE — 2026-09-16
 - Business rules, database, security, RBAC, preflight, stock, orders and production follow approved DTF Studio requirements/QC.
 - If a visual request conflicts with verified functional/security behavior, preserve the functional/security behavior and adapt the visual implementation around it.
 - main remains unchanged until explicit merge authorization.
+
+============================================================
+M9 FRONTEND CUTOVER GOVERNANCE — 2026-09-25
+============================================================
+U1. Native Odoo remains the business/data authority after frontend cutover.
+U2. Compatibility adapters may preserve existing frontend payload shapes and customer URLs, but must not create a second business-data authority.
+U3. The preserved customer-facing visual design, including the V48 home surface, must not be redesigned merely because the backend changed to Odoo.
+U4. Public catalog/design data, authentication/session, cart, checkout/order and Designer workspace/upload flows use Odoo authority after M9.
+U5. React Router internal data-request URLs such as *.data must never become customer-facing post-login return targets.
+U6. Ready-to-Print Master, preflight, protected deletion, finance, production and RBAC rules from M1-M8 remain authoritative through M9.
+U7. M9 completion requires frontend typecheck/build/adapter tests, native Odoo M9 API/business-flow tests, browser flow evidence and earlier-milestone regression PASS.
+U8. M9 source cutover does not authorize M10 production deployment, domain/TLS, backups, restore drill, monitoring, merge to main, or modification of the protected external V48 deployment.

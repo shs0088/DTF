@@ -386,3 +386,22 @@ STILL NOT IMPLEMENTED / NOT AUTHORIZED AS PART OF M8:
 3. M11 final production acceptance.
 4. Merge to main.
 5. Any replacement/modification of protected dtf-studio-v48-safe-frontend deployment.
+
+============================================================
+M9 RECONCILIATION — CLOSED 2026-09-25
+============================================================
+M9 frontend cutover is no longer an unimplemented item.
+FINAL M9 CLOSURE HEAD: 53654e6647ec71aeba973c86b451d66934e42a94
+FULL VALIDATION: 36109746971 — SUCCESS.
+M9 VISUAL QA: 36109746976 — SUCCESS.
+
+The earlier M8-era lines stating M9 was NOT STARTED are historical and are superseded by this closure record.
+
+STILL NOT IMPLEMENTED / NOT PERFORMED:
+1. M10 production VPS/Oracle deployment.
+2. Production domain/TLS configuration.
+3. Scheduled production backup configuration and restore drill.
+4. Production monitoring/logging acceptance.
+5. M11 final production acceptance.
+6. Merge to main.
+7. Any replacement/modification/deployment of protected external dtf-studio-v48-safe-frontend.

@@ -695,3 +695,20 @@ RESULT:
 - M1–M7 regression chain remained green.
 - No deployment, no merge to main, no M9 cutover, and no modification of protected dtf-studio-v48-safe-frontend.
 NEXT: M9 frontend cutover only after separate authorization.
+
+DATE/TIME: 2026-09-25
+TASK: Close Odoo 19 M9 frontend cutover milestone after exact-head contract, native Odoo flow, regression and browser verification.
+FINAL M9 CLOSURE HEAD: 53654e6647ec71aeba973c86b451d66934e42a94
+FULL VALIDATION RUN: 36109746971 — SUCCESS.
+M9 FRONTEND VISUAL QA RUN: 36109746976 — SUCCESS.
+PROTECTED M6 VISUAL QA RUN: 36109747163 — SUCCESS.
+RESULT:
+- Preserved frontend/customer URLs and V48 home visual surface retained.
+- Public catalog and Gallery, authentication/session, guest cart, checkout/order, Designer workspace/assets and New Design upload now use native Odoo authority through compatibility APIs/adapters.
+- Frontend typecheck/build/adapter tests passed.
+- Native M9 auth/cart/checkout/Gallery/Designer/upload suites passed.
+- Customer checkout and Designer browser flows passed, including Arabic RTL mobile.
+- No tested horizontal overflow and no actionable console/page/network errors.
+- M2-M8 regression chain and final /web runtime remained green.
+- No production deployment, no merge to main, and no modification/deployment of protected external dtf-studio-v48-safe-frontend.
+NEXT: M10 deployment on the separately planned Ubuntu/Docker VPS/new URL environment.

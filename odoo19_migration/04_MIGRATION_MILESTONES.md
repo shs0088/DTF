@@ -81,6 +81,21 @@ No production-ready claim until module installs/tests, API contracts, core busin
   - The only ignored browser 500 in visual QA is the generic website-logo fixture outside the M8 Admin UI; actionable M8 page/network errors: NONE.
   - Protected M6 visual regression remained green during M8 implementation.
 
+- M9 — frontend cutover: COMPLETE + CI VERIFIED + VISUAL QA VERIFIED.
+  - Final M9 closure HEAD: `53654e6647ec71aeba973c86b451d66934e42a94`
+  - Odoo 19 migration validation run: `36109746971` — SUCCESS.
+  - M9 frontend visual-QA run: `36109746976` — SUCCESS.
+  - Protected M6 visual regression run: `36109747163` — SUCCESS.
+  - Preserved frontend customer URLs and visual design remain intact; the V48 home remains the customer-facing home surface.
+  - Odoo compatibility APIs now provide the authoritative backend for public Products/Categories/Designs, native Odoo authentication/session handling, guest cart, checkout/order, Designer workspace/assets, and New Design upload.
+  - Frontend compatibility adapters preserve the existing customer-facing payload/UI contracts without reintroducing a parallel business-data authority.
+  - Frontend typecheck, production build, and M9 compatibility-adapter tests: PASS.
+  - Native M9 auth/session, guest-cart, checkout/owned-order, Design Gallery, Designer workspace, and Designer upload tests: PASS.
+  - Browser QA passed preserved V48 home, English/Arabic Gallery, guest cart, login-required checkout, post-login checkout, order creation, Designer Dashboard/New Design, and mobile Arabic RTL.
+  - Tested M9 surfaces have no horizontal overflow; actionable console/page/network errors: NONE.
+  - M2-M8 regression chain and final Odoo/Nginx `/web` runtime remained green.
+  - No production deployment, no merge to main, and no modification/deployment of the protected external `dtf-studio-v48-safe-frontend` project.
+
 
 ## M5 operational items still deferred where applicable
 
@@ -100,3 +115,10 @@ No deployment or merge has been performed.
 M8 closes the Odoo 19 Admin + bilingual milestone only. It does not perform M9 frontend cutover, M10 production deployment/domain/TLS/backup operations, M11 final production acceptance, merge to main, or modification/deployment of the protected `dtf-studio-v48-safe-frontend` project.
 
 No deployment or merge has been performed.
+
+
+## M9 closure boundary
+
+M9 closes the preserved-frontend to Odoo compatibility-API cutover and its source/runtime/browser verification. It does not perform M10 production VPS/Oracle deployment, domain/TLS, scheduled backups, restore drill, monitoring/logging, M11 final production acceptance, merge to main, or modification/deployment of the protected external `dtf-studio-v48-safe-frontend` project.
+
+No production deployment or merge has been performed.
