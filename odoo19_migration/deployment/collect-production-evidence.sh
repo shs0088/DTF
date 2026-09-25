@@ -19,7 +19,7 @@ set +a
 case "${DTF_ODOO_DOMAIN:-}" in
   ""|CHANGE_ME*) echo "Set the NEW DTF_ODOO_DOMAIN first." >&2; exit 2 ;;
   *dtf-studio-v48-safe-frontend*)
-    echo "Refusing to collect M10 evidence against the protected V48 hostname." >&2
+    echo "Refusing to collect M11 evidence against the protected V48 hostname." >&2
     exit 2
     ;;
 esac
@@ -27,7 +27,7 @@ esac
 if [ -n "${DTF_FRONTEND_URL:-}" ]; then
   case "$DTF_FRONTEND_URL" in
     *dtf-studio-v48-safe-frontend*)
-      echo "Refusing to use the protected V48 deployment as the M10 frontend." >&2
+      echo "Refusing to use the protected V48 deployment as the M11 frontend." >&2
       exit 2
       ;;
   esac
@@ -45,7 +45,7 @@ mkdir -p "$OUT"
 chmod 700 "$EVIDENCE_ROOT" "$OUT" 2>/dev/null || true
 
 {
-  echo "DTF Studio M10 runtime evidence"
+  echo "DTF Studio M11 runtime evidence"
   echo "UTC timestamp: $STAMP"
   echo "Odoo domain: $DTF_ODOO_DOMAIN"
   echo "Frontend URL: ${DTF_FRONTEND_URL:-not configured}"
@@ -78,7 +78,7 @@ printf '%s\n' "$MODULE_COUNT" > "$OUT/dtf-module-count.txt"
 
 getent ahosts "$DTF_ODOO_DOMAIN" > "$OUT/backend-dns.txt"
 if [ -n "${DTF_FRONTEND_URL:-}" ]; then
-  FRONTEND_HOST="$(printf '%s' "$DTF_FRONTEND_URL" | sed -E 's#^https?://([^/:]+).*#\\1#')"
+  FRONTEND_HOST="$(printf '%s' "$DTF_FRONTEND_URL" | sed -E 's#^https?://([^/:]+).*#\1#')"
   getent ahosts "$FRONTEND_HOST" > "$OUT/frontend-dns.txt"
 fi
 
