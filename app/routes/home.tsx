@@ -67,7 +67,7 @@ export default function Home() {
   );
 
   return (
-    <main className="f6-wrap home-page" dir={localeDir(locale)} data-home-source="odoo19-v48">
+    <main className="f6-wrap home-page" dir={localeDir(locale)} data-home-source="odoo19" data-home-style="v48.22e">
       <div className="f6-home">
         <header className="f6-header">
           <button className="f6-menu" aria-label={pick(locale,"Menu","القائمة")}><Menu/></button>
@@ -122,12 +122,12 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="f6-catalog" data-home-visible="catalog">
+        <section className="f6-catalog" data-home-visible="products">
           <div className="f6-section-head">
             <h2>{pick(locale,"Categories","الفئات")}</h2>
             <Link to="/customize">{pick(locale,"View all","عرض الكل")}</Link>
           </div>
-          <div className="f6-categories">
+          <div className="f6-categories" data-home-visible="categories">
             {categories.map((category,index) => {
               const product = products[index];
               return (
