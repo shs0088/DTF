@@ -46,6 +46,8 @@ require("DTF_ODOO_ORIGIN" in worker, "Production frontend must require Odoo orig
 require("https:" in worker, "Production frontend must enforce HTTPS Odoo origin.")
 require("ItemStore" not in worker and "DESIGN_ASSETS" not in worker,
         "Production Odoo frontend must not import legacy business authority.")
+require("dtf-studio-v48-safe-frontend" in worker,
+        "Production frontend must contain the protected V48 deployment guard.")
 
 for script in (
     "deploy-frontend.sh",

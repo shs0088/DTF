@@ -40,6 +40,14 @@ jobs:
         run: python3 odoo19_migration/validation/validate_m10.py
       - name: Validate M10 production Docker Compose configuration
         run: docker compose --env-file odoo19_migration/deployment/.env.production.example -f odoo19_migration/deployment/docker-compose.production.yml --profile tls-bootstrap config >/dev/null
+      - name: Syntax-check M10 deployment scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for script in             odoo19_migration/deployment/deploy-frontend.sh             odoo19_migration/deployment/provision-tls.sh             odoo19_migration/deployment/renew-tls.sh             odoo19_migration/deployment/monitor-production.sh             odoo19_migration/deployment/backup-production.sh             odoo19_migration/deployment/restore-drill.sh             odoo19_migration/deployment/install-host-timers.sh
+          do
+            sh -n "$script"
+          done
       - name: Probe selected image manifests for linux/arm64
         continue-on-error: true
         shell: bash
