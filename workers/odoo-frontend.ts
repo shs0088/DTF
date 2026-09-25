@@ -1,6 +1,4 @@
 import { createRequestHandler } from "react-router";
-import * as build from "../build/server/index.js";
-
 interface Env {
   ASSETS?: {
     fetch(request: Request): Promise<Response> | Response;
@@ -8,7 +6,10 @@ interface Env {
   DTF_ODOO_ORIGIN: string;
 }
 
-const handler = createRequestHandler(build as any, "production");
+const handler = createRequestHandler(
+  () => import("virtual:react-router/server-build"),
+  import.meta.env.MODE,
+);
 
 function shouldServeAsset(request: Request): boolean {
   const method = request.method.toUpperCase();
