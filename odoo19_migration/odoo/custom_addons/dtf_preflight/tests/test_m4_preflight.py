@@ -87,3 +87,20 @@ class TestDTFM4Preflight(TransactionCase):
         asset.unlink()
         self.assertFalse(self.env["dtf.design.asset"].search([("id", "=", asset.id)])); self.assertFalse(self.env["ir.attachment"].search([("id", "=", attachment.id)]))
         self.assertFalse(design.main_display_asset_id); self.assertFalse(design.ready_to_print_master_asset_id)
+
+
+    def test_engine_run_reads_native_attachment_raw_bytes(self):
+        design = self.design()
+        asset = self.asset(
+            design,
+            name="native-raw.svg",
+            data=b'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>',
+        )
+        rule = self.rule("m4-native-raw")
+        result = self.env["dtf.preflight.engine"].run(asset, rule)
+        self.assertEqual(result.status, "accepted")
+        self.assertEqual(
+            result.analyzer_snapshot.get("detected_format"),
+            "svg",
+        )
+        self.assertTrue(result.locked)
