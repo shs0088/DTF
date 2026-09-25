@@ -1,8 +1,21 @@
 import type { Route } from "./+types/api.studio.designs";
-import type { ItemStore } from "../../workers/item-store";
+import {
+  fetchOdooJson,
+  mapOdooDesigns,
+} from "../lib/odoo-api.server";
 
-export async function loader({ context }: Route.LoaderArgs) {
-  const namespace = context.cloudflare.env.ITEMS as DurableObjectNamespace<ItemStore>;
-  const store = namespace.get(namespace.idFromName("default"));
-  return Response.json({ ok: true, source: "dtf-studio-database", designs: await store.designs() });
+export async function loader({ request, context }: Route.LoaderArgs) {
+  try {
+    const payload = await fetchOdooJson(request, context, "/api/dtf/v1/designs");
+    return Response.json({
+      ok: true,
+      source: "odoo19",
+      designs: mapOdooDesigns(payload as any),
+    });
+  } catch {
+    return Response.json(
+      { ok: false, source: "odoo19", error: "design_gallery_unavailable" },
+      { status: 502 },
+    );
+  }
 }

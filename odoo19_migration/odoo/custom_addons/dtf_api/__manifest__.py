@@ -1,6 +1,6 @@
 {
     "name": "DTF Studio API",
-    "version": "19.0.5.0.0",
+    "version": "19.0.6.0.0",
     "summary": "Versioned compatibility API for the preserved DTF Studio frontend",
     "license": "LGPL-3",
     "depends": [

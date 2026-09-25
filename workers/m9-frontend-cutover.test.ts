@@ -3,6 +3,7 @@ import {
   mapOdooCart,
   mapOdooCategories,
   mapOdooProducts,
+  mapOdooDesigns,
   appendOdooSessionCookies,
   resolveOdooOrigin,
 } from "../app/lib/odoo-api.server";
@@ -177,4 +178,46 @@ test("Checkout and Order confirmation no longer use ItemStore or timed reservati
   expect(checkoutSource).not.toContain("reservationMinutes");
   expect(orderSource).not.toContain("reservationExpiresAt?");
   expect(orderSource).toContain("No custom timed stock hold is used");
+});
+
+
+test("maps published Odoo designs to the preserved Gallery contract", () => {
+  expect(mapOdooDesigns({
+    items: [{
+      id: 44,
+      title_en: "Neon Tiger",
+      title_ar: "النمر النيون",
+      product_type: "tshirt",
+      designer_id: 8,
+      designer_name: "Creative Studio",
+      display_asset_id: 71,
+      status: "published",
+      visibility: "public",
+    }],
+  })).toEqual([{
+    id: "44",
+    titleAr: "النمر النيون",
+    titleEn: "Neon Tiger",
+    designerId: "8",
+    designerName: "Creative Studio",
+    assetId: "71",
+    imageUrl: "/api/studio/design-assets/71",
+    status: "published",
+    visibility: "public",
+    productType: "tshirt",
+  }]);
+});
+
+test("Design Gallery and public designs API no longer use ItemStore or hard-coded artwork data", async () => {
+  const apiSource = await Bun.file("app/routes/api.studio.designs.ts").text();
+  const gallerySource = await Bun.file("app/routes/designs.tsx").text();
+  const assetProxy = await Bun.file("app/routes/api.studio.design-asset.ts").text();
+  for (const source of [apiSource, gallerySource, assetProxy]) {
+    expect(source).not.toContain("ItemStore");
+    expect(source).not.toContain("ITEMS");
+  }
+  expect(apiSource).toContain("/api/dtf/v1/designs");
+  expect(gallerySource).toContain("mapOdooDesigns");
+  expect(gallerySource).not.toContain('const designs = [');
+  expect(assetProxy).toContain("/api/dtf/v1/design-assets/");
 });

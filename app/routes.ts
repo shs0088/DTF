@@ -21,6 +21,7 @@ export default [
   route("api/studio/navigation", "routes/api.studio.navigation.ts"),
   route("api/studio/products", "routes/api.studio.products.ts"),
   route("api/studio/designs", "routes/api.studio.designs.ts"),
+  route("api/studio/design-assets/:assetId", "routes/api.studio.design-asset.ts"),
   route("api/studio/analyzer", "routes/api.studio.analyzer.ts"),
   route("api/studio/auth/register", "routes/api.studio.auth.register.ts"),
   route("api/studio/auth/login", "routes/api.studio.auth.login.ts"),

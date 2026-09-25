@@ -128,6 +128,69 @@ class DTFAPI(http.Controller):
         products = request.env['product.template'].sudo().search(request.website.sale_product_domain(), limit=100)
         return request.make_json_response({'items': self._frontend_product_payload(products)})
 
+
+    def _public_design_payload(self, designs):
+        return [{
+            'id': design.id,
+            'title_en': design.title_en or '',
+            'title_ar': design.title_ar or '',
+            'description_en': design.description_en or '',
+            'description_ar': design.description_ar or '',
+            'product_type': design.product_type,
+            'designer_id': design.designer_id.id,
+            'designer_name': design.designer_id.partner_id.display_name or '',
+            'display_asset_id': design.main_display_asset_id.id or None,
+            'image_url': (
+                '/api/dtf/v1/design-assets/%s/preview' % design.main_display_asset_id.id
+                if design.main_display_asset_id else None
+            ),
+            'status': design.state,
+            'visibility': 'public',
+        } for design in designs]
+
+    @http.route('/api/dtf/v1/designs', type='http', auth='public', methods=['GET'], csrf=False)
+    def designs(self, **kwargs):
+        designs = request.env['dtf.design'].sudo().search([
+            ('active', '=', True),
+            ('state', '=', 'published'),
+            ('is_qualification_sample', '=', False),
+            ('main_display_asset_id', '!=', False),
+        ], order='create_date desc, id desc', limit=100)
+        return request.make_json_response({'items': self._public_design_payload(designs)})
+
+    @http.route(
+        '/api/dtf/v1/design-assets/<int:asset_id>/preview',
+        type='http',
+        auth='public',
+        methods=['GET'],
+        csrf=False,
+    )
+    def design_asset_preview(self, asset_id, **kwargs):
+        asset = request.env['dtf.design.asset'].sudo().search([
+            ('id', '=', asset_id),
+            ('design_id.active', '=', True),
+            ('design_id.state', '=', 'published'),
+            ('design_id.is_qualification_sample', '=', False),
+        ], limit=1)
+        if (
+            not asset
+            or asset.design_id.main_display_asset_id != asset
+            or not asset.previewable
+            or not (asset.mime_type or '').startswith('image/')
+        ):
+            return request.not_found()
+        content = asset.attachment_id.raw or b''
+        if not content:
+            return request.not_found()
+        filename = (asset.name or 'design').replace('"', '_').replace('\r', '_').replace('\n', '_')
+        return request.make_response(content, [
+            ('Content-Type', asset.mime_type or asset.attachment_id.mimetype or 'application/octet-stream'),
+            ('Content-Length', len(content)),
+            ('Content-Disposition', 'inline; filename="%s"' % filename),
+            ('Cache-Control', 'public, max-age=300'),
+            ('X-Content-Type-Options', 'nosniff'),
+        ])
+
     def _cart_line_payload(self, line):
         attributes = {
             value.attribute_id.name.lower(): value.product_attribute_value_id.name

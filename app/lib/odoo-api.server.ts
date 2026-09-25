@@ -86,6 +86,35 @@ type OdooCart = {
   subtotal?: number;
 };
 
+
+type OdooPublicDesign = {
+  id: number;
+  title_en?: string;
+  title_ar?: string;
+  description_en?: string;
+  description_ar?: string;
+  product_type?: string;
+  designer_id?: number;
+  designer_name?: string;
+  display_asset_id?: number | null;
+  image_url?: string | null;
+  status?: string;
+  visibility?: string;
+};
+
+export type LegacyStudioDesign = {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  designerId: string | null;
+  designerName: string;
+  assetId: string;
+  imageUrl: string;
+  status: string;
+  visibility: string;
+  productType: string;
+};
+
 export type LegacyStudioProduct = {
   modelId: string;
   categoryId: string;
@@ -209,6 +238,26 @@ export function mapOdooProducts(
   return rows;
 }
 
+
+
+export function mapOdooDesigns(
+  payload: { items?: OdooPublicDesign[] } | null | undefined,
+): LegacyStudioDesign[] {
+  return (payload?.items ?? []).map((design) => ({
+    id: String(design.id),
+    titleAr: String(design.title_ar ?? design.title_en ?? ""),
+    titleEn: String(design.title_en ?? ""),
+    designerId: design.designer_id ? String(design.designer_id) : null,
+    designerName: String(design.designer_name ?? ""),
+    assetId: design.display_asset_id ? String(design.display_asset_id) : "",
+    imageUrl: design.display_asset_id
+      ? `/api/studio/design-assets/${design.display_asset_id}`
+      : "",
+    status: String(design.status ?? "published"),
+    visibility: String(design.visibility ?? "public"),
+    productType: String(design.product_type ?? ""),
+  }));
+}
 
 export async function fetchOdooJsonRpc<T>(
   request: Request,
