@@ -43,7 +43,9 @@ export function Layout({ children }: { children: ReactNode }) {
 
 export default function App() {
   const { locale } = useLoaderData<typeof loader>();
-  return <><LanguageToggle locale={locale}/><div className="app-locale-root" dir={localeDir(locale)}><Outlet /></div></>;
+  const location = useLocation();
+  const showGlobalLanguageToggle = location.pathname !== "/";
+  return <>{showGlobalLanguageToggle ? <LanguageToggle locale={locale}/> : null}<div className="app-locale-root" dir={localeDir(locale)}><Outlet /></div></>;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
