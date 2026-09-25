@@ -63,7 +63,7 @@ The production backup contains:
 - compressed Odoo data/filestore archive
 - SHA-256 checksums
 
-The restore drill is non-destructive: it restores the SQL dump into a temporary database, validates installed Odoo modules, starts Odoo against that restored database, validates the filestore archive, and drops the temporary database afterward.
+The restore drill is fully isolated and non-destructive: it creates temporary Docker network/PostgreSQL/Odoo volumes, restores the SQL dump and Odoo filestore into those disposable resources, starts Odoo 19 against the restored database, verifies the installed DTF modules and restored filestore, then removes all temporary resources. It never mounts or modifies the production database or production Odoo data volume.
 
 To install host scheduling on the **new Ubuntu VPS**:
 
@@ -79,3 +79,5 @@ Installed timers:
 - TLS renewal check: twice daily
 
 Docker JSON logs are rotated by the production Compose configuration and service/timer output is retained in the systemd journal.
+
+Host timers use the production `TZ` setting (default `Asia/Amman`) explicitly for calendar schedules.

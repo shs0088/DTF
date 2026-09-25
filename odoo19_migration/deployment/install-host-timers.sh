@@ -10,6 +10,10 @@ ROOT="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ENV="$ROOT/.env.production"
 
 test -f "$ENV" || { echo "Missing $ENV." >&2; exit 2; }
+set -a
+. "$ENV"
+set +a
+SCHEDULE_TZ="$TZ"
 
 write_unit() {
   path="$1"
@@ -33,7 +37,7 @@ write_unit /etc/systemd/system/dtf-studio-backup.timer "[Unit]
 Description=Run DTF Studio production backup daily
 
 [Timer]
-OnCalendar=*-*-* 02:15:00
+OnCalendar=*-*-* 02:15:00 $SCHEDULE_TZ
 Persistent=true
 RandomizedDelaySec=300
 
@@ -54,7 +58,7 @@ write_unit /etc/systemd/system/dtf-studio-restore-drill.timer "[Unit]
 Description=Run DTF Studio restore drill weekly
 
 [Timer]
-OnCalendar=Sun *-*-* 04:15:00
+OnCalendar=Sun *-*-* 04:15:00 $SCHEDULE_TZ
 Persistent=true
 RandomizedDelaySec=600
 
@@ -98,7 +102,7 @@ write_unit /etc/systemd/system/dtf-studio-tls-renew.timer "[Unit]
 Description=Check DTF Studio TLS renewal twice daily
 
 [Timer]
-OnCalendar=*-*-* 03,15:20:00
+OnCalendar=*-*-* 03,15:20:00 $SCHEDULE_TZ
 Persistent=true
 RandomizedDelaySec=600
 

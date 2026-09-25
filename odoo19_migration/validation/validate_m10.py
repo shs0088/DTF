@@ -81,4 +81,20 @@ require("pg_restore" in drill and "DRILL_DB" in drill,
 require("--stop-after-init" in drill,
         "Restore drill must start Odoo against the restored database.")
 
+require("docker network create" in drill and "docker volume create" in drill,
+        "Restore drill must use isolated Docker network/volumes.")
+require('PG_VOL="dtf-m10-pg-' in drill and 'ODOO_VOL="dtf-m10-odoo-' in drill,
+        "Restore drill must allocate disposable PostgreSQL and Odoo volumes.")
+require("odoo-data.tar.gz" in drill and "--strip-components=1" in drill,
+        "Restore drill must restore the Odoo data/filestore archive.")
+require("$ODOO_VOL:/var/lib/odoo" in drill,
+        "Restore drill must mount the disposable Odoo data volume.")
+require("docker compose" not in drill,
+        "Restore drill must not use production Compose services or volumes.")
+
+require('SCHEDULE_TZ="$TZ"' in installer,
+        "Host timers must use the configured production timezone.")
+require("OnCalendar=*-*-* 02:15:00 $SCHEDULE_TZ" in installer,
+        "Daily backup timer must have an explicit timezone.")
+
 print("M10 deployment static validation passed.")
