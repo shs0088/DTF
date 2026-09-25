@@ -77,26 +77,39 @@ export function resolveOdooOrigin(
   return parsed.origin;
 }
 
+export async function fetchOdooResponse(
+  request: Request,
+  context: OdooRequestContext,
+  path: string,
+  init: RequestInit = {},
+): Promise<Response> {
+  if (!path.startsWith("/api/dtf/v1/")) throw new Error("Only versioned DTF Odoo API paths are allowed.");
+  const headers = new Headers(init.headers);
+  if (!headers.has("accept")) headers.set("accept", "application/json");
+  const cookie = request.headers.get("cookie");
+  const language = request.headers.get("accept-language");
+  if (cookie && !headers.has("cookie")) headers.set("cookie", cookie);
+  if (language && !headers.has("accept-language")) headers.set("accept-language", language);
+  return fetch(new URL(path, resolveOdooOrigin(request, context)), {
+    ...init,
+    headers,
+    redirect: "manual",
+  });
+}
+
+export function appendOdooSessionCookies(headers: Headers, upstream: Response) {
+  const raw = upstream.headers as Headers & { getSetCookie?: () => string[] };
+  const cookies = raw.getSetCookie?.() ?? (upstream.headers.get("set-cookie") ? [upstream.headers.get("set-cookie") as string] : []);
+  for (const cookie of cookies) headers.append("Set-Cookie", cookie);
+  headers.append("Set-Cookie", "dtf_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
+}
+
 export async function fetchOdooJson<T>(
   request: Request,
   context: OdooRequestContext,
   path: string,
 ): Promise<T> {
-  if (!path.startsWith("/api/dtf/v1/")) {
-    throw new Error("Only versioned DTF Odoo API paths are allowed.");
-  }
-  const target = new URL(path, resolveOdooOrigin(request, context));
-  const headers = new Headers({ Accept: "application/json" });
-  const cookie = request.headers.get("cookie");
-  const language = request.headers.get("accept-language");
-  if (cookie) headers.set("cookie", cookie);
-  if (language) headers.set("accept-language", language);
-
-  const response = await fetch(target, {
-    method: "GET",
-    headers,
-    redirect: "manual",
-  });
+  const response = await fetchOdooResponse(request, context, path);
   if (!response.ok) {
     throw new Error(`Odoo API request failed with status ${response.status}.`);
   }

@@ -1,10 +1,8 @@
 import { Form, Link, useActionData, useLoaderData } from "react-router";
 import type { Route } from "./+types/login";
-import type { ItemStore } from "../../workers/item-store";
 import { ArrowLeft, ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
 import { localeDir, localeFromRequest, pick, useAppLocale } from "../i18n";
-
-function store(context: Route.ActionArgs["context"]) { const namespace = context.cloudflare.env.ITEMS as DurableObjectNamespace<ItemStore>; return namespace.get(namespace.idFromName("default")); }
+import { appendOdooSessionCookies, fetchOdooResponse } from "../lib/odoo-api.server";
 
 export async function loader({ request }: Route.LoaderArgs) { return { returnTo: new URL(request.url).searchParams.get("returnTo") ?? "/" }; }
 
@@ -14,12 +12,16 @@ export async function action({ request, context }: Route.ActionArgs) {
   const password = String(form.get("password") ?? "");
   const locale=localeFromRequest(request);
   if (!identifier || !password) return { ok: false, error: pick(locale,"Enter your email or phone and password.","أدخل البريد الإلكتروني أو رقم الهاتف وكلمة المرور.") };
-  const result = await store(context).loginUser(identifier, password);
-  if (!result) return { ok: false, error: pick(locale,"The sign-in details were not recognized.","بيانات تسجيل الدخول غير صحيحة.") };
+  const upstream = await fetchOdooResponse(request, context, "/api/dtf/v1/auth/login", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier, password }),
+  });
+  if (!upstream.ok) return { ok: false, error: pick(locale,"The sign-in details were not recognized.","بيانات تسجيل الدخول غير صحيحة.") };
   const returnTo = String(form.get("returnTo") ?? "/");
-  return new Response(null, { status: 303, headers: { Location: returnTo.startsWith("/") ? returnTo : "/", "Set-Cookie": `dtf_session=${result.sessionId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000` } });
+  const headers = new Headers({ Location: returnTo.startsWith("/") ? returnTo : "/" });
+  appendOdooSessionCookies(headers, upstream);
+  return new Response(null, { status: 303, headers });
 }
-
 export default function Login() {
   const actionData = useActionData<typeof action>();
   const { returnTo } = useLoaderData<typeof loader>();

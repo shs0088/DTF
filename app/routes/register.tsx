@@ -1,32 +1,23 @@
 import { Form, Link, useActionData, useLoaderData } from "react-router";
 import type { Route } from "./+types/register";
-import type { ItemStore } from "../../workers/item-store";
 import { ArrowLeft, Brush, Check, ShoppingBag } from "lucide-react";
 import { localeDir, localeFromRequest, pick, useAppLocale } from "../i18n";
-
-function store(context: Route.ActionArgs["context"]) { const namespace = context.cloudflare.env.ITEMS as DurableObjectNamespace<ItemStore>; return namespace.get(namespace.idFromName("default")); }
+import { appendOdooSessionCookies, fetchOdooResponse } from "../lib/odoo-api.server";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const url=new URL(request.url);
-  const type = url.searchParams.get("type") === "designer" ? "designer" : "customer";
-  const raw=url.searchParams.get("returnTo")??"/";
-  return { type, returnTo:raw.startsWith("/")?raw:"/" };
+  const url=new URL(request.url); const type=url.searchParams.get("type")==="designer"?"designer":"customer";
+  const raw=url.searchParams.get("returnTo")??"/"; return {type,returnTo:raw.startsWith("/")?raw:"/"};
 }
-
 export async function action({ request, context }: Route.ActionArgs) {
-  const form = await request.formData();
-  const type = String(form.get("type")) === "designer" ? "designer" : "customer";
-  const name = String(form.get("displayName") ?? ""), email = String(form.get("email") ?? ""), password = String(form.get("password") ?? ""), confirm = String(form.get("confirmPassword") ?? "");
-  const rawReturn=String(form.get("returnTo")??"/"),returnTo=rawReturn.startsWith("/")?rawReturn:"/";
-  const locale=localeFromRequest(request);
-  if (password !== confirm) return { ok: false, error: pick(locale,"Passwords do not match.","كلمتا المرور غير متطابقتين.") };
-  try {
-    const result = await store(context).registerUser({ displayName: name, email, password, role: type });
-    const location=type==="designer"?"/designer-qualification":returnTo;
-    return new Response(null,{status:303,headers:{Location:location,"Set-Cookie":`dtf_session=${result.sessionId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000`}});
-  } catch (error) { return { ok: false, error: error instanceof Error ? error.message : pick(locale,"Registration failed.","فشل التسجيل.") }; }
+  const form=await request.formData(); const type=String(form.get("type"))==="designer"?"designer":"customer";
+  const name=String(form.get("displayName")??""), email=String(form.get("email")??""), password=String(form.get("password")??""), confirm=String(form.get("confirmPassword")??"");
+  const rawReturn=String(form.get("returnTo")??"/"), returnTo=rawReturn.startsWith("/")?rawReturn:"/"; const locale=localeFromRequest(request);
+  if(password!==confirm) return {ok:false,error:pick(locale,"Passwords do not match.","كلمتا المرور غير متطابقتين.")};
+  const upstream=await fetchOdooResponse(request,context,"/api/dtf/v1/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({displayName:name,email,password,role:type})});
+  if(!upstream.ok) return {ok:false,error:pick(locale,"Registration failed. Please check your details or use another email.","فشل التسجيل. تحقق من البيانات أو استخدم بريداً آخر.")};
+  const headers=new Headers({Location:type==="designer"?"/designer-qualification":returnTo}); appendOdooSessionCookies(headers,upstream);
+  return new Response(null,{status:303,headers});
 }
-
 export default function Register() {
   const { type,returnTo } = useLoaderData<typeof loader>();
   const result = useActionData<typeof action>();

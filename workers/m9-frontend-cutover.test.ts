@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   mapOdooCategories,
   mapOdooProducts,
+  appendOdooSessionCookies,
   resolveOdooOrigin,
 } from "../app/lib/odoo-api.server";
 
@@ -78,5 +79,25 @@ describe("M9 frontend Odoo compatibility adapter", () => {
       expect(source).not.toContain("ITEMS");
       expect(source).toContain("fetchOdooJson");
     }
+  });
+  test("auth routes use Odoo session authority instead of ItemStore", async () => {
+    const files = ["app/routes/login.tsx","app/routes/register.tsx","app/routes/api.studio.auth.login.ts","app/routes/api.studio.auth.register.ts"];
+    for (const file of files) {
+      const source = await Bun.file(file).text();
+      expect(source).not.toContain("ItemStore");
+      expect(source).not.toContain("loginUser(");
+      expect(source).not.toContain("registerUser(");
+      expect(source).toContain("fetchOdooResponse");
+    }
+  });
+
+  test("forwards Odoo session cookie and expires legacy dtf_session", () => {
+    const upstream = new Response("{}", { headers: { "Set-Cookie": "session_id=abc; Path=/; HttpOnly" } });
+    const headers = new Headers();
+    appendOdooSessionCookies(headers, upstream);
+    const cookies = (headers as Headers & { getSetCookie?: () => string[] }).getSetCookie?.() ?? [headers.get("set-cookie") || ""];
+    expect(cookies.join("\n")).toContain("session_id=abc");
+    expect(cookies.join("\n")).toContain("dtf_session=");
+    expect(cookies.join("\n")).toContain("Max-Age=0");
   });
 });

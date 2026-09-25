@@ -1,8 +1,83 @@
 from odoo import http
+from odoo.exceptions import AccessDenied
 from odoo.http import request
 
 
 class DTFAPI(http.Controller):
+
+    def _role_for_user(self, user):
+        return 'designer' if user.has_group('dtf_core.group_dtf_designer') else 'customer'
+
+    def _session_payload(self, user):
+        return {
+            'ok': True,
+            'userId': user.id,
+            'role': self._role_for_user(user),
+            'displayName': user.partner_id.name or '',
+            'email': user.login or '',
+        }
+
+    def _authenticate_credentials(self, identifier, password):
+        credential = {'login': identifier, 'password': password, 'type': 'password'}
+        auth_info = request.session.authenticate(request.env, credential)
+        uid = auth_info.get('uid')
+        if not uid:
+            raise AccessDenied()
+        request.session.db = request.db
+        request._save_session(request.env)
+        return request.env['res.users'].sudo().browse(uid)
+
+    @http.route('/api/dtf/v1/auth/login', type='http', auth='public', methods=['POST'], csrf=False, readonly=False)
+    def auth_login(self, **kwargs):
+        body = request.httprequest.get_json(silent=True) or {}
+        identifier = str(body.get('identifier') or '').strip().lower()
+        password = str(body.get('password') or '')
+        if not identifier or not password:
+            return request.make_json_response({'ok': False, 'error': 'missing_credentials'}, status=400)
+        try:
+            user = self._authenticate_credentials(identifier, password)
+        except AccessDenied:
+            return request.make_json_response({'ok': False, 'error': 'invalid_credentials'}, status=401)
+        return request.make_json_response(self._session_payload(user))
+
+    @http.route('/api/dtf/v1/auth/register', type='http', auth='public', methods=['POST'], csrf=False, readonly=False)
+    def auth_register(self, **kwargs):
+        body = request.httprequest.get_json(silent=True) or {}
+        role = str(body.get('role') or '')
+        name = str(body.get('displayName') or '').strip()
+        email = str(body.get('email') or '').strip().lower()
+        password = str(body.get('password') or '')
+        if role not in ('customer', 'designer'):
+            return request.make_json_response({'ok': False, 'error': 'role_not_allowed'}, status=400)
+        if not name or '@' not in email or len(password) < 8:
+            return request.make_json_response({'ok': False, 'error': 'invalid_registration'}, status=400)
+        users = request.env['res.users'].sudo()
+        if users.search_count([('login', '=', email)]):
+            return request.make_json_response({'ok': False, 'error': 'email_in_use'}, status=409)
+        try:
+            with request.env.cr.savepoint():
+                partner = request.env['res.partner'].sudo().create({
+                    'name': name,
+                    'email': email,
+                    'dtf_customer_enabled': True,
+                    'dtf_designer_enabled': role == 'designer',
+                })
+                group = request.env.ref('dtf_core.group_dtf_designer') if role == 'designer' else request.env.ref('base.group_portal')
+                user = users.with_context(no_reset_password=True).create({
+                    'name': name, 'login': email, 'email': email, 'password': password,
+                    'partner_id': partner.id, 'group_ids': [(6, 0, [group.id])],
+                })
+                if role == 'designer':
+                    request.env['dtf.designer.profile'].sudo().create({'partner_id': partner.id, 'user_id': user.id})
+        except Exception:
+            return request.make_json_response({'ok': False, 'error': 'registration_failed'}, status=400)
+        user = self._authenticate_credentials(email, password)
+        return request.make_json_response(self._session_payload(user), status=201)
+
+    @http.route('/api/dtf/v1/auth/session', type='http', auth='user', methods=['GET'], csrf=False)
+    def auth_session(self, **kwargs):
+        return request.make_json_response(self._session_payload(request.env.user))
+
     @http.route('/api/dtf/v1/health', type='http', auth='public', methods=['GET'], csrf=False)
     def health(self, **kwargs):
         return request.make_json_response({'ok': True, 'service': 'dtf-studio-odoo19', 'api_version': 'v1'})

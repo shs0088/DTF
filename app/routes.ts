@@ -24,5 +24,6 @@ export default [
   route("api/studio/analyzer", "routes/api.studio.analyzer.ts"),
   route("api/studio/auth/register", "routes/api.studio.auth.register.ts"),
   route("api/studio/auth/login", "routes/api.studio.auth.login.ts"),
+  route("api/studio/auth/session", "routes/api.studio.auth.session.ts"),
   route("api/admin/rbac", "routes/api.admin.rbac.ts"),
 ] satisfies RouteConfig;
