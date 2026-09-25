@@ -10,3 +10,4 @@ tmp/
 *.candidate.json
 
 odoo19_migration/deployment/backups/
+odoo19_migration/deployment/evidence/

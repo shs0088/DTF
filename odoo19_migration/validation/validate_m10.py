@@ -79,6 +79,7 @@ for script in (
     "install-host-timers.sh",
     "preflight-production-host.sh",
     "smoke-production.sh",
+    "collect-production-evidence.sh",
 ):
     require((DEPLOY / script).exists(), f"Missing M10 deployment script: {script}")
 
@@ -148,5 +149,28 @@ require("/websocket" in smoke,
         "Production smoke test must probe the WebSocket proxy.")
 require("dtf-studio-v48-safe-frontend" in smoke,
         "Production smoke test must guard the protected V48 deployment.")
+
+collector = (DEPLOY / "collect-production-evidence.sh").read_text()
+require("dtf-studio-v48-safe-frontend" in collector,
+        "Evidence collector must guard the protected V48 deployment.")
+require("smoke-production.sh" in collector,
+        "Evidence collector must include the production smoke gate.")
+require("Never copy or print" in collector,
+        "Evidence collector must document its secret-redaction rule.")
+
+runbook = (DEPLOY / "M10_GO_LIVE_RUNBOOK.md").read_text()
+for required in (
+    "preflight-production-host.sh",
+    "initialize-production.sh",
+    "provision-tls.sh",
+    "deploy-frontend.sh",
+    "backup-production.sh",
+    "restore-drill.sh",
+    "install-host-timers.sh",
+    "collect-production-evidence.sh",
+):
+    require(required in runbook, f"M10 go-live runbook missing {required}.")
+require("dtf-studio-v48-safe-frontend" in runbook,
+        "M10 go-live runbook must preserve the V48 boundary.")
 
 print("M10 deployment static validation passed.")
