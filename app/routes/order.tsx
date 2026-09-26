@@ -18,7 +18,7 @@ function money(cents:number){return "JOD "+(Number(cents||0)/100).toFixed(2);}
 export async function loader({request,context,params}:Route.LoaderArgs){
   const sessionId=cookieValue(request,"dtf_session");
   const s=store(context),identity=await s.sessionIdentity(sessionId);
-  if(!identity||identity.role!=="customer") throw redirect("/login?returnTo="+encodeURIComponent(new URL(request.url).pathname));
+  if(!identity||!["customer","designer"].includes(identity.role)) throw redirect("/login?returnTo="+encodeURIComponent(new URL(request.url).pathname));
   const order:any=await s.customerOrderSummary(sessionId,String(params.orderId??""));
   if(!order) throw new Response("Order not found",{status:404});
   const settings:any=(await s.businessSettingsSnapshot() as any).settings;

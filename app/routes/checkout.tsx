@@ -18,7 +18,7 @@ function money(cents:number){return "JOD "+(Number(cents||0)/100).toFixed(2);}
 export async function loader({request,context}:Route.LoaderArgs){
   const url=new URL(request.url),store=itemStore(context),sessionId=cookieValue(request,"dtf_session");
   const identity=await store.sessionIdentity(sessionId);
-  if(!identity||identity.role!=="customer") throw redirect("/login?returnTo="+encodeURIComponent(url.pathname+url.search));
+  if(!identity||!["customer","designer"].includes(identity.role)) throw redirect("/login?returnTo="+encodeURIComponent(url.pathname+url.search));
   const cartKey=cookieValue(request,"dtf_cart_session");
   if(!cartKey) throw redirect("/cart");
   const coupon=String(url.searchParams.get("coupon")??"").trim();

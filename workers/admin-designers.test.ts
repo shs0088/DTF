@@ -14,7 +14,7 @@ describe("Admin Designers implementation contracts", () => {
   test("designer detail includes qualification, designs, orders, earnings, ledger and withdrawals", async () => {
     const source=await Bun.file(new URL("./item-store.ts",import.meta.url)).text();
     expect(source).toContain("adminDesignerDetail");
-    for(const text of ["designer_applications","qualificationDesignCount","latestPreflightStatus","designer_earnings","ledger_entries","withdrawals","orderActivity"]) expect(source).toContain(text);
+    for(const text of ["designer_applications","qualificationDesignCount","latestPreflightStatus","designer_earnings","ledger_entries","withdrawals","orderActivity","customerOrders","defaultAddressJson"]) expect(source).toContain(text);
   });
 
   test("Designers page cannot bypass qualification authorization", async () => {
@@ -32,6 +32,14 @@ describe("Admin Designers implementation contracts", () => {
     expect(source).toContain('["active","suspended","disabled"]');
     expect(source).toContain('if(accountStatus!=="active")this.ctx.storage.sql.exec("DELETE FROM sessions WHERE user_id=?",id)');
     expect(source).toContain("admin.designer.account.update");
+  });
+
+  test("designer registration keeps Designer classification while granting Customer capability", async () => {
+    const source=await Bun.file(new URL("./item-store.ts",import.meta.url)).text();
+    expect(source).toContain("VALUES (?,'role-customer')");
+    expect(source).toContain("VALUES (?,'role-designer')");
+    expect(source).toContain("ORDER BY CASE r.name WHEN 'designer' THEN 0 ELSE 1 END LIMIT 1");
+    expect(source).toContain('["customer","designer"].includes(identity.role)');
   });
 
   test("Designers API enforces Access for reads and Modify for account mutations", async () => {

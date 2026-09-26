@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 
+const esbuildBin = "node_modules/esbuild/bin/esbuild";
+
 mkdirSync("build/server", { recursive: true });
 
 const rawConfig = readFileSync("wrangler.jsonc", "utf8");
@@ -26,7 +28,8 @@ if (config.main) {
   // Bundle the configured worker entry (e.g. ./workers/app.ts) so exports such as
   // Durable Object classes survive the build. The React Router server build is
   // aliased in for the virtual module the entry imports.
-  execFileSync("node_modules/.bin/esbuild", [
+  execFileSync(process.execPath, [
+    esbuildBin,
     config.main,
     '--alias:virtual:react-router/server-build=./build/server/index.js',
     '--define:import.meta.env.MODE="production"',
@@ -58,7 +61,7 @@ if (config.main) {
     '};',
   ].join("\n");
   writeFileSync(workerEntryPath, workerEntry + "\n");
-  execFileSync("node_modules/.bin/esbuild", [workerEntryPath, ...sharedEsbuildArgs], { stdio: "inherit" });
+  execFileSync(process.execPath, [esbuildBin, workerEntryPath, ...sharedEsbuildArgs], { stdio: "inherit" });
   rmSync(workerEntryPath, { force: true });
 }
 

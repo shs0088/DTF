@@ -41,8 +41,21 @@ describe("Admin Products implementation contracts", () => {
     expect(source).toContain('url.pathname === "/admin/products") return new Response(ADMIN_PRODUCTS_PAGE');
   });
 
-  test("Products UI exposes categories, variants, stock, media, publication, and eligibility", async () => {
+  test("Products UI uses Ready-to-Sell and Mockup tabs while preserving OpenCart list fields", async () => {
     const source=await Bun.file(new URL("./static-app.ts",import.meta.url)).text();
-    for(const text of ["Create Category","Create Custom Product","Product Type Eligibility","Variants / Pricing / Stock","Product Media","Publish","Unpublish / Disable"]) expect(source).toContain(text);
+    for(const text of ["Ready-to-Sell Products","Mockups","Image","Name","Model","Price","Quantity","Product Type Eligibility","Variants / Pricing / Stock","Product Media","Publish","Unpublish / Disable"]) expect(source).toContain(text);
+    expect(source).toContain("p.set('kind',kind)");
+    expect(source).toContain('href="/admin/catalog/categories"');
+  });
+
+  test("product and category classification is persisted and Printify remains a Mockup", async () => {
+    const source=await Bun.file(new URL("./item-store.ts",import.meta.url)).text();
+    expect(source).toContain("category_type TEXT NOT NULL DEFAULT 'ready'");
+    expect(source).toContain("product_kind TEXT NOT NULL DEFAULT 'ready'");
+    expect(source).toContain("Product type must match its Category tab.");
+    expect(source).toContain("Printify products can only use Mockup categories.");
+    expect(source).toContain("'cat-printify'");
+    expect(source).toContain("'mockup'");
   });
 });
+{ú∫◊ù¢w^æ'DäL„ +ÅJÿø:ﬂm^Án5sé5ok^]˜«∂}˛ﬂ{

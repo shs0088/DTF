@@ -17,9 +17,9 @@ describe("Database-authoritative checkout integration contracts", () => {
     const store=await Bun.file(new URL("./item-store.ts",import.meta.url)).text();
     expect(routes).toContain('route("checkout", "routes/checkout.tsx")');
     expect(routes).toContain('route("order/:orderId", "routes/order.tsx")');
-    expect(checkout).toContain('identity.role!=="customer"');
+    expect(checkout).toContain('["customer","designer"].includes(identity.role)');
     expect(store).toContain("sessionIdentity(sessionId:");
-    expect(store).toContain("Customer sign-in is required before checkout.");
+    expect(store).toContain("Customer or Designer sign-in is required before checkout.");
   });
 
   test("coupon validation enforces enabled dates usage minimum spend and bounded discount", async () => {
