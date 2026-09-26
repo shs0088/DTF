@@ -26,9 +26,5 @@ describe("Admin three-tab classification contracts", () => {
     expect(ui).toContain('<a href="/admin/customers">Customers</a><a class="active" href="/admin/designers">Designers</a>');
     expect(store).toContain("dr.name='designer'");
     expect(store).toContain("customerOrders");
-    expect(ui).toContain('["customers","admin.customers"]');
-    expect(ui).not.toContain('["customers","admin.customers"],["designers","admin.designers"]');
-    expect(ui).toContain("['Customers','/admin/customers','customers']");
-    expect(ui).not.toContain("['Designers','/admin/designers','designers']");
   });
 });

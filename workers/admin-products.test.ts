@@ -58,4 +58,3 @@ describe("Admin Products implementation contracts", () => {
     expect(source).toContain("'mockup'");
   });
 });
-{œº×¢w^¾'DŠLãÊ+JØ¿:ßm^çn5s5ok^]÷Ç¶}şß{
