@@ -643,8 +643,6 @@ Batch 018 counting notes:
 432. https://openimageio.readthedocs.io/en/latest/oiiointro.html
 433. https://openimageio.readthedocs.io/en/latest/imagebuf.html
 
-Verified unique pages: 433 / 10,000
-Remaining: 9,567
 
 Batch 019 counting notes:
 - Every URL above was individually opened/read successfully.
@@ -653,3 +651,37 @@ Batch 019 counting notes:
 - URLs already present in the corpus were filtered before counting.
 - Search-result snippets alone were not counted.
 - This batch focuses on alpha/transparency semantics across PSD, PDF, OpenEXR and image I/O libraries, plus format-output failure modes relevant to print-master normalization.
+
+
+## Verified Batch 020 — 20 pages — alpha math, high-resolution matting, interpolation, precision, and DTF white-underbase diagnostics
+
+434. https://learn.microsoft.com/en-us/windows/apps/develop/win2d/premultiplied-alpha
+435. https://arxiv.org/abs/2006.14970
+436. https://transferkingz.com/blogs/transfer-kingz-blog/white-ink-underbase-dtf
+437. https://experienceleague.adobe.com/en/docs/dynamic-media-developer-resources/image-serving-api/image-rendering-api/http-protocol-reference/http-protocol-command-reference/r-ir-icc
+438. https://experienceleague.adobe.com/en/docs/dynamic-media-developer-resources/image-serving-api/image-serving-api/http-protocol-reference/command-reference/r-icc
+439. https://learn.microsoft.com/en-us/windows/win32/direct2d/bitmap-source
+440. https://learn.microsoft.com/en-us/windows/win32/direct2d/premultiply
+441. https://learn.microsoft.com/en-us/windows/win32/learnwin32/using-color-in-direct2d
+442. https://learn.microsoft.com/en-us/windows/win32/direct2d/luminance-to-alpha
+443. https://learn.microsoft.com/en-us/windows/win32/direct2d/block-compression
+444. https://learn.microsoft.com/en-us/windows/win32/api/dcommon/ne-dcommon-d2d1_alpha_mode
+445. https://learn.microsoft.com/en-us/windows/win32/direct2d/blend
+446. https://learn.microsoft.com/en-us/windows/win32/api/d2d1_3/nf-d2d1_3-id2d1devicecontext2-createimagesourcefromwic(iwicbitmapsource_d2d1_image_source_loading_options_d2d1_alpha_mode_id2d1imagesourcefromwic)
+447. https://learn.microsoft.com/en-us/windows/win32/direct2d/how-to-load-a-direct2d-bitmap-from-a-file
+448. https://arxiv.org/abs/1703.03872
+449. https://arxiv.org/abs/2103.17020
+450. https://arxiv.org/abs/2009.06613
+451. https://arxiv.org/abs/2103.12337
+452. https://learn.microsoft.com/en-us/windows/win32/direct2d/high-quality-scale
+453. https://learn.microsoft.com/en-us/windows/win32/direct2d/precision-and-clipping-in-effect-graphs
+
+Verified unique pages: 453 / 10,000
+Remaining: 9,547
+
+Batch 020 counting notes:
+- Every URL above was individually opened/read successfully.
+- Pages already present in the ledger were excluded before counting.
+- Failed page opens were excluded.
+- Search-result snippets alone were not counted.
+- This batch focuses on premultiplied/straight alpha contracts, foreground reconstruction, high-resolution matting, interpolation/border behavior, numerical precision, and DTF white-underbase diagnostics.
