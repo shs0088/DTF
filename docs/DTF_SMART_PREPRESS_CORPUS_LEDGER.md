@@ -515,8 +515,6 @@ Batch 014 counting notes:
 352. https://help.cadlink.com/website/digital_factory/en/production/menus/calibration.htm
 353. https://sharp.pixelplumbing.com/changelog/v0.23.1/
 
-Verified unique pages: 353 / 10,000
-Remaining: 9,647
 
 Batch 015 counting notes:
 - All 20 URLs above were individually opened/read successfully.
@@ -524,3 +522,36 @@ Batch 015 counting notes:
 - Search-result snippets alone were excluded.
 - Language/localization variants were counted only when they were materially distinct documentation pages, not mirrors of a page already counted.
 - This batch prioritizes actual DTF underbase behavior, physical choke/halftone relationships, alpha-edge decontamination, calibration, and premultiplied-alpha-safe raster processing.
+
+
+## Verified Batch 016 — 20 pages — full-resolution refinement, alpha-safe filtering, decontamination, and printable-detail limits
+
+354. https://github.com/open-mit/rembg
+355. https://github.com/thhanns/local-background-remover
+356. https://github.com/MarkoUnity/NanoAlpha
+357. https://github.com/hqqxyy/Context-Aware-Matting
+358. https://help.housedtf.com/portal/en/kb/articles/artwork-guidelines-18-9-2024
+359. https://github.com/yucornetto/MGMatting
+360. https://libvips.github.io/ruby-vips/Vips/Image.html
+361. https://usage.imagemagick.org/bugs/resize_halo/
+362. https://sharp.pixelplumbing.com/changelog/v0.17.0/
+363. https://sharp.pixelplumbing.com/changelog/v0.21.2/
+364. https://sharp.pixelplumbing.com/changelog/v0.29.1/
+365. https://sharp.pixelplumbing.com/changelog/v0.28.2/
+366. https://github.com/ihateSAS/lumacut
+367. https://github.com/Ketbome/alphaveil
+368. https://github.com/nadermx/backgroundremover
+369. https://github.com/BaepatLabs/background-remover/blob/main/README.md
+370. https://usage.imagemagick.org/bugs/blur_trans/
+371. https://usage.imagemagick.org/blur/
+372. https://usage.imagemagick.org/color_mods/
+373. https://usage.imagemagick.org/color_basics/
+
+Verified unique pages: 373 / 10,000
+Remaining: 9,627
+
+Batch 016 counting notes:
+- Every URL above was individually opened/read in this batch.
+- URLs already present in the corpus were filtered before counting.
+- Search snippets alone were not counted.
+- This batch focuses on full-resolution edge refinement, simultaneous foreground+alpha estimation, transparent-image filtering behavior, and physical DTF detail limits.
