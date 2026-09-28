@@ -1273,8 +1273,6 @@ Batch 038 counting notes:
 825. https://usage.imagemagick.org/fourier/
 826. https://docs.opencv.org/doc/doxygen/html/d7/df3/group__imgproc__motion.html
 
-Verified unique pages: 826 / 10,000
-Remaining: 9,174
 
 Batch 039 counting notes:
 - All URLs above were individually opened/read successfully.
@@ -1282,3 +1280,32 @@ Batch 039 counting notes:
 - Search-result snippets alone were not counted.
 - Failed page opens were excluded.
 - This batch focuses on measurable color/white-plane registration, topology preservation, frequency-domain diagnostics, and deterministic localized processing primitives.
+
+
+## Verified Batch 040 — 14 pages — multilingual DTF/prepress sources
+
+827. https://help.cadlink.com/website/digital_factory/it/tech_support/white_underbase_clear_layer_output_offset.htm
+828. https://www.stylepak.ru/production/printing-on-products/dtf-printing
+829. https://dtf27.ru/manual_for_image/
+830. https://dtfworkshop.ru/__static/domains/dtfworkshop/docs/tech-requirements.pdf
+831. https://pechatych.ru/blog/kak-podgotovit-maket-dlya-pechati
+832. https://www.technopromotion.co.jp/Uninet/UNINET_Absolute_White_%20RIP_User_Manual-J.pdf
+833. https://giftsuppliers.ae/ar/knowledge-artwork-file-preparation/pre-press-artwork-checklist/
+834. https://fremplast.com.br/new-site/detalhes/tinta-dtf-direct-to-film/
+835. https://vseprintery.ru/blog/podgotovka-makeeta-dlya-dtf-pechati/
+836. https://pechatych.ru/blog/trebovaniya-k-maketu-pechati-prostym-yazykom
+837. https://www.agoodprinter.com/st/blog/how-to-fix-dull-colors-bleeding-white-ink-dtf-printing.html
+838. https://www.textek.cn/zh-CN/news/mastering-fine-lines-how-to-print-intricate-designs-with-dtf.html
+839. https://dtf.pro/es/guias/semitonos-dtf-degradados-tramas
+840. https://vseprintery.ru/blog/dtf-na-temnyh-tkanyah-belaya-podlozhka/
+
+Verified unique pages: 840 / 10,000
+Remaining: 9,160
+
+Batch 040 counting notes:
+- Every URL above was individually opened/read.
+- Search-result snippets alone were not counted.
+- Localized mirror pages that duplicated an already-counted English CADlink page were read for terminology cross-checking but excluded from the count.
+- The Spanish translation of an already-counted English DTF Transfer Studio article was likewise excluded.
+- Multiple localized translations of the same AGP article were deduplicated to one counted version.
+- This batch expands the corpus beyond English with Russian, Japanese, Arabic, Portuguese, Chinese, Spanish, and Italian sources.
