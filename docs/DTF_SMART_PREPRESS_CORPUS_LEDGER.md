@@ -839,8 +839,6 @@ Batch 024 counting notes:
 557. https://www.libvips.org/API/8.17/method.Image.XYZ2Lab.html
 558. https://www.libvips.org/API/8.17/method.Image.Lab2XYZ.html
 
-Verified unique pages: 558 / 10,000
-Remaining: 9,442
 
 Batch 025 counting notes:
 - Every URL above was individually opened/read successfully.
@@ -848,3 +846,37 @@ Batch 025 counting notes:
 - Pages already present in the corpus were excluded before counting.
 - Search-result snippets alone were not counted.
 - This batch focuses on measurable color/tonal QA, entropy/statistics, histogram-derived thresholds, color-difference maps, and explicit encoded-sRGB versus linear-scRGB transforms.
+
+
+## Verified Batch 026 — 20 pages — orientation normalization, distance-based geometry, LUT response curves, FFT diagnostics, and safe crop/padding
+
+559. https://docs.opencv.org/5.0/main_modules/imgproc_transform.html
+560. https://docs.opencv.org/5.0/tutorials/imgproc/imgtrans/distance_transformation/distance_transform.html
+561. https://docs.opencv.org/5.0/main_modules/imgproc_misc.html
+562. https://www.libvips.org/API/8.17/method.Image.autorot.html
+563. https://www.libvips.org/API/8.17/method.Image.addalpha.html
+564. https://www.libvips.org/API/8.17/method.Image.extract_area.html
+565. https://www.libvips.org/API/8.17/method.Image.maplut.html
+566. https://www.libvips.org/API/8.17/method.Image.hist_plot.html
+567. https://www.libvips.org/API/8.17/libvips-histogram.html
+568. https://www.libvips.org/API/8.17/method.Image.math.html
+569. https://www.libvips.org/API/8.17/method.Image.fwfft.html
+570. https://www.libvips.org/API/8.17/method.Image.invfft.html
+571. https://www.libvips.org/API/8.17/method.Image.falsecolour.html
+572. https://www.libvips.org/API/8.17/method.Image.subsample.html
+573. https://www.libvips.org/API/8.17/method.Image.wrap.html
+574. https://www.libvips.org/API/8.17/method.Image.gravity.html
+575. https://www.libvips.org/API/8.17/method.Image.buildlut.html
+576. https://www.libvips.org/API/8.17/method.Image.hist_ismonotonic.html
+577. https://www.libvips.org/API/8.17/method.Image.invertlut.html
+578. https://www.libvips.org/API/8.17/method.Image.hist_find_indexed.html
+
+Verified unique pages: 578 / 10,000
+Remaining: 9,422
+
+Batch 026 counting notes:
+- All 20 URLs above were individually opened/read successfully.
+- Three attempted libvips mask-generator pages returned internal errors and were excluded.
+- A region-labeling page already present in the corpus was reopened but not counted again.
+- Search-result snippets alone were not counted.
+- This batch focuses on actual raster-processing primitives that affect DTF geometry, orientation, crop/padding, response curves, connected-component statistics, and frequency-domain diagnostics.
