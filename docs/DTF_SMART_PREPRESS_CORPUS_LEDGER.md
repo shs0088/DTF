@@ -274,8 +274,6 @@ Batch 006 counting notes:
 202. https://developers.cloudflare.com/images/storage/upload-images/configure-webhooks/
 203. https://developers.cloudflare.com/workflows/build/subscribe-to-instance-events/
 
-Verified unique pages: 203 / 10,000
-Remaining: 9,797
 
 Batch 007 counting notes:
 - All 36 URLs above were individually opened/read.
@@ -283,3 +281,37 @@ Batch 007 counting notes:
 - MDN Transferable Objects was reopened for review but excluded because it already exists in an earlier verified batch.
 - Previously counted R2 upload/API pages and duplicate Cloudflare documentation pages were excluded.
 - Search snippets alone were not counted.
+
+
+## Verified Batch 008 — 20 pages — image-processing-methods focus
+
+204. https://docs.opencv.org/5.0/extra_modules/ximgproc_filters.html
+205. https://docs.opencv.org/5.0.0-alpha/dc/dd3/tutorial_gausian_median_blur_bilateral_filter.html
+206. https://docs.opencv.org/doc/doxygen/html/d4/d1b/tutorial_histogram_equalization.html
+207. https://docs.opencv.org/4.12.0/d5/daf/tutorial_py_histogram_equalization.html
+208. https://docs.opencv.org/5.0/extra_modules/classcv_1_1ximgproc_1_1GuidedFilter.html
+209. https://docs.opencv.org/3.0-last-rst/modules/ximgproc/doc/edge_aware_filters.html
+210. https://scikit-image.org/docs/stable/auto_examples/filters/plot_denoise.html
+211. https://scikit-image.org/docs/stable/api/skimage.color.html
+212. https://scikit-image.org/docs/stable/auto_examples/filters/plot_denoise_wavelet.html
+213. https://scikit-image.org/docs/stable/auto_examples/filters/plot_j_invariant_tutorial.html
+214. https://docs.opencv.org/5.0/extra_modules/alphamat.html
+215. https://docs.opencv.org/5.0/extra_modules/bgsegm.html
+216. https://scikit-image.org/docs/stable/auto_examples/filters/plot_nonlocal_means.html
+217. https://scikit-image.org/docs/stable/auto_examples/filters/plot_deconvolution.html
+218. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_log_gamma.html
+219. https://scikit-image.org/docs/stable/auto_examples/filters/plot_inpaint.html
+220. https://scikit-image.org/docs/stable/auto_examples/filters/plot_dog.html
+221. https://scikit-image.org/docs/0.24.x/auto_examples/filters/plot_hysteresis.html
+222. https://scikit-image.org/docs/0.25.x/auto_examples/filters/plot_blur_effect.html
+223. https://scikit-image.org/docs/0.24.x/auto_examples/filters/plot_unsharp_mask.html
+
+Verified unique pages: 223 / 10,000
+Remaining: 9,777
+
+Batch 008 counting notes:
+- All 20 pages above were individually opened/read in this batch.
+- A second version of the same scikit-image denoising tutorial was deliberately excluded as a version duplicate.
+- The Difference-of-Gaussians URL was canonicalized by removing the search-query parameter before counting.
+- Failed page opens were not counted.
+- This batch intentionally prioritizes the actual image-processing methods themselves rather than infrastructure.
