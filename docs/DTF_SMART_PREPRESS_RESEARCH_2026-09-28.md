@@ -2688,3 +2688,200 @@ The processing engine is converging toward:
 - separate color, coverage, and white-ink response.
 
 No storefront merge, deployment, or protected Home/Mockup change.
+
+
+## Research Batch 015 — structural preservation, adaptive contrast, edge-aware smoothing, and proofing discipline
+
+The verified corpus now contains 292 individually opened/read unique pages.
+
+### 1. Edge-aware filters need parameter guards because they can easily over-simplify artwork
+
+OpenCV ximgproc exposes guided, joint bilateral, domain transform, adaptive manifold, fast global smoother, fast bilateral solver, rolling guidance, L0 smoothing, and bilateral texture filtering.
+
+These are not interchangeable. The most useful production rule is to expose them as internal recipe primitives with bounded parameter ranges and route by defect type.
+
+Examples:
+- alpha/matte refinement: guided or fast bilateral solver with confidence;
+- photographic noise: bilateral/domain-transform candidates;
+- texture suppression for diagnostics: bilateral texture or rolling guidance;
+- strong structural simplification: L0 only for classification/preview, not automatic master editing.
+
+### 2. Structure-preserving texture filtering can help separate noise/texture from meaningful edges
+
+The ximgproc bilateral texture filter explicitly targets texture while preserving structure. This is valuable for determining whether a region is likely photographic texture versus a meaningful contour.
+
+Potential diagnostic:
+- compare original against texture-smoothed result;
+- residual = high-frequency texture map;
+- use residual energy to estimate texture complexity;
+- do not automatically subtract that residual from the master.
+
+### 3. Sobel and Scharr should underpin edge-quality metrics
+
+Sobel combines smoothing and differentiation; Scharr gives better 3x3 rotational accuracy.
+
+For DTF QA:
+- compute gradient magnitude/orientation before and after processing;
+- compare edge energy and edge spread;
+- detect double edges after aggressive sharpening/upscale;
+- detect lost edge segments after denoise/background removal.
+
+Use signed/float derivatives internally; visualization copies may be 8-bit.
+
+### 4. Hough transform can protect long straight design elements
+
+The Hough line transform is useful for detecting persistent straight strokes from an edge map.
+
+DTF-specific use:
+- compare long line count/orientation before and after processing;
+- protect borders, frames, underlines, geometric logo elements and thin straight typography strokes;
+- flag a processing candidate that shortens or fragments a long structural line.
+
+This is a QA signal, not a visual filter.
+
+### 5. Directional morphology is valuable for line-art repair masks
+
+The OpenCV morphology-line tutorial uses custom horizontal/vertical structuring elements to extract line features.
+
+For artwork repair:
+- detect damaged horizontal/vertical strokes;
+- create candidate repair masks for breaks smaller than a bounded physical width;
+- never repair broad photographic regions with this method.
+
+### 6. Thresholding must remain conditional on background statistics
+
+OpenCV's fixed threshold operators are simple and deterministic, but are only suitable when foreground/background intensities are meaningfully separable.
+
+Router rule:
+- flat/simple background -> test global threshold families;
+- nonuniform background -> local/adaptive threshold or rolling-background correction first;
+- complex photo -> semantic segmentation/matting, not thresholding.
+
+### 7. Connected components become an important post-segmentation audit
+
+OpenCV structural analysis provides connected-component labeling with configurable connectivity and algorithms.
+
+Use after mask generation to compute:
+- number of foreground islands;
+- area distribution;
+- tiny detached residue;
+- newly disconnected design parts;
+- unexpectedly merged components.
+
+This helps differentiate legitimate detached elements from background-removal debris.
+
+### 8. Contours, hulls and moments can quantify visual geometry preservation
+
+OpenCV contour analysis provides area, perimeter, centroid, bounding boxes and convex hull.
+
+For a processed transparent artwork version, compare against source-derived foreground geometry:
+- centroid shift;
+- bounding-box drift;
+- area change;
+- perimeter change;
+- convex-hull area and solidity change.
+
+Large geometry changes should block auto-approval unless the user explicitly requested crop/removal.
+
+### 9. Visual centering should use mass/contour information, not only rectangular bounds
+
+Image moments provide a foreground centroid independent of the bounding-box center.
+
+For mockup placement, use both:
+- geometric bounding-box center;
+- visual/mass centroid.
+
+A large asymmetrical design may look centered when the visual centroid, rather than the outer rectangle, is aligned to the product print area.
+
+### 10. Bounding boxes are useful but should be derived after noise filtering
+
+If one stray low-alpha pixel remains far from the artwork, a naive bounding box becomes too large.
+
+Recommended sequence:
+- alpha threshold for diagnostic bounds;
+- connected-component cleanup rules;
+- retain legitimate detached components based on area/distance/content;
+- compute transparent bounds and placement bounds separately.
+
+### 11. Laplacian is useful for blur/ringing diagnostics but is noise sensitive
+
+The Laplacian is a second-derivative operator and responds strongly to high-frequency transitions.
+
+Potential metrics:
+- variance/energy of Laplacian as one blur indicator;
+- overshoot/ringing detection after sharpen/upscale;
+- compare only under fixed scale/color preprocessing.
+
+Never rely on a Laplacian score alone; noise can artificially increase it.
+
+### 12. Histogram equalization and CLAHE must remain appearance-changing suggestions
+
+Global histogram equalization remaps intensity distribution across the full image. CLAHE operates locally and limits contrast amplification.
+
+Important implementation detail: scikit-image exposure documentation notes that its CLAHE path for RGBA removes alpha during processing, so production code must explicitly preserve and restore alpha rather than passing RGBA blindly through a contrast function.
+
+For DTF:
+- run contrast operations on a controlled color/luminance representation;
+- preserve alpha independently;
+- compare Delta-E and local edge quality afterward;
+- require approval for material appearance changes.
+
+### 13. Bilateral filter has a clear failure mode: cartoon-like flattening
+
+OpenCV notes that large bilateral sigma values can make the result strongly smoothed/cartoon-like.
+
+Therefore parameter limits should depend on artwork class and texture metrics. A photographic design should not be auto-processed with aggressive bilateral smoothing merely to reduce noise.
+
+### 14. Histogram comparison can become a lightweight global-change detector
+
+OpenCV exposes correlation, chi-square, intersection, Bhattacharyya/Hellinger and KL-style histogram comparisons.
+
+Possible QA:
+- compare opaque-foreground luminance/chroma histograms before/after processing;
+- use as a fast warning for large tonal/color redistribution;
+- never substitute histogram similarity for spatial/edge/color metrics.
+
+### 15. ICC profile inspection should be separated from proofing and conversion
+
+Little CMS tools reinforce three distinct operations:
+- inspect profile structure/tags/curves/CLUTs;
+- perform gamut checking/soft proofing;
+- perform actual color conversion.
+
+The DTF tool should preserve the original profile, record profile identity/hash, and only perform an explicit conversion when a production recipe requires it.
+
+### 16. Soft proofing must be an explicitly labeled preview
+
+The Little CMS Abstractor manual describes soft proofing as simulating a target output device on a display using profiles and a rendering intent.
+
+Therefore:
+- proof image is a display artifact;
+- source/master remains unchanged;
+- proof requires selected output profile + display profile + rendering intent;
+- proof is not guaranteed physical print identity.
+
+### 17. Proposed geometric integrity block
+
+Add a reusable GeometryIntegrityReport to each processed candidate:
+- foregroundAreaRatio;
+- boundingBoxDelta;
+- centroidDeltaNormalized;
+- perimeterRatio;
+- componentCountDelta;
+- tinyIslandCount;
+- hullAreaRatio;
+- solidityDelta;
+- longLineRetention;
+- edgeEnergyRatio.
+
+For text/logo/line-art, thresholds should be stricter than for photographic art.
+
+### Batch 015 conclusion
+
+The image processor is converging toward a two-stage decision system:
+1. visual defect diagnosis (noise, blur, background, alpha, contrast, color, geometry);
+2. structural integrity validation after every candidate transformation.
+
+A candidate can look cleaner and still fail if it breaks topology, shifts geometry, loses thin strokes, changes color materially, or damages alpha edges.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
