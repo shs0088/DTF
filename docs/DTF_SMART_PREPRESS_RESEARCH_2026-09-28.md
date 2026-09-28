@@ -7882,3 +7882,65 @@ The strongest result is that “upscale” should become a routed restoration wo
 8. require approval for hallucination-prone appearance changes.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 039 — alpha-upscale policy and topology-preserving physical QA
+
+The verified corpus now contains 792 individually opened/read unique pages.
+
+### 1. Real-ESRGAN confirms alpha is a separate super-resolution decision
+
+The reviewed Real-ESRGAN inference path exposes alpha_upsampler choices rather than assuming RGB super-resolution automatically solves transparency. Its implementation can run Real-ESRGAN on alpha or use conventional interpolation.
+
+For DTF Studio, alpha-upscale strategy must therefore be selected independently from RGB restoration:
+- deterministic interpolation for already-clean hard masks;
+- learned alpha upscale only when benchmarked as beneficial;
+- matte refinement after RGB upscale for uncertain/soft edges.
+
+### 2. Tile processing needs overlap/padding and seam QA
+
+Real-ESRGAN uses tile padding and pre-padding specifically to avoid border artifacts on large images. DTF masters can be large enough to require tiled GPU processing.
+
+Our tiled-processing contract should record:
+- tileSize;
+- overlap/pad;
+- modelScale;
+- merge policy;
+- seam-error metric.
+
+A tile seam that is visually subtle on screen can become a repeatable print defect.
+
+### 3. Skeleton/medial-axis measurements provide physical stroke-width evidence
+
+scikit-image documents medial-axis skeletonization together with distance-to-background. Distance sampled along the skeleton estimates local object width.
+
+This lets preflight measure:
+- minimum stroke width;
+- width percentile distribution;
+- locations of critically thin strokes;
+- before/after width loss.
+
+After converting pixels to physical units at the selected placement, the system can block destructive cleanup, choke, or thresholding that collapses important details.
+
+### 4. Topology should be protected separately from visual similarity
+
+Skeletonization/thinning preserves connectivity while reducing components to a structural representation.
+
+This supports a QA rule independent of PSNR/SSIM:
+- compare connected branches/endpoints/components before and after processing;
+- flag lost punctuation, disconnected letters, closed counters that became filled, or bridges that disappeared.
+
+For Arabic lettering and ornamental line work this can be more meaningful than a whole-image similarity score.
+
+### 5. Morphology supports distance-based physical operators
+
+The reviewed morphology API includes distance-transform-based isotropic erosion/dilation and medial-axis operations. This reinforces representing choke/spread as physical distance and converting to pixels at execution time rather than hard-coding kernel sizes.
+
+### Batch 039 conclusion
+
+Super-resolution should never be approved only because the RGB looks sharper. For transparent DTF art, approval needs three independent checks:
+1. RGB/detail quality;
+2. alpha-edge quality;
+3. topology and physical stroke-width retention.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
