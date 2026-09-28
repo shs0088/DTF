@@ -1309,3 +1309,28 @@ Batch 040 counting notes:
 - The Spanish translation of an already-counted English DTF Transfer Studio article was likewise excluded.
 - Multiple localized translations of the same AGP article were deduplicated to one counted version.
 - This batch expands the corpus beyond English with Russian, Japanese, Arabic, Portuguese, Chinese, Spanish, and Italian sources.
+
+
+## Verified Batch 044 — 14 pages
+
+841. https://prepresse.imprimerie-chirat.fr/content/aide-et-support-technique/gestion-des-couleurs-et-traitement-des-images
+842. https://aioimage.com/pt/remove-bg/
+843. https://rmbg.ai/ar
+844. https://www.adobe.com/products/photoshop/halftone-effects.html
+845. https://www.aiarty.com/pt/ai-image-matting/
+846. https://snapcorn.com/resources/alpha-channels-and-matting
+847. https://www.creen.ai/ar/features/background-remover
+848. https://bgremover.com/ar/batch-background-remover
+849. https://docs.gimp.org/es/gimp-filter-unsharp-mask.html
+850. https://docs.gimp.org/3.0/de/gimp-filter-dither.html
+851. https://docs.gimp.org/3.0/ja/gimp-layer-mask-add.html
+852. https://docs.gimp.org/fr/gimp-layer-mask-apply.html
+853. https://docs.gimp.org/es/gimp-tool-convolve.html
+854. https://docs.gimp.org/2.8/ko/filters.html
+
+Batch 044 counting notes:
+- All 14 pages above were individually opened/read in this batch and were absent from the existing canonical-URL ledger.
+- Discovery deliberately rotated Arabic, Portuguese, Spanish, German, Japanese, French and Korean material.
+- The Turkish GIMP dither localization was also opened/read but was not counted because it is a simple localized mirror of the same GIMP 3.0 dither page already represented by the German page in this batch.
+- Other simple localized mirrors and search-result snippets were excluded.
+- The commercial background-removal pages are used as implementation/UX evidence, not as algorithmic authority; primary technical conclusions continue to prefer official documentation and implementation references.
