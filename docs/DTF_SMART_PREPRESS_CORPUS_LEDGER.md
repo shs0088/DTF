@@ -1402,3 +1402,13 @@ Batch 048 counting notes:
 - Localized duplicates already represented by earlier materially identical pages are not counted merely for language variation.
 - GitHub ledger represented count after this batch: 885 / 10,000.
 - Research-continuity count including the earlier verified-but-unsynchronized nine-page Batch 045: 894 / 10,000.
+
+
+## Verified Batch 049 — 4 new pages — matting, IQA, deconvolution
+
+886. https://pymatting.github.io/examples.html
+887. https://pymatting.github.io/api.html
+888. https://docs.opencv.org/4.12.0/d8/d99/classcv_1_1quality_1_1QualityBRISQUE.html
+889. https://scikit-image.org/docs/0.24.x/auto_examples/filters/plot_restoration.html
+
+Notes: all four pages were opened and read. Already represented pages and materially duplicate version/localization pages were not recounted. GitHub ledger: 889 / 10,000. Research continuity including the earlier unsynchronized nine-page Batch 045: 898 / 10,000.
