@@ -1428,3 +1428,22 @@ Notes: all four pages were opened and read. Already represented pages and materi
 899. https://help.autodesk.com/cloudhelp/2026/ENU/Revit-Customize/files/GUID-6E3C9EF0-F657-4F79-90BD-A2FB88B0467D.htm
 
 All ten pages were individually opened/read and absent from the canonical ledger. Key transfer: source-vs-sampled-preview separation; physical sample size; explicit texture filtering/mipmap state; raw scalar/cutout semantics; explicit input/working/output color spaces; screen-vs-print output separation. GitHub ledger: 899 / 10,000. Research continuity including unsynchronized Batch 045: 908 / 10,000.
+
+
+## Verified Batch 051 — AI image generation/editing systems
+
+900. https://ai.google.dev/gemini-api/docs/image-generation
+901. https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/image-editing
+902. https://cloud.google.com/vertex-ai/generative-ai/docs/image/edit-images
+903. https://cloud.google.com/vertex-ai/generative-ai/docs/image/overview
+904. https://cloud.google.com/vertex-ai/generative-ai/docs/image/generate-images
+905. https://cloud.google.com/vertex-ai/generative-ai/docs/image/upscale-image
+906. https://platform.openai.com/docs/guides/image-generation
+907. https://platform.openai.com/docs/models/gpt-image-1
+908. https://docs.bfl.ai/flux_2/flux2_overview
+909. https://docs.bfl.ai/flux_2/flux2_image_editing
+910. https://docs.bfl.ai/flux_2/flux2_image_generation
+911. https://docs.bfl.ai/kontext/kontext_overview
+912. https://docs.bfl.ai/kontext/kontext_image_editing
+
+Pages were individually opened/read during the AI-image-system pass and were absent from the canonical ledger. The VQA page was read during discovery but excluded from this batch because it did not add a direct image-processing/editing contract. Engineering transfer: reference-image consistency must be measured rather than assumed; masked editing needs leakage QA; generated text needs explicit integrity checking; AI upscaling/generation output must be re-preflighted for alpha, geometry and physical print resolution; generated/edited derivatives cannot silently replace the original print master. GitHub ledger: 912 / 10,000. Research continuity including unsynchronized Batch 045: 921 / 10,000.
