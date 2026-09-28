@@ -7109,3 +7109,228 @@ The engine can now distinguish:
 This allows narrower, safer processing and fewer destructive “enhance everything” operations.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 032 — resampling semantics are part of the print contract
+
+The verified corpus now contains 710 individually opened/read unique pages.
+
+### 1. Resize correctness is not only about choosing Lanczos versus bicubic
+
+Across PyTorch, Torchvision, ONNX, TensorFlow, Kornia, Pillow, OpenCV and libvips, the same nominal "resize" can differ because of:
+- coordinate transform convention;
+- align_corners behavior;
+- half-pixel versus asymmetric sampling;
+- antialias policy;
+- border handling;
+- kernel;
+- dtype/clamping;
+- alpha treatment.
+
+Therefore the DTF recipe must record resize semantics, not only target width/height.
+
+### 2. RGB, alpha, masks and trimaps must use matching geometry conventions
+
+ONNX Resize explicitly exposes coordinate_transformation_mode such as half_pixel, align_corners and asymmetric. PyTorch/Torchvision similarly distinguish align_corners behavior.
+
+If RGB is resized with one convention and alpha/mask with another, edge registration can shift by fractions of a pixel and become visible after underbase generation.
+
+Rule:
+- every coupled artifact in one processing step shares the same geometric mapping convention;
+- mask/alpha interpolation method may differ, but coordinate transform must remain aligned.
+
+### 3. Model preprocessing semantics must be versioned
+
+Torchvision changed antialias defaults over time, and older documentation warns that PIL and Tensor paths could produce materially different resize outputs.
+
+For any AI segmentation/matting/upscale model, store:
+- framework/runtime version;
+- input resize method;
+- antialias flag;
+- align_corners/coordinate convention;
+- normalization;
+- expected input range/dtype.
+
+Training-time preprocessing and production inference preprocessing must match.
+
+### 4. ONNX export can silently change behavior if resize attributes are not pinned
+
+Newer ONNX Resize versions added antialiasing and expanded coordinate controls.
+
+Therefore exported AI models should be contract-tested against the source framework:
+- same input fixture;
+- same resized/intermediate tensor;
+- same alpha/mask output within tolerance.
+
+Do not assume an ONNX-converted model is pixel-equivalent merely because inference succeeds.
+
+### 5. Antialiasing is primarily a downsampling problem
+
+TensorFlow and Kornia explicitly state that their antialias option affects downscaling, not upscaling. Torchvision defaults antialiasing on for bilinear/bicubic in current v2 APIs.
+
+This supports:
+- downscale/display pipeline: antialias by default;
+- upscale pipeline: choose interpolation/model based on edge class; antialias is not the solution to missing source detail.
+
+### 6. Filter choice should depend on artwork class
+
+TensorFlow documents:
+- Lanczos3/5 can ring, especially on synthetic imagery;
+- Mitchell-Netravali is less sharp but can ring less;
+- area is naturally suited to downsampling.
+
+OpenCV similarly recommends INTER_AREA for shrinking and cubic/linear for enlargement.
+
+DTF routing:
+- photo downscale: high-quality antialiased filter;
+- hard logo/text: compare ringing and stroke continuity, not just sharpness;
+- pixel-art/grid art: special nearest/grid-preserving path;
+- soft alpha/glow: alpha-safe filtered path with halo QA.
+
+### 7. Higher-order filters can overshoot
+
+PyTorch documentation warns bicubic/lanczos interpolation can produce values outside the nominal display range before clamping.
+
+For production:
+- process in float;
+- avoid premature clipping during intermediate operations;
+- clamp only where the target format requires it;
+- run color/edge QA after clamp/export.
+
+Premature clipping can alter highlight edges and saturated brand colors.
+
+### 8. libvips recommends linear-light resampling for highest physical correctness
+
+The libvips shrinking guide explicitly states that mixing samples should ideally happen in linear light and describes conversion to a linear working space before resize.
+
+This is expensive, so the proposed quality ladder becomes:
+- web thumbnail: optimized standard path;
+- normal DTF candidate: alpha-correct high-quality resize;
+- premium/reference resize: linear-light + premultiplied-alpha path, benchmarked for actual benefit.
+
+### 9. Vector/PDF/SVG assets should be rendered at target resolution rather than raster-upscaled
+
+The libvips guide notes that vector formats can be rendered directly at the required size.
+
+Therefore:
+- retain vector/PDF source where supported;
+- compute target physical print dimensions first;
+- rasterize at target production resolution;
+- do not rasterize small and then AI-upscale unless unavoidable.
+
+This is one of the safest ways to preserve text and line detail.
+
+### 10. Multi-stage reduction can improve quality/performance
+
+libvips recommends shrink-on-load or block reduction with headroom, then a higher-quality final resize; Pillow exposes a similar two-stage reducing_gap optimization.
+
+This suggests a benchmarked downscale strategy:
+1. coarse integer reduction while staying above target;
+2. final high-quality kernel to exact target.
+
+The exact path must remain alpha-safe.
+
+### 11. Border handling is part of edge quality
+
+OpenCV geometric transforms explicitly distinguish extrapolation/border behavior, including BORDER_TRANSPARENT.
+
+For transparent art:
+- border mode must be specified;
+- synthetic padding should use controlled alpha/hidden RGB;
+- transform/crop near canvas edges needs regression tests.
+
+A default black border can contaminate transparent edges during filtering.
+
+### 12. Exact-nearest modes matter for masks
+
+OpenCV INTER_NEAREST_EXACT is documented to match nearest-neighbor semantics used by PIL/scikit-image/Matlab; PyTorch also distinguishes nearest from nearest-exact.
+
+For binary masks/labels:
+- use an exact nearest-style path when interpolation must not invent intermediate classes;
+- do not use it for continuous alpha mattes.
+
+### 13. DTF halftone settings need a survival constraint, not only an aesthetic target
+
+The reviewed DTF halftone tools emphasize:
+- LPI;
+- angle;
+- minimum dot percentage;
+- solid threshold;
+- edge-only behavior;
+- DPI.
+
+The critical engineering rule is:
+a generated halftone dot must remain above the calibrated printable/choke survival threshold at the final physical size.
+
+### 14. Small halftone dots can disappear after white choke
+
+DTFWiz's checker highlights the interaction between thin detail and choke, while Last Mile's halftone guidance emphasizes minimum-dot controls.
+
+Our halftone validator should compute:
+- nominal dot diameter/area;
+- effective white-base support after choke;
+- minimum retained dot dimension;
+- likely dropout risk.
+
+Do not approve a halftone purely because the on-screen pattern looks smooth.
+
+### 15. Minimum-stroke rules should be production-profile values, not universal constants
+
+Vendor examples provide useful starting ranges, but they differ by equipment and process.
+
+Therefore:
+- store minPrintableStrokeMm and minPrintableDotMm per production profile;
+- compare design at actual print size;
+- allow calibrated operator overrides;
+- record which profile approved the artifact.
+
+### 16. Edge-only halftoning is worth testing for soft fades
+
+The Last Mile tool exposes an edge-only percentage and solid threshold, reflecting a practical idea:
+- keep stronger interior regions solid;
+- screen softer/fading regions first.
+
+This may preserve readability while reducing ink in glows/shadows.
+
+It should be implemented as a derived white/coverage recipe, not a destructive edit of source RGB.
+
+### 17. Pillow reducing_gap is a performance/quality knob that must be frozen if used
+
+Pillow documents two-stage reduction controlled by reducing_gap, with larger values closer to full-quality resampling.
+
+If Pillow is used in tests or auxiliary workers:
+- pin the parameter;
+- pin Pillow version;
+- avoid assuming default behavior is stable forever.
+
+### 18. Model and browser preview resizes should not define production placement geometry
+
+A preview may use a different bounded size or framework, but placement coordinates must remain normalized to the product print area/source artifact, not derived from preview pixels.
+
+This prevents small framework resize differences from shifting the final print.
+
+### 19. Proposed ResampleRecipe block
+
+Add:
+- sourceWidth/sourceHeight;
+- targetWidth/targetHeight;
+- scaleX/scaleY;
+- kernel/interpolation;
+- coordinateTransformMode;
+- alignCorners;
+- antialias;
+- borderMode;
+- alphaRepresentationBefore/After;
+- linearLight boolean;
+- workingColorSpace;
+- dtype;
+- clampPolicy;
+- library/runtime/version.
+
+### 20. Batch 032 conclusion
+
+The strongest result is that resize must become a reproducible, versioned operation.
+
+For DTF, even a subpixel discrepancy between RGB and alpha can later become a visible white fringe because the underbase is generated from coverage. Therefore resampling semantics are part of print correctness, not a cosmetic implementation detail.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
