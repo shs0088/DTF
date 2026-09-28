@@ -21,7 +21,9 @@ $soft = $engine->analyze([
  'edgeColorContamination'=>true,'suspectedMatteColor'=>'white','artworkClass'=>'illustration','scaleFactor'=>1.5,
  'brisqueScore'=>42.0,'psfConfidence'=>0.85,'hausdorffDeltaPx'=>0.4,
  'sampleWidthMm'=>406.4,'sourceWidthPx'=>4800,'previewFilter'=>'smart-bicubic','previewMipBias'=>0.0,
- 'mapSemantic'=>'cutout','inputColorSpace'=>'raw','workingColorSpace'=>'linear'
+ 'mapSemantic'=>'cutout','inputColorSpace'=>'raw','workingColorSpace'=>'linear',
+ 'aiEdited'=>true,'generationModel'=>'reference-image-editor','referenceCount'=>2,
+ 'identitySimilarity'=>0.97,'textIntegrity'=>0.96,'editMaskLeakage'=>0.03
 ]);
 assert($soft['decision']['alphaPolicy']==='preserve-continuous');
 assert($soft['edgeCleanupDecision']['mode']==='remove-white-matte');
@@ -35,6 +37,10 @@ assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRendere
 assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
 assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
 assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
+assert($soft['aiGenerationIntegrityReport']['requiresSourceComparison']===true);
+assert($soft['aiGenerationIntegrityReport']['requiresAlphaReinspection']===true);
+assert($soft['aiGenerationIntegrityReport']['mayReplaceOriginalPrintMasterWithoutQa']===false);
+assert(in_array('AI_EDIT_INTEGRITY_REVIEW_REQUIRED', array_column($soft['warnings'],'code'), true));
 assert($soft['provenance']['mockupMayReplaceMaster']===false);
 
 echo "PASS\n";
