@@ -871,8 +871,6 @@ Batch 025 counting notes:
 577. https://www.libvips.org/API/8.17/method.Image.invertlut.html
 578. https://www.libvips.org/API/8.17/method.Image.hist_find_indexed.html
 
-Verified unique pages: 578 / 10,000
-Remaining: 9,422
 
 Batch 026 counting notes:
 - All 20 URLs above were individually opened/read successfully.
@@ -880,3 +878,39 @@ Batch 026 counting notes:
 - A region-labeling page already present in the corpus was reopened but not counted again.
 - Search-result snippets alone were not counted.
 - This batch focuses on actual raster-processing primitives that affect DTF geometry, orientation, crop/padding, response curves, connected-component statistics, and frequency-domain diagnostics.
+
+
+## Verified Batch 027 — 22 pages — mask composition, region topology, boundary metrics, and structure-aware segmentation
+
+579. https://www.libvips.org/API/8.17/method.Image.ifthenelse.html
+580. https://www.libvips.org/API/8.17/method.Image.bandjoin_const.html
+581. https://www.libvips.org/API/8.17/method.Image.draw_mask.html
+582. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_mean_color.html
+583. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_hausdorff_distance.html
+584. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_perimeters.html
+585. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_floodfill.html
+586. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_expand_labels.html
+587. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_euler_number.html
+588. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_random_walker_segmentation.html
+589. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_segmentations.html
+590. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_compact_watershed.html
+591. https://scikit-image.org/docs/stable/auto_examples/edges/plot_contours.html
+592. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_boundary.html
+593. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_merge.html
+594. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_regionprops.html
+595. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_extrema.html
+596. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_peak_local_max.html
+597. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_join_segmentations.html
+598. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rag_draw.html
+599. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_ncut.html
+600. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_boundary_merge.html
+
+Verified unique pages: 600 / 10,000
+Remaining: 9,400
+
+Batch 027 counting notes:
+- All 22 URLs above were individually opened/read successfully.
+- Three attempted libvips pages that returned internal errors were excluded.
+- Previously counted pages were removed before numbering.
+- Search-result snippets alone were not counted.
+- This batch focuses on structure-aware mask composition and QA for fine DTF artwork.
