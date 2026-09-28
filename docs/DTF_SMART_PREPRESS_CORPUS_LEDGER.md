@@ -578,8 +578,6 @@ Batch 016 counting notes:
 392. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
 393. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalAlpha
 
-Verified unique pages: 393 / 10,000
-Remaining: 9,607
 
 Batch 017 counting notes:
 - All 20 URLs above were individually opened/read successfully.
@@ -588,3 +586,37 @@ Batch 017 counting notes:
 - One failed GitHub source-page open was excluded.
 - Search-result snippets alone were not counted.
 - This batch focuses on alpha representation, compositing correctness, guided matting refinement, and transparent-image resampling.
+
+
+## Verified Batch 018 — 20 pages — output encoding, alpha round-trips, trimming, sharpening, ICC transforms, proofing, and DTF halftone controls
+
+394. https://www.libvips.org/API/8.17/method.Image.tiffsave.html
+395. https://www.libvips.org/API/8.17/method.Image.unpremultiply.html
+396. https://dtftransferstudio.com/white-outline-dtf-choke-settings-guide/
+397. https://www.pressos.app/docs/tutorials/build-halftones
+398. https://dtfgears.com/blogs/news/digital-factory-v12-for-white-ink-underbase-printing-best-practice-settings/
+399. https://www.libvips.org/API/8.17/method.Image.find_trim.html
+400. https://www.libvips.org/API/8.17/method.Image.sharpen.html
+401. https://www.libvips.org/API/8.17/method.Image.colourspace.html
+402. https://www.libvips.org/API/8.17/method.Image.gaussblur.html
+403. https://www.libvips.org/API/8.17/method.Image.conv.html
+404. https://www.libvips.org/API/8.17/method.Image.embed.html
+405. https://www.libvips.org/API/8.17/method.Image.icc_export.html
+406. https://littlecms.com/blog/2026/04/17/lcms2-2.19/
+407. https://littlecms.com/blog/2020/12/09/using-lcms2-on-qt/
+408. https://littlecms.com/blog/2025/10/10/monitor_icc_tweaker/
+409. https://littlecms.com/blog/2020/09/09/browser-check/
+410. https://www.littlecms.com/LittleCMS2.18%20API.pdf
+411. https://www.littlecms.com/LittleCMS2.18%20tutorial.pdf
+412. https://www.littlecms.com/BlackPointCompensationTests.pdf
+413. https://www.libvips.org/API/8.17/method.Image.icc_transform.html
+
+Verified unique pages: 413 / 10,000
+Remaining: 9,587
+
+Batch 018 counting notes:
+- All 20 URLs above were individually opened/read successfully.
+- One Little CMS beta page that returned an internal error was excluded.
+- Search-result snippets alone were not counted.
+- Version-alias super-resolution and already-counted pages were excluded rather than inflating the corpus.
+- This batch prioritizes production-safe output/export behavior, alpha-state round-trips, trimming/cropping, sharpening, ICC transforms/proofing, and DTF white/halftone controls.
