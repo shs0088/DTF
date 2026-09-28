@@ -1109,8 +1109,6 @@ Batch 032 counting notes:
 731. https://kornia.readthedocs.io/en/latest/losses.morphology.html
 732. https://kornia.readthedocs.io/en/latest/get-started/export-support.html
 
-Verified unique pages: 732 / 10,000
-Remaining: 9,268
 
 Batch 033 counting notes:
 - All 22 URLs above were individually opened/read successfully.
@@ -1118,3 +1116,36 @@ Batch 033 counting notes:
 - Previously counted pages and canonical duplicates were excluded.
 - Search-result snippets alone were not counted.
 - This batch focuses on matting modes, edge-aware filtering, geometric-transform conventions, accelerated runtime parity, quality metrics, and deployment/export constraints.
+
+
+## Verified Batch 034 — 20 pages — geometry conventions, antialiasing, registration, morphology, and runtime parity
+
+733. https://docs.opencv.org/4.13.0/da/d54/group__imgproc__transform.html
+734. https://docs.opencv.org/4.13.0/da/d6e/tutorial_py_geometric_transformations.html
+735. https://docs.opencv.org/4.13.0/d4/d61/tutorial_warp_affine.html
+736. https://docs.opencv.org/4.13.0/d1/da0/tutorial_remap.html
+737. https://docs.opencv.org/4.13.0/da/d97/tutorial_threshold_inRange.html
+738. https://docs.opencv.org/4.13.0/d7/d1b/group__imgproc__misc.html
+739. https://kornia.readthedocs.io/en/latest/geometry.transform.html
+740. https://kornia.readthedocs.io/en/latest/morphology.html
+741. https://kornia.readthedocs.io/en/latest/color.html
+742. https://kornia.readthedocs.io/en/latest/losses.html
+743. https://scikit-image.org/docs/stable/api/skimage.registration.html
+744. https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.interpolate.html
+745. https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.grid_sample.html
+746. https://docs.pytorch.org/docs/2.14/generated/torch.nn.functional.affine_grid.html
+747. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.functional.resize.html
+748. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.Resize.html
+749. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.functional.gaussian_blur.html
+750. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.functional.pad.html
+751. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.functional.affine.html
+752. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.functional.perspective.html
+
+Verified unique pages: 752 / 10,000
+Remaining: 9,248
+
+Batch 034 counting notes:
+- All 20 URLs above were individually opened/read successfully.
+- Thin shell pages and failed opens were excluded.
+- Previously counted pages and canonical duplicates were excluded.
+- This batch focuses on transform conventions, resampling semantics, registration, padding/border behavior, morphology, and backend parity for image-processing correctness.
