@@ -227,11 +227,59 @@ Batch 005 counting notes:
 166. https://developers.cloudflare.com/r2/api/workers/
 167. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_multiotsu.html
 
-Verified unique pages: 167 / 10,000
-Remaining: 9,833
 
 Batch 006 counting notes:
 - All 25 URLs above were individually opened/read.
 - Pages already present in earlier batches, including Printify API, Printful v2-preview, ImageMagick compose, Cloudflare multipart usage, R2 API reference and R2 error codes, were excluded.
 - Mirrored/forked pages with materially duplicated content were not counted separately when identified.
 - Failed opens were excluded.
+
+
+## Verified Batch 007 — 36 pages
+
+168. https://developers.cloudflare.com/images/storage/upload-images/direct-creator-upload/
+169. https://developers.cloudflare.com/r2/reference/consistency/
+170. https://developers.cloudflare.com/r2/buckets/event-notifications/
+171. https://developers.cloudflare.com/images/optimization/hosted-images/serve-private-images/
+172. https://developers.cloudflare.com/images/get-started/introduction/
+173. https://developers.cloudflare.com/images/storage/upload-images/upload-url/
+174. https://developers.cloudflare.com/images/optimization/hosted-images/serve-uploaded-images/
+175. https://developers.cloudflare.com/images/storage/upload-images/upload-custom-path/
+176. https://developers.cloudflare.com/workflows/build/rules-of-workflows/
+177. https://developers.cloudflare.com/workflows/get-started/guide/
+178. https://developers.cloudflare.com/queues/configuration/javascript-apis/
+179. https://developers.cloudflare.com/workflows/
+180. https://developers.cloudflare.com/workflows/reference/limits/
+181. https://developers.cloudflare.com/images/optimization/hosted-images/enable-flexible-variants/
+182. https://developers.cloudflare.com/queues/configuration/consumer-concurrency/
+183. https://developers.cloudflare.com/r2/tutorials/upload-logs-event-notifications/
+184. https://developers.cloudflare.com/r2/buckets/object-lifecycles/
+185. https://developers.cloudflare.com/queues/reference/how-queues-works/
+186. https://developers.cloudflare.com/workflows/reference/glossary/
+187. https://developers.cloudflare.com/queues/observability/metrics/
+188. https://developers.cloudflare.com/queues/get-started/
+189. https://littlecms.com/color-engine/
+190. https://developer.mozilla.org/en-US/docs/Web/API/ImageDecoder/ImageDecoder
+191. https://developers.cloudflare.com/r2/buckets/data-access-logs/
+192. https://developers.cloudflare.com/r2/reference/durability/
+193. https://developers.cloudflare.com/r2/reference/data-security/
+194. https://developers.cloudflare.com/r2/buckets/bucket-locks/
+195. https://developers.cloudflare.com/images/storage/upload-images/images-batch/
+196. https://developers.cloudflare.com/workflows/build/events-and-parameters/
+197. https://developers.cloudflare.com/workflows/build/sleeping-and-retrying/
+198. https://developers.cloudflare.com/images/storage/upload-images/upload-file-worker/
+199. https://developers.cloudflare.com/images/get-started/limits/
+200. https://developers.cloudflare.com/workflows/build/workers-api/
+201. https://developers.cloudflare.com/r2/platform/audit-logs/
+202. https://developers.cloudflare.com/images/storage/upload-images/configure-webhooks/
+203. https://developers.cloudflare.com/workflows/build/subscribe-to-instance-events/
+
+Verified unique pages: 203 / 10,000
+Remaining: 9,797
+
+Batch 007 counting notes:
+- All 36 URLs above were individually opened/read.
+- A duplicate open of the Workflows getting-started page was counted once.
+- MDN Transferable Objects was reopened for review but excluded because it already exists in an earlier verified batch.
+- Previously counted R2 upload/API pages and duplicate Cloudflare documentation pages were excluded.
+- Search snippets alone were not counted.
