@@ -1412,3 +1412,19 @@ Batch 048 counting notes:
 889. https://scikit-image.org/docs/0.24.x/auto_examples/filters/plot_restoration.html
 
 Notes: all four pages were opened and read. Already represented pages and materially duplicate version/localization pages were not recounted. GitHub ledger: 889 / 10,000. Research continuity including the earlier unsynchronized nine-page Batch 045: 898 / 10,000.
+
+
+## Verified Batch 050 — 10 Autodesk pages — Revit / 3ds Max / Arnold sampling and rendering
+
+890. https://help.autodesk.com/cloudhelp/ENU/AR-Core/files/ac-shading/ac-texture-shaders/arnold_user_guide_ac_texture_shaders_ac_texture_image_html.html
+891. https://help.autodesk.com/cloudhelp/ENU/AR-Core/files/arnold_user_guide_ac_color_management_html.html
+892. https://help.autodesk.com/cloudhelp/2025/ENU/3DSMax-Rendering/files/GUID-AF6FB34D-5453-4AE2-A987-388A4BB5AAFD.htm
+893. https://help.autodesk.com/cloudhelp/2023/ENU/3DSMax-Reference/files/GUID-6D4F4DB0-12EA-4B38-B14F-8DBF821ADC5F.htm
+894. https://help.autodesk.com/cloudhelp/2024/ENU/Revit-Customize/files/GUID-923384A3-8F6F-421E-BD7A-786B07E87831.htm
+895. https://help.autodesk.com/cloudhelp/2017/ENU/Revit-Customize/files/GUID-FB8A73D6-4D18-47B3-AFE6-1FC40BC7EAB6.htm
+896. https://help.autodesk.com/cloudhelp/2024/ENU/Revit-DocumentPresent/files/GUID-35F117CC-8ABA-4E61-AADD-B96C2A5E760F.htm
+897. https://help.autodesk.com/cloudhelp/2022/ENU/Revit-DocumentPresent/files/GUID-9F35FD0E-EF9B-4BB9-8CF7-6F8A6280CCAC.htm
+898. https://help.autodesk.com/cloudhelp/2025/ENU/Revit-Customize/files/GUID-54E6F649-CFFB-4E87-BE3A-4792F53A5DAA.htm
+899. https://help.autodesk.com/cloudhelp/2026/ENU/Revit-Customize/files/GUID-6E3C9EF0-F657-4F79-90BD-A2FB88B0467D.htm
+
+All ten pages were individually opened/read and absent from the canonical ledger. Key transfer: source-vs-sampled-preview separation; physical sample size; explicit texture filtering/mipmap state; raw scalar/cutout semantics; explicit input/working/output color spaces; screen-vs-print output separation. GitHub ledger: 899 / 10,000. Research continuity including unsynchronized Batch 045: 908 / 10,000.
