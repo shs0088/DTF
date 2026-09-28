@@ -29,3 +29,15 @@ Safety gates:
 6. all physical thresholds are represented in mm or derived from effective PPI, never unexplained fixed pixels.
 
 This folder is deliberately independent from the protected storefront and from OpenCart core. Packaging/install integration will be added only after validation against the actual Oracle OpenCart 4 tree.
+
+
+## Decision engine additions
+
+The research-preview engine now includes:
+- Edge Cleanup Router: none, remove-white-matte, remove-black-matte, local color decontamination, or diagnostic-first defringe.
+- Resampling Router: nearest-neighbor only for pixel/binary artwork, detail-preserving upscale for photographic/illustrative enlargement, antialiased downsample for reduction, and a balanced fallback.
+- Color Management Report: source/target ICC state plus mandatory explicit Assign-vs-Convert, rendering intent and black-point-compensation provenance.
+- Matting Router: alpha estimation and foreground-color estimation remain separate decisions.
+- Restoration gates: BRISQUE remains diagnostic-only; deconvolution remains evidence-gated and never automatic.
+
+These are decision contracts, not claims that Photoshop/Illustrator algorithms are embedded or reproduced. Production pixel-processing backends remain intentionally decoupled.
