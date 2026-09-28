@@ -3116,3 +3116,231 @@ Outputs:
 Only after these outputs pass quality gates should an artifact become a candidate transparent master.
 
 No storefront merge, no deployment, and no protected Home/Mockup modification.
+
+
+## Research Batch 017 — practical alpha-matting implementations, foreground reconstruction, high-resolution refinement, and premultiplied-alpha discipline
+
+The verified corpus now contains 333 individually opened/read unique pages.
+
+### 1. The production cutout should be modeled as foreground color plus alpha, not alpha alone
+
+Closed-form matting formalizes the compositing equation as an underdetermined per-pixel problem involving foreground color, background color, and opacity. Practical implementations such as FBA Matting and closed-form-matting expose foreground/background reconstruction in addition to alpha.
+
+This strengthens the DTF rule:
+- segmentation gives object membership;
+- matting gives fractional coverage;
+- foreground reconstruction/decontamination gives the RGB that should exist at semi-transparent edge pixels;
+- the final transparent artifact uses the reconstructed foreground RGB with the matte.
+
+A visually good alpha with contaminated RGB can still create white or colored halos on garments.
+
+### 2. Joint F/B/alpha prediction is a useful model family to benchmark
+
+FBA Matting directly predicts:
+- alpha;
+- foreground RGB;
+- background RGB.
+
+Its implementation restores known trimap pixels after inference:
+- definite background forces alpha to 0;
+- definite foreground forces alpha to 1;
+- fully foreground pixels copy source RGB into the foreground estimate;
+- fully background pixels copy source RGB into the background estimate.
+
+This is valuable for our benchmark because it naturally aligns with the desired output contract rather than requiring a separate foreground reconstruction algorithm after alpha prediction.
+
+### 3. Trimap confidence and prior-aware solvers are useful for semi-automatic workflows
+
+The closed-form-matting implementation supports:
+- scribbles;
+- trimap input;
+- a prior plus prior-confidence.
+
+This is important for our semi-automatic design: a coarse AI mask can be converted to a prior/confidence field, while user brush corrections or trusted interior/exterior regions become hard constraints.
+
+The tool should preserve user-confirmed foreground/background regions across later refinement.
+
+### 4. MatteFormer shows that trimap regions can be treated as global priors
+
+MatteFormer represents foreground, background, and unknown trimap regions with prior tokens and carries that context through the transformer.
+
+Engineering takeaway:
+- the UNKNOWN band is not merely pixels to process locally;
+- global context about the whole foreground/background can improve ambiguous edge decisions;
+- our model-adapter interface should support trimap-conditioned models as a distinct capability class.
+
+### 5. Semantic Image Matting suggests different edge types deserve different treatment
+
+Semantic Image Matting explicitly separates matting-pattern semantics rather than assuming every unknown pixel behaves identically.
+
+This supports our image-class router and suggests an edge-class router inside the matte:
+- hair/fur;
+- transparent material;
+- net/fine structures;
+- hard antialiased edge;
+- motion/soft blur;
+- glow/smoke.
+
+Even if we do not deploy that exact model, the architectural lesson is useful: one global matte-refinement strength is too crude.
+
+### 6. ViTMatte remains a strong trimap-based candidate, but the trimap is part of the contract
+
+The official ViTMatte inference path consumes both the RGB image and a trimap.
+
+Therefore a ViTMatte adapter would need:
+- generated or user-edited trimap;
+- explicit trimap resolution and thresholds;
+- exact model/checkpoint version;
+- quality validation after inference.
+
+It should not be presented as a trimap-free background remover.
+
+### 7. High-resolution matting should use coarse global inference plus selective full-resolution refinement
+
+BackgroundMattingV2 is especially relevant architecturally. Its model:
+- downsamples source/background for the base network;
+- predicts coarse alpha, foreground, error, and hidden features;
+- ranks or thresholds error regions;
+- refines selected full-resolution patches;
+- returns final alpha and foreground.
+
+This is directly applicable to DTF uploads even though the original model uses a captured background.
+
+Generalized DTF pattern:
+1. coarse/global segmentation or matte at bounded resolution;
+2. predict an uncertainty/error map;
+3. identify only high-risk regions;
+4. refine those regions against original-resolution RGB;
+5. stitch/refine without altering low-risk regions.
+
+This is much more efficient than forcing a large model over every source pixel.
+
+### 8. Robust Video Matting demonstrates another resolution-aware refinement pattern
+
+The RVM implementation supports a downsample_ratio and, when downsampling is used, applies either a deep-guided or fast-guided refiner.
+
+It predicts a foreground residual and alpha, then reconstructs foreground as:
+foreground = source + predicted_residual
+
+This residual formulation is interesting for DTF edge recovery because it encourages the model to estimate corrections relative to the original source rather than synthesize all foreground color from scratch.
+
+For still-image DTF we would benchmark this concept without the temporal recurrent state.
+
+### 9. Refinement should be driven by uncertainty, not uniform high-resolution compute
+
+BackgroundMattingV2 can refine:
+- everywhere;
+- a fixed number of pixels with highest predicted error;
+- only pixels whose predicted error exceeds a threshold.
+
+This maps well to our processing budget:
+- low-risk opaque interior: do not spend expensive full-res inference;
+- transparent/uncertain edge: refine;
+- small text/line art: force high-priority refinement even if generic uncertainty is low;
+- user-corrected region: force refinement/validation.
+
+### 10. Index-aware upsampling matters for thin edges
+
+IndexNet focuses heavily on the upsampling stage and reports meaningful gains from better learned indexing.
+
+DTF implication:
+- decoder/upsampling choice can materially affect one-pixel and subpixel edge structure;
+- alpha upsampling is not a trivial final resize;
+- our benchmark must include thin strokes, antialiased type, hair-like details, and small detached components when comparing models.
+
+### 11. GCA reinforces the value of context propagation inside the unknown band
+
+Guided Contextual Attention is trimap-based and designed to propagate contextual information to ambiguous matte regions.
+
+Operational takeaway:
+- difficult edge pixels should not be judged only from a tiny local neighborhood;
+- global or nonlocal context can help when foreground/background colors overlap;
+- this supports a two-level refinement design: local edge evidence plus broader object/context evidence.
+
+### 12. Portrait-specific models must remain scoped
+
+MODNet is optimized for real-time portrait matting. It is useful evidence for decomposing:
+- low-resolution semantic branch;
+- high-resolution detail branch;
+- fusion branch.
+
+But portrait scope is a capability constraint. It should not be routed to logos, mugs, artwork, vehicles, smoke, or arbitrary product graphics just because it is fast.
+
+### 13. Premultiplied and straight alpha must be explicit in every resize/composite operation
+
+Apple's Core Image and Accelerate documentation exposes explicit premultiply/unpremultiply operations and premultiplied-alpha compositing routines.
+
+DTF rule:
+- record alpha representation in the processing primitive;
+- do color operations that require straight RGB only after unpremultiplication where appropriate;
+- perform compositing with the expected representation;
+- do not resize or filter RGBA blindly without deciding whether channels are straight or premultiplied.
+
+Incorrect alpha representation is a direct source of dark/white fringe artifacts.
+
+### 14. Black/white proofing should use the same alpha-compositing math as the final preview
+
+The QA preview should composite the candidate over:
+- black;
+- white;
+- neutral gray;
+- checkerboard.
+
+The compositing path must use the same alpha convention as the production artifact. Otherwise the QA preview itself can create or hide halos.
+
+### 15. DTF underbase should be derived only after the transparent artwork is validated
+
+The reviewed DTF underbase guide reinforces:
+- solid versus screened white;
+- choke as an inward mask adjustment;
+- outline/spread as an outward adjustment;
+- LPI/dot choices for soft-hand white;
+- export of the white layer separately.
+
+Therefore the order should remain:
+validated color+alpha artifact -> underbase derivation -> choke/halftone preview.
+
+Do not use the underbase mask to repair a bad alpha matte.
+
+### 16. Licensing must be tracked at code, model, and training-data levels separately
+
+Several matting projects have permissive code licenses while pretrained weights or the training dataset can have additional restrictions. Some repositories explicitly note that Adobe-derived pretrained assets are restricted to noncommercial use.
+
+Provider/model registry fields should include:
+- code license;
+- model/weights license;
+- training-data restrictions;
+- commercial-use status;
+- attribution obligations;
+- source URL/version.
+
+A model is not approved for production merely because its GitHub source is readable.
+
+### 17. Recommended high-resolution matte strategy after this batch
+
+Candidate architecture:
+1. classify artwork and background-removal need;
+2. generate coarse segmentation probability;
+3. create adaptive trimap/confidence;
+4. run bounded-resolution matte/foreground estimation;
+5. derive uncertainty map;
+6. force high-resolution refinement on uncertain alpha edges and topology-critical thin structures;
+7. reconstruct/decontaminate foreground RGB in the transition band;
+8. run geometry/topology/color/alpha QA;
+9. composite on multiple diagnostic backgrounds;
+10. only then save the transparent candidate and derive the white underbase.
+
+### Batch 017 conclusion
+
+The strongest new conclusion is that "background removal" should not be one service call. The internal contract should explicitly produce and validate:
+- alpha matte;
+- foreground RGB estimate;
+- uncertainty/confidence map;
+- trimap/prior;
+- high-resolution refinement map;
+- structural QA;
+- multi-background composites.
+
+This architecture gives DTF Studio a much better chance of preserving hair, smoke, antialiasing, fine text and colored edges without halos while keeping heavy compute localized to the pixels that actually need it.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
