@@ -8383,3 +8383,31 @@ Add/retain explicit contracts for:
 ### Corpus accounting
 
 Batch 046 added 14 canonical, materially distinct pages that were individually opened/read. The branch ledger now explicitly contains 868 entries. Research continuity is 877 because the immediately preceding verified Batch 045 contained 9 pages whose exact URLs were not preserved in the available record; those URLs are intentionally not reconstructed or fabricated.
+
+
+## Multilingual research Batch 047 — thresholding, alpha preservation, noise models and blur semantics
+
+### Engineering findings
+
+1. Binary thresholding is explicitly destructive to antialiasing. Use it only for artwork classified as hard-edge or for derived diagnostic/support masks, not as a universal background-removal step.
+2. Alpha thresholding has an abrupt transfer function: values above the threshold become opaque and those at/below become transparent. Store the threshold and its purpose, and require soft-edge classification before destructive use.
+3. Color-to-alpha is materially different from binary thresholding: it maps distance from a selected background color into transparency and attempts to preserve antialiasing. This is a strong candidate for flat/near-flat background decontamination before matting escalation.
+4. Raising the transparency threshold in color-to-alpha can remove noisy background remnants, but beyond the exact-background case recomposition against the old background no longer reproduces the original exactly. Treat this as an appearance-changing repair and QA it.
+5. Threshold can operate on Value, individual RGB, Alpha, Luminance or RGB-derived channels. Segmentation/background-removal routing should test informative channels rather than assuming grayscale intensity.
+6. Noise modeling should distinguish additive from multiplicative/speckle noise, independent RGB noise from correlated/value noise, linear-RGB operation, and alpha noise. Synthetic degradation tests must record these semantics plus random seed.
+7. Lens/blur operations can accept an auxiliary mask and may use linear mask values. Blur/deblur diagnostics should preserve mask-space and transfer-function semantics.
+8. Unsharp sharpening can amplify noise and create visible edge artifacts at high radius/amount. Sharpening remains evidence-gated and should run at target derivative resolution with halo/noise QA.
+9. The NL adaptive filter smooths inversely to local variance, reflecting the useful principle that low-variance regions are more likely noise while high-variance regions may be wanted structure. DTF restoration routing should use local texture/variance evidence before smoothing.
+
+### Pipeline consequences
+
+- Add BackgroundRemovalMode: hard_threshold | color_distance_to_alpha | segmentation | trimap_matting | manual.
+- Add ThresholdRecipe: targetChannel, lower, upper, transferType, preservesAntialias=false/true.
+- Add NoiseModel: additive | multiplicative_speckle | correlated_value | independent_rgb | alpha_noise.
+- Add recomposition-error QA for any color-to-alpha/decontamination repair.
+- Preserve soft-edge alpha unless the EdgeClass contract explicitly authorizes hardening.
+- Keep diagnostic masks and print-master alpha as separate artifacts.
+
+### Corpus accounting
+
+Batch 047 adds nine materially distinct, individually opened/read pages. The branch ledger now contains 877 explicit entries. Research continuity is 886 / 10,000 because the earlier verified-but-unsynchronized Batch 045 contributes nine verified pages whose URLs are intentionally not fabricated.
