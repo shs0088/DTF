@@ -1575,3 +1575,142 @@ New stronger conclusions:
 - visual-centroid/region measurements can improve automated placement suggestions.
 
 No storefront merge, no deployment, and no protected Home/Mockup modification.
+
+
+## Research Batch 009 — PSD realism, browser color precision, Cloudflare execution limits and mockup task lifecycle
+
+The verified corpus now contains 167 individually opened/read unique pages.
+
+### PSD support needs capability negotiation, not a generic "PSD supported" badge
+
+Comparing several PSD parsers shows large differences:
+- PSD.js and derivative parsers expose tree/layer metadata and flattened image access but are incomplete for many newer layer features.
+- ag-psd supports broad layer structures but documents important limitations: unsupported/non-native handling for some color modes, 16-bit limitations in some builds, incomplete text behavior and no guarantee of faithfully redrawing every effect after edits.
+- @webtoon/psd supports PSD/PSB and uses WebAssembly for faster decoding, but parser support still must be tested against the exact production files we accept.
+
+Policy:
+- preserve original PSD/PSB privately;
+- perform a capability scan before promising editable support;
+- prefer a trusted composite/flattened preview when exact layer rendering is uncertain;
+- distinguish "accepted as source/master" from "fully editable in browser";
+- record parser name/version and unsupported-feature warnings in preflight.
+
+### Printful confirms asynchronous mockup generation and temporary result URLs
+
+Printful API documentation confirms that mockup generation is a task workflow:
+- submit a generation request;
+- receive/store task key;
+- poll task status;
+- download/store generated mockups when complete;
+- returned mockup URLs can be temporary.
+
+Architecture implication:
+- external mockup provider output must be ingested into our own artifact storage if it is part of an approved design record;
+- provider URLs cannot be the durable source of truth;
+- mockup task id/status/error should be part of provider-job metadata.
+
+### Printful v2 is still evolving
+
+Printful v2 documentation labels the API beta and notes that endpoint details may still change. It also uses rate-limit headers and standardized error payloads.
+
+Adapter rule:
+- isolate provider contracts behind versioned adapters;
+- do not leak provider-specific response shapes into DTF core domain objects;
+- add contract tests against recorded fixtures;
+- tolerate provider-specific rate limits/backoff.
+
+### Browser canvas can now represent wider color/precision, but this remains a preview concern
+
+MDN documents Canvas/ImageData support for:
+- sRGB and Display-P3 color spaces;
+- 8-bit normalized RGBA;
+- float16 RGBA in supported implementations.
+
+This creates a useful future path for higher-fidelity browser previews, but the APIs remain browser-dependent and some capabilities are experimental.
+
+Policy:
+- baseline preview remains sRGB 8-bit for compatibility;
+- optional wide-gamut/float preview can be feature-detected;
+- never infer print-master color precision from browser canvas capabilities.
+
+### Canvas readback may not be bit-exact in all privacy modes
+
+MDN notes that certain privacy/fingerprinting protections can introduce subtle noise into getImageData() results.
+
+Therefore:
+- browser canvas pixel values must not be used for cryptographic integrity checks or authoritative production comparisons;
+- hashes and pixel-exact QA belong server-side on deterministic decoded artifacts.
+
+### OpenImageIO reinforces metadata-vs-conversion separation
+
+OpenImageIO ImageInput can expose a color-space hint in metadata, but simply reading the image does not perform a color conversion.
+
+Important rule:
+- inventory/profile detection and actual color conversion are separate pipeline stages;
+- never assume that reading a file into a library normalizes it to sRGB;
+- explicit conversion recipe required.
+
+### Local entropy can help classify artwork complexity
+
+scikit-image rank-filter examples show local entropy as a measure of neighborhood complexity.
+
+Potential classifier feature:
+- low entropy + few dominant colors + strong closed contours -> logo/flat-art candidate;
+- high entropy + broad tonal variation -> photographic/complex-art candidate.
+
+This feature should supplement, not replace, learned classification.
+
+### Multi-Otsu is useful for more than binary masks
+
+Multi-Otsu separates an intensity histogram into multiple classes.
+
+Potential DTF uses:
+- distinguish background, antialiased edge and foreground on simple artwork;
+- separate low-opacity haze from stronger semi-transparent detail in derived alpha analysis;
+- provide a deterministic fallback for flat/simple images.
+
+Do not use Multi-Otsu on every photo; it is most useful when intensity classes are meaningfully separable.
+
+### Cloudflare Worker limits strongly argue against heavy raster/AI processing in the request path
+
+Current Cloudflare Workers documentation states a 128 MB memory limit per isolate and plan-dependent CPU limits. Cloudflare explicitly recommends streaming instead of buffering large request/response bodies when memory pressure is a risk.
+
+For our current Cloudflare-based repo:
+- authentication, job creation, signed upload, lightweight header validation and orchestration fit well in Workers;
+- full PSD/PDF decode, high-resolution morphology, AI segmentation and super-resolution should run in a separate processing service/worker environment with a suitable resource budget;
+- do not assume one Cloudflare HTTP Worker should execute the entire prepress pipeline.
+
+### R2 capacity is not the bottleneck; request-path limits are
+
+R2 supports very large objects and multipart upload with many parts. This confirms that object storage can preserve high-resolution source assets even when the request-serving Worker should not buffer them.
+
+Operational rule:
+- storage object size capability does not justify large in-memory request handling;
+- use direct/multipart upload and process by object key afterward.
+
+### Queue payloads must remain metadata-sized
+
+Cloudflare Queues documents a finite message-size limit and bounded consumer execution.
+
+Therefore a prepress queue message should contain:
+- jobId;
+- source object key;
+- source hash;
+- recipe/version;
+- product/placement id;
+- priority and trace identifiers.
+
+It should never contain image bytes/base64.
+
+### Batch 009 status
+
+Stronger conclusions:
+- PSD/PSB support must be capability-aware;
+- durable mockup artifacts must be copied out of temporary provider URLs;
+- provider APIs stay behind versioned adapters;
+- browser wide-gamut/float pixels remain preview-only;
+- pixel-exact QA is server-side;
+- artwork complexity metrics can improve deterministic routing;
+- Cloudflare Workers are best used for orchestration/streaming, not the whole heavy prepress engine.
+
+Still intentionally no storefront merge, deployment, or protected Home/Mockup changes.
