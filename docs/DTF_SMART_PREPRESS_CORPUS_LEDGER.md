@@ -1141,11 +1141,38 @@ Batch 033 counting notes:
 751. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.functional.affine.html
 752. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.functional.perspective.html
 
-Verified unique pages: 752 / 10,000
-Remaining: 9,248
+
 
 Batch 034 counting notes:
 - All 20 URLs above were individually opened/read successfully.
 - Thin shell pages and failed opens were excluded.
 - Previously counted pages and canonical duplicates were excluded.
 - This batch focuses on transform conventions, resampling semantics, registration, padding/border behavior, morphology, and backend parity for image-processing correctness.
+
+
+## Verified Batch 035 — 14 pages — restoration routing, blur QA, inpainting, synthetic-noise tests, and sharpening controls
+
+753. https://docs.opencv.org/4.4.0/d1/d79/group__photo__denoise.html
+754. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.v2.GaussianNoise.html
+755. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.v2.functional.gaussian_noise.html
+756. https://docs.pytorch.org/vision/2.0/generated/torchvision.transforms.v2.RandomAdjustSharpness.html
+757. https://docs.opencv.org/4.1.1/javadoc/org/opencv/photo/Photo.html
+758. https://docs.opencv.org/5.0/py_tutorials/py_photo/py_inpainting/py_inpainting.html
+759. https://docs.opencv.org/5.0/main_modules/photo_inpaint.html
+760. https://docs.opencv.org/4.13.0/df/d3d/tutorial_py_inpainting.html
+761. https://docs.opencv.org/4.4.0/d0/d07/tutorial_py_table_of_contents_photo.html
+762. https://scikit-image.org/docs/stable/auto_examples/filters/plot_unsharp_mask.html
+763. https://scikit-image.org/docs/stable/auto_examples/filters/plot_blur_effect.html
+764. https://scikit-image.org/docs/stable/auto_examples/filters/plot_j_invariant.html
+765. https://scikit-image.org/docs/stable/auto_examples/filters/plot_cycle_spinning.html
+766. https://scikit-image.org/docs/stable/auto_examples/filters/plot_nonlocal_means.html
+
+Verified unique pages: 766 / 10,000
+Remaining: 9,234
+
+Batch 035 counting notes:
+- All 14 URLs above were individually opened/read successfully.
+- Nine other pages opened during this batch were already present in the ledger and were not counted again.
+- Canonical URL strings were checked directly against the branch ledger before numbering.
+- Search-result snippets alone were not counted.
+- This batch emphasizes evidence-gated restoration: measure blur/noise first, preserve texture and edge topology, keep inpainting mask-scoped, and test restoration behavior with reproducible synthetic degradations.
