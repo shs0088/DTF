@@ -684,3 +684,146 @@ Strong candidates, still not final:
 No storefront merge.
 No production deployment.
 No protected Home or current Mockup UI modifications.
+
+
+## Research Batch 003 — vectorization, super-resolution, model routing and artifact integrity
+
+This batch extends the study with programming libraries and implementation details for vectorization, matting model selection, upscaling and output integrity. No storefront merge or production deployment.
+
+### Vectorization
+
+VTracer is a strong open-source candidate for optional raster-to-SVG conversion because:
+- it supports color images rather than only monochrome tracing;
+- it exposes presets for black-and-white, poster and photo-like inputs;
+- it supports color clustering and watershed region formation;
+- it supports Rust, Python and Node.js/WASM integrations;
+- it can split the pipeline into segmentation and finishing stages.
+
+Important DTF rule:
+- vectorization must be offered only when the artwork is likely to benefit: logos, flat illustrations, line art, icons and limited-palette graphics;
+- photographs and soft-gradient artwork should not be silently vectorized.
+
+Potential classifier hints before offering vectorization:
+- low number of dominant colors;
+- strong edge density;
+- low local texture entropy;
+- large flat-color regions;
+- limited gradient content.
+
+### Upscaling / restoration
+
+Real-ESRGAN remains a useful optional provider/engine rather than a universal step.
+
+Implementation details confirmed from source:
+- tile-based inference is supported;
+- grayscale and 16-bit sources are handled;
+- RGBA input is split so alpha can be processed separately;
+- alpha upscaling can use the same model or a non-AI path.
+
+DTF policy derived from this:
+- never run AI upscale automatically on every upload;
+- compute required enlargement first;
+- if effective DPI already passes, do not upscale;
+- for modest enlargement use deterministic high-quality resampling;
+- for large enlargement offer AI upscale with before/after preview;
+- re-run edge analysis and preflight afterward;
+- keep original alpha and compare AI-upscaled alpha versus deterministic alpha because an AI model can alter edge geometry.
+
+### Matting model router
+
+Research confirms that matting models differ substantially by subject domain.
+
+MODNet:
+- designed for portrait matting;
+- accepts RGB without a trimap;
+- optimized for real-time portrait workflows.
+
+ViTMatte:
+- matting-focused transformer architecture;
+- expects a trimap in its standard demo path;
+- targets high-quality alpha-matte recovery.
+
+Rembg ecosystem:
+- supports multiple interchangeable sessions/models;
+- supports naive cutout, decontamination, alpha matting and ViTMatte refinement;
+- exposes mask-only output.
+
+Architectural consequence:
+DTF Studio must not have one hard-coded model called 'Remove Background'.
+
+Use a provider/model router such as:
+- portrait/person -> portrait matting candidate;
+- general product/object -> general foreground segmentation;
+- already-transparent artwork -> no segmentation, inspect existing alpha;
+- logo/flat art -> deterministic threshold/edge path may outperform AI;
+- complex soft-edge output -> optional matting refinement.
+
+The model choice and version must be written into the processing recipe for reproducibility.
+
+### Artifact integrity
+
+The same visible design may create several derivative files, so every artifact needs strong linkage.
+
+Minimum integrity record:
+- sourceAssetId
+- sourceHash
+- processingJobId
+- processingRecipeVersion
+- model/provider/version where applicable
+- outputArtifactId
+- outputHash
+- width/height
+- alpha mode
+- ICC/profile state
+- effective DPI for the selected placement
+- createdAt
+
+Mockup requests must reference outputArtifactId, not only a URL.
+
+This prevents a failure mode where:
+- customer approves Preview A,
+- processing later changes the asset,
+- mockup or production accidentally uses Preview B.
+
+### A/B review requirement
+
+Vectorization, AI upscale, background removal and strong edge correction can materially alter artwork.
+
+Therefore the professional UI should include:
+- Original
+- Current Processed
+- Dark Garment
+- Light Garment
+- Mockup
+- optionally Alpha Mask / Underbase
+
+Approval stores the exact processedVersionId.
+
+### Further rejection of a one-click destructive workflow
+
+Research so far reinforces that one universal destructive Auto Fix would be technically weak.
+
+The semi-automatic system should:
+- auto-run inspection and low-risk derivative generation;
+- auto-suggest fixes with reasons;
+- apply deterministic non-destructive previews;
+- require approval before committing appearance-changing operations.
+
+### Status after Batch 003
+
+Current research direction:
+- raster core: Sharp/libvips;
+- numeric mask/edge analysis: OpenCV-style operations;
+- ICC: explicit profile-aware path;
+- general segmentation: replaceable adapter;
+- matting refinement: optional;
+- vectorization: VTracer-style optional adapter;
+- upscaling: optional Real-ESRGAN-style adapter;
+- all expensive work: isolated server-side jobs;
+- all outputs: versioned and hash-linked;
+- mockup: exact processed artifact + normalized placement contract.
+
+Still not final.
+No deployment.
+No merge.
+No changes to protected Home or current Mockup behavior.
