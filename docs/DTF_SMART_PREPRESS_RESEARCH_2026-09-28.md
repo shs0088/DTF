@@ -1714,3 +1714,210 @@ Stronger conclusions:
 - Cloudflare Workers are best used for orchestration/streaming, not the whole heavy prepress engine.
 
 Still intentionally no storefront merge, deployment, or protected Home/Mockup changes.
+
+
+## Research Batch 010 — durable orchestration, object-event integrity, storage retention and upload privacy
+
+The verified corpus has reached 203 individually opened/read unique pages.
+
+### Cloudflare Workflows is now a serious orchestration candidate
+
+Current Workflows documentation supports:
+- durable multi-step execution;
+- per-step automatic retries;
+- persisted state;
+- sleeping/waiting for external events;
+- instance lifecycle/status inspection;
+- step-level observability;
+- streamed step results;
+- configurable CPU/retry/step limits.
+
+The strongest architectural use is orchestration, not heavy image processing.
+
+Recommended split:
+1. Worker receives authenticated request and creates upload/job.
+2. R2 stores immutable source.
+3. object-create event or explicit trigger starts a Workflow.
+4. Workflow records inspection result and dispatches heavy CPU/GPU work to a suitable processing service/consumer.
+5. Workflow waits for processing result.
+6. user approval is represented as an external event.
+7. Workflow publishes the approved artifact only after approval.
+
+This matches the required human-in-the-loop DTF flow very well.
+
+### Workflow steps must remain idempotent
+
+Cloudflare's Rules of Workflows explicitly warns that steps can be retried and recommends idempotent API/binding calls.
+
+For DTF Smart Prep:
+- source ingestion step uses sourceHash/jobId as an idempotency key;
+- output creation must not silently produce multiple competing masters on retry;
+- approval transition must be compare-and-set / state-validated;
+- external provider calls need a provider request key when supported;
+- repeated events should be safe.
+
+### Workflow limits confirm that image bytes should live in R2
+
+Current limits impose finite per-step result/persisted-state budgets, while the docs recommend storing very large/long-lived binaries in external storage and returning references.
+
+Therefore Workflow state contains:
+- artifact IDs;
+- object keys;
+- hashes;
+- dimensions/profile/preflight metadata;
+- provider/task IDs;
+- status/progress.
+
+It does not persist full print images as ordinary serialized step state.
+
+### R2 event notifications can remove polling after upload
+
+R2 object-create notifications can fire for PutObject/CopyObject/CompleteMultipartUpload and send object key, size, eTag and event time to a Queue.
+
+This enables:
+direct/multipart upload -> R2 object-create event -> validation/preflight orchestration.
+
+Important safeguard:
+- the event is a trigger, not proof of validity;
+- handler re-opens the object, verifies signature/header, and computes our own cryptographic source hash before acceptance.
+
+### R2 consistency helps deterministic post-upload startup
+
+R2 documents strong read-after-write consistency once an upload completes, including completed multipart uploads.
+
+That means a post-upload event handler can fetch the completed object without designing around ordinary object-storage stale-read assumptions.
+
+However cached public delivery has separate cache semantics, reinforcing why the private source path and public preview path should be separate.
+
+### Retention policy should differ by artifact class
+
+R2 supports object lifecycle policies and bucket locks.
+
+Suggested classes:
+- ORIGINAL_SOURCE: protected/long retention; never auto-deleted while referenced by an active design/order.
+- APPROVED_PRINT_MASTER: protected/long retention.
+- DISPLAY_ASSET: retained while published.
+- TEMP_UPLOAD_PARTS: short lifecycle.
+- FAILED_JOB_INTERMEDIATE: short lifecycle.
+- PREVIEW_DERIVATIVES: regenerable and eligible for cleanup.
+- AUDIT/PREFLIGHT_JSON: retained with source/master linkage.
+
+Bucket locks may be useful for immutable production/audit records, but applying them broadly would make normal cleanup and user deletion difficult. Use selectively, not as a blanket setting.
+
+### Storage durability does not replace application backup/version rules
+
+R2 documents very high durability and synchronous persistence semantics, but also explicitly distinguishes durability from accidental/intentional deletion.
+
+Therefore:
+- immutable/versioned object keys remain required;
+- never overwrite a production master in place;
+- approval points to an exact version/hash;
+- admin deletion policy remains an application-level control.
+
+### Data Access Logs are useful but not a complete audit ledger
+
+R2 Data Access Logs are best-effort/asynchronous and omit some failed requests. Audit Logs focus on configuration changes rather than object data access.
+
+Therefore DTF Studio still needs its own authoritative business audit events for:
+- master selection;
+- processing recipe;
+- approval/rejection;
+- publish/unpublish;
+- production download;
+- destructive deletion.
+
+Provider/storage logs supplement, but do not replace, application audit.
+
+### Direct Creator Upload is convenient, but R2 remains better for print masters
+
+Cloudflare Images can issue one-time creator upload URLs and private delivery variants. It is attractive for display/customer-preview images.
+
+But current hosted Images upload limits are much smaller than R2's object/multipart capabilities and are oriented toward optimized image delivery.
+
+Recommended split:
+- R2: original/source/print candidate/master and high-resolution processing artifacts.
+- Cloudflare Images or R2+Image Transformations: public display/thumbnail/mockup derivatives.
+- do not upload the authoritative master into an optimization product and then treat the transformed delivery copy as production truth.
+
+### Cloudflare Images privacy behavior affects ID design
+
+Cloudflare notes that custom image IDs/paths have restrictions with signed/private delivery in some upload modes, while private images use signed URL tokens.
+
+Therefore internal IDs and public delivery IDs should not be assumed to be the same.
+Keep an internal immutable artifact ID and map it to any delivery-provider identifier.
+
+### Flexible variants have a privacy caveat
+
+Cloudflare documents that flexible variants cannot be used for images that require signed delivery URLs.
+
+This matters for our preview design:
+- public storefront images can use flexible optimization;
+- private designer/source previews may need predefined private variants or Worker-mediated transformation instead of relying on flexible variants.
+
+### Queue concurrency should be resource-aware
+
+Cloudflare Queues autoscaling can increase concurrent consumers based on backlog. That is good for metadata and network jobs, but dangerous if each consumer launches memory/GPU-heavy image work.
+
+Policy:
+- IO queue may autoscale broadly;
+- CPU queue has bounded concurrency;
+- GPU/AI queue concurrency tracks actual accelerator capacity;
+- provider/API queue can cap concurrency to respect upstream limits.
+
+### Queue metrics should become part of operational health
+
+Cloudflare exposes backlog and consumer-concurrency metrics.
+
+DTF operations dashboard should eventually track:
+- queued jobs;
+- oldest job age;
+- processing latency p50/p95;
+- failure/retry count;
+- DLQ count;
+- CPU/GPU worker saturation;
+- provider error/rate-limit count.
+
+This prevents "processing..." from becoming an unexplained customer state.
+
+### Human approval maps naturally to workflow events
+
+Workflows can wait for external events and later resume. For appearance-changing operations, this is a strong model:
+
+PROCESS -> REVIEW_REQUIRED -> waitForEvent(approved/rejected/edit-requested) -> continue.
+
+The event payload should carry:
+- jobId;
+- processedVersionId;
+- actorId;
+- action;
+- timestamp;
+- optional comment.
+
+The workflow then validates that the approved version is still the current review candidate before promoting it.
+
+### ImageDecoder streaming can help preview memory use
+
+MDN's ImageDecoder constructor accepts ReadableStream input and transferable ArrayBuffers, with configurable color-space conversion and desired dimensions where the codec supports it.
+
+This is useful for progressive/bounded browser previews, but remains feature-detected preview behavior only. Server-side deterministic decode remains authoritative.
+
+### Batch 010 status
+
+The architecture is converging further:
+- R2 as authoritative private artifact storage;
+- Cloudflare Worker as authenticated edge/orchestration entry;
+- Workflows as a strong candidate for durable human-in-the-loop state orchestration;
+- Queues for decoupled worker dispatch;
+- external/isolated CPU-GPU processing for heavy operations;
+- Images/transformations only for delivery derivatives;
+- app-level immutable versioning/audit remains authoritative.
+
+Still not locked:
+- Workflows versus a database-driven state machine for every stage;
+- exact external processing runtime;
+- exact AI providers/models;
+- exact private display delivery mechanism.
+
+No storefront merge.
+No deployment.
+No protected Home/Mockup modification.
