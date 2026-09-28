@@ -1176,3 +1176,182 @@ The evidence is converging on:
 11. sRGB display derivative + profile-aware print candidate.
 
 This is still a research conclusion, not authorization to merge or deploy.
+
+
+## Research Batch 006 — verified corpus milestone 100 pages
+
+The verified corpus ledger has now reached 100 individually opened/read unique pages. This batch adds stronger evidence around queue correctness, upload isolation, alpha-aware resampling, PSD/PDF handling, vectorization, segmentation and mockup interoperability.
+
+### Job semantics: idempotence is mandatory
+
+BullMQ's idempotent-job guidance explicitly recommends designing jobs so retrying them does not change the final result, and keeping jobs atomic/simple.
+
+For DTF Smart Prep:
+- every processing job key should include immutable input artifact hash + recipe version;
+- a retry must either reproduce the same output hash or create a clearly versioned new attempt;
+- database mutation and external provider calls should not be mixed casually into one opaque job;
+- complex workflows should be represented as explicit stages/flows.
+
+### Queue failure handling
+
+Cloudflare Queues documentation reinforces:
+- retries are bounded;
+- a failed message can be redirected to a Dead Letter Queue;
+- batching can cause an entire batch to retry unless individual messages are acknowledged;
+- concurrency and retry settings are first-class deployment controls.
+
+For our Cloudflare-oriented repo this creates a viable native alternative to Redis/BullMQ for certain workflow orchestration. The final queue choice remains open pending runtime/deployment constraints.
+
+### Direct upload security
+
+Cloudflare R2 presigned URLs are bearer tokens for one object/operation until expiry.
+
+Implications:
+- short expirations;
+- server-generated object key;
+- restrict Content-Type in the signature where useful;
+- post-upload signature/header inspection still required because Content-Type is not proof of file content;
+- original object remains private;
+- browser receives only the minimum capability required for the upload.
+
+### Mockup geometry is provider-specific but mathematically adaptable
+
+Printify confirms:
+- center-based normalized coordinates in approximately [0,1];
+- center at x=0.5, y=0.5;
+- scale relative to print-area width;
+- explicit artwork angle.
+
+Printful confirms a different contract:
+- top-left-origin position;
+- area_width/area_height;
+- width/height;
+- top/left;
+- values are relative rather than inherently fixed to pixels;
+- its mockup generation is task-oriented.
+
+This validates the provider-neutral ArtworkPlacement model. Store one authoritative transform and derive provider payloads.
+
+### Alpha-aware resizing is not optional
+
+The Rust image crate documents that its resize path assumes alpha premultiplication for non-constant alpha and also warns that color distortion may occur if filtering is done outside scene-linear light.
+
+This is important evidence for our image-quality tests:
+- transparent-edge resize tests must include colored fringe cases;
+- alpha mode must be explicit;
+- where high fidelity matters, evaluate whether resizing in nonlinear sRGB produces measurable edge/color errors compared with a linear-light path.
+
+### Browser preview architecture
+
+MDN documentation confirms:
+- createImageBitmap works inside Web Workers;
+- a canvas can transfer control to an OffscreenCanvas;
+- OffscreenCanvas can encode a Blob off the main thread.
+
+However OffscreenCanvas export metadata may use 96-DPI conventions. Therefore browser-generated preview blobs must never be treated as authoritative print masters or evidence that the source is 300 DPI.
+
+### ImageMagick security model
+
+ImageMagick's current security guidance is especially relevant for untrusted uploads:
+- security policy is open by default unless restricted;
+- resource limits cover time, threads, memory, mmap, disk, area, width, height and list length;
+- external delegates can be disabled;
+- module/coder allowlists can restrict processing to web-safe formats;
+- indirect reads and sensitive paths can be denied;
+- SVG entity substitution can be disabled;
+- PDF/PostScript interpretation can be disabled in the public raster worker.
+
+Therefore, if ImageMagick is used at all, DTF Studio should run a purpose-built restrictive policy inside an isolated worker/container rather than relying on defaults.
+
+### SVG/XML security
+
+OWASP documents XML External Entity attacks through SVG processing and recommends disabling DTD/external entity resolution in untrusted XML parsers.
+
+For DTF Studio:
+- SVG cannot share the exact same trust path as PNG/JPEG;
+- sanitize/parse with a strict allowlist or rasterize inside a locked-down process;
+- disable external resource/entity resolution;
+- block scripts, remote references and file references for customer-generated previews.
+
+### PDF preview safety
+
+PDF.js exposes maxImageSize and canvasMaxAreaInBytes style controls in its document-loading/rendering configuration.
+
+This supports a bounded preview policy:
+- limit pages;
+- limit decoded embedded-image pixels;
+- limit canvas memory;
+- render only required preview pages;
+- keep production PDF parsing/normalization in an isolated service.
+
+### PSD support: inspect, do not promise perfect rendering
+
+PSD.js can expose document structure, dimensions, layers, opacity, text metadata, vector masks and flattened data, but its own documentation notes format/mode limitations and reliance on compatibility/flattened previews in some cases.
+
+Conclusion:
+- accept PSD as source/master candidate only with explicit parser capability checks;
+- generate a preview from a trusted flattened composite when available;
+- do not promise perfect browser reconstruction of every PSD blend mode/layer effect;
+- preserve original PSD privately.
+
+### Segmentation router grows stronger
+
+OpenCV and scikit-image tutorials add useful non-AI fallbacks:
+- GrabCut: interactive foreground extraction from rectangle/mask priors;
+- watershed: useful for separating touching regions from markers;
+- active contours: can fit a smooth boundary to edges;
+- random walker: marker-based segmentation with gradient-sensitive diffusion.
+
+These are valuable as:
+- repair/refinement tools;
+- deterministic fallback paths;
+- assisted/manual tools.
+
+They should not replace general-purpose learned segmentation for all photos.
+
+### Vectorization
+
+VTracer's current implementation exposes pluggable stages and can run from Rust, Python and Node/WASM. It can cache segmentation and rerun finishing, use custom palettes, watershed clustering and adaptive black/white thresholding.
+
+For our architecture:
+- vectorization service should be optional;
+- route only likely logo/flat-art candidates;
+- cache expensive segmentation if the user adjusts fitting/simplification;
+- keep source raster and vector result as separate artifacts.
+
+### AI upscaling and alpha
+
+Real-ESRGAN source confirms that RGBA images split alpha from RGB and can upscale alpha with either the same model or a standard interpolation path.
+
+This is a critical test point:
+- AI alpha upscaling may reshape an edge;
+- deterministic alpha interpolation may retain geometry but not synthesize detail;
+- DTF Studio should compare both for edge-sensitive artwork rather than assuming one is always better.
+
+### Architecture status at the 100-page milestone
+
+Strong conclusions now:
+- immutable originals;
+- header-first/bounded inspection;
+- explicit alpha state;
+- diagnosis-specific edge repair;
+- direct/resumable private uploads;
+- isolated processing jobs;
+- idempotent/versioned recipes;
+- DLQ/failure observability;
+- provider-neutral mockup geometry;
+- effective DPI instead of trusting metadata DPI;
+- optional segmentation/vector/upscale adapters;
+- separate sRGB display derivative and production candidate;
+- no untrusted SVG/PDF/ImageMagick defaults.
+
+Still intentionally undecided:
+- exact queue backend;
+- exact segmentation model/provider;
+- exact upscale provider;
+- whether ImageMagick remains in the production stack or is limited to isolated specialist jobs;
+- whether PSD normalization uses a native parser, Adobe service, or a combination.
+
+No storefront merge.
+No deployment.
+No protected Home or existing Mockup UI changes.
