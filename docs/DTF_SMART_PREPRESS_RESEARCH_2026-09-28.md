@@ -5137,3 +5137,237 @@ The new conclusion is that DTF Studio’s file-ingest/export layer needs to be c
 For PNG, transparency is straightforwardly part of RGBA. For TIFF, PSD and PDF, extra channels can represent fundamentally different production concepts. The engine must preserve and label those roles before any automatic processing or RIP handoff.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 026 — alpha I/O policy, PSD/spot-channel preservation, local-contrast safety, and region-aware cleanup
+
+The verified corpus now contains 518 individually opened/read unique pages.
+
+### 1. OpenImageIO confirms that file alpha semantics and in-memory alpha semantics can differ
+
+OpenImageIO's plugin documentation exposes an explicit `oiio:UnassociatedAlpha` flag. By default, formats that store unassociated/straight alpha may be converted to OIIO's associated/premultiplied convention when read, unless the caller explicitly asks to leave alpha unassociated.
+
+Implication for DTF Studio:
+- file-format alpha association must be recorded at ingest;
+- working-memory alpha representation must be recorded separately;
+- decode must not silently collapse those two concepts.
+
+Recommended fields:
+- fileAlphaAssociation;
+- workingAlphaRepresentation;
+- conversionAppliedOnDecode.
+
+### 2. PNG premultiplication has an additional linear-light choice
+
+OpenImageIO's PNG plugin has `png:linear_premult`, which can linearize sRGB/gamma-encoded RGB before premultiplication or unpremultiplication.
+
+This is important because two mathematically different paths exist:
+- premultiply encoded RGB directly;
+- linearize -> premultiply -> encode again.
+
+For high-fidelity DTF reference processing, benchmark both on:
+- antialiased white text;
+- saturated colored edges;
+- soft glow;
+- smoke;
+- transparent gradients.
+
+The pipeline must not assume that "premultiply" alone completely specifies the math.
+
+### 3. Input decoders should expose alpha association instead of hiding it
+
+OpenImageIO ImageInput allows the caller to request that unassociated alpha remain unassociated and exposes the resulting state in metadata.
+
+This is a good design model for our decoder contract:
+decode(input, alphaPolicy = preserve | normalize_to_premultiplied)
+
+The decoded artifact should report the actual resulting alpha state.
+
+### 4. TIFF extra-channel interpretation must be preserved explicitly
+
+The TIFF/metadata material distinguishes associated alpha, unassociated alpha, and unspecified extra samples.
+
+That means TIFF ingest cannot simply say "channel 4 = transparency."
+
+For every extra channel:
+- read its declared role if available;
+- preserve association semantics;
+- reject or quarantine ambiguous production channels rather than guessing.
+
+This extends the ProductionChannel model from the previous batch.
+
+### 5. PSD save options prove alpha channels, spot channels, layers, and color profile are independent preservation choices
+
+Adobe's PhotoshopSaveOptions exposes separate switches for:
+- alphaChannels;
+- spotColor;
+- layers;
+- embedColorProfile.
+
+Therefore a PSD can preserve or discard each independently.
+
+DTF export/normalization must verify all required production properties after save; a successful PSD write does not guarantee spot white, masks, layers, or profile were retained.
+
+### 6. Photoshop channel types are semantically distinct
+
+Adobe exposes different channel kinds:
+- COMPONENT;
+- MASKEDAREA;
+- SELECTEDAREA;
+- SPOTCOLOR.
+
+This strongly supports not treating every Photoshop channel as generic grayscale data.
+
+For DTF:
+- component channel -> color data;
+- alpha/mask channel -> selection/mask semantics;
+- spot channel -> printable separation such as white.
+
+A spot-white channel should never be passed through alpha cleanup logic just because both are grayscale.
+
+### 7. Photoshop channel opacity is separate from channel pixel values
+
+Adobe's Channel object has an opacity/solidity property in addition to the pixel content itself.
+
+For spot-color imports this matters:
+- channel raster coverage;
+- spot channel colorant identity;
+- channel solidity/opacity
+are distinct pieces of information.
+
+Our parser/adapter should preserve all three when available.
+
+### 8. Photoshop selections can be used as a controlled morphology reference
+
+Adobe Selection APIs expose:
+- contract;
+- expand;
+- feather;
+- smooth;
+- border;
+- grow.
+
+These are useful reference behaviors for manual correction UX, but they also reveal important edge cases:
+- contract/expand near canvas bounds have specific behavior;
+- smooth can remove isolated groups smaller than its radius;
+- large operations can erase a selection entirely.
+
+Our own mask-editing UI should implement guarded equivalents with:
+- physical-unit conversion;
+- preview;
+- minimum-stroke checks;
+- undo/versioning.
+
+### 9. Selection smoothing is not a harmless cosmetic operation
+
+Adobe explicitly states that smoothing can remove isolated pixel groups below the selected radius.
+
+For DTF this means:
+- punctuation, dots, registration marks, fine ornaments, or small detached design elements can disappear;
+- smooth must be routed through connected-component protection;
+- "clean edges" cannot be a blind global smoothing pass.
+
+### 10. Adobe imaging API separates image color profile from mask profile
+
+The Imaging API carries explicit colorSpace/colorProfile metadata for image data, while mask/selection examples use grayscale data and a grayscale profile.
+
+This reinforces:
+- mask values and color pixels live in different semantic spaces;
+- do not run RGB ICC transforms on mask/alpha/trimap/confidence channels;
+- mask transfer curves should be controlled independently.
+
+### 11. JPEG export is destructive for transparency by definition of the workflow
+
+Adobe JPEG save options include a matte color specifically for anti-aliased edges adjacent to transparent areas.
+
+This is a practical warning:
+- JPEG can be a display/mockup derivative only;
+- it must never be considered a transparent print master;
+- when generating JPEG previews, matte color must be explicit so edge appearance is predictable.
+
+### 12. Matte color used for JPEG preview can conceal edge contamination
+
+A white-matted JPEG preview can hide a white halo that will become obvious on a black garment.
+
+Therefore quality review must use true alpha composites on multiple backgrounds before any flattened JPEG preview is generated.
+
+### 13. PSD/PSB compatibility flattening needs verification
+
+Adobe's file-handling options include maximizeCompatibility for PSD/PSB.
+
+That can help interoperability, but our tool must distinguish:
+- live editable layer/channel structure;
+- flattened compatibility composite.
+
+The compatibility composite is useful for preview/fallback, not sufficient proof that editable/production channels survived.
+
+### 14. Adobe API output migration now includes explicit ICC profile handling
+
+The current Photoshop API v2 output model adds optional ICC profile output controls.
+
+This supports a provider-adapter rule:
+- color profile intent must be passed explicitly when exporting through provider APIs;
+- output artifact must be reopened/verified rather than trusting request intent alone.
+
+### 15. Duotone/Multichannel behavior is relevant to separation logic
+
+Adobe's duotone documentation notes that converting to Multichannel yields separate spot-color channels/printing plates, and that screen angles affect printed output.
+
+For DTF this is another confirmation that printable spot separations are first-class production data, not display alpha.
+
+### 16. OpenImageIO format plugins expose format-specific alpha/profile differences
+
+The bundled plugin docs show that different formats have different:
+- bit-depth limits;
+- alpha conventions;
+- color-space assumptions;
+- metadata capabilities.
+
+The ingest layer therefore needs per-format capability tables rather than one generic raster decoder policy.
+
+### 17. Global histogram equalization remains unsuitable as a default artwork fix
+
+libvips `hist_equal` is a global histogram equalization primitive.
+
+It can dramatically change intended artwork tone.
+
+Policy:
+- diagnostic/advanced candidate only;
+- never automatic for logos/illustrations;
+- if proposed for photos, compare color drift and local contrast before/after.
+
+### 18. CLAHE/local histogram equalization gives a safer but still bounded contrast option
+
+libvips `hist_local` supports local histogram equalization and can limit the cumulative-histogram slope, effectively constraining maximum brightening.
+
+This is preferable to unconstrained local contrast enhancement when needed, but still:
+- apply on luminance/controlled channels;
+- preserve alpha independently;
+- constrain max_slope;
+- require preview for appearance-changing results.
+
+### 19. Region labeling should be a core cleanup primitive
+
+libvips `labelregions` assigns labels to connected regions.
+
+This can support:
+- counting debris islands;
+- preserving legitimate detached text marks;
+- tracking fragmentation after cleanup;
+- selective deletion based on area + distance + class;
+- component-aware QA before/after morphology.
+
+Region labeling should happen before destructive small-object removal.
+
+### 20. Batch 026 conclusion
+
+The image-preparation architecture now needs a stronger separation between:
+- file-format semantics;
+- in-memory pixel representation;
+- mask/selection semantics;
+- printable spot-channel semantics;
+- display-preview semantics.
+
+The same grayscale raster can mean transparency, a saved selection, a spot-white plate, a confidence map, or a trimap. Every ingest and export path must preserve that meaning explicitly.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
