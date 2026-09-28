@@ -1202,8 +1202,6 @@ Batch 035 counting notes:
 788. https://github.com/qpchen/ALAN
 789. https://github.com/Bingwen-Hu/CLIP-SR
 
-Verified unique pages: 789 / 10,000
-Remaining: 9,211
 
 Batch 036 counting notes:
 - Every URL above was individually opened/read successfully in this batch.
@@ -1211,3 +1209,19 @@ Batch 036 counting notes:
 - Canonical redirects were normalized before counting.
 - Search-result snippets alone were not counted.
 - This batch focuses on super-resolution/restoration behavior, synthetic degradation modeling, alpha-upscale choices, image-quality metrics, and safe use of contrast/sharpen/equalization operations.
+
+
+## Verified Batch 037 — 3 pages — alpha-aware super-resolution and topology/stroke-width validation
+
+790. https://scikit-image.org/docs/0.24.x/auto_examples/edges/plot_skeleton.html
+791. https://github.com/LexKoin/Real-ESRGAN-UpScale/blob/master/inference_realesrgan.py
+792. https://scikit-image.org/docs/0.20.x/api/skimage.morphology.html
+
+Verified unique pages: 792 / 10,000
+Remaining: 9,208
+
+Batch 037 counting notes:
+- These three URLs were individually opened/read successfully and were not already present in the ledger.
+- Eight additional pages opened in this pass were already represented in the corpus and were deliberately not recounted.
+- Two pages that returned internal errors were excluded.
+- Search-result snippets alone were not counted.
