@@ -547,11 +547,44 @@ Batch 015 counting notes:
 372. https://usage.imagemagick.org/color_mods/
 373. https://usage.imagemagick.org/color_basics/
 
-Verified unique pages: 373 / 10,000
-Remaining: 9,627
 
 Batch 016 counting notes:
 - Every URL above was individually opened/read in this batch.
 - URLs already present in the corpus were filtered before counting.
 - Search snippets alone were not counted.
 - This batch focuses on full-resolution edge refinement, simultaneous foreground+alpha estimation, transparent-image filtering behavior, and physical DTF detail limits.
+
+
+## Verified Batch 017 — 20 pages — alpha representation, compositing math, guided refinement, and alpha-safe resampling
+
+374. https://www.w3.org/TR/png-3/
+375. https://www.w3.org/TR/compositing-1/
+376. https://developer.apple.com/documentation/coreimage/ciimage/unpremultiplyingalpha()
+377. https://developer.apple.com/documentation/coreimage/ciimage/composited(over:)
+378. https://github.com/atilimcetin/guided-filter
+379. https://github.com/atilimcetin/guided-filter/blob/master/guidedfilter.cpp
+380. https://github.com/atilimcetin/global-matting
+381. https://pillow.readthedocs.io/en/stable/reference/Image.html
+382. https://pillow.readthedocs.io/en/stable/_modules/PIL/Image.html
+383. https://pillow.readthedocs.io/en/latest/releasenotes/12.0.0.html
+384. https://www.libvips.org/API/current/cpp/classVImage.html
+385. https://www.libvips.org/API/8.17/method.Image.composite2.html
+386. https://www.libvips.org/API/8.17/method.Image.affine.html
+387. https://www.libvips.org/API/current/libvips-resample.html
+388. https://www.libvips.org/API/8.17/method.Image.premultiply.html
+389. https://www.libvips.org/API/8.17/method.Image.resize.html
+390. https://www.libvips.org/API/8.17/method.Image.mapim.html
+391. https://www.libvips.org/API/8.17/type_func.Image.composite.html
+392. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
+393. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalAlpha
+
+Verified unique pages: 393 / 10,000
+Remaining: 9,607
+
+Batch 017 counting notes:
+- All 20 URLs above were individually opened/read successfully.
+- A previously counted Apple CIImage overview page was reopened but excluded.
+- A duplicate premultiplying-alpha page already represented in the corpus was excluded after canonicalization.
+- One failed GitHub source-page open was excluded.
+- Search-result snippets alone were not counted.
+- This batch focuses on alpha representation, compositing correctness, guided matting refinement, and transparent-image resampling.
