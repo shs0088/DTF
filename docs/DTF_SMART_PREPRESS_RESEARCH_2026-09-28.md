@@ -7944,3 +7944,56 @@ Super-resolution should never be approved only because the RGB looks sharper. Fo
 3. topology and physical stroke-width retention.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 040 — mask-conditioned processing and diagnostic feature extraction
+
+The verified corpus now contains 799 individually opened/read unique pages.
+
+### 1. Multi-dimensional histograms can become useful routing features
+
+libvips hist_find_ndim can build 1D, 2D, or 3D histograms from multi-band images. For DTF preflight this can support cheap descriptors such as joint color distributions or alpha-versus-luminance occupancy before deciding whether a more expensive classifier is needed.
+
+This should remain a routing/diagnostic feature, not a destructive image operation.
+
+### 2. Conditional pixel routing is a useful implementation primitive
+
+libvips case/if-then-else style operations allow masks or index images to select among alternative pixel-processing outputs.
+
+That maps directly to the architecture already emerging:
+- untouched opaque interior;
+- edge-decontaminated transition band;
+- low-alpha cleanup band;
+- protected fine-detail mask;
+- manually corrected regions.
+
+Instead of running one filter uniformly over the whole artwork, we can combine specialized outputs through explicit masks.
+
+### 3. The processing graph should be declarative and auditable
+
+The reviewed libvips operation surface reinforces that the production engine can be expressed as a graph of small deterministic primitives: extract bands, build masks, transform color, filter selected regions, composite, and export.
+
+For DTF Studio, every graph node should record:
+- operation;
+- input artifact/version;
+- mask/region;
+- parameters and physical units;
+- alpha representation before/after;
+- color encoding before/after;
+- output hash.
+
+This makes a processed master reproducible and easier to debug than a monolithic “auto enhance” step.
+
+### 4. Diagnostics and appearance edits must stay separate
+
+Histogram, entropy, profile, min/max, shape and topology measurements should feed the decision engine but should not modify pixels. Appearance-changing operations such as equalization, sharpening, decontamination or thresholding should be separate recipe nodes and require their own QA.
+
+### 5. Current corpus status correction
+
+The GitHub ledger had already advanced asynchronously to 792 verified pages before this manual pass. This batch starts from that current repository count rather than the older count shown in the previous chat reply.
+
+### Batch 040 conclusion
+
+The processing architecture is converging on mask-conditioned, region-specific operations rather than global filters. That is especially important for DTF: a smoke edge, a one-pixel letter stroke, an opaque logo interior and a contaminated low-alpha fringe should not receive the same processing.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
