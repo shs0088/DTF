@@ -6462,3 +6462,190 @@ The major new architectural rule is:
 Registration tools should be used mainly to measure and diagnose real output/calibration or to align external imagery, while mockup warps should never become the source of truth for the print master.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 029 — alpha-safe resampling, edge decontamination, trimap confidence, and ICC proofing
+
+The verified corpus now contains 643 individually opened/read unique pages.
+
+### 1. Premultiplied alpha is not optional for filtering/resampling correctness
+
+Microsoft Win2D documentation and multiple resampler implementations converge on the same rule:
+- straight alpha is convenient for authoring/storage;
+- premultiplied alpha is safer for filtering/compositing;
+- mixing RGB channels without alpha weighting creates color bleed/halos.
+
+This supports a strict raster primitive:
+STRAIGHT -> PREMULTIPLY -> FILTER/RESAMPLE -> UNPREMULTIPLY when required by the next stage/export.
+
+### 2. Alpha-state should be tracked explicitly, not inferred from file format
+
+Win2D uses straight alpha at parts of the API surface while internally rendering premultiplied. DirectX/WIC APIs also expose explicit alpha-mode choices.
+
+For DTF Studio every processing node should declare:
+- input alpha representation;
+- output alpha representation;
+- whether alpha is coverage, mask, trimap, or confidence.
+
+### 3. Premultiply round-trips are not lossless at alpha=0
+
+DirectXTex and libvips both document the practical consequence:
+fully transparent pixels lose hidden RGB when converted to premultiplied form.
+
+Therefore:
+- immutable source bytes remain untouched;
+- processing derivatives may lose hidden RGB only under an explicit policy;
+- edge hidden RGB should be reconstructed toward foreground color where needed to suppress halos.
+
+### 4. Alpha-weighted resampling is a widely repeated implementation pattern
+
+STB image resize code and recent Java/matplotlib implementations explicitly premultiply before resampling and unpremultiply afterward.
+
+This gives us an excellent cross-library regression target:
+our transparent-resize fixture should agree closely with several independent implementations.
+
+### 5. Color decontamination must remain separate from mask refinement
+
+Current rembg-family implementations make a useful distinction:
+- decontaminate: change edge RGB while preserving alpha;
+- alpha matting: refine coverage/shape and also recover foreground color.
+
+This maps directly to our diagnosis model:
+COLOR_FRINGE -> decontaminate RGB;
+COVERAGE_ERROR -> refine/matte alpha;
+BOTH -> matte + foreground reconstruction.
+
+### 6. A binary or coarse segmentation mask should not be treated as a final alpha matte
+
+The matting survey, LSA Matting, SAM2Matting wrappers, and trimap-generator work all reinforce that segmentation and matting solve different problems.
+
+Recommended path:
+coarse segmentation -> confidence/trimap -> alpha refinement -> foreground reconstruction.
+
+### 7. Trimap construction is itself a tunable algorithm
+
+Automatic trimap generation using dilation/connected structure shows that unknown-band width and connectivity matter.
+
+For DTF:
+- hard logo edge -> narrow unknown band;
+- hair/fur/smoke -> wider adaptive unknown band;
+- small text/thin strokes -> topology-critical regions should be protected from over-expansion/erosion.
+
+### 8. User corrections should become hard constraints
+
+Traditional matting methods and trimap workflows consistently separate definite foreground, definite background, and unknown.
+
+Any user brush correction in our editor should persist as a constraint:
+- confirmed FG cannot be eroded away by later AI refinement;
+- confirmed BG cannot return as semi-transparent haze;
+- only UNKNOWN remains free for optimization.
+
+### 9. Foreground reconstruction is as important as alpha for halo-free edges
+
+Current tools such as nobg and closed-form/decontamination pipelines explicitly recover foreground RGB in semi-transparent pixels.
+
+QA should separately score:
+- alpha/coverage error;
+- foreground RGB error in transition pixels;
+- composite error on black and white backgrounds.
+
+### 10. Two-background or known-background matting can be highly reliable when available
+
+Some implementations solve foreground/alpha more directly when the same subject is observed against known contrasting backgrounds.
+
+This is especially interesting for controlled AI/design-generation workflows where we can render the same artwork against two known backgrounds to recover cleaner transparency.
+
+### 11. Edge quality metrics should dominate evaluation
+
+Multiple background-removal projects now report edge-specific error because global IoU can hide poor boundaries.
+
+Our benchmark should weight:
+- transition-band MAE/SAD;
+- connectivity/topology retention;
+- minimum stroke/gap retention;
+- color-fringe score;
+- black/white composite error.
+
+### 12. Different matting semantics may need different algorithms
+
+The Semantic Image Matting survey direction confirms that hair, nets, transparent materials, fine structures, and soft blur are not equivalent edge cases.
+
+Add an EDGE_CLASS signal:
+- HARD_ANTIALIASED;
+- HAIR_FUR;
+- SMOKE_GLOW;
+- TRANSLUCENT_MATERIAL;
+- FINE_NET_STRUCTURE;
+- MOTION_SOFT_EDGE.
+
+Routing can then select/refuse algorithms by edge class.
+
+### 13. Matting model licensing must remain part of model eligibility
+
+Several modern matting repos/models use noncommercial terms or datasets with separate restrictions.
+
+Production registry must continue to track:
+- code license;
+- checkpoint/weights license;
+- dataset/training restrictions;
+- commercial-use status.
+
+A technically excellent model is not automatically eligible for a commercial DTF platform.
+
+### 14. Matplotlib gives another real-world confirmation of float premultiplied resampling
+
+Matplotlib converts uint8 RGBA to float where needed, premultiplies RGB by alpha, resamples, then divides by alpha where nonzero.
+
+This also suggests avoiding low-precision integer arithmetic for repeated alpha conversions on quality-critical edges.
+
+### 15. Color proofing needs a defined viewing context
+
+ICC guidance defines D50-based reference conditions and distinguishes rendering intents.
+
+For DTF soft proofing:
+- proof profile and display profile are explicit;
+- viewing intent is explicit;
+- proof is approximate and should be labeled;
+- output appearance depends on actual media/viewing conditions.
+
+### 16. Rendering intent is a policy decision, not an automatic quality score
+
+ICC documentation defines perceptual, saturation, media-relative colorimetric, and absolute colorimetric as different gamut-mapping goals.
+
+DTF Studio should not claim one intent is universally “best.”
+The selected production/profile preset should define the intended use.
+
+### 17. Black-point compensation is contextual
+
+ICC White Paper 40 explains BPC in relation to source/destination dynamic range and rendering intent.
+
+BPC belongs in the color-transform recipe, not as a generic image-enhancement toggle.
+
+### 18. Display-gamut diagnostics should not be confused with printer-gamut proofing
+
+ICC's display-gamut guidance concerns the display profile and PCS. A display gamut warning does not tell us whether a DTF printer can reproduce the color.
+
+We need separate states:
+- DISPLAY_GAMUT_WARNING;
+- PRINTER_PROOF_GAMUT_WARNING.
+
+### 19. Browser/client preview can follow the same logical compositing semantics but is not authoritative
+
+Client-side removal and compositing tools can provide fast visual feedback, but authoritative QA should remain server-side/versioned.
+
+Browser outputs are useful for interaction and confidence hints, not the final production truth.
+
+### 20. Batch 029 conclusion
+
+The strongest result from this batch is a stricter type-and-routing discipline:
+
+- alpha representation is explicit;
+- alpha meaning is explicit;
+- segmentation and matting are different stages;
+- color-fringe cleanup and coverage refinement are different stages;
+- edge class influences the algorithm;
+- color proofing is profile- and context-dependent.
+
+This should materially reduce halos, broken thin detail, and false confidence from simplistic “remove background” or “resize” operations.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
