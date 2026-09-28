@@ -191,11 +191,47 @@ Batch 004 counting notes:
 141. https://docs.opencv.org/doc/doxygen/html/d4/d73/tutorial_py_contours_begin.html
 142. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_regionprops_table.html
 
-Verified unique pages: 142 / 10,000
-Remaining: 9,858
 
 Batch 005 counting notes:
 - All 27 URLs above were individually opened/read.
 - Existing URLs from Batches 001–004 were excluded.
 - Redirects were canonicalized to the final documentation URL where appropriate.
 - Search snippets without a successful page open were not counted.
+
+
+## Verified Batch 006 — 25 pages
+
+143. https://developers.printful.com/docs/v2-beta/
+144. https://developers.printful.com/docs/edm/
+145. https://www.littlecms.com/blog/2026/03/20/insighter/
+146. https://github.com/wujian-xyz/psd/blob/main/README.md
+147. https://github.com/psdparser/psdparser
+148. https://github.com/Agamnentzar/ag-psd/blob/master/README.md
+149. https://github.com/Agamnentzar/ag-psd/blob/master/src/psd.ts
+150. https://github.com/webtoon/psd
+151. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createImageData
+152. https://developer.mozilla.org/en-US/docs/Web/API/ImageData/pixelFormat
+153. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getImageData
+154. https://developer.mozilla.org/en-US/docs/Web/API/ImageData
+155. https://scikit-image.org/docs/stable/auto_examples/applications/plot_rank_filters.html
+156. https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/getContextAttributes
+157. https://scikit-image.org/docs/stable/api/skimage.filters.rank.html
+158. https://openimageio.readthedocs.io/en/v3.0.16.0/imageinput.html
+159. https://sharp.pixelplumbing.com/api-channel/
+160. https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData.
+161. https://developers.cloudflare.com/workers/platform/limits/
+162. https://developers.cloudflare.com/r2/platform/limits/
+163. https://developers.cloudflare.com/r2/api/workers/workers-api-usage/
+164. https://9a798b9b.previews.developers.cloudflare.com/queues/platform/limits/
+165. https://developers.cloudflare.com/changelog/post/2025-03-25-higher-cpu-limits/
+166. https://developers.cloudflare.com/r2/api/workers/
+167. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_multiotsu.html
+
+Verified unique pages: 167 / 10,000
+Remaining: 9,833
+
+Batch 006 counting notes:
+- All 25 URLs above were individually opened/read.
+- Pages already present in earlier batches, including Printify API, Printful v2-preview, ImageMagick compose, Cloudflare multipart usage, R2 API reference and R2 error codes, were excluded.
+- Mirrored/forked pages with materially duplicated content were not counted separately when identified.
+- Failed opens were excluded.
