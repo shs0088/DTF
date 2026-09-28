@@ -2360,3 +2360,195 @@ The image-processing router is now better defined around measurable defect class
 - LOW EFFECTIVE DPI -> resample/upscale path, not sharpen masquerading as resolution.
 
 No final algorithm stack is locked yet. No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 013 — image-quality metrics, super-resolution gating, background estimation and segmentation diagnostics
+
+The verified corpus now contains 261 individually opened/read unique pages.
+
+### 1. Super-resolution must be benchmarked per artwork class, not treated as universally better than interpolation
+
+OpenCV's dnn_superres documentation exposes EDSR, ESPCN, FSRCNN and LapSRN, while its benchmark tutorial compares them against bicubic, nearest-neighbor and Lanczos using PSNR, SSIM and runtime.
+
+The benchmark evidence shows a real quality/speed trade-off: higher-quality neural models can be substantially slower, and the ranking varies by scale and image content.
+
+DTF implication:
+- choose an upscale model only after classifying the artwork;
+- compare at the exact scale actually needed for the target print area;
+- include conventional Lanczos/bicubic baselines because a neural model is not automatically the best choice for logos, text or synthetic graphics;
+- keep model name/version/scale in the processing recipe.
+
+### 2. Multi-output super-resolution can avoid redundant inference when several scales are needed
+
+LapSRN multi-output can produce intermediate 2x/4x/8x-style outputs in one forward pass.
+
+Potential use:
+- generate candidate scales once;
+- evaluate which candidate reaches the required effective DPI with the least visual change;
+- avoid automatically selecting the largest output just because it exists.
+
+### 3. PSNR and SSIM are useful but insufficient as standalone DTF quality metrics
+
+scikit-image's metrics documentation and SSIM tutorial demonstrate that images with similar MSE can have substantially different perceived structural quality.
+
+DTF QA should combine:
+- SSIM for structural change;
+- PSNR as a simple distortion measure;
+- Delta-E for color drift;
+- alpha-edge metrics for halo/coverage changes;
+- OCR/text or line-continuity checks for small typography/line art;
+- effective DPI and physical print size.
+
+A high SSIM does not guarantee correct transparency or correct print color.
+
+### 4. Use local quality maps, not only global scores
+
+SSIM can return a full similarity image/map.
+
+That is useful for DTF because a global score can hide a severe local defect on a logo edge, small text, face or transparent boundary.
+
+Proposed QA:
+- compute a weighted SSIM/edge-difference map;
+- emphasize opaque foreground and the alpha transition band;
+- report localized warnings such as TEXT_EDGE_CHANGED or ALPHA_EDGE_CHANGED.
+
+### 5. Canny is a good diagnostic edge map, not a master-processing filter
+
+The Canny pipeline smooths noise, computes gradients, performs non-maximum suppression and hysteresis thresholding.
+
+Useful roles:
+- compare edge preservation before/after denoise/upscale;
+- estimate line continuity;
+- build an edge band for halo analysis;
+- detect whether a sharpen step created new ringing/double edges.
+
+It should not be applied to the final artwork itself.
+
+### 6. Segmentation quality needs metrics of its own
+
+scikit-image's segmentation metrics distinguish region-level errors from ordinary pixel/image similarity.
+
+For our background-removal benchmark, create a curated validation set with ground-truth masks and measure:
+- boundary accuracy;
+- false foreground/background area;
+- Hausdorff/boundary displacement where relevant;
+- connected-component damage;
+- alpha-aware error in the transition band.
+
+This is stronger than ranking models only by visual impression.
+
+### 7. Chan-Vese is useful when the object/background differ by region statistics even when edges are weak
+
+Chan-Vese segments based on region energy rather than relying exclusively on a strong gradient boundary.
+
+Possible niche use:
+- flat/illustrative art with weak but consistent foreground/background intensity difference;
+- assisted repair of coarse masks;
+- not a universal natural-photo background remover.
+
+### 8. Morphological snakes remain attractive as a deterministic refinement tool
+
+The scikit-image segmentation family shows morphological active-contour approaches can evolve boundaries using morphology rather than a floating-point PDE solver, offering numerical stability and useful behavior on noisy/partially visible contours.
+
+Potential flow:
+coarse mask -> morphological contour refinement -> alpha matting transition band.
+
+This remains a refinement option, not the default for every upload.
+
+### 9. Rolling-ball background estimation is a useful deterministic tool for photographed/scanned artwork
+
+Rolling-ball estimates a slowly varying background surface.
+
+DTF uses:
+- remove uneven paper illumination from photographed sketches/lettering;
+- estimate background before local thresholding;
+- separate slow lighting gradient from actual dark/light artwork features.
+
+Important restriction:
+- this is background-intensity correction, not semantic object removal;
+- always preview because broad tonal gradients may be intentional artwork.
+
+### 10. Image pyramids can make diagnostics and processing more efficient
+
+Gaussian/Laplacian pyramids provide multi-scale representations.
+
+Potential uses:
+- run coarse segmentation/background analysis at low resolution;
+- refine edges at higher levels;
+- estimate detail loss across scales;
+- accelerate expensive search/diagnostics;
+- create scale-aware blur/detail metrics.
+
+This supports the existing principle: inference resolution and production resolution are separate.
+
+### 11. Windowing matters for any frequency-domain diagnostic
+
+The scikit-image FFT-window tutorial shows that image boundaries create spectral leakage because FFT assumes periodicity.
+
+Therefore if we use frequency-domain blur/detail analysis, Butterworth/DoG comparisons or spectral noise estimation:
+- apply a suitable window before FFT-based metrics;
+- otherwise strong horizontal/vertical artifacts from the image boundary can mislead the classifier.
+
+### 12. Local entropy is a useful routing feature
+
+Local entropy measures neighborhood complexity and can distinguish low-texture flat regions from highly textured/photo regions.
+
+Proposed classifier features:
+- entropy percentiles;
+- dominant-color count;
+- edge density;
+- gradient orientation distribution;
+- connected-component count;
+- alpha coverage statistics.
+
+These help decide whether an image is more like a logo/line-art asset or photographic art before selecting denoise/vectorization/segmentation behavior.
+
+### 13. Attribute morphology can preserve long/thin structures better than fixed-footprint closing
+
+Connected/attribute operators such as diameter closing use shape/extent attributes rather than a single fixed structuring element.
+
+This is promising for DTF line art because a thin but long stroke should not be removed merely because its local thickness is small.
+
+Potential use:
+- remove isolated specks while preserving long thin typography strokes;
+- fill small holes without destroying narrow connected shapes;
+- compare against ordinary morphology in the synthetic test suite.
+
+### 14. Resizing needs a specific anti-aliasing policy for downsampling
+
+scikit-image explicitly demonstrates that downsampling without anti-aliasing causes aliasing, while Gaussian pre-smoothing avoids it.
+
+Rules:
+- web/display derivative: anti-alias when reducing size;
+- logo/pixel art: allow a content-specific path if hard-grid preservation is intentional;
+- print master: do not downsample unless an explicit product/export rule requires it.
+
+### 15. Sharp and OpenImageIO confirm practical operation-level safeguards
+
+The reviewed operation docs reinforce several implementation choices:
+- median filtering is good for compact high-frequency defects without globally blurring edges;
+- unsharp-mask threshold can avoid sharpening low-contrast noise;
+- OpenImageIO separates high-quality resize from fast lower-quality resample;
+- color conversion can explicitly unpremultiply/repremultiply alpha;
+- morphology primitives can build open/close/gradient/tophat operations deterministically.
+
+These should be exposed internally as recipe primitives, not as a customer-facing wall of technical controls.
+
+### Batch 013 updated method-selection principle
+
+For every uploaded image, the engine should first build a diagnostic vector before choosing any fix:
+- source format/profile/alpha;
+- effective DPI by product placement;
+- blur score;
+- estimated noise;
+- edge density and edge continuity;
+- local entropy/texture complexity;
+- dominant colors;
+- alpha histogram and transition-band width;
+- background flatness/illumination gradient;
+- connected-component statistics;
+- likely artwork class.
+
+Only then should it propose or run the narrowest correction path.
+
+No storefront merge, deployment, or protected Home/Mockup changes.
