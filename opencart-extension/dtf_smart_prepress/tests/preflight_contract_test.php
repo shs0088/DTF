@@ -23,7 +23,9 @@ $soft = $engine->analyze([
  'sampleWidthMm'=>406.4,'sourceWidthPx'=>4800,'previewFilter'=>'smart-bicubic','previewMipBias'=>0.0,
  'mapSemantic'=>'cutout','inputColorSpace'=>'raw','workingColorSpace'=>'linear',
  'aiEdited'=>true,'generationModel'=>'reference-image-editor','referenceCount'=>2,
- 'identitySimilarity'=>0.97,'textIntegrity'=>0.96,'editMaskLeakage'=>0.03
+ 'identitySimilarity'=>0.97,'textIntegrity'=>0.96,'editMaskLeakage'=>0.03,
+ 'authoringApp'=>'canva','canvasWidthPx'=>4000,'canvasHeightPx'=>5000,
+ 'exportWidthPx'=>2000,'exportHeightPx'=>2400,'exportFormat'=>'png','exportHasTransparency'=>false
 ]);
 assert($soft['decision']['alphaPolicy']==='preserve-continuous');
 assert($soft['edgeCleanupDecision']['mode']==='remove-white-matte');
@@ -37,6 +39,10 @@ assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRendere
 assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
 assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
 assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
+assert($soft['authoringExportIntegrityReport']['exportMustBeRepreflighted']===true);
+assert($soft['authoringExportIntegrityReport']['sourceCanvasMayBeUsedAsPrintResolutionEvidence']===false);
+assert($soft['authoringExportIntegrityReport']['scaleOrAspectMismatch']===true);
+assert(in_array('EXPORT_TRANSPARENCY_LOST', array_column($soft['warnings'],'code'), true));
 assert($soft['aiGenerationIntegrityReport']['requiresSourceComparison']===true);
 assert($soft['aiGenerationIntegrityReport']['requiresAlphaReinspection']===true);
 assert($soft['aiGenerationIntegrityReport']['mayReplaceOriginalPrintMasterWithoutQa']===false);
