@@ -1074,8 +1074,6 @@ Batch 031 counting notes:
 709. https://docs.pytorch.org/vision/0.14/generated/torchvision.transforms.Resize.html
 710. https://docs.opencv.org/5.0/main_modules/imgproc_transform.html
 
-Verified unique pages: 710 / 10,000
-Remaining: 9,290
 
 Batch 032 counting notes:
 - All 20 URLs above were individually opened/read successfully.
@@ -1084,3 +1082,39 @@ Batch 032 counting notes:
 - Search-result snippets alone were not counted.
 - Query-string mirrors were canonicalized to their base documentation URL.
 - This batch focuses on resize-coordinate semantics, antialias behavior, linear-light resampling, model preprocessing parity, and physical DTF detail survival.
+
+
+## Verified Batch 033 — 22 pages — matting modes, edge-aware GPU primitives, transform conventions, and quality/runtime parity
+
+711. https://docs.opencv.org/5.0.0-alpha/d4/d40/group__alphamat.html
+712. https://github.com/JizhiziLi/RIM
+713. https://github.com/JizhiziLi/AIM
+714. https://docs.opencv.org/5.0.0-alpha/dd/d52/tutorial_js_geometric_transformations.html
+715. https://docs.opencv.org/5.0/main_modules/gapi_transform.html
+716. https://docs.opencv.org/5.0/extra_modules/fastcv.html
+717. https://kornia.readthedocs.io/en/latest/metrics.html
+718. https://kornia.readthedocs.io/en/latest/filters.blurring.html
+719. https://kornia.readthedocs.io/en/latest/metrics.image_quality.html
+720. https://kornia.readthedocs.io/en/latest/filters.html
+721. https://kornia.readthedocs.io/en/latest/get-started/performance.html
+722. https://kornia.readthedocs.io/en/latest/filters.edge_detection.html
+723. https://docs.opencv.org/5.0/main_modules/gapi_imgproc.html
+724. https://docs.opencv.org/5.0/extra_modules/quality.html
+725. https://docs.opencv.org/5.0/extra_modules/img_hash.html
+726. https://docs.opencv.org/5.0/extra_modules/saliency.html
+727. https://docs.opencv.org/5.0/main_modules/gapi_filters.html
+728. https://kornia.readthedocs.io/en/latest/filters.segmentation.html
+729. https://kornia.readthedocs.io/en/latest/get-started/conventions.html
+730. https://kornia.readthedocs.io/en/latest/contrib.html
+731. https://kornia.readthedocs.io/en/latest/losses.morphology.html
+732. https://kornia.readthedocs.io/en/latest/get-started/export-support.html
+
+Verified unique pages: 732 / 10,000
+Remaining: 9,268
+
+Batch 033 counting notes:
+- All 22 URLs above were individually opened/read successfully.
+- One OpenCV Photo page that returned an internal error was excluded.
+- Previously counted pages and canonical duplicates were excluded.
+- Search-result snippets alone were not counted.
+- This batch focuses on matting modes, edge-aware filtering, geometric-transform conventions, accelerated runtime parity, quality metrics, and deployment/export constraints.
