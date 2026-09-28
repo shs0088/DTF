@@ -19,7 +19,9 @@ assert($hard['colorManagementReport']['silentProfileConversionAllowed']===false)
 $soft = $engine->analyze([
  'effectivePpi'=>300,'hasAlpha'=>true,'edgeClass'=>'soft-intentional','trimapAvailable'=>true,
  'edgeColorContamination'=>true,'suspectedMatteColor'=>'white','artworkClass'=>'illustration','scaleFactor'=>1.5,
- 'brisqueScore'=>42.0,'psfConfidence'=>0.85,'hausdorffDeltaPx'=>0.4
+ 'brisqueScore'=>42.0,'psfConfidence'=>0.85,'hausdorffDeltaPx'=>0.4,
+ 'sampleWidthMm'=>406.4,'sourceWidthPx'=>4800,'previewFilter'=>'smart-bicubic','previewMipBias'=>0.0,
+ 'mapSemantic'=>'cutout','inputColorSpace'=>'raw','workingColorSpace'=>'linear'
 ]);
 assert($soft['decision']['alphaPolicy']==='preserve-continuous');
 assert($soft['edgeCleanupDecision']['mode']==='remove-white-matte');
@@ -28,6 +30,11 @@ assert($soft['mattingDecision']['foregroundColorEstimationRecommended']===true);
 assert($soft['mattingDecision']['naiveRgbTimesAlphaAllowed']===false);
 assert($soft['resamplingDecision']['recommendedMode']==='detail-preserving-upscale');
 assert($soft['qualityDiagnostics']['brisqueMayAcceptOrRejectPrintMaster']===false);
+assert(abs($soft['physicalSamplingReport']['derivedPpi']-300.0)<0.001);
+assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRenderedPreview']===false);
+assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
+assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
+assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
 assert($soft['provenance']['mockupMayReplaceMaster']===false);
 
 echo "PASS\n";
