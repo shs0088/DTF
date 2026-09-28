@@ -2885,3 +2885,234 @@ The image processor is converging toward a two-stage decision system:
 A candidate can look cleaner and still fail if it breaks topology, shifts geometry, loses thin strokes, changes color materially, or damages alpha edges.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 016 — alpha-color separation, trimap quality, topology-aware cleanup and physically safer edge processing
+
+The verified corpus now contains 312 individually opened/read unique pages.
+
+### 1. A correct alpha matte is not enough: foreground color must also be estimated
+
+PyMatting explicitly demonstrates that simply multiplying the original RGB image by an alpha matte can produce color bleeding/halos when the source edge contains background contamination.
+
+The more correct model is:
+I = alpha * F + (1 - alpha) * B
+
+where F and B are estimated foreground/background colors.
+
+DTF implication:
+- remove-background stage must output both alpha coverage and an estimated clean foreground color near transition pixels;
+- the source RGB should remain immutable;
+- the transparent production candidate should combine estimated foreground RGB with the recovered alpha, not merely reuse contaminated source edge RGB.
+
+This directly targets the familiar white/colored halo problem.
+
+### 2. Edge decontamination should therefore be a first-class processing stage
+
+A practical DTF background-removal pipeline should now explicitly separate:
+1. semantic/coarse foreground segmentation;
+2. trimap construction;
+3. alpha estimation in unknown pixels;
+4. foreground-color estimation;
+5. edge-color decontamination;
+6. structural QA;
+7. underbase derivation.
+
+This is stronger than treating "remove background" as one black-box model call.
+
+### 3. Different alpha-matting solvers have different computational behavior
+
+PyMatting currently includes Closed Form, Large Kernel, KNN, Shared Matting and other approaches.
+
+Engineering use:
+- do not expose algorithm names to normal customers;
+- benchmark solvers on our own DTF edge classes;
+- route by image complexity and unknown-band size;
+- keep a deterministic fallback if an AI matte is uncertain.
+
+Large Kernel Matting is attractive when broad neighborhoods help, while KNN matting uses similarity relationships in feature space. Shared Matting explicitly gathers foreground/background samples and refines them.
+
+### 4. Unknown-band width should be adaptive, not fixed
+
+Trimap construction is critical. Too narrow an unknown band locks in segmentation mistakes; too wide a band wastes computation and may destabilize foreground/background estimation.
+
+Proposed adaptive trimap:
+- start from coarse probability mask;
+- erode by an inward physical radius to form definite foreground;
+- dilate outward by a possibly different physical radius for definite background;
+- use edge complexity, local alpha confidence and source resolution to determine unknown-band width;
+- store both radii in physical units and pixels.
+
+For hair/smoke/fur/soft glow, allow a wider unknown band than for hard logo edges.
+
+### 5. Trimap repair needs explicit threshold rules
+
+PyMatting's utilities include trimap normalization/fixing using lower and upper thresholds.
+
+For our engine:
+- trimap values near 0 become definite background;
+- values near 1 become definite foreground;
+- uncertain mid-range becomes unknown;
+- thresholds are recipe/versioned parameters;
+- never silently reuse arbitrary segmentation probabilities as final alpha.
+
+### 6. Foreground estimation can be multi-scale
+
+PyMatting's multi-level foreground estimator uses small-scale and large-scale iterative stages and has CPU plus GPU-oriented implementations for foreground estimation.
+
+This supports a useful architecture:
+- compute/refine alpha at a bounded working resolution when necessary;
+- estimate foreground color multi-scale;
+- project/refine the result against original-resolution RGB;
+- preserve output at production resolution.
+
+### 7. Foreground-estimation QA should focus on transition pixels
+
+The foreground-estimation evaluation work scores errors specifically in the region where 0 < alpha < 1, using SAD, MSE and gradient error.
+
+This is exactly where DTF halos live.
+
+Our benchmark should weight:
+- alpha transition band;
+- foreground RGB error in that band;
+- gradient continuity;
+- compositing error on black, white and neutral backgrounds.
+
+Opaque interior pixels should not dominate the score.
+
+### 8. Use multiple compositing backgrounds during QA
+
+A contaminated edge can look acceptable on one background and fail badly on another.
+
+Mandatory preview test set:
+- black garment;
+- white garment;
+- neutral gray;
+- checkerboard/transparency;
+- optionally a saturated diagnostic background.
+
+A processed candidate should be evaluated across all of them before automatic approval.
+
+### 9. Morphological operations must be chosen by defect type
+
+OpenCV's morphology documentation makes the distinctions clear:
+- opening removes small bright structures;
+- closing fills small dark gaps;
+- morphological gradient extracts an outline band;
+- top-hat extracts small bright structures relative to background;
+- black-hat extracts small dark structures;
+- hit-or-miss finds specific binary neighborhood patterns.
+
+DTF mapping:
+- speck residue -> opening/component logic;
+- pinholes -> closing/remove-small-holes;
+- edge band -> morphological gradient;
+- local residue diagnostics -> top-hat/black-hat;
+- line-junction pattern checks -> hit-or-miss/thinning-related logic.
+
+Do not use one morphology operation as a universal cleanup filter.
+
+### 10. Area/diameter operators can preserve long thin artwork better than fixed kernels
+
+scikit-image's area/diameter morphology removes components based on area or bounding-box extension rather than only a fixed structuring element.
+
+This is particularly valuable for typography:
+- a very thin but long stroke may have low local thickness but high structural importance;
+- diameter-based operators are less likely to delete it than a naive fixed-radius opening.
+
+This should be benchmarked on Arabic calligraphy, thin Latin fonts, borders and ornamental lines.
+
+### 11. Medial-axis distance gives a direct estimate of local stroke width
+
+scikit-image's medial_axis can return both the skeleton and the distance transform.
+
+Approximate local stroke width can be derived from twice the distance-to-boundary along the skeleton.
+
+For DTF preflight:
+- estimate minimum meaningful stroke width in pixels;
+- convert to millimeters using effective DPI;
+- compare before/after processing;
+- warn if cleanup/halftone/choke reduces a critical stroke below the selected process limit.
+
+This is substantially better than a generic "thin lines detected" warning.
+
+### 12. Connected-component statistics strengthen debris-vs-design decisions
+
+OpenCV connectedComponentsWithStats provides:
+- component area;
+- bounding box;
+- centroid;
+- connectivity choices.
+
+Use after alpha thresholding to classify:
+- tiny isolated debris;
+- legitimate detached punctuation/dots;
+- separated logo elements;
+- new fragmentation introduced by processing.
+
+Removal policy must consider size, distance, context and artwork class, not area alone.
+
+### 13. Morphological gradient and distance transform form a useful edge coordinate system
+
+Combine:
+- signed/continuous alpha;
+- binary diagnostic mask;
+- morphological gradient for boundary band;
+- distance transform for inward/outward distance.
+
+This enables operations such as:
+- choke by physical distance;
+- spread by physical distance;
+- edge-only decontamination;
+- edge-weighted quality metrics;
+- low-alpha haze suppression limited to a narrow band.
+
+### 14. Physical-unit morphology should be the default internal representation
+
+A 2-pixel erosion means different real dimensions at 150, 300 and 600 PPI.
+
+Recipe parameters should therefore prefer:
+- chokeMm;
+- spreadMm;
+- minStrokeMm;
+- edgeBandMm;
+- maxSpeckAreaMm2 where practical.
+
+Pixels are derived at execution time from the actual artifact resolution.
+
+### 15. Alpha estimation should be benchmarked separately from foreground-color estimation
+
+A model can produce an excellent alpha boundary but still leave contaminated RGB along that boundary.
+
+Benchmark dimensions should therefore include:
+- matte accuracy;
+- foreground RGB accuracy;
+- compositing error;
+- topology preservation;
+- runtime/memory.
+
+This prevents choosing a background-removal method solely because the cutout silhouette looks good.
+
+### Batch 016 architecture update
+
+The background-removal subsystem now has a clearer internal contract:
+
+Input:
+- immutable source RGB/profile;
+- coarse segmentation probability or mask;
+- processing resolution;
+- optional user hints.
+
+Outputs:
+- alpha matte;
+- foreground RGB estimate;
+- optional background estimate;
+- diagnostic trimap;
+- edge confidence map;
+- compositing previews;
+- structural QA report;
+- processing recipe/model/version.
+
+Only after these outputs pass quality gates should an artifact become a candidate transparent master.
+
+No storefront merge, no deployment, and no protected Home/Mockup modification.
