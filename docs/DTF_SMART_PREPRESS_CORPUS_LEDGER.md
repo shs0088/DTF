@@ -1334,3 +1334,31 @@ Batch 044 counting notes:
 - The Turkish GIMP dither localization was also opened/read but was not counted because it is a simple localized mirror of the same GIMP 3.0 dither page already represented by the German page in this batch.
 - Other simple localized mirrors and search-result snippets were excluded.
 - The commercial background-removal pages are used as implementation/UX evidence, not as algorithmic authority; primary technical conclusions continue to prefer official documentation and implementation references.
+
+
+## Verified Batch 046 — 14 pages — multilingual alpha/halftone/restoration/prepress
+
+855. https://dtfwiz.com/fix/semi-transparent-pixels-dtf
+856. https://pigmentalab.io/en/quitar-fondo-dtf
+857. https://docs.krita.org/it/reference_manual/filters/artistic.html
+858. https://piclab.click/ja/articles/image-matting-techniques/
+859. https://docs.darktable.org/usermanual/development/it/module-reference/processing-modules/color-balance-rgb/
+860. https://helpx.adobe.com/sa_ar/photoshop/desktop/make-selections/refine-modify-selections/remove-matte-from-selection.html
+861. https://helpx.adobe.com/it/photoshop-elements/desktop/working-with-colors/using-image-modes-color-tables.html
+862. https://layersmith.app/dtf-transfer-file-prep
+863. https://www.printstep.com/white-in-dtf
+864. https://docs.darktable.org/usermanual/development/fr/module-reference/processing-modules/denoise-profiled/
+865. https://docs.krita.org/zh_CN/reference_manual/filters/enhance.html
+866. https://docs.krita.org/ja/reference_manual/filters/blur.html
+867. https://docs.darktable.org/usermanual/development/es/module-reference/processing-modules/sharpen/
+868. https://docs.darktable.org/usermanual/5.6/es/module-reference/processing-modules/surface-blur/
+
+Batch 046 counting notes:
+- All 14 pages above were individually opened/read successfully.
+- Canonical URLs were checked against the branch ledger before counting.
+- One already-counted NestSheet white-underbase/choke page was reopened but excluded.
+- Three pages that failed to open were excluded.
+- Simple localized mirrors of already-counted pages were not counted merely for being translations.
+- The corpus still has an earlier unsynchronized 9-page Batch 045 (research count 854→863) whose exact URLs were not recoverable from the available record; they are not fabricated here and are not represented by entries 855–868.
+- GitHub ledger represented count after this batch: 868 / 10,000.
+- Research-continuity count including the prior verified-but-unsynchronized Batch 045: 877 / 10,000.
