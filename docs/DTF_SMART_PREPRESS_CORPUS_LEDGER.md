@@ -336,10 +336,41 @@ Batch 008 counting notes:
 240. https://docs.opencv.org/5.0/main_modules/photo_render.html
 241. https://docs.opencv.org/4.12.0/d6/d80/edge__filter_8hpp.html
 
-Verified unique pages: 241 / 10,000
-Remaining: 9,759
 
 Batch 009 counting notes:
 - Every URL above was individually opened/read in this batch.
 - Version duplicates and URLs already present in Batches 001–008 were excluded before counting.
 - This batch prioritizes denoising, matting, thresholding, resampling, edge-preserving filtering, inpainting, halftoning, white balance and local image editing.
+
+
+## Verified Batch 010 — 20 pages — image-quality, super-resolution, segmentation and diagnostics
+
+242. https://scikit-image.org/docs/stable/auto_examples/filters/index.html
+243. https://scikit-image.org/docs/stable/api/skimage.metrics.html
+244. https://scikit-image.org/docs/stable/auto_examples/edges/plot_canny.html
+245. https://scikit-image.org/docs/stable/auto_examples/transform/plot_ssim.html
+246. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_metrics.html
+247. https://scikit-image.org/docs/stable/auto_examples/applications/plot_image_comparison.html
+248. https://docs.opencv.org/5.0/tutorials_contrib/dnn_superres/upscale_image_single/upscale_image_single.html
+249. https://docs.opencv.org/5.0/extra_modules/dnn_superres.html
+250. https://docs.opencv.org/5.0/tutorials_contrib/dnn_superres/upscale_image_multi/upscale_image_multi.html
+251. https://docs.opencv.org/doc/doxygen/html/dc/d69/tutorial_dnn_superres_benchmark.html
+252. https://scikit-image.org/docs/stable/auto_examples/transform/plot_rescale.html
+253. https://scikit-image.org/docs/stable/auto_examples/transform/index.html
+254. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_chan_vese.html
+255. https://scikit-image.org/docs/stable/auto_examples/segmentation/index.html
+256. https://scikit-image.org/docs/stable/auto_examples/transform/plot_pyramid.html
+257. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_rolling_ball.html
+258. https://scikit-image.org/docs/stable/auto_examples/filters/plot_window.html
+259. https://scikit-image.org/docs/stable/auto_examples/filters/plot_entropy.html
+260. https://scikit-image.org/docs/stable/auto_examples/filters/plot_attribute_operators.html
+261. https://scikit-image.org/docs/stable/api/skimage.feature.html
+
+Verified unique pages: 261 / 10,000
+Remaining: 9,739
+
+Batch 010 counting notes:
+- All 20 URLs above were individually opened/read.
+- Pages already present in prior batches were removed before counting.
+- One very large scikit-image page that failed to open was not counted.
+- This batch continues the explicit priority on the image-processing methods themselves.
