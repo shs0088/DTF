@@ -905,8 +905,6 @@ Batch 026 counting notes:
 599. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_ncut.html
 600. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_boundary_merge.html
 
-Verified unique pages: 600 / 10,000
-Remaining: 9,400
 
 Batch 027 counting notes:
 - All 22 URLs above were individually opened/read successfully.
@@ -914,3 +912,37 @@ Batch 027 counting notes:
 - Previously counted pages were removed before numbering.
 - Search-result snippets alone were not counted.
 - This batch focuses on structure-aware mask composition and QA for fine DTF artwork.
+
+
+## Verified Batch 028 — 20 pages — geometric transforms, registration, interpolation boundaries, and transform-integrity QA
+
+601. https://scikit-image.org/docs/stable/auto_examples/filters/plot_phase_unwrap.html
+602. https://scikit-image.org/docs/stable/auto_examples/transform/plot_geometric.html
+603. https://scikit-image.org/docs/stable/auto_examples/transform/plot_transform_types.html
+604. https://scikit-image.org/docs/stable/auto_examples/transform/plot_tps_deformation.html
+605. https://scikit-image.org/docs/stable/auto_examples/transform/plot_swirl.html
+606. https://scikit-image.org/docs/stable/auto_examples/registration/plot_register_rotation.html
+607. https://scikit-image.org/docs/stable/auto_examples/registration/index.html
+608. https://docs.opencv.org/5.0/main_modules/video_track.html
+609. https://docs.opencv.org/5.0/js_tutorials/js_imgproc/js_geometric_transformations/js_geometric_transformations.html
+610. https://docs.opencv.org/5.0/tutorials/imgproc/imgtrans/warp_affine/warp_affine.html
+611. https://docs.opencv.org/5.0/tutorials/imgproc/imgtrans/remap/remap.html
+612. https://docs.opencv.org/5.0/py_tutorials/py_imgproc/py_geometric_transformations/py_geometric_transformations.html
+613. https://scikit-image.org/docs/stable/auto_examples/registration/plot_stitching.html
+614. https://scikit-image.org/docs/stable/auto_examples/registration/plot_masked_register_translation.html
+615. https://scikit-image.org/docs/stable/auto_examples/registration/plot_opticalflow.html
+616. https://scikit-image.org/docs/stable/auto_examples/transform/plot_piecewise_affine.html
+617. https://scikit-image.org/docs/stable/auto_examples/transform/plot_matching.html
+618. https://scikit-image.org/docs/0.25.x/auto_examples/transform/plot_edge_modes.html
+619. https://scikit-image.org/docs/stable/auto_examples/transform/plot_ransac.html
+620. https://scikit-image.org/docs/stable/auto_examples/transform/plot_fundamental_matrix.html
+
+Verified unique pages: 620 / 10,000
+Remaining: 9,380
+
+Batch 028 counting notes:
+- All 20 URLs above were individually opened/read successfully in this batch.
+- Two attempted pages that timed out were excluded and replaced with successfully opened unique pages.
+- Previously counted pages were checked against the ledger and excluded before numbering.
+- Search-result snippets alone were not counted.
+- This batch focuses on how resizing, affine/projective/nonlinear warps, registration, and boundary interpolation can change DTF artwork geometry or help detect white/color-plane misalignment.
