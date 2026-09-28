@@ -1355,3 +1355,106 @@ Still intentionally undecided:
 No storefront merge.
 No deployment.
 No protected Home or existing Mockup UI changes.
+
+
+## Research Batch 007 — streaming delivery, display derivatives and model deployment constraints
+
+This batch raises the verified corpus to 115 individually opened/read unique pages.
+
+### Cloudflare Workers streaming is directly useful for this project
+
+Cloudflare Workers documents that Web Streams allow very large request/response bodies to be handled incrementally within the Worker memory limit instead of buffering the full payload. This is directly relevant to DTF Studio because high-resolution source files should not be held in memory as complete buffers in the request path.
+
+Use cases:
+- stream uploads onward when appropriate;
+- stream large provider responses;
+- avoid request.arrayBuffer() for production-sized source files when a streaming path is available;
+- keep heavy image decode outside the request-serving process.
+
+### FixedLengthStream and content length
+
+Cloudflare documents that FixedLengthStream can enforce an exact byte count and provides Content-Length semantics for streamed requests/responses.
+
+Potential use:
+- bounded proxying for known-size artifacts;
+- stronger integrity checks for generated preview responses;
+- not a substitute for content signature validation.
+
+### Image delivery should be a dedicated derivative layer
+
+Cloudflare Images transformation docs reinforce several useful storefront rules:
+- scale-down can guarantee no accidental enlargement;
+- modern output formats such as WebP/AVIF can be generated independently of the print master;
+- transformations can be cached;
+- variants can strip metadata;
+- origin access can be hidden/restricted behind Workers;
+- a display crop/fit is not the same as the production placement geometry.
+
+Therefore the storefront should request a versioned Display Artifact, not the private print master.
+
+### Built-in foreground segmentation is useful but should not own the master pipeline
+
+Cloudflare Images currently exposes foreground segmentation based on BiRefNet for transformation workflows. This may be useful as:
+- a fast optional preview/background-removal provider;
+- a fallback or comparison provider;
+- a way to produce lightweight web derivatives.
+
+It should not silently become the only segmentation engine because:
+- production quality may need different models/matting refinement;
+- provider behavior can change;
+- model licensing and commercial terms must be tracked separately from code/library licensing;
+- production results must remain reproducible with an explicit provider/model/version recipe.
+
+### BRIA RMBG-2.0 licensing is a real architecture constraint
+
+The BRIA RMBG-2.0 repository states that the model is source-available for non-commercial use and commercial use requires a commercial agreement. It returns a non-binary grayscale alpha matte rather than merely a binary foreground mask.
+
+Implications:
+- technically attractive does not automatically mean deployable commercially;
+- model license must be stored in the provider capability registry;
+- the runtime should support swapping the segmentation provider without changing the surrounding workflow;
+- mask output should preserve continuous alpha for downstream matting/choke/underbase logic.
+
+### Browser-side background removal can work, but is not the default production architecture
+
+The bg-eraser example demonstrates a browser workflow using Transformers.js, WebGPU with WASM fallback, a Web Worker and a client-side feather control. This proves that local/browser background removal is technically possible for moderate images.
+
+For DTF Studio the safer architecture remains:
+- browser preview path may optionally use local inference for responsive UX where supported;
+- production artifact generation remains server-side and versioned;
+- local preview is never automatically promoted to print master without server verification.
+
+### Small-model deployment trade-off
+
+The Rust/background-removal example and related implementations show a recurring practical constraint: background-removal models may consume hundreds of megabytes to more than 1 GB depending on model and precision. Input-side caps around 640–1024 px are commonly used on constrained hosts to control memory.
+
+This is further evidence that:
+- segmentation preview resolution and final production resolution should be separate concepts;
+- high-resolution alpha can be reconstructed/refined from lower-resolution inference rather than blindly running every model on a 5K source;
+- GPU/AI workers should have their own resource profile and concurrency limits.
+
+### New operational rule: separate inference canvas from source canvas
+
+Recommended pattern:
+1. inspect source at native resolution;
+2. create bounded inference image, preserving aspect ratio;
+3. run segmentation/matting model;
+4. upscale/refine mask back to source coordinates using an alpha-safe method;
+5. perform edge refinement against original-resolution RGB;
+6. save source-resolution transparent derivative;
+7. compare against original on dark/light backgrounds;
+8. record model input resolution as part of the recipe.
+
+This avoids wasting GPU memory while preserving high-resolution production geometry.
+
+### Batch 007 status
+
+Stronger conclusions now:
+- streaming belongs in the transport path;
+- display delivery belongs in a separate derivative layer;
+- segmentation provider must be replaceable and license-aware;
+- browser inference is optional UX acceleration, not production authority;
+- inference resolution must be stored separately from source/output resolution;
+- production alpha reconstruction/refinement must operate against source-resolution pixels.
+
+Still no storefront merge, no deployment, and no protected Home/Mockup modification.
