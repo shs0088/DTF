@@ -11,12 +11,20 @@ $r = $engine->analyze([
     'hasAlpha'=>true,
     'edgeClass'=>'hard-edge',
     'minStrokePx'=>3,
-    'chokeMm'=>0.15
+    'chokeMm'=>0.15,
+    'noiseSigma'=>0.04,
+    'textureScore'=>0.72,
+    'blurRadiusX'=>1.0,
+    'blurRadiusY'=>3.0
 ]);
 
 assert(abs(Contracts::pixelsToMm(2, 300) - 0.1693333333) < 0.0001);
 assert($r['decision']['alphaPolicy'] === 'threshold-hard-edge');
 assert($r['provenance']['sourceImmutable'] === true);
 assert($r['provenance']['mockupMayReplaceMaster'] === false);
-assert(count($r['warnings']) === 1);
+assert(count($r['warnings']) === 2);
+assert($r['restorationEvidence']['blurAnisotropy'] > 0.35);
+assert($r['restorationEvidence']['recommendedAction'] === 'diagnose-directional-psf-before-deblur');
+assert($r['restorationEvidence']['autoDeblurAllowed'] === false);
+assert($r['restorationEvidence']['sharpenWithoutEvidenceAllowed'] === false);
 echo "PASS\n";
