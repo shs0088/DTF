@@ -8429,3 +8429,17 @@ The isolated OpenCart extension scaffold now records blurRadiusX/Y, derives blur
 
 ### Corpus accounting
 Batch 048 adds eight materially relevant pages. GitHub ledger: 885 explicit pages. Research continuity: 894 / 10,000 including the earlier unsynchronized nine-page Batch 045.
+
+
+## Batch 049 — implementation synthesis
+
+- Alpha estimation and foreground color estimation are separate stages. A good alpha matte does not by itself remove RGB color bleeding; soft/contaminated edges can require foreground estimation before recomposition.
+- Trimap-driven matting is reserved for uncertain/soft boundaries; hard-edge art can follow a cheaper deterministic path.
+- BRISQUE is retained only as a no-reference diagnostic feature and cannot independently accept/reject a DTF print master.
+- Richardson-Lucy/Wiener restoration requires a PSF model; deconvolution remains evidence-gated and never automatic in the current extension.
+- Boundary preservation is represented separately from perceptual quality using a Hausdorff-style boundary delta.
+- J-invariant loss can support self-supervised denoiser parameter calibration when the noise assumptions are appropriate.
+
+Implementation commits in the isolated OpenCart extension add MattingDecision, foreground-color-estimation routing, BRISQUE diagnostic-only semantics, PSF confidence, deconvolution candidacy, boundary preservation and J-invariant calibration fields. No deployment or storefront/core modification was performed.
+
+Corpus after Batch 049: GitHub ledger 889 explicit; research continuity 898 / 10,000.
