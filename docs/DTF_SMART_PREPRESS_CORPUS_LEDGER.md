@@ -1217,11 +1217,29 @@ Batch 036 counting notes:
 791. https://github.com/LexKoin/Real-ESRGAN-UpScale/blob/master/inference_realesrgan.py
 792. https://scikit-image.org/docs/0.20.x/api/skimage.morphology.html
 
-Verified unique pages: 792 / 10,000
-Remaining: 9,208
 
 Batch 037 counting notes:
 - These three URLs were individually opened/read successfully and were not already present in the ledger.
 - Eight additional pages opened in this pass were already represented in the corpus and were deliberately not recounted.
 - Two pages that returned internal errors were excluded.
+- Search-result snippets alone were not counted.
+
+
+## Verified Batch 038 — 7 pages — indexed diagnostics, conditional processing, and libvips operation surface
+
+793. https://www.libvips.org/API/8.17/method.Image.hist_find_ndim.html
+794. https://www.libvips.org/API/8.17/method.Image.case.html
+795. https://www.libvips.org/API/current/function-list.html
+796. https://www.libvips.org/API/current/class.Image.html
+797. https://www.libvips.org/API/8.16/func-list.html
+798. https://www.libvips.org/API/8.16/libvips-histogram.html
+799. https://www.libvips.org/API/8.17/method.Image.copy.html
+
+Verified unique pages: 799 / 10,000
+Remaining: 9,201
+
+Batch 038 counting notes:
+- All seven URLs above were individually opened/read successfully and were not already present in the ledger.
+- Many additional pages opened in this pass were already represented in the corpus and were deliberately not recounted.
+- Failed page opens were excluded.
 - Search-result snippets alone were not counted.
