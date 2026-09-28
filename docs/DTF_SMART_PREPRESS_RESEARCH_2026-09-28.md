@@ -6649,3 +6649,180 @@ The strongest result from this batch is a stricter type-and-routing discipline:
 This should materially reduce halos, broken thin detail, and false confidence from simplistic “remove background” or “resize” operations.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 030 — proofing and print-path validation after pixel processing
+
+The verified corpus now contains 665 individually opened/read unique pages.
+
+### 1. Profile choice must be validated, not merely attached
+
+ICC's Profile Viewing and Testing resources emphasize that profiles must be suitable for the intended use. DTF Studio should therefore record profile identity/hash and run sanity/proof checks rather than assuming any embedded ICC profile is production-safe.
+
+### 2. Gamut warning is a diagnostic artifact
+
+ICC's PRMG gamut-warning profile is designed to identify source content extending beyond a target gamut. This reinforces our architecture: gamut warning should flag risk, not silently modify the approved master.
+
+### 3. Multiple working-space round trips can degrade data
+
+ICC warns that repeated conversion into and out of LUT-based working spaces can degrade image data. Production recipes should minimize profile conversions and preserve the source/master profile state until an explicit output transform is required.
+
+### 4. Rendering intent must be part of the production recipe
+
+ICC materials distinguish Absolute, Relative Colorimetric, Perceptual and Saturation intents as different mapping policies. DTF Studio should never hide rendering intent behind a generic "convert profile" action.
+
+### 5. Proofing and final conversion are separate operations
+
+ICC print-production material distinguishes:
+- source-to-PCS interpretation;
+- output transform;
+- proofing/simulation.
+
+A proof image remains a display derivative. It cannot become the authoritative print master.
+
+### 6. Printer profile validity depends on the reference printing state
+
+ICC print-production guidance stresses that a printer profile is only valid for the state used to characterize it: device setup, media, inks, black generation, etc.
+
+DTF production profile should therefore bind:
+- printer/device;
+- ink set;
+- film/media;
+- resolution/print mode;
+- white-ink settings;
+- calibration version/date.
+
+### 7. Profile testing should combine numeric and visual criteria
+
+ICC print workflow material recommends profile-accuracy measurements such as average/max Delta-E and also warns that numeric accuracy alone does not guarantee acceptable visual quality.
+
+Our DTF proof QA should combine:
+- Delta-E statistics;
+- gamut warning;
+- neutral/black behavior;
+- edge/alpha checks;
+- visual proof artifacts.
+
+### 8. White-channel generation must remain distinct from color conversion
+
+DTF sources in this batch confirm the RIP commonly derives a white underbase from transparency/coverage while applying separate white density/choke/halftone controls.
+
+Therefore:
+- color ICC transform does not define white geometry;
+- white underbase does not replace color management;
+- both should share placement geometry but have separate recipes.
+
+### 9. Adaptive choke is safer than a fixed global pixel value
+
+Current DTF technical guidance again warns that one fixed choke can destroy small details. A stronger implementation is locally adaptive:
+- large solid areas may tolerate more choke;
+- fine strokes/text get reduced or zero choke;
+- near-white source-art and soft transparency need special handling.
+
+The adaptive amount should still be bounded by the calibrated device profile.
+
+### 10. Semi-transparent pixels need deliberate underbase behavior
+
+DTF artwork guidance differs across providers: some threshold low-opacity pixels, some use halftones, some preserve proportional white.
+
+This confirms there is no universal rule. The production profile must explicitly define:
+- threshold;
+- proportional/adaptive white;
+- halftone mode;
+- treat-semitransparent-as-opaque behavior.
+
+### 11. Halftone should be tied to printability, not only appearance
+
+Current DTF sources again connect LPI/dot structure with garment feel and white-ink coverage. The simulator must validate minimum printable dot/hole size for the selected output DPI/profile.
+
+### 12. Image-transform QA should compare geometry before/after
+
+ImageMagick's transformation and comparison examples reinforce the value of:
+- explicit geometry/transform math;
+- pixel-difference comparison;
+- distortion/error metrics.
+
+For DTF, every destructive transform candidate should produce:
+- geometry delta;
+- edge difference;
+- alpha difference;
+- color difference;
+- optional visual diff image.
+
+### 13. CMYK/spot/PDF workflows complicate alpha-derived white
+
+RIP documentation notes workflows where white is not derived only from transparent PNG alpha; PDFs/spot colors and valid-pixel logic may carry separate spot/white semantics.
+
+The importer must therefore detect:
+- ordinary raster alpha;
+- vector/PDF spot colorants;
+- explicit white channel/layer;
+- pre-separated content.
+
+Do not flatten away spot/white semantics before deciding the production path.
+
+### 14. Registration errors need directional diagnostics
+
+DTF white-channel guidance distinguishes even halos from one-sided white shifts. A one-sided offset suggests color/white plane registration rather than symmetric choke need.
+
+Proposed report:
+- xRegistrationOffsetPx/mm;
+- yRegistrationOffsetPx/mm;
+- scaleMismatch;
+- symmetricWhiteOvershoot;
+- confidence.
+
+### 15. ICC probe/test profiles can validate external software behavior
+
+ICC's probe-profile resources deliberately distort output in different rendering-intent transforms to reveal which intent software actually uses.
+
+This suggests a useful integration test for any RIP/export bridge:
+- send known test assets/profiles;
+- verify intended rendering intent/transform is actually honored;
+- do not trust undocumented defaults.
+
+### 16. Profile security belongs in the upload-security model
+
+ICC maintains explicit profile-security guidance. Embedded profiles are structured external data and should be parsed with bounded, maintained libraries rather than trusted blindly.
+
+Production ingestion should limit:
+- profile size;
+- malformed tag structures;
+- excessive transforms/LUT dimensions where applicable;
+- unsupported/private-tag handling.
+
+### 17. Reference viewing condition matters for proof interpretation
+
+ICC v4 perceptual reference medium assumptions include defined D50/reference viewing conditions. A customer's random mobile screen in arbitrary lighting is not a certified proofing environment.
+
+Therefore the UI must label proofing as approximate unless the display/profile/viewing setup is controlled.
+
+### 18. PDF/X and document color management require preserving intent metadata
+
+The reviewed ICC PDF/X material reinforces that document workflows can carry ICC-based color-space and output-intent metadata separately from pixel data.
+
+For PDF/AI ingestion:
+- preserve/document output intent where present;
+- inspect embedded profiles/spot channels;
+- do not rasterize first and ask questions later.
+
+### 19. Calibration precedes profiling
+
+ICC print-calibration material separates process calibration/standardized printing state from later profile use.
+
+For DTF:
+- mechanical/ink/white calibration must stabilize first;
+- then profile/characterize;
+- artwork correction should not compensate for an unstable printer.
+
+### 20. Batch 030 conclusion
+
+The processing architecture now has a third explicit validation boundary after pixel processing and export semantics:
+
+1. PIXEL PROCESSING correctness;
+2. FILE/EXPORT semantics correctness;
+3. OUTPUT-PROCESS/PROFILE validity and proofing correctness.
+
+A master can be pixel-perfect and still fail if the wrong profile, rendering intent, output intent, white-channel policy, or printer calibration is used.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
