@@ -419,8 +419,6 @@ Batch 011 counting notes:
 291. https://docs.opencv.org/5.0/tutorials/imgproc/shapedescriptors/bounding_rects_circles/bounding_rects_circles.html
 292. https://docs.opencv.org/5.0/tutorials/imgproc/imgtrans/laplace_operator/laplace_operator.html
 
-Verified unique pages: 292 / 10,000
-Remaining: 9,708
 
 Batch 012 counting notes:
 - All 21 URLs above were individually opened/read.
@@ -428,3 +426,36 @@ Batch 012 counting notes:
 - A failed page open was excluded.
 - Existing duplicate pages from earlier batches were not counted.
 - This batch continues the explicit priority on image-processing methods themselves.
+
+
+## Verified Batch 013 — 20 pages — alpha matting, foreground recovery, morphology, topology and structural QA
+
+293. https://github.com/pymatting/pymatting/blob/master/README.md
+294. https://github.com/pymatting/pymatting/blob/master/doc/source/index.md
+295. https://github.com/pymatting/pymatting/blob/master/pymatting/alpha/estimate_alpha_cf.py
+296. https://github.com/pymatting/pymatting/blob/master/examples/advanced_example.py
+297. https://github.com/pymatting/foreground-estimation-evaluation
+298. https://github.com/pymatting/pymatting/blob/master/pymatting/foreground/estimate_foreground_cf.py
+299. https://github.com/pymatting/pymatting/blob/master/pymatting/alpha/estimate_alpha_lkm.py
+300. https://pymatting.github.io/alpha.html
+301. https://github.com/pymatting/pymatting/blob/master/pymatting/alpha/estimate_alpha_sm.py
+302. https://github.com/pymatting/pymatting/blob/master/pymatting/alpha/estimate_alpha_knn.py
+303. https://docs.opencv.org/4.12.0/d3/dbe/tutorial_opening_closing_hats.html
+304. https://docs.opencv.org/4.13.0/db/d06/tutorial_hitOrMiss.html
+305. https://docs.opencv.org/doc/doxygen/html/d4/d86/group__imgproc__filter.html
+306. https://docs.opencv.org/4.12.0/d9/d61/tutorial_py_morphological_ops.html
+307. https://scikit-image.org/docs/0.21.x/api/skimage.morphology.html
+308. https://pymatting.github.io/benchmarks.html
+309. https://pymatting.github.io/foreground.html
+310. https://pymatting.github.io/util.html
+311. https://scikit-image.org/docs/stable/auto_examples/edges/plot_skeleton.html
+312. https://docs.opencv.org/4.13.0/d3/dc0/group__imgproc__shape.html
+
+Verified unique pages: 312 / 10,000
+Remaining: 9,688
+
+Batch 013 counting notes:
+- All 20 URLs above were individually opened/read in this research pass.
+- The Caldera DTF underlay page, current scikit-image morphology API, distance-transform tutorial, scikit-image package index, and remove-objects tutorial were reopened for comparison but excluded because they were already in the ledger.
+- Search-result snippets alone were not counted.
+- This batch intentionally prioritizes how image pixels, alpha, foreground color and structural masks are processed.
