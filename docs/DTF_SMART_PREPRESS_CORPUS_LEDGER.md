@@ -676,8 +676,6 @@ Batch 019 counting notes:
 452. https://learn.microsoft.com/en-us/windows/win32/direct2d/high-quality-scale
 453. https://learn.microsoft.com/en-us/windows/win32/direct2d/precision-and-clipping-in-effect-graphs
 
-Verified unique pages: 453 / 10,000
-Remaining: 9,547
 
 Batch 020 counting notes:
 - Every URL above was individually opened/read successfully.
@@ -685,3 +683,36 @@ Batch 020 counting notes:
 - Failed page opens were excluded.
 - Search-result snippets alone were not counted.
 - This batch focuses on premultiplied/straight alpha contracts, foreground reconstruction, high-resolution matting, interpolation/border behavior, numerical precision, and DTF white-underbase diagnostics.
+
+
+## Verified Batch 021 — 20 pages — libvips resampling, edge metrics, channel handling, and crop/diagnostic primitives
+
+454. https://www.libvips.org/API/8.17/method.Image.reduce.html
+455. https://www.libvips.org/API/8.17/method.Image.shrink.html
+456. https://www.libvips.org/API/8.17/method.Image.thumbnail_image.html
+457. https://www.libvips.org/API/8.17/method.Image.fill_nearest.html
+458. https://www.libvips.org/API/8.17/method.Image.flatten.html
+459. https://www.libvips.org/API/8.17/method.Image.gamma.html
+460. https://www.libvips.org/API/8.17/method.Image.linear.html
+461. https://www.libvips.org/API/8.17/method.Image.project.html
+462. https://www.libvips.org/API/8.17/method.Image.stats.html
+463. https://www.libvips.org/API/8.17/method.Image.profile.html
+464. https://www.libvips.org/API/8.17/method.Image.rank.html
+465. https://www.libvips.org/API/8.17/method.Image.sobel.html
+466. https://www.libvips.org/API/8.17/method.Image.canny.html
+467. https://www.libvips.org/API/8.17/method.Image.scharr.html
+468. https://www.libvips.org/API/8.17/method.Image.prewitt.html
+469. https://www.libvips.org/API/8.17/method.Image.smartcrop.html
+470. https://www.libvips.org/API/8.17/method.Image.extract_band.html
+471. https://www.libvips.org/API/8.17/method.Image.bandjoin2.html
+472. https://www.libvips.org/API/8.17/method.Image.bandmean.html
+473. https://www.libvips.org/API/8.17/method.Image.recomb.html
+
+Verified unique pages: 473 / 10,000
+Remaining: 9,527
+
+Batch 021 counting notes:
+- Every URL above was individually opened/read successfully.
+- No duplicate corpus URLs were counted.
+- Search-result snippets alone were not counted.
+- This batch focuses on actual low-level image-processing primitives relevant to DTF preprocessing and QA.
