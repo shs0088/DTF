@@ -4796,3 +4796,52 @@ Production quality requires:
 - structural QA before approval.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 024 — deterministic resampling and diagnostics with libvips
+
+The verified corpus now contains 473 individually opened/read unique pages.
+
+### 1. Downsampling should use a two-stage policy for large reductions
+libvips documents reduce as a high-quality kernel-based reducer that works best below about 3x shrink, while shrink uses a box filter and can be combined with reduce for larger factors. This supports a production policy of coarse box shrink followed by a high-quality final kernel rather than one expensive large-radius reduction.
+
+### 2. Display thumbnails should use a dedicated delivery path
+thumbnail_image supports linear-light shrink, ICC input/output profiles, rendering intent, orientation handling, and target crop behavior. It is appropriate for display derivatives, while print-master resize remains an explicit recipe with controlled alpha/profile semantics.
+
+### 3. Hidden-RGB propagation can be implemented deterministically
+fill_nearest returns both nearest nonzero values and a distance field. This is a strong primitive for propagating trusted foreground RGB outward underneath transparent pixels near an edge before filtering, while limiting propagation by distance.
+
+### 4. Flatten is only a proof/display operation
+flatten composites alpha over a selected background and destroys the separate transparency channel. It should only be used for diagnostic black/white/gray proofs and never as part of transparent-master generation.
+
+### 5. Gamma and linear operations must never be applied to alpha by accident
+libvips exposes generic gamma and linear transforms across bands. The DTF engine must split color from alpha before tone/gamma operations unless an operation is explicitly intended for coverage.
+
+### 6. Row/column projections are useful structural QA features
+project computes sums per row and column. For text/logo artwork, comparing projections before and after processing can reveal missing strokes, clipped borders, shifted content, or overly aggressive crop/choke even when a global similarity metric remains high.
+
+### 7. Global statistics are cheap preflight signals
+stats exposes min/max/sum/sum-of-squares/mean/stddev per band. These can support fast checks for empty channels, nearly blank alpha, unexpected full-opacity alpha, and gross tonal changes before more expensive analysis.
+
+### 8. Edge detectors should be treated as complementary measurements
+Sobel, Scharr, Prewitt, and Canny are all available as deterministic primitives. For DTF QA, the engine should use them to compare edge continuity, orientation and sharpness across processing versions rather than using any one edge map as final artwork.
+
+### 9. Rank filters provide robust local cleanup options
+rank filtering can implement median-style cleanup and percentile selection. This is valuable for isolated specks and salt-and-pepper defects where Gaussian blur would damage edge definition.
+
+### 10. Attention-based smart crop is not suitable as an authoritative print crop
+smartcrop removes “boring” areas based on attention/interest heuristics. It can help generate web thumbnails, but production print bounds should come from alpha/geometry and explicit user placement, not visual-attention cropping.
+
+### 11. Channel extraction/joining should underpin explicit alpha pipelines
+extract_band and bandjoin2 make it straightforward to process RGB and alpha independently and reassemble them. This matches the project rule that alpha, color, trimap/confidence, and derived white response are distinct signal types.
+
+### 12. bandmean and recomb can implement controlled luminance transforms
+bandmean collapses channels; recomb applies an arbitrary band matrix. These are useful for deterministic luminance/feature derivation, but should not silently replace ICC-based profile conversions.
+
+### 13. Effective-DPI metadata must be recomputed after resampling
+reduce/shrink documentation explicitly states xres/yres are not updated. The application therefore owns physical-resolution semantics and must recompute placement effective DPI after any pixel-dimension change.
+
+### Batch 024 conclusion
+libvips is increasingly suitable as the deterministic CPU backbone for DTF Studio because it exposes the exact primitives we need for alpha-aware channel separation, resampling, edge diagnostics, local cleanup, hidden-RGB propagation, and delivery derivatives. The processing graph should still wrap these primitives with explicit alpha/color/physical-unit contracts and QA gates.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
