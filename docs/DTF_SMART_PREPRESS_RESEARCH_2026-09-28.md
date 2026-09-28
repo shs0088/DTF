@@ -6826,3 +6826,286 @@ The processing architecture now has a third explicit validation boundary after p
 A master can be pixel-perfect and still fail if the wrong profile, rendering intent, output intent, white-channel policy, or printer calibration is used.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 031 — edge geometry, registration, contrast discipline, morphology footprints, and artwork-class descriptors
+
+The verified corpus now contains 690 individually opened/read unique pages.
+
+### 1. Hough-space line preservation is a useful structural QA for geometric artwork
+
+The straight-line Hough transform converts line evidence into peaks in a parameter space, while the probabilistic variant returns explicit line segments with minimum-length and line-gap controls.
+
+DTF use:
+- detect long borders, underlines, geometric logo strokes, and frame edges before processing;
+- compare retained line count, angle and length after denoise, resize, background removal, choke, or sharpen;
+- flag structural fragmentation even when the image still looks subjectively acceptable.
+
+This is especially useful for thin rectangular frames and technical-style graphics.
+
+### 2. Circular/elliptical Hough features can protect logos and badge geometry
+
+The circular/elliptical Hough examples show how curved geometric structures can be detected independently of the rasterized edge thickness.
+
+For artwork containing rings, badges, emblems or circular text frames:
+- compare center/radius/ellipse parameters before and after processing;
+- reject candidate transforms that visibly deform the design's intended geometry.
+
+### 3. Edge operators should be chosen for what they measure
+
+The scikit-image edge-operator examples reinforce that Sobel, Scharr, Prewitt, Roberts and related operators have different directional sensitivity and numerical behavior.
+
+The QA system should not reduce "edge quality" to one score. Instead maintain:
+- isotropic edge-energy estimate;
+- horizontal/vertical edge retention;
+- gradient orientation distribution;
+- thin diagonal-edge retention where appropriate.
+
+This is valuable for Arabic calligraphy and fine geometric logos where directionality matters.
+
+### 4. Interpolation boundary mode can create or suppress artifacts at the canvas edge
+
+Interpolation edge-mode examples show the difference among constant, edge, reflect, symmetric and wrap-like behavior.
+
+For DTF processing:
+- transparent artwork should not accidentally inherit opaque edge colors from replicated borders;
+- convolution/resize/warp operations must declare boundary mode;
+- safe transparent padding remains preferable for edge-sensitive operations near the canvas boundary.
+
+Boundary handling becomes part of the processing recipe and regression suite.
+
+### 5. Registration can diagnose directional color/white misalignment
+
+Phase cross-correlation can estimate translation between two images with subpixel precision.
+
+This is directly relevant to DTF QA:
+- compare a scanned/measured color plane against white-underbase or reference marks;
+- estimate X/Y registration offset;
+- distinguish a registration error from a choke/alpha error.
+
+A directional one-sided white halo should trigger registration analysis before symmetric choke is suggested.
+
+### 6. Global histogram equalization is too destructive for default artwork correction
+
+Histogram equalization redistributes the full image intensity distribution and can make low-contrast images easier to see, but the scikit-image example explicitly notes that results can look unnatural.
+
+For DTF:
+- global equalization is a diagnostic/optional corrective tool;
+- never apply automatically to logos or color-critical illustrations;
+- if proposed, compare color drift and local edge behavior.
+
+### 7. Local histogram equalization is even more powerful—and therefore more dangerous
+
+Local equalization enhances variation in each neighborhood and can expose local details, but it also amplifies local noise and texture.
+
+Use only for:
+- difficult scanned art;
+- photographed paper sketches;
+- local-contrast diagnostics.
+
+Do not auto-apply to smooth gradients, skin, brand colors or intentional low-contrast artwork.
+
+### 8. Adaptive histogram equalization confirms scale must be physical/content-aware
+
+The 3D AHE example chooses kernel dimensions relative to the image size.
+
+For DTF, local-contrast neighborhood size should instead be interpreted relative to:
+- physical print scale;
+- artwork class;
+- expected feature size.
+
+A fixed 32-pixel CLAHE tile means very different things at 150 PPI and 600 PPI.
+
+### 9. Histogram matching is unsuitable as a general color-correction shortcut
+
+Histogram matching aligns cumulative channel distributions to a reference image, but it does not understand object semantics, ICC profiles, spot colors, or brand-color intent.
+
+Potential use:
+- style/reference preview;
+- batch normalization in a controlled dataset;
+- research comparison.
+
+Not suitable as an automatic DTF master correction.
+
+### 10. RGB-to-HSV / RGB-to-gray conversions are diagnostic transforms, not lossless working states
+
+The RGB/HSV and RGB/grayscale examples reinforce that channel conversions intentionally discard or reorganize information.
+
+Recommended use:
+- luminance/edge/noise diagnostics;
+- hue/saturation classification features;
+- background-color clustering.
+
+Never overwrite the production master with a diagnostic representation.
+
+### 11. Channel-adapted grayscale filters can be safer than applying them blindly to RGB
+
+The adapt-RGB example shows how grayscale-oriented filters can be applied channelwise or through HSV/value logic.
+
+For our engine:
+- explicitly define whether a filter is operating on luminance, each RGB channel, alpha, or a derived feature map;
+- avoid applying single-channel morphology/edge algorithms independently to RGB unless the intended visual consequence is understood.
+
+### 12. Regional maxima can help detect isolated bright artifacts and highlight islands
+
+Filtering regional maxima is useful for finding locally dominant bright features.
+
+Potential DTF diagnostics:
+- dust-like white islands after background removal;
+- isolated high-intensity spots that may create unwanted white-underbase islands;
+- highlight features that should be protected from over-smoothing.
+
+### 13. Shape primitives and polygon simplification can support vectorization eligibility
+
+The shape/polygon examples reinforce that raster boundaries can be approximated with fewer vertices while preserving major geometry.
+
+Vectorization router features can include:
+- contour complexity;
+- simplification error;
+- number of vertices needed at a fixed tolerance;
+- curvature distribution.
+
+Low-complexity boundaries are stronger candidates for vectorization than noisy photographic contours.
+
+### 14. Radon-transform structure can help identify dominant line orientation
+
+The Radon transform projects image intensity along angles and can reveal dominant directional structures.
+
+Potential use:
+- detect text/stripe orientation;
+- classify whether a design contains strong linear structure;
+- compare orientation preservation before/after processing;
+- detect accidental skew in scanned artwork.
+
+This is a diagnostic feature, not a final-image filter.
+
+### 15. Morphology footprint shape should be selected according to defect geometry
+
+scikit-image provides square/rectangle, disk, diamond, octagon, star and 3D variants, while footprint decomposition can accelerate large morphology.
+
+DTF implications:
+- disk: isotropic choke/spread or speck cleanup;
+- line/rectangle: directional line repair;
+- diamond/octagon: alternative grid approximations where desired;
+- decomposed large footprints: faster large-radius morphology without changing intended geometry excessively.
+
+Do not hard-code one 3x3 square kernel for all morphology.
+
+### 16. Large physical morphology should use decomposed footprints when equivalent
+
+Footprint decomposition can represent a larger morphology operation as a sequence of smaller footprints with repeated iterations.
+
+This is useful for:
+- larger physical choke/spread;
+- broad background cleanup;
+- server performance.
+
+But equivalence must be validated, especially for non-Euclidean footprint approximations.
+
+### 17. Block views can support tiled analysis without copying entire arrays
+
+Block views are a useful conceptual tool for:
+- local quality scoring;
+- texture/noise maps;
+- tiled inference scheduling;
+- per-tile histogram/entropy analysis.
+
+The production implementation can exploit tiled/streaming equivalents rather than holding multiple full-resolution copies.
+
+### 18. HOG can help distinguish structured logo/text art from natural imagery
+
+Histogram of Oriented Gradients summarizes local edge orientations.
+
+As a classifier feature:
+- strong organized orientation peaks -> text/logo/geometric art;
+- broad/random orientation distributions -> photo/texture-heavy content.
+
+HOG should supplement, not replace, entropy/color/connected-component features.
+
+### 19. GLCM texture statistics can improve artwork routing
+
+Gray-Level Co-occurrence Matrix features capture spatial texture relationships such as contrast, dissimilarity, homogeneity and correlation.
+
+Potential router use:
+- distinguish smooth gradients from textured photographs;
+- identify repeated fabric/noise textures;
+- avoid vectorizing texture-rich images;
+- tune denoise strength based on texture preservation need.
+
+### 20. Shape Index can identify local curvature classes
+
+Shape Index maps local surface-like structures into categories such as ridges, saddles and cup/cap-like forms.
+
+For 2D artwork it is mainly a diagnostic research feature, but could help identify:
+- smooth shading/emboss-like patterns;
+- ridge-heavy line art;
+- locally rounded versus flat structures.
+
+It is lower priority than edge/entropy/HOG features, but useful in the research classifier set.
+
+### 21. Sliding-window histograms can localize tonal/color anomalies
+
+A local histogram representation can reveal that an image has:
+- a globally normal histogram but a local washed-out region;
+- localized color contamination near an edge;
+- different texture/contrast regimes across the design.
+
+This supports region-specific correction rather than whole-image treatment.
+
+### 22. Artwork classification can now use a richer, interpretable feature vector
+
+Candidate features:
+- edge density and orientation histogram;
+- HOG summary;
+- local entropy;
+- GLCM contrast/homogeneity;
+- dominant-color count;
+- component count and area distribution;
+- contour simplification complexity;
+- long-line Hough peaks;
+- circular/elliptical feature evidence;
+- alpha coverage/transition statistics;
+- local histogram variation.
+
+This provides an interpretable deterministic routing layer before invoking expensive AI.
+
+### 23. Registration should become its own defect class
+
+Add:
+REGISTRATION_SHIFT
+
+Evidence:
+- translation vector;
+- confidence/peak ratio;
+- direction;
+- affected channel pair;
+- physical offset in mm.
+
+Suggested action should be device/print-mode calibration or X/Y layer shift—not alpha erosion.
+
+### 24. Contrast operations need a "content-protection mask"
+
+If local/global contrast enhancement is offered, the processing recipe should be able to protect:
+- alpha;
+- brand-color regions;
+- very thin text;
+- already-clipped highlights/shadows.
+
+This reduces the risk of destroying intentionally flat graphics while correcting only a problematic region.
+
+### 25. Batch 031 conclusion
+
+The processing router should increasingly be driven by measurable structure rather than by one generic image-type label.
+
+The engine can now distinguish:
+- geometric line art;
+- curved/badge geometry;
+- flat/simple graphics;
+- texture-rich photographs;
+- scanned/uneven-background art;
+- transparency-heavy soft-edge art;
+- registration-related production defects.
+
+This allows narrower, safer processing and fewer destructive “enhance everything” operations.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
