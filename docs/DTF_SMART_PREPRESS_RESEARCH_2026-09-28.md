@@ -7997,3 +7997,158 @@ The GitHub ledger had already advanced asynchronously to 792 verified pages befo
 The processing architecture is converging on mask-conditioned, region-specific operations rather than global filters. That is especially important for DTF: a smoke edge, a one-pixel letter stroke, an opaque logo interior and a contaminated low-alpha fringe should not receive the same processing.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 041 — registration measurement, topology guards, and localized deterministic processing
+
+The verified corpus now contains 826 individually opened/read unique pages.
+
+### 1. White-plane registration can be measured instead of guessed
+Phase correlation provides a direct way to estimate translational offset between two similarly structured images. OpenCV also exposes iterative phase correlation for subpixel refinement, while ECC can estimate translation, Euclidean, affine, or homography warps.
+
+For DTF, compare normalized edge/silhouette maps of the color-coverage plane and generated white plane:
+- estimate X/Y shift;
+- report confidence/response;
+- classify whether the mismatch is mainly translation or a more complex warp;
+- do not automatically warp artwork unless the operator explicitly approves.
+
+This turns "white is peeking on one side" into a measurable registration diagnostic.
+
+### 2. Use ECC only after a coarse alignment
+OpenCV notes that ECC alignment needs a reasonable initial transform for large displacement/rotation and can fail to converge.
+
+Recommended sequence:
+- phase correlation for initial X/Y translation;
+- optional ECC translation/Euclidean refinement;
+- escalate to affine only if there is strong evidence of scale/shear mismatch;
+- production printer calibration remains separate from artwork correction.
+
+### 3. Long straight and circular geometry can have dedicated QA
+libvips Hough line/circle transforms provide low-cost structural signals.
+
+For line-art/logo classes:
+- compare dominant line angles and long-line peaks before/after processing;
+- compare circular/ring features when the design contains them;
+- flag fragmentation, unexpected rotation, or geometry loss after background removal, choke, resize, or upscale.
+
+### 4. Connected-component QA should be staged
+The scikit-image labeling example uses a useful pattern:
+threshold -> morphology/closing -> border cleanup -> labeling -> region properties.
+
+For DTF:
+- threshold is diagnostic only when source alpha is continuous;
+- label connected foreground components;
+- track component count/area/centroid;
+- protect legitimate punctuation/dots and detached logo elements using context and physical size;
+- classify new tiny islands as probable residue, not automatically delete every small component.
+
+### 5. Morphology requires an explicit foreground convention
+libvips morphology assumes white objects on black background.
+
+The recipe therefore needs a mask convention before erode/dilate/open/close. A silent inversion would turn choke into spread and vice versa.
+
+Internal mask nodes should declare:
+- foregroundValue;
+- backgroundValue;
+- operation;
+- kernel/physical radius;
+- connectivity.
+
+### 6. Directional convolution can detect orientation-specific damage
+libvips compass rotates a kernel through multiple directions and combines responses.
+
+Potential DTF uses:
+- detect broken strokes in preferred directions;
+- quantify directional edge strength;
+- detect asymmetric damage after denoise/sharpen;
+- support orientation-aware line-art QA.
+
+### 7. Transition density is a cheap texture/complexity signal
+libvips countlines measures mean black/white transitions horizontally or vertically.
+
+For diagnostic binary masks, directional transition density can help distinguish:
+- simple logo/text;
+- dense line art;
+- halftone/screen texture;
+- fragmented masks after processing.
+
+It is not a quality score by itself, but a useful router feature.
+
+### 8. Flood fill is a strong deterministic background primitive
+Flood fill can isolate connected background-like regions from border or sampled seeds.
+
+For flat/simple backgrounds:
+- seed from trusted border pixels;
+- flood through color-distance-compatible pixels;
+- preserve enclosed holes separately;
+- use the result as a coarse background prior before edge matting.
+
+This is explainable, fast, and useful as a non-AI fallback.
+
+### 9. Fourier spectrum can expose periodic defects and screen structure
+ImageMagick's Fourier examples show the frequency spectrum as a view of frequency magnitude after log scaling.
+
+DTF diagnostic uses:
+- detect periodic halftone/screen structure;
+- reveal resampling aliasing;
+- detect repeated banding/noise;
+- compare intended screen angle/frequency with observed digital pattern.
+
+The spectrum is diagnostic only; it should not become a master image effect.
+
+### 10. Crop/process/insert should be first-class graph operations
+libvips crop, insert, join and band fold/unfold support localized processing.
+
+This is important for expensive high-resolution refinement:
+- crop only the uncertain tile;
+- preserve exact source coordinates;
+- process;
+- reinsert into the same artifact coordinate system;
+- verify seam/alpha continuity.
+
+Every tile operation should store original bounds and output bounds.
+
+### 11. Basic math primitives stay internal
+Clamp, abs, sign and invert are useful for mask arithmetic, residuals, signed-distance-like diagnostics, and threshold construction. They should remain internal graph nodes rather than customer-facing "enhancement" options.
+
+### 12. Global balance is intentionally not a default enhancement
+libvips globalbalance is designed for balancing mosaics/overlapping images. It can alter contrast globally.
+
+For ordinary DTF artwork it stays out of the default path. It is only research-relevant for potential patch/tile seam balancing, and even there it would require strict appearance-change QA.
+
+### 13. Synthetic geometry fixtures should be generated deterministically
+Exact circles and lines can be generated for regression tests.
+
+Add fixtures covering:
+- 1/2/3 px horizontal, vertical and diagonal strokes;
+- concentric circles/rings;
+- acute corners;
+- small detached dots;
+- narrow gaps;
+- strokes crossing tile boundaries.
+
+Run them through resize, matting, choke/spread, halftone, and export to quantify structural loss.
+
+### 14. Registration diagnostic output
+Proposed RegistrationReport:
+- shiftXPx / shiftYPx;
+- shiftXmm / shiftYmm at output resolution;
+- phaseCorrelationResponse;
+- eccScore;
+- transformClass;
+- confidence;
+- colorWhiteOverlapIoU;
+- directionalOvershootMm;
+- recommendedAction.
+
+Recommended actions:
+- NONE;
+- CHECK_PRINTER_REGISTRATION;
+- APPLY_RIP_XY_SHIFT;
+- REGENERATE_UNDERBASE;
+- MANUAL_REVIEW.
+
+### Batch 041 conclusion
+A new distinction is now explicit: **artwork geometry correctness** and **white/color plane registration correctness** are separate. The preparation engine should measure both before recommending choke or changing alpha.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
