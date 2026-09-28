@@ -1921,3 +1921,251 @@ Still not locked:
 No storefront merge.
 No deployment.
 No protected Home/Mockup modification.
+
+
+## Research Batch 011 — image-processing methods themselves
+
+Per project direction, this batch shifts priority toward how the pixels are actually processed, not only upload/storage/orchestration.
+
+### 1. Edge-preserving smoothing should replace generic blur for many repair tasks
+
+OpenCV documents several edge-aware filters: bilateral, guided, domain-transform, adaptive-manifold, fast bilateral solver and fast global smoother.
+
+DTF implication:
+- Gaussian blur is acceptable for intentionally soft masks and low-frequency operations;
+- median filtering is useful for isolated impulse/speck noise;
+- bilateral/guided filtering is better when we want to smooth noise while preserving artwork boundaries;
+- guided filtering is a particularly strong candidate for refining an alpha matte using the original RGB image as the guide.
+
+Proposed alpha-refinement experiment:
+1. obtain coarse alpha A0;
+2. use original RGB or luminance as guide G;
+3. guided-filter A0 -> A1;
+4. clamp to [0,1];
+5. preserve known foreground/background seeds;
+6. compare edge leakage, halo and detail retention against morphology-only refinement.
+
+### 2. Alpha matting is mathematically different from binary segmentation
+
+OpenCV's alphamat module describes alpha matting as estimating foreground opacity in unknown trimap regions, where pixels may be mixtures of foreground and background.
+
+This confirms a three-class view:
+- definite foreground;
+- definite background;
+- unknown transition region.
+
+For hair, smoke, glow, fur, anti-aliased typography and soft brushwork, the unknown region should not be collapsed to a binary mask.
+
+DTF rule:
+- segmentation answers "what belongs to the subject";
+- matting answers "how much foreground coverage is in this edge pixel";
+- edge-color decontamination answers "what foreground RGB should that partially transparent pixel contain".
+
+These remain separate processing stages.
+
+### 3. Background subtraction algorithms for video are mostly the wrong tool for uploaded artwork
+
+OpenCV bgsegm methods such as MOG/GMG/CNT/LSBP rely on temporal/background history and are useful for video streams, not normal single uploaded artwork.
+
+This is a valuable negative result: do not choose a technically available algorithm simply because it is named foreground/background segmentation.
+
+### 4. Denoising must be classified by noise type and texture importance
+
+The scikit-image denoising tutorials compare total variation, bilateral, wavelet and non-local means.
+
+Observed method characteristics:
+- Total Variation: preserves major edges but tends toward piecewise-flat/posterized regions when strong.
+- Bilateral: smooths while preserving edges; good for moderate noise but can produce cartoon-like flattening if pushed.
+- Wavelet: useful for noise distributed across frequency bands; BayesShrink is adaptive while a single universal threshold can oversmooth.
+- Non-local Means: compares patches and can preserve repeated texture better than local smoothing, but costs more computation.
+
+DTF routing proposal:
+- logo/flat art: avoid general denoise unless diagnostic evidence says it is needed;
+- scanned/photographic noisy art: NLM or wavelet candidate;
+- slight speck noise: median/local morphology first;
+- smooth gradients: avoid TV settings that create bands/posterization.
+
+No denoiser should run automatically merely because the image is low resolution.
+
+### 5. J-Invariance offers a way to tune denoising without a clean reference
+
+scikit-image documents self-supervised J-invariant calibration for choosing denoising parameters from the noisy image itself.
+
+This is useful because customers normally provide only one source image, not a clean ground-truth pair.
+
+Potential advanced mode:
+- estimate candidate noise level;
+- evaluate a small bounded parameter grid using J-invariant self-supervised loss;
+- select the least destructive candidate;
+- still require quality gates around edge sharpness/text readability.
+
+This is a better direction than arbitrary fixed "denoise strength = 50" defaults.
+
+### 6. Sharpening should be diagnosis-driven, not a mandatory enhancement
+
+Unsharp masking is:
+  enhanced = original + amount * (original - blurred)
+
+It can increase apparent edge contrast but cannot create genuine missing detail. Aggressive settings also create ringing/halos around high-contrast DTF edges.
+
+Recommended sharpening policy:
+- measure blur first;
+- skip sharpening when blur metric is already acceptable;
+- use a small radius for fine-edge recovery;
+- cap overshoot around transparent/high-contrast boundaries;
+- compare on black and white garment backgrounds;
+- never label sharpening as "increase DPI".
+
+### 7. Blur detection can become a real preflight metric
+
+scikit-image exposes a no-reference perceptual blur metric in the range 0..1. This gives us a measurable signal instead of a vague "looks blurry" flag.
+
+Use carefully:
+- compare only under a fixed measurement configuration;
+- establish thresholds experimentally on DTF artwork classes;
+- combine with effective DPI, edge spread and text/line-art diagnostics.
+
+Potential preflight status:
+- SHARP_ENOUGH;
+- SOFT_BUT_ACCEPTABLE;
+- BLUR_RISK;
+- UPSCALE_CANNOT_RECOVER_SOURCE_BLUR.
+
+### 8. Deconvolution is a specialized repair tool, not a generic sharpen button
+
+Richardson-Lucy deconvolution assumes a point-spread function and requires iterative tuning. It can be powerful for known blur but may amplify noise/artifacts when the blur model is wrong.
+
+DTF policy:
+- keep deconvolution out of normal auto mode;
+- allow only as an advanced repair candidate when blur appears convolutional and a plausible PSF can be estimated;
+- preserve the original and compare before/after.
+
+### 9. Inpainting can repair small isolated defects, but should never silently invent major artwork
+
+Biharmonic inpainting reconstructs masked regions using surrounding information.
+
+Suitable DTF uses:
+- tiny dust/scratch removal;
+- filling pinholes after background cleanup;
+- repairing very small isolated defects after an explicit mask.
+
+Unsuitable default uses:
+- reconstructing faces/text/logos;
+- removing large objects automatically;
+- replacing missing design content.
+
+Appearance-changing inpainting requires explicit approval.
+
+### 10. Difference-of-Gaussians can separate edge/detail bands from illumination/background variation
+
+DoG subtracts two Gaussian-smoothed versions to form a band-pass response.
+
+Potential uses:
+- detect high-frequency detail/edges;
+- suppress slow illumination/background gradients during diagnostic analysis;
+- estimate whether line art contains enough edge energy;
+- assist halo/edge-band diagnosis.
+
+It should usually be diagnostic or a mask-building primitive, not a final visual filter.
+
+### 11. Thresholding needs algorithm selection, not one fixed threshold
+
+scikit-image distinguishes histogram/global methods from local methods and provides multiple threshold estimators.
+
+For simple logos/scans:
+- Otsu/Yen/Triangle/Isodata may work well on bimodal or structured histograms;
+- local/adaptive methods work better with uneven backgrounds but cost more and may create fragmented masks.
+
+Hysteresis thresholding adds a useful two-threshold concept:
+- strong pixels above high threshold seed the result;
+- weak pixels above low threshold survive only if connected to strong regions.
+
+DTF use:
+- preserving faint but connected line details while rejecting isolated noise;
+- edge-mask construction;
+- not for arbitrary photo segmentation.
+
+### 12. Gamma/log/contrast operations should be explicit tone transforms
+
+Gamma and logarithmic transforms change tonal mapping; histogram equalization and CLAHE redistribute contrast.
+
+Important caution:
+- global histogram equalization can over-amplify regions or destroy intended tonal relationships;
+- CLAHE limits local contrast amplification and is safer in some uneven images, but can still emphasize noise;
+- these operations change appearance and therefore should normally be suggested/previewed, not silently applied to customer artwork.
+
+A professional UI should expose the reason for the suggestion, e.g.:
+- LOW_CONTRAST_SOURCE;
+- SHADOW_DETAIL_LOSS;
+- LOCAL_CONTRAST_IMBALANCE;
+- NOISY_LOW_CONTRAST — denoise before contrast enhancement.
+
+### 13. Color difference metrics can objectively check whether processing changed artwork colors
+
+scikit-image provides Lab conversion and Delta-E metrics including CIEDE2000 and CMC variants.
+
+Potential QA gate:
+- compare source vs processed colors in high-confidence opaque foreground regions;
+- ignore pixels intentionally changed by user-approved color correction;
+- calculate median/p95 Delta-E;
+- flag unexpected color drift caused by resize/profile conversion/denoise/decontamination.
+
+This is especially valuable because RGB channel numeric differences are not perceptually uniform.
+
+### 14. Proposed image-processing router after this batch
+
+A. Transparent clean artwork
+- inspect alpha;
+- transparent-bounds crop;
+- edge-band/halo diagnostics;
+- no background-removal model unless a problem is detected.
+
+B. Transparent artwork with fringe/haze
+- classify COLOR_FRINGE vs COVERAGE_LEAK;
+- guided/edge-aware alpha refinement where useful;
+- targeted foreground-color decontamination;
+- low-alpha haze suppression only after preview.
+
+C. Flat logo / line art on simple background
+- histogram analysis;
+- global/local threshold candidates;
+- hysteresis for faint connected detail;
+- morphology for specks/pinholes;
+- optional vectorization.
+
+D. Photo/product on complex background
+- learned segmentation;
+- trimap construction;
+- alpha matting/refinement;
+- RGB decontamination;
+- optional denoise only if measured noise warrants it.
+
+E. Noisy photographic artwork
+- estimate noise;
+- compare bilateral/wavelet/NLM candidates;
+- preserve texture/edges;
+- sharpen only after denoise and only if measured blur remains.
+
+F. Soft/glow/smoke art
+- preserve continuous alpha;
+- no binary threshold by default;
+- edge-aware matte refinement;
+- optional halftone derivative, never forced.
+
+G. Blurry/low-effective-DPI art
+- distinguish source blur from insufficient pixel count;
+- optional upscale addresses pixel count, not source blur;
+- optional conservative sharpening/deconvolution only if diagnostics justify it;
+- rerun effective-DPI and blur checks afterward.
+
+### Batch 011 engineering conclusion
+
+The core philosophy is now more specific:
+- first DIAGNOSE the image defect;
+- then choose the narrowest processing method that addresses that defect;
+- compare before/after quantitatively and visually;
+- preserve alpha/color/geometry invariants;
+- store every appearance-changing result as a separate version;
+- never chain generic denoise + sharpen + contrast + background removal on every upload.
+
+This is still research. No storefront merge, no deployment, and no protected Home/Mockup changes.
