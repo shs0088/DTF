@@ -1043,11 +1043,44 @@ Batch 030 counting notes:
 689. https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_shape_index.html
 690. https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_windowed_histogram.html
 
-Verified unique pages: 690 / 10,000
-Remaining: 9,310
 
 Batch 031 counting notes:
 - All 25 URLs above were individually opened/read successfully in this batch.
 - Previously counted pages were checked against the ledger and excluded.
 - Search-result snippets alone were not counted.
 - This batch emphasizes measurable edge/shape preservation, local-vs-global contrast behavior, registration, morphology-footprint design, and texture/shape descriptors that can drive the DTF image-processing router.
+
+
+## Verified Batch 032 — 20 pages — resize semantics, antialiasing, coordinate conventions, and print-detail preservation
+
+691. https://github.com/libvips/libvips/wiki/HOWTO----Image-shrinking
+692. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.v2.Resize.html
+693. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.v2.functional.resize.html
+694. https://docs.pytorch.org/vision/stable/transforms.html
+695. https://kornia.readthedocs.io/en/stable/geometry.transform.html
+696. https://kornia.readthedocs.io/en/latest/augmentation.geometric.html
+697. https://www.tensorflow.org/api_docs/python/tf/image/resize
+698. https://www.tensorflow.org/api_docs/python/tf/keras/ops/image/resize
+699. https://pillow.readthedocs.io/en/latest/reference/Image.html
+700. https://pillow.readthedocs.io/en/stable/releasenotes/7.0.0.html
+701. https://www.lastmilegraphics.com/site/tools/halftone
+702. https://dtfwiz.com/tools/white-ink-checker
+703. https://onnx.ai/onnx/operators/onnx__Resize.html
+704. https://onnx.ai/onnx/operators/text_diff_Resize_13_19.html
+705. https://onnx.ai/onnx/operators/text_diff_Resize_10_18.html
+706. https://kornia.readthedocs.io/en/latest/geometry.html
+707. https://docs.pytorch.org/vision/stable/_modules/torchvision/transforms/v2/functional/_geometry.html
+708. https://docs.pytorch.org/vision/main/_modules/torchvision/transforms/transforms.html
+709. https://docs.pytorch.org/vision/0.14/generated/torchvision.transforms.Resize.html
+710. https://docs.opencv.org/5.0/main_modules/imgproc_transform.html
+
+Verified unique pages: 710 / 10,000
+Remaining: 9,290
+
+Batch 032 counting notes:
+- All 20 URLs above were individually opened/read successfully.
+- A PyTorch interpolate page that opened only as a redirect shell was excluded from the verified count.
+- Previously counted pages were checked against the ledger and excluded.
+- Search-result snippets alone were not counted.
+- Query-string mirrors were canonicalized to their base documentation URL.
+- This batch focuses on resize-coordinate semantics, antialias behavior, linear-light resampling, model preprocessing parity, and physical DTF detail survival.
