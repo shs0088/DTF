@@ -3344,3 +3344,283 @@ The strongest new conclusion is that "background removal" should not be one serv
 This architecture gives DTF Studio a much better chance of preserving hair, smoke, antialiasing, fine text and colored edges without halos while keeping heavy compute localized to the pixels that actually need it.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 018 — diagnose halo cause first, physical choke/stroke guards, halftone cell math, and alpha-safe resize
+
+The verified corpus now contains 353 individually opened/read unique pages.
+
+### 1. A visible white halo has multiple root causes and choke is only one of them
+
+The DTF sources in this batch distinguish:
+- dirty/low-alpha debris in artwork;
+- underbase geometry that extends beyond color;
+- color-to-white registration or scaling drift;
+- soft/semi-transparent artwork whose threshold policy exposes white;
+- excessive white density that makes an existing geometry defect more visible.
+
+This means the diagnostic order should be:
+1. inspect approved color artifact;
+2. inspect alpha;
+3. inspect generated white plane;
+4. compare color/white registration geometry;
+5. only then recommend threshold, choke, white amount, or printer/RIP registration.
+
+The tool should never treat every white outline as “increase choke.”
+
+### 2. Choke should be protected by a minimum-stroke rule
+
+Multiple DTF sources warn that choke can make small text and fine details disappear. One production guide gives a 0.02 inch minimum feature recommendation, while other documentation recommends testing choke charts rather than relying on a universal number.
+
+Our engine should compute:
+- minStrokeMm;
+- proposed chokeMm;
+- residualWhiteStrokeMm ≈ minStrokeMm - 2*chokeMm for interior-sided erosion cases.
+
+If the residual approaches the process minimum, block or warn before applying the choke.
+
+### 3. Physical-unit choke is preferable to fixed-pixel choke
+
+Caldera explicitly explains that the physical size of a pixel changes with DPI. CADlink and other workflows may expose choke in pixels or physical units depending on the product.
+
+Internal rule:
+- store choke in mm as the authoritative intent;
+- derive pixels from output/effective DPI at render time;
+- record the converted pixel radius in the recipe for reproducibility.
+
+This prevents “2 px” from meaning different physical erosion at 300, 600, or 1200 DPI.
+
+### 4. Choke should be selected with a test-chart workflow
+
+DTF Station/CADlink documentation uses a choke wizard that prints a range of candidate values and asks the operator to select the best physical result.
+
+This is important: the right choke depends on actual printer/film/ink/registration behavior.
+
+Future production calibration profile:
+- deviceId;
+- printModeId;
+- film/media;
+- resolution;
+- measured preferred choke range;
+- date/operator;
+- minimum printable stroke/dot observations.
+
+The prepress tool can suggest, but the physical calibration remains printer-specific.
+
+### 5. Underbase generation order should be explicit
+
+A useful operational sequence supported by current DTF sources is:
+
+alpha/coverage -> eligibility threshold -> base white response -> choke/spread -> optional screening/halftone -> white amount/max ink.
+
+Why this matters:
+- threshold changes which pixels are eligible;
+- choke changes geometry;
+- halftone changes spatial coverage;
+- white amount changes density, not footprint.
+
+The UI and recipe should keep these controls separate.
+
+### 6. White amount is not a geometry control
+
+Reducing maximum white ink or underbase strength can make a halo less visible but does not repair a white mask extending beyond color.
+
+The diagnostic system should distinguish:
+- GEOMETRY_ERROR;
+- DENSITY_ERROR;
+- REGISTRATION_ERROR;
+- ALPHA_CONTAMINATION.
+
+Each class receives a different suggested action.
+
+### 7. Underbase response can be tone-dependent
+
+CADlink documents coverage underbase/manual curves where white amount varies with grayscale/color content, plus separate highlight white and maximum white controls.
+
+This strengthens the proposed underbase response curve:
+
+whiteCoverage = f(alpha, sourceTone, whitePolicy, calibrationProfile)
+
+rather than:
+whiteCoverage = alpha
+
+The exact f remains RIP/process-specific.
+
+### 8. Semi-transparent pixels require their own white policy
+
+CADlink and current DTF artwork guidance confirm that workflows may:
+- preserve proportional opacity;
+- treat semi-transparent pixels as fully opaque for white;
+- vary hole size/ink removal with transparency;
+- threshold low-opacity data.
+
+This remains a versioned recipe field, never a hidden default.
+
+### 9. Halftone cell size has a direct DPI/LPI relationship
+
+CADlink documentation provides a useful physical relation:
+
+cellPixelsPerSide = outputDPI / LPI
+
+Examples:
+- 300 DPI / 60 LPI = 5 px cell;
+- 600 DPI / 60 LPI = 10 px cell.
+
+A simple theoretical count of addressable binary fill states for a square cell is approximately:
+
+levels = cellPixelsPerSide^2 + 1
+
+before considering device/drop behavior, screening algorithms, supercells, and real print physics.
+
+Implication:
+- raising LPI makes cells smaller and can reduce available discrete area levels at a fixed DPI;
+- lower LPI gives more pixels per cell but makes the pattern more visible.
+
+This should drive a physical halftone validator rather than a purely visual slider.
+
+### 10. Supercells expose a resolution-versus-tone trade-off
+
+CADlink can group four normal halftone cells into a supercell to increase available gray levels without simply lowering frequency.
+
+This suggests a future simulation layer:
+- normal ordered cell;
+- supercell;
+- jittered screening;
+- transparency-varying holes.
+
+These are advanced preview modes, not first-version master processing.
+
+### 11. Jitter is controlled pattern decorrelation, not random noise everywhere
+
+CADlink’s halftone documentation describes jitter as small distortions to make the dot pattern less discernible, with separate highlight/midtone/shadow ranges.
+
+If we add jitter in a later phase:
+- deterministic seed required;
+- bounded amplitude;
+- separate tonal ranges;
+- never use unrestricted random noise in the master recipe.
+
+### 12. Ink-removal halftones should be modeled as coverage holes, not conventional color quantization
+
+CADlink “Ink Removal” explicitly creates holes to reduce deposited ink, including variable hole size in semi-transparent regions.
+
+This matters for DTF soft-hand design:
+- the target is material/ink coverage, not merely reproducing a grayscale screen aesthetically;
+- dot/hole masks need minimum printable-size constraints;
+- output should be evaluated against adhesion/coverage requirements.
+
+### 13. White-only printing illustrates why color, alpha, and white response are independent
+
+CADlink’s white-only modes can map color/tone data into white output while respecting transparency. Disabling color information can lose tonal blends.
+
+This supports our three-signal architecture:
+- source color/tone;
+- alpha/coverage;
+- derived white response.
+
+Even a “white-only” job may need source tonal information.
+
+### 14. Maximum white ink needs physical calibration, not a software guess
+
+CADlink’s profiler asks operators to print charts and select the highest useful white level that provides opacity without flooding/bleeding.
+
+Therefore DTF Studio should not claim to calculate the final printer white-ink limit from pixels alone.
+
+We can:
+- preview relative white coverage;
+- store calibrated device presets;
+- flag extreme coverage.
+
+But the final maximum ink limit belongs to a printer/media/ink calibration profile.
+
+### 15. Printer calibration and ICC creation are separate from artwork correction
+
+CADlink calibration uses printed/measured charts and a spectrophotometer to linearize channels before ICC creation.
+
+Therefore:
+- do not “fix” systematic printer color behavior by destructively changing uploaded artwork;
+- printer linearization/profile belongs to the production device profile;
+- artwork color correction is a separate, explicit user-approved operation.
+
+### 16. Alpha-safe resizing has a concrete implementation pattern
+
+Sharp’s own PNG benchmark explicitly describes:
+decode RGBA -> premultiply alpha -> Lanczos3 resize -> unpremultiply -> encode PNG.
+
+This is highly relevant to our server processing.
+
+For transparent raster resampling:
+1. know source alpha representation;
+2. convert to premultiplied representation if required by the filter path;
+3. resize/filter color+coverage consistently;
+4. unpremultiply only if the target storage format/API expects straight alpha;
+5. preserve hidden RGB intentionally where the pipeline needs it.
+
+This should become a regression-tested primitive rather than ad-hoc RGBA resize.
+
+### 17. Transparent-edge decontamination can use interior subject colors plus local background estimates
+
+The chroma-alpha implementation studied in this batch reconstructs contaminated edge color using:
+- a palette learned from confident interior subject colors;
+- a local background estimate;
+- the compositing equation;
+- edge-limited processing.
+
+We should not copy that implementation blindly, but the principle is strong:
+- learn/estimate plausible foreground color from reliable interior pixels;
+- restrict decontamination to the transition/edge band;
+- solve against locally estimated background contamination;
+- preserve source luminance/detail where useful.
+
+This provides a non-neural fallback for certain keyed/flat-background images.
+
+### 18. Convolution boundary behavior must be explicit
+
+OpenCV’s border tutorial is a reminder that filters need a boundary-extension policy (constant, replicated, etc.).
+
+For DTF transparent artwork, blindly replicating RGB at the rectangular canvas edge can create false color support near crop boundaries.
+
+Processing primitives should therefore specify border mode explicitly and, where possible:
+- add safe transparent padding;
+- process;
+- crop back to the intended bounds.
+
+This is especially important for blur, convolution, sharpen, morphology, and guided filtering near the canvas edge.
+
+### 19. Recommended halo diagnosis report
+
+Add a HaloDiagnostic block:
+
+- sourceLowAlphaResidueScore;
+- edgeColorContaminationScore;
+- whiteMaskOvershootMm;
+- directionalRegistrationOffsetPx;
+- proposedChokeMm;
+- minStrokeAfterChokeMm;
+- whiteDensityRisk;
+- semiTransparentPolicy;
+- confidence;
+- recommendedAction.
+
+Possible actions:
+- CLEAN_ALPHA;
+- DECONTAMINATE_EDGE_RGB;
+- CHOKE_WHITE;
+- REDUCE_WHITE_AMOUNT;
+- FIX_REGISTRATION;
+- PRESERVE_SOFT_ALPHA;
+- MANUAL_REVIEW.
+
+### Batch 018 conclusion
+
+The strongest new conclusion is that the DTF preparation system must diagnose **which layer is wrong** before modifying anything:
+- source RGB;
+- alpha/coverage;
+- generated white geometry;
+- white density;
+- halftone coverage;
+- printer registration/calibration.
+
+That separation is essential to avoid using choke to hide bad alpha, using white-density reduction to hide geometry errors, or sharpening/resizing to compensate for printer calibration problems.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
