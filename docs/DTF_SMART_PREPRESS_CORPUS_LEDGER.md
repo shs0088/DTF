@@ -127,11 +127,37 @@ Batch 002 counting notes:
 99. https://scikit-image.org/docs/stable/auto_examples/edges/plot_active_contours.html
 100. https://scikit-image.org/docs/stable/api/skimage.segmentation
 
-Verified unique pages: 100 / 10,000
-Remaining: 9,900
 
 Batch 003 counting notes:
 - All 45 URLs above were individually opened/read.
 - URLs already present in earlier batches were not counted again.
 - Failed page opens were not counted.
 - Version aliases, query-string mirrors such as ?plain=1, and duplicate documentation pages were canonicalized to one count where they represented the same page.
+
+
+## Verified Batch 004 — 15 pages
+
+101. https://developers.cloudflare.com/workers/runtime-apis/streams/transformstream/
+102. https://developers.cloudflare.com/workers/runtime-apis/streams/
+103. https://developers.cloudflare.com/workers/runtime-apis/streams/readablestream/
+104. https://developers.cloudflare.com/images/optimization/transformations/flows/
+105. https://developers.cloudflare.com/images/optimization/transformations/overview/
+106. https://developers.cloudflare.com/images/optimization/features/
+107. https://developers.cloudflare.com/workers/runtime-apis/streams/readablestreamdefaultreader/
+108. https://developers.cloudflare.com/workers/runtime-apis/streams/writablestream/
+109. https://developers.cloudflare.com/workers/runtime-apis/request/
+110. https://developers.cloudflare.com/images/optimization/hosted-images/create-variants/
+111. https://developers.cloudflare.com/workers/runtime-apis/response/
+112. https://developers.cloudflare.com/workers/runtime-apis/nodejs/streams/
+113. https://github.com/Bria-AI/RMBG-2.0
+114. https://github.com/goshrum/bg-eraser
+115. https://github.com/pekc83/rmbg
+
+Verified unique pages: 115 / 10,000
+Remaining: 9,885
+
+Batch 004 counting notes:
+- All 15 URLs above were individually opened/read.
+- No duplicate URLs from Batches 001–003 were counted.
+- Search-result snippets without a successful page open were excluded.
+- GitHub example projects were counted only when the repository page itself was opened/read and contained implementation details relevant to this study.
