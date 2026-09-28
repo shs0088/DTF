@@ -40,6 +40,13 @@ final class Preflight {
         $editMaskLeakage = isset($m['editMaskLeakage']) ? max(0.0, min(1.0, (float)$m['editMaskLeakage'])) : null;
         $referenceCount = isset($m['referenceCount']) ? max(0, (int)$m['referenceCount']) : 0;
         $generationModel = trim((string)($m['generationModel'] ?? ''));
+        $authoringApp = trim((string)($m['authoringApp'] ?? ''));
+        $canvasWidthPx = isset($m['canvasWidthPx']) ? max(0, (int)$m['canvasWidthPx']) : null;
+        $canvasHeightPx = isset($m['canvasHeightPx']) ? max(0, (int)$m['canvasHeightPx']) : null;
+        $exportWidthPx = isset($m['exportWidthPx']) ? max(0, (int)$m['exportWidthPx']) : null;
+        $exportHeightPx = isset($m['exportHeightPx']) ? max(0, (int)$m['exportHeightPx']) : null;
+        $exportHasTransparency = isset($m['exportHasTransparency']) ? (bool)$m['exportHasTransparency'] : null;
+        $exportFormat = strtolower(trim((string)($m['exportFormat'] ?? '')));
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -94,6 +101,15 @@ final class Preflight {
 
         $resampling = $this->resamplingDecision($artworkClass, $scaleFactor);
         $aiQaRequired = $aiGenerated || $aiEdited;
+        $exportScaleX = ($canvasWidthPx && $exportWidthPx) ? $exportWidthPx / $canvasWidthPx : null;
+        $exportScaleY = ($canvasHeightPx && $exportHeightPx) ? $exportHeightPx / $canvasHeightPx : null;
+        $exportScaleMismatch = $exportScaleX !== null && $exportScaleY !== null && abs($exportScaleX - $exportScaleY) > 0.001;
+        if ($exportScaleMismatch) {
+            $warnings[] = ['code'=>'EXPORT_ASPECT_OR_SCALE_MISMATCH','severity'=>'warning'];
+        }
+        if ($hasAlpha && $exportHasTransparency === false) {
+            $warnings[] = ['code'=>'EXPORT_TRANSPARENCY_LOST','severity'=>'warning'];
+        }
         $aiCritical = ($textIntegrity !== null && $textIntegrity < 0.98) || ($editMaskLeakage !== null && $editMaskLeakage > 0.02);
         if ($aiQaRequired && $aiCritical) {
             $warnings[] = ['code'=>'AI_EDIT_INTEGRITY_REVIEW_REQUIRED','severity'=>'warning'];
@@ -116,6 +132,18 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'authoringExportIntegrityReport' => [
+                'authoringApp'=>$authoringApp !== '' ? $authoringApp : null,
+                'canvasPx'=>[$canvasWidthPx,$canvasHeightPx],
+                'exportPx'=>[$exportWidthPx,$exportHeightPx],
+                'exportScaleX'=>$exportScaleX,
+                'exportScaleY'=>$exportScaleY,
+                'scaleOrAspectMismatch'=>$exportScaleMismatch,
+                'format'=>$exportFormat !== '' ? $exportFormat : null,
+                'transparentExport'=>$exportHasTransparency,
+                'sourceCanvasMayBeUsedAsPrintResolutionEvidence'=>false,
+                'exportMustBeRepreflighted'=>true
             ],
             'aiGenerationIntegrityReport' => [
                 'aiGenerated'=>$aiGenerated,
@@ -195,7 +223,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'0.3.0-research',
+                'contractVersion'=>'0.4.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
