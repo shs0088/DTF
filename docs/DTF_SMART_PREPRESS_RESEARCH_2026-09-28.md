@@ -1022,3 +1022,157 @@ The following are stronger engineering conclusions but still not a final locked 
 No storefront merge.
 No deployment.
 No protected Home or current Mockup changes.
+
+
+## Research Batch 005 — resilient uploads, worker isolation, edge diagnostics and underbase fidelity
+
+This batch is based on individually opened programming/API/tutorial pages recorded in the verified corpus ledger.
+
+### Upload transport: prefer direct, resumable storage paths
+
+Cloudflare R2 documentation confirms that multipart upload is intended for large files, supports parallel part upload and retrying failed parts, and can be driven through Workers or S3-compatible tooling. R2 multipart uploads can be resumed with an upload ID, and incomplete uploads have lifecycle/error behaviors that must be handled explicitly.
+
+The tus protocol adds a provider-neutral HTTP model:
+- HEAD discovers current Upload-Offset;
+- PATCH resumes from the exact byte offset;
+- optional checksums verify chunks;
+- creation/expiration/termination are explicit protocol states;
+- upload metadata must be validated because arbitrary metadata can become a header-smuggling risk.
+
+Decision direction:
+- small normal artwork: direct signed PUT;
+- large PSD/PDF/source files: multipart or tus-style resumable upload;
+- never proxy large source files through JSON/base64.
+
+### Browser memory discipline
+
+MDN confirms:
+- object URLs must be revoked when no longer needed;
+- createImageBitmap can decode with explicit resizeWidth/resizeHeight and alpha/color-space options;
+- ArrayBuffer can be transferred to a Worker rather than copied, detaching it from the sender.
+
+Practical UI rule:
+- generate a bounded preview;
+- transfer, do not duplicate, large buffers where possible;
+- close/release bitmap and object URL resources;
+- never retain multiple full-resolution copies in customer UI state.
+
+### Deterministic image inspection and derivatives
+
+Sharp metadata() reads header metadata without decoding compressed pixels. It can expose:
+- width/height;
+- density;
+- color space;
+- channel count/bit depth;
+- ICC presence;
+- alpha presence;
+- frame/page counts.
+
+Sharp resize supports withoutEnlargement, making it suitable for web/display derivatives that must never accidentally upscale a low-resolution original.
+
+Sharp output metadata behavior also reinforces a critical rule:
+setting output density metadata changes the PPI tag, not the underlying pixel detail. Print approval remains based on effective DPI.
+
+### Worker architecture
+
+BullMQ documentation separates asynchronous I/O concurrency from CPU-heavy work:
+- high local concurrency is useful mainly for async I/O;
+- CPU-heavy processors should be sandboxed/isolated;
+- multiple workers improve availability;
+- retries should use bounded attempts and backoff.
+
+DTF worker pools should therefore be split:
+- IO pool: object storage/provider calls;
+- raster CPU pool: Sharp/OpenCV/ImageMagick;
+- AI/GPU pool: segmentation/matting/upscale;
+- vector pool: tracing/vectorization.
+
+A failed deterministic job may retry; a repeated failure should preserve the original input and exact error rather than falling into an infinite retry loop.
+
+### Edge classification became more concrete
+
+OpenCV morphology, Canny and GrabCut research suggests different tools for different diagnostics:
+- morphology/opening/closing: remove small mask defects and close pinholes;
+- morphological gradient/Canny: identify a narrow edge band for analysis;
+- distance transform: measure distance from mask edge for variable choke/decontamination;
+- GrabCut: useful as an interactive/deterministic segmentation fallback when a coarse object region is known.
+
+These should not be combined into one generic "enhance image" operation.
+
+### Background-removal implementation evidence
+
+The rembg source distinguishes:
+- naive mask application;
+- alpha matting;
+- mask post-processing;
+- edge-color decontamination;
+- ViTMatte refinement.
+
+Its source explicitly notes that ViTMatte recovers coverage but foreground color still needs decontamination to avoid preserving the old background color in recovered strands.
+
+This strongly supports storing two separate concepts:
+- alpha/coverage refinement;
+- foreground RGB edge decontamination.
+
+### White-underbase fidelity
+
+CADlink documentation confirms:
+- underbase and highlight white are separate controls;
+- choke can be specified in pixels;
+- a coverage underbase can distribute white based on image/grayscale values;
+- adaptive behavior can use pixel opacity;
+- semi-transparent pixels can optionally be treated as opaque;
+- tolerance can ignore low-opacity/errant pixels that otherwise create unwanted white.
+
+Caldera documentation confirms:
+- white generation can follow transparency;
+- Spread grows and Choke shrinks underbase;
+- Smart Choke removes unsupported white at boundaries;
+- an opacity-reduction coefficient exists specifically to reduce white halos from residual low-opacity pixels;
+- underbase generation can be based on raster and vector transparency with multiple rendering resolutions.
+
+DTF Smart Prep should therefore model underbase preview as a separate artifact with parameters:
+- alpha threshold / low-opacity suppression;
+- opacity-to-white transfer curve;
+- choke/spread distance;
+- smart-edge cleanup;
+- optional treat-semitransparent-as-opaque mode;
+- highlight-white preview kept separate from underbase.
+
+### Color conversion and alpha interaction
+
+OpenImageIO colorconvert explicitly supports an unpremult option during color transformation. This is useful implementation evidence that alpha representation must be considered during color-space transforms rather than blindly transforming premultiplied RGB values.
+
+OpenColorIO documentation likewise separates ColorSpaceTransform from DisplayViewTransform.
+
+Policy remains:
+- sRGB display/mockup derivative;
+- explicit production color transform only when approved;
+- no claim that storefront color conversion replaces RIP/printer calibration.
+
+### libvips memory model
+
+pyvips documents sequential access as lower-memory and faster for top-to-bottom processing compared with full random access.
+
+Use sequential access where the processing graph allows it:
+- decode -> resize -> colorspace -> encode web preview;
+- decode -> simple alpha extraction/trim -> encode derivative.
+
+Use random-access/numeric worker paths only where neighborhood analysis actually requires it.
+
+### Batch 005 current architecture position
+
+The evidence is converging on:
+1. immutable source asset;
+2. header-first inspection before expensive decode;
+3. resumable/direct object upload;
+4. classifier/router;
+5. dedicated alpha/edge diagnostics;
+6. optional segmentation/matting;
+7. explicit effective-DPI product-fit;
+8. separate underbase/halftone derivatives;
+9. exact processedVersionId shared by mockup and production;
+10. isolated CPU/GPU workers;
+11. sRGB display derivative + profile-aware print candidate.
+
+This is still a research conclusion, not authorization to merge or deploy.
