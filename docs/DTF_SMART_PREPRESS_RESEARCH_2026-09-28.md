@@ -4845,3 +4845,295 @@ reduce/shrink documentation explicitly states xres/yres are not updated. The app
 libvips is increasingly suitable as the deterministic CPU backbone for DTF Studio because it exposes the exact primitives we need for alpha-aware channel separation, resampling, edge diagnostics, local cleanup, hidden-RGB propagation, and delivery derivatives. The processing graph should still wrap these primitives with explicit alpha/color/physical-unit contracts and QA gates.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 025 — production-file semantics: TIFF alpha, PSD channels, PDF soft masks, spot-white separation, and profile discipline
+
+The verified corpus now contains 498 individually opened/read unique pages.
+
+### 1. TIFF explicitly distinguishes associated and unassociated alpha
+
+TIFF 6.0 ExtraSamples semantics distinguish:
+- associated alpha: RGB is premultiplied by alpha;
+- unassociated alpha: RGB is independent/straight.
+
+This must be preserved in the export contract. Writing an ExtraSamples value that disagrees with the actual pixel representation is a file-format correctness error, not merely metadata noise.
+
+### 2. TIFF readers can silently change the representation
+
+LibTIFF’s RGBA convenience path may normalize input into packed 8-bit RGBA and historically has had behavior around untagged extra samples and associated alpha.
+
+For authoritative DTF print-master ingest, avoid treating TIFFRGBAImage as a lossless normalization path because it can:
+- scale higher bit depth to 8-bit;
+- convert color models to RGB;
+- ignore colorimetry in the returned raster;
+- normalize alpha representation;
+- apply orientation behavior with limitations.
+
+Use a lower-level/native-sample path when preserving bit depth, profile and exact alpha semantics matters.
+
+### 3. TIFF orientation must be normalized deliberately
+
+LibTIFF documents that some orientation cases require rotation plus width/height exchange and are not represented correctly by every lower-level RGBA helper.
+
+Therefore source inspection should record orientation and the working pipeline should normalize it once, explicitly, before geometry/preflight measurements.
+
+### 4. ExtraSamples must be read and written explicitly
+
+TIFFSetField/TIFFGetField expose TIFFTAG_EXTRASAMPLES with a count plus type array.
+
+Export rule:
+- do not infer alpha type solely from “four channels”;
+- set ExtraSamples explicitly;
+- validate the tag after writing;
+- include the alpha-association state in export QA.
+
+### 5. ICC profile and TIFF alpha semantics are independent concerns
+
+LibTIFF supports an ICC Profile tag in addition to ExtraSamples.
+
+A valid production TIFF therefore needs separate validation for:
+- color profile;
+- sample depth;
+- photometric interpretation;
+- alpha association;
+- physical resolution;
+- orientation.
+
+Passing one of these checks does not imply the others are correct.
+
+### 6. PSD/PSB is structurally richer than a flattened raster
+
+Adobe’s Photoshop format specification supports:
+- multiple channels, including alpha;
+- 8/16/32-bit depth;
+- RGB, CMYK, Lab, Multichannel and other modes;
+- per-layer transparency channels;
+- user masks;
+- vector masks;
+- layer opacity/blend modes;
+- optional merged/composite image.
+
+The merged composite may not exist when “maximize compatibility” is disabled.
+
+Therefore “PSD supported” must be capability-based:
+- CAN_READ_COMPOSITE;
+- CAN_READ_LAYERS;
+- CAN_READ_TRANSPARENCY;
+- CAN_READ_ALPHA_CHANNELS;
+- CAN_READ_SPOT_CHANNELS;
+- CAN_PRESERVE_16BIT;
+- CAN_PRESERVE_32BIT;
+- CAN_INTERPRET_COLOR_MODE.
+
+### 7. PSD transparency and alpha channels are not the same thing
+
+Adobe’s spec identifies per-layer channel ID -1 as transparency, while separate alpha channels are additional document channels.
+
+DTF ingest must not assume “first alpha-like grayscale channel = transparency.”
+A named alpha/spot channel may represent:
+- a saved selection;
+- a mask;
+- a white-ink plate;
+- another production separation.
+
+### 8. Photoshop spot channels are a strong interchange model for explicit white-ink plates
+
+Adobe Photoshop documents spot channels as separate printing plates and supports converting an alpha channel to a spot channel.
+
+This is relevant for DTF RIP handoff where the downstream workflow recognizes a named white channel.
+
+Potential export mode:
+- COLOR composite/layers;
+- named WHITE spot/separation channel;
+- optional metadata identifying its intended role.
+
+However RIP-specific naming conventions still require provider/device validation.
+
+### 9. Photoshop “Solidity” is preview-only
+
+Adobe explicitly notes that spot-channel Solidity affects on-screen/composite preview and does not change the printed separation.
+
+This is a critical UI lesson:
+- preview opacity is not ink density;
+- actual white-response data must be stored in channel pixels or RIP parameters;
+- never map a Photoshop-style “Solidity” control directly to production white amount.
+
+### 10. Alpha-channel mask polarity is not universal
+
+Photoshop can display/edit masks with either masked areas or selected areas represented by black/white depending on channel options.
+
+Therefore imported grayscale channels require semantic metadata or user confirmation. Do not assume white always means print and black always means no-print merely because the channel is grayscale.
+
+### 11. PDF transparency can use a separate soft-mask image
+
+PDF supports soft masks via SMask and also supports encoded alpha/premultiplied data via SMaskInData for certain image encodings.
+
+The mask may represent shape or opacity according to graphics-state semantics.
+
+DTF PDF ingest should therefore distinguish:
+- page transparency/compositing;
+- raster image soft masks;
+- clipping paths;
+- spot/separation colorants.
+
+A screenshot-style rasterization is sufficient for preview, not for production interpretation.
+
+### 12. PDF can contain preblended image data with a matte color
+
+The PDF reference describes a Matte entry for soft-mask images where source image samples may already be blended with a matte color.
+
+A production rasterizer/normalizer must account for that relation when recovering straight foreground color; otherwise edge contamination can be baked into the extracted raster.
+
+This is closely related to the halo problems already identified for ordinary premultiplied RGBA.
+
+### 13. PDF transparency should remain isolated from the browser preview implementation
+
+A PDF page can contain nested transparency groups, blend modes, masks and color-space interactions.
+
+Recommended:
+- bounded PDF.js/browser raster for preview only;
+- isolated server-side raster/inspection path for production;
+- explicit page size + embedded raster effective-DPI checks;
+- preserve original PDF as immutable source.
+
+### 14. Photoshop’s channel documentation confirms alpha and spot channels are different production objects
+
+Adobe describes:
+- color channels;
+- alpha channels for masks/selections;
+- spot channels for separate inks/plates.
+
+This strongly supports the project domain model separating:
+- transparency/coverage alpha;
+- saved masks;
+- production white/spot separations.
+
+Do not store all three as a generic “alphaChannel[]” without role metadata.
+
+### 15. Spot-channel names matter for interoperability
+
+Adobe warns that spot channels should be named so other applications recognize them correctly.
+
+For DTF export adapters:
+- white-channel name should be provider/RIP-configurable;
+- record the exact exported name in the recipe;
+- validate the written file by reopening it and enumerating channels before release.
+
+### 16. Soft proof is an output simulation, not an editing truth
+
+Adobe soft-proof documentation explicitly depends on:
+- document profile;
+- proof/output device profile;
+- monitor profile;
+- ambient viewing conditions.
+
+It also distinguishes simulated paper color and black ink.
+
+Therefore DTF Studio may offer a profile-based proof view, but should label it approximate and keep it separate from the source/master.
+
+### 17. Assign Profile and Convert to Profile are fundamentally different
+
+Adobe’s current profile documentation makes the distinction explicit:
+- Assign Profile changes interpretation without changing channel numbers;
+- Convert to Profile changes channel numbers to preserve appearance under a new profile.
+
+Our color pipeline should expose these as distinct internal operations and audit them separately.
+
+A missing-profile repair is often ASSIGN/ASSUME, not CONVERT.
+
+### 18. Untagged files require an explicit assumption state
+
+Adobe describes untagged documents as raw color numbers interpreted through a working-space policy.
+
+DTF ingest should store:
+- embeddedProfile = null;
+- assumedProfileId;
+- assumptionReason;
+- userOverrideStatus.
+
+Do not silently tag every unprofiled image as sRGB without recording that assumption.
+
+### 19. Gamut warning is a diagnostic, not an automatic color fix
+
+Adobe’s gamut-warning workflow highlights pixels outside a selected proof profile.
+
+This supports a DTF preflight warning:
+OUT_OF_GAMUT_FOR_SELECTED_OUTPUT_PROFILE.
+
+The tool should show affected regions and proof them; it should not automatically remap colors without an approved transform.
+
+### 20. Color management is device/process specific
+
+Adobe emphasizes that a reliable printer profile describes the printer plus print conditions/media.
+
+For DTF that profile effectively depends on:
+- printer;
+- ink set;
+- film/media/workflow;
+- print mode/resolution;
+- RIP calibration/linearization;
+- measurement conditions.
+
+The web application cannot infer this reliably from uploaded RGB pixels alone.
+
+### 21. Profile embedding should be verified on export
+
+Adobe lists PSD, TIFF, JPEG, PDF and PSB among formats that can carry embedded profiles.
+
+Export QA should reopen the artifact and verify:
+- profile exists where required;
+- profile hash matches intended profile;
+- color numbers were not accidentally converted when only embedding/assigning was intended.
+
+### 22. ImageMagick trim semantics are unsuitable as the sole transparent-bound authority
+
+ImageMagick’s current trim documentation notes fully transparent pixels are often treated as if color is irrelevant.
+
+That is convenient for display trimming but may conflict with our hidden-RGB preservation model.
+
+Production transparent bounds should derive primarily from alpha/coverage and component rules, not from corner-color trim alone.
+
+### 23. General image libraries remain useful only behind explicit contracts
+
+The libvips function inventory and ImageMagick command surface show that both libraries provide many primitives.
+
+But the research increasingly shows that correctness depends less on “does a function exist?” and more on:
+- alpha representation;
+- channel role;
+- bit depth;
+- color profile;
+- physical units;
+- border behavior;
+- deterministic recipe ordering.
+
+### 24. Proposed ProductionChannel model
+
+Add a domain-level channel descriptor:
+
+channelRole:
+- COLOR_COMPONENT;
+- TRANSPARENCY;
+- SAVED_MASK;
+- SPOT_WHITE;
+- SPOT_OTHER;
+- CONFIDENCE;
+- TRIMAP;
+
+name;
+bitDepth;
+association: STRAIGHT | PREMULTIPLIED | NOT_APPLICABLE;
+polarity: WHITE_IS_MORE | BLACK_IS_MORE | CONTINUOUS;
+printSeparation: boolean;
+profileOrColorantId;
+sourceProvenance.
+
+This prevents PSD/TIFF/PDF channels from collapsing into ambiguous arrays.
+
+### 25. Batch 025 conclusion
+
+The new conclusion is that DTF Studio’s file-ingest/export layer needs to be channel-aware, not merely image-aware.
+
+For PNG, transparency is straightforwardly part of RGBA. For TIFF, PSD and PDF, extra channels can represent fundamentally different production concepts. The engine must preserve and label those roles before any automatic processing or RIP handoff.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
