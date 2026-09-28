@@ -153,11 +153,49 @@ Batch 003 counting notes:
 114. https://github.com/goshrum/bg-eraser
 115. https://github.com/pekc83/rmbg
 
-Verified unique pages: 115 / 10,000
-Remaining: 9,885
 
 Batch 004 counting notes:
 - All 15 URLs above were individually opened/read.
 - No duplicate URLs from Batches 001–003 were counted.
 - Search-result snippets without a successful page open were excluded.
 - GitHub example projects were counted only when the repository page itself was opened/read and contained implementation details relevant to this study.
+
+
+## Verified Batch 005 — 27 pages
+
+116. https://usage.imagemagick.org/compose/
+117. https://scikit-image.org/docs/stable/api/skimage.transform.html
+118. https://sharp.pixelplumbing.com/api-composite/
+119. https://sharp.pixelplumbing.com/api-operation/
+120. https://sharp.pixelplumbing.com/api-colour/
+121. https://pillow.readthedocs.io/en/latest/reference/ImageOps.html
+122. https://pillow.readthedocs.io/en/stable/reference/ImageChops.html
+123. https://pillow.readthedocs.io/en/stable/reference/ImageFilter.html
+124. https://scikit-image.org/docs/stable/api/skimage.restoration.html
+125. https://pillow.readthedocs.io/en/latest/reference/ImageEnhance.html
+126. https://scikit-image.org/docs/stable/api/skimage.measure.html
+127. https://pillow.readthedocs.io/en/latest/handbook/tutorial.html
+128. https://usage.imagemagick.org/filter/
+129. https://usage.imagemagick.org/morphology/
+130. https://usage.imagemagick.org/distorts/
+131. https://usage.imagemagick.org/resize/
+132. https://usage.imagemagick.org/masking/
+133. https://mozilla.github.io/pdf.js/examples/
+134. https://mozilla.github.io/pdf.js/getting_started/
+135. https://developer.mozilla.org/en-US/docs/Web/API/Window/createImageBitmap
+136. https://developer.mozilla.org/en-US/docs/Web/API/ImageDecoder
+137. https://developer.mozilla.org/en-US/docs/Web/API/ImageDecoder/decode
+138. https://mozilla.github.io/pdf.js/api/draft/module-pdfjsLib-PDFPageProxy.html
+139. https://docs.opencv.org/4.13.0/d0/d49/tutorial_moments.html
+140. https://docs.opencv.org/doc/doxygen/html/dd/d49/tutorial_py_contour_features.html
+141. https://docs.opencv.org/doc/doxygen/html/d4/d73/tutorial_py_contours_begin.html
+142. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_regionprops_table.html
+
+Verified unique pages: 142 / 10,000
+Remaining: 9,858
+
+Batch 005 counting notes:
+- All 27 URLs above were individually opened/read.
+- Existing URLs from Batches 001–004 were excluded.
+- Redirects were canonicalized to the final documentation URL where appropriate.
+- Search snippets without a successful page open were not counted.
