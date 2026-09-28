@@ -8411,3 +8411,21 @@ Batch 046 added 14 canonical, materially distinct pages that were individually o
 ### Corpus accounting
 
 Batch 047 adds nine materially distinct, individually opened/read pages. The branch ledger now contains 877 explicit entries. Research continuity is 886 / 10,000 because the earlier verified-but-unsynchronized Batch 045 contributes nine verified pages whose URLs are intentionally not fabricated.
+
+
+## Multilingual research Batch 048 — blur/noise/frequency evidence integrated into the OpenCart extension
+
+### Engineering findings
+- Gaussian blur must retain independent horizontal/vertical scale when available; collapsing both axes into one scalar can hide directional degradation.
+- Unsharp Mask is a local contrast operation, not evidence that lost detail was reconstructed. It remains gated by measured blur and post-process halo/noise checks.
+- High-pass isolates higher-frequency structure and is useful diagnostically, but recombination strength can exaggerate noise and edges.
+- Wavelet decomposition provides scale-separated detail layers plus residual, supporting scale-specific denoise/sharpen decisions instead of global filtering.
+- Median/despeckle operations are suitable for impulse-like defects but should be restricted by defect/repair masks so legitimate small print features survive.
+- Sobel directional responses support anisotropic edge-integrity diagnostics before/after resize, choke and restoration.
+- Noise reduction is an optimization tradeoff: reduce noise while preserving edges, texture, alpha transitions and minimum printable strokes.
+
+### Implementation consequence
+The isolated OpenCart extension scaffold now records blurRadiusX/Y, derives blurAnisotropy, warns on directional blur, records noiseSigma/textureScore, and explicitly prohibits automatic deblur and evidence-free sharpening. This is decision-engine scaffolding only; it does not alter the protected storefront or production OpenCart installation.
+
+### Corpus accounting
+Batch 048 adds eight materially relevant pages. GitHub ledger: 885 explicit pages. Research continuity: 894 / 10,000 including the earlier unsynchronized nine-page Batch 045.
