@@ -6,20 +6,28 @@ use Opencart\System\Library\DtfSmartPrepress\Contracts;
 use Opencart\System\Library\DtfSmartPrepress\Preflight;
 
 $engine = new Preflight();
-$r = $engine->analyze([
-    'effectivePpi'=>300, 'hasAlpha'=>true, 'edgeClass'=>'hard-edge',
-    'minStrokePx'=>3, 'chokeMm'=>0.15, 'noiseSigma'=>0.04,
-    'textureScore'=>0.72, 'blurRadiusX'=>1.0, 'blurRadiusY'=>3.0,
-    'brisqueScore'=>42.0, 'trimapAvailable'=>true, 'edgeColorContamination'=>true
+
+$hard = $engine->analyze([
+ 'effectivePpi'=>300,'hasAlpha'=>true,'edgeClass'=>'hard-edge','minStrokePx'=>3,'chokeMm'=>0.15,
+ 'artworkClass'=>'pixel-art','scaleFactor'=>2.0,'embeddedProfile'=>'sRGB IEC61966-2.1','targetProfile'=>'DTF-RIP-ICC'
 ]);
-assert(abs(Contracts::pixelsToMm(2, 300) - 0.1693333333) < 0.0001);
-assert($r['decision']['alphaPolicy'] === 'threshold-hard-edge');
-assert($r['provenance']['sourceImmutable'] === true);
-assert($r['provenance']['mockupMayReplaceMaster'] === false);
-assert($r['restorationEvidence']['blurAnisotropy'] > 0.35);
-assert($r['restorationEvidence']['autoDeblurAllowed'] === false);
-assert($r['restorationEvidence']['sharpenWithoutEvidenceAllowed'] === false);
-assert($r['mattingDecision']['foregroundColorEstimationRecommended'] === true);
-assert($r['mattingDecision']['naiveRgbTimesAlphaAllowed'] === false);
-assert($r['qualityDiagnostics']['brisqueMayAcceptOrRejectPrintMaster'] === false);
+assert(abs(Contracts::pixelsToMm(2,300)-0.1693333333)<0.0001);
+assert($hard['decision']['alphaPolicy']==='threshold-hard-edge');
+assert($hard['resamplingDecision']['recommendedMode']==='nearest-neighbor');
+assert($hard['colorManagementReport']['silentProfileConversionAllowed']===false);
+
+$soft = $engine->analyze([
+ 'effectivePpi'=>300,'hasAlpha'=>true,'edgeClass'=>'soft-intentional','trimapAvailable'=>true,
+ 'edgeColorContamination'=>true,'suspectedMatteColor'=>'white','artworkClass'=>'illustration','scaleFactor'=>1.5,
+ 'brisqueScore'=>42.0,'psfConfidence'=>0.85,'hausdorffDeltaPx'=>0.4
+]);
+assert($soft['decision']['alphaPolicy']==='preserve-continuous');
+assert($soft['edgeCleanupDecision']['mode']==='remove-white-matte');
+assert($soft['edgeCleanupDecision']['globalEdgeErosionAllowed']===false);
+assert($soft['mattingDecision']['foregroundColorEstimationRecommended']===true);
+assert($soft['mattingDecision']['naiveRgbTimesAlphaAllowed']===false);
+assert($soft['resamplingDecision']['recommendedMode']==='detail-preserving-upscale');
+assert($soft['qualityDiagnostics']['brisqueMayAcceptOrRejectPrintMaster']===false);
+assert($soft['provenance']['mockupMayReplaceMaster']===false);
+
 echo "PASS\n";
