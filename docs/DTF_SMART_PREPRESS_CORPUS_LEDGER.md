@@ -1383,3 +1383,22 @@ Batch 047 counting notes:
 - Search-result snippets alone were not counted.
 - GitHub ledger represented count after this batch: 877 / 10,000.
 - Research-continuity count including the earlier verified-but-unsynchronized nine-page Batch 045: 886 / 10,000.
+
+
+## Verified Batch 048 — 8 pages — multilingual blur, frequency, wavelet, median and edge diagnostics
+
+878. https://docs.gimp.org/3.0/zh_CN/gimp-filter-gaussian-blur.html
+879. https://docs.gimp.org/3.0/ko/gimp-filter-unsharp-mask.html
+880. https://docs.gimp.org/3.0/ja/gimp-filter-high-pass.html
+881. https://docs.gimp.org/3.0/ru/gimp-filter-wavelet-decompose.html
+882. https://docs.gimp.org/3.0/fr/gimp-filter-median-blur.html
+883. https://docs.gimp.org/3.0/it/gimp-filter-edge-sobel.html
+884. https://docs.gimp.org/3.0/de/gimp-filter-noise-reduction.html
+885. https://docs.gimp.org/3.0/es/gimp-filter-despeckle.html
+
+Batch 048 counting notes:
+- Eight pages above were individually opened/read and were absent from the canonical ledger.
+- Two lower-value candidate pages (red-eye removal and difference-clouds) were read during discovery but excluded from the DTF corpus because they did not materially advance the target prepress problem.
+- Localized duplicates already represented by earlier materially identical pages are not counted merely for language variation.
+- GitHub ledger represented count after this batch: 885 / 10,000.
+- Research-continuity count including the earlier verified-but-unsynchronized nine-page Batch 045: 894 / 10,000.
