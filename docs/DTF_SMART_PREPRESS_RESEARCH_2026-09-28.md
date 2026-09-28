@@ -7582,3 +7582,104 @@ The strongest result is that image quality is not enough; **mathematical convent
 For DTF, RGB, alpha, underbase, and mockup placement must share exactly the same geometry semantics. A fast backend that is visually close but shifts alpha by a fraction of a pixel can still create a visible white fringe after underbase generation.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 034 — geometry convention parity and transform-safe alpha processing
+
+The verified corpus now contains 752 individually opened/read unique pages.
+
+### 1. Geometric transforms must share one coordinate convention across RGB, alpha, underbase, and mockup placement
+OpenCV explicitly maps destination pixels back to source coordinates and makes interpolation/border behavior part of the transform contract. Kornia similarly documents source→destination matrices, inverse sampling, pixel-center conventions, normalized coordinates and align_corners rules.
+
+DTF rule: the same placement transform must be applied to color and alpha with identical interpolation direction, pixel-center convention, border mode, and matrix semantics. Any mismatch can create a visible white fringe after underbase generation.
+
+### 2. align_corners is a print-correctness setting, not a minor framework flag
+PyTorch affine_grid warns that the same affine grid must be consumed by grid_sample with the same align_corners value, and that align_corners=True changes sampling with resolution.
+
+Therefore every learned or GPU warp recipe must record align_corners explicitly. Model preprocessing and production reconstruction cannot silently use different values.
+
+### 3. Anti-aliasing defaults differ by API and must be pinned
+TorchVision resize now defaults antialias=True for bilinear/bicubic, while torch.nn.functional.interpolate exposes antialias separately and supports several interpolation modes.
+
+For DTF we should never depend on a library default. Recipe fields must include interpolation and antialias explicitly, especially when downsampling previews or model inputs.
+
+### 4. Exact-nearest and exact-linear modes are useful for parity tests
+OpenCV exposes INTER_NEAREST_EXACT and INTER_LINEAR_EXACT, while TorchVision/PyTorch have nearest-exact behavior.
+
+These exact modes are valuable for cross-backend regression fixtures. We can compare CPU reference, GPU path, browser preview and exported artifact without confusing algorithmic changes with implementation rounding differences.
+
+### 5. Border behavior is part of edge quality
+OpenCV supports BORDER_TRANSPARENT for transforms; TorchVision pad exposes constant, edge, reflect and symmetric padding; Gaussian blur uses reflection padding.
+
+For transparent DTF art, padding must be chosen deliberately. Constant black RGB around transparent pixels can contaminate later filtering unless alpha and hidden RGB are controlled. Reflection can also duplicate edge content in ways that are wrong for isolated artwork.
+
+### 6. Safe transform padding should be explicit and crop-back based
+Before blur, affine, perspective or guided refinement near the canvas edge:
+- add controlled transparent padding;
+- use a declared border mode;
+- process;
+- crop back to the intended production bounds.
+
+This avoids accidental clipping and avoids letting an API's default border semantics define print output.
+
+### 7. Distance transform remains the right primitive for physical edge operations
+OpenCV distanceTransform can also return component labels. Combined with alpha thresholding, it provides distance-to-boundary information suitable for physical choke/spread bands and for preserving separate islands.
+
+Internal edge operations should prefer physical distance converted to pixels at execution time rather than repeated binary erosions with arbitrary kernel counts.
+
+### 8. HSV/inRange is a deterministic option for simple keyed backgrounds
+OpenCV inRange demonstrates thresholding in HSV using independent H/S/V ranges.
+
+This is useful for flat or studio-like backgrounds, especially when a user deliberately uploads art on a known key color. It is not a replacement for semantic segmentation on complex photos, but it can be a fast deterministic route with explainable thresholds.
+
+### 9. GPU morphology is practical, but semantics must match the CPU reference
+Kornia provides dilation/erosion/opening/closing/top-hat style morphology on tensors. This makes GPU mask cleanup attractive for batch processing.
+
+However kernel origin, border type, structuring element and dtype behavior must be locked in parity tests against the reference implementation before replacing CPU morphology.
+
+### 10. Color-space conversion and linear RGB should be explicit in learned pipelines
+Kornia exposes linear-RGB conversion alongside sRGB/Lab/XYZ and other color spaces.
+
+This supports a cleaner model interface: learned models can state whether they expect encoded sRGB, normalized sRGB tensors, or linear RGB. Production compositing/quality measurement can then avoid accidental double-gamma or wrong-space filtering.
+
+### 11. Registration tools can diagnose color-vs-white offset
+scikit-image registration APIs support subpixel registration/optical-flow style displacement estimation.
+
+A practical future DTF diagnostic is to scan or photograph a calibration print and estimate the displacement between white and color reference marks. The resulting directional offset can be stored in the production calibration profile rather than hidden inside artwork choke.
+
+### 12. Affine and perspective transforms should never be reimplemented independently in the mockup and print pipelines
+TorchVision affine/perspective and OpenCV/Kornia warps all expose subtly different defaults for interpolation, fill and coordinate convention.
+
+DTF Studio should therefore have one provider-neutral PlacementTransform object and one tested conversion layer per backend. Mockup preview and production render should derive from the same normalized placement data.
+
+### 13. Model-input resize and print-artifact resize are different operations
+A model input may be resized to a fixed tensor size with bilinear antialiasing; the print artifact may require alpha-aware premultiplied resampling or no resize at all.
+
+Never promote a model-input raster to production output. The model produces masks/confidence/features that are mapped back to the immutable source coordinate system.
+
+### 14. Transform chains should be collapsed where possible
+Repeated rotate→resize→translate operations compound resampling damage. Prefer composing geometry into one affine/perspective map and sampling once when the math allows it.
+
+This is especially important for thin text and alpha edges.
+
+### 15. Proposed GeometrySamplingContract
+Each transform node should record:
+- sourceCoordinateSpace;
+- destinationCoordinateSpace;
+- matrixDirection;
+- normalizedCoordinates;
+- pixelCenterConvention;
+- alignCorners;
+- interpolation;
+- antialias;
+- borderMode;
+- fillValue;
+- alphaRepresentation;
+- backend/version.
+
+This contract becomes part of reproducibility and parity testing.
+
+### Batch 034 conclusion
+The strongest result is that **geometry semantics are part of print fidelity**. An image can be visually close while RGB and alpha are sampled with a subpixel mismatch that later appears as a white halo. DTF Studio therefore needs one explicit transform contract shared by every backend and every derivative.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
