@@ -492,3 +492,195 @@ The research direction currently favors:
 - provider-independent mockup contract
 
 This remains a hypothesis to be tested against further tutorial/API/source-code research before implementation is locked.
+
+
+## Research Batch 002 — alpha edges, halftone, color management, security and performance
+
+This batch extends the programming/tutorial review. No final architecture decision is locked yet.
+
+### Alpha edge quality and decontamination
+
+Rembg implementation and usage documentation provide a very useful distinction between:
+- naive alpha application;
+- edge color decontamination;
+- alpha matting;
+- ViTMatte refinement.
+
+Important implementation lesson:
+- edge decontamination changes foreground RGB on soft-edge pixels without necessarily changing coverage;
+- alpha matting refines both edge coverage and foreground estimation;
+- these are not the same operation and must not be exposed as one vague 'clean edge' checkbox.
+
+For DTF this is directly relevant to:
+- colored halos after background removal;
+- white haze after a dark/white background is removed;
+- hair/fur/smoke/fabric edges;
+- preserving semi-transparent pixels for proper dark-garment rendering.
+
+Proposed rule:
+1. detect whether the edge problem is coverage, color contamination, or both;
+2. apply only the needed operation;
+3. compare on white, black and checkerboard backgrounds;
+4. never overwrite the original.
+
+### Premultiplied-alpha handling
+
+Image-compositing documentation confirms that many blending pipelines work in premultiplied alpha.
+
+Implementation implication:
+- every internal operation must declare whether RGB is straight-alpha or premultiplied;
+- resize/blur/composite operations must not mix representations;
+- conversion back to straight alpha is required before transparent export when the chosen file pipeline expects it.
+
+This is important because incorrect alpha math can create dark/bright fringes that later become very visible over a shirt mockup.
+
+### Halftone research
+
+ImageMagick ordered-dither documentation shows that halftoning can be represented as threshold maps, including:
+- dispersed ordered matrices;
+- angled halftone matrices;
+- orthogonal halftone matrices;
+- circular patterns;
+- custom XML threshold maps.
+
+The documentation also demonstrates applying ordered dithering to the alpha channel itself.
+
+This is highly relevant to DTF smoke/glow workflows:
+- instead of converting soft alpha to solid white underbase, alpha can be converted into controlled dot occupancy;
+- dot pattern and threshold map are deterministic and reproducible;
+- custom threshold maps allow us to build DTF-specific patterns later.
+
+Additional practical comparison:
+- Ordered/Bayer-style screening: fast, deterministic, stable for preview and repeat output.
+- Floyd–Steinberg error diffusion: preserves average tone well but is directional and can create worm-like structures.
+- Blue-noise screening: visually less structured and attractive for stochastic patterns, but must be tested for minimum printable dot size and DTF production repeatability.
+
+Current provisional plan:
+- V1 preview: deterministic ordered/clustered-dot screening with explicit dot-cell size.
+- V2 experiments: blue-noise/FM screening.
+- Do not auto-halftone all artwork.
+
+### Color management
+
+Sharp documentation and Little CMS confirm that ICC handling is a separate technical concern from simple HSL/contrast operations.
+
+Findings:
+- Sharp normally strips metadata and converts standard output toward web-friendly sRGB unless metadata/profile retention is requested.
+- Sharp can preserve an input ICC profile or transform to a specified output ICC profile.
+- Little CMS is a full ICC color-management engine supporting V2/V4 profiles and RGB, Gray, CMYK, Lab, device-link and other ICC classes.
+
+Architecture implication:
+- Display Image should intentionally target sRGB for predictable browser/mockup rendering.
+- Original and Print Master should preserve source/profile information unless an approved conversion is part of the workflow.
+- ICC conversion should be explicit and logged.
+- DTF Studio should not silently claim that an RGB-to-CMYK conversion equals printer calibration; the final printer/RIP profile remains device-specific.
+
+### Streaming and memory efficiency
+
+libvips documentation confirms demand-driven execution:
+- image header can be loaded first;
+- pixels are read only after an operation pipeline is connected to an output;
+- sequential access is more memory efficient than random access when the workflow permits it.
+
+This supports keeping Sharp/libvips as the primary deterministic raster candidate for:
+- metadata/size inspection;
+- web derivatives;
+- trim/crop;
+- resize;
+- compositing;
+- alpha extraction;
+- format conversion.
+
+Operations that need random neighborhood analysis or custom pixel algorithms can be delegated to OpenCV/custom workers rather than forcing all work into one engine.
+
+### Input safety and denial-of-service limits
+
+Sharp exposes a pixel-count input limit and recommends strict handling for untrusted image input.
+
+ImageMagick documents independent limits for:
+- memory;
+- memory map;
+- disk;
+- file descriptors;
+- threads;
+- total elapsed time;
+- pixel area.
+
+This suggests layered input limits rather than only a maximum uploaded file size.
+
+Required validation before decoding:
+- compressed byte-size cap;
+- detected dimensions;
+- decoded pixel-count cap;
+- maximum width/height;
+- maximum frames/pages where relevant;
+- CPU time limit;
+- memory/disk scratch budget;
+- format allowlist;
+- signature/MIME agreement.
+
+Heavy parsers such as SVG/PDF should be isolated from the public request process.
+
+### Important correction to the earlier '300 DPI' mental model
+
+Sharp can write density metadata, but setting metadata density does not create real detail.
+
+The tool must distinguish:
+- embedded density;
+- pixel dimensions;
+- requested physical print size;
+- calculated effective DPI.
+
+The output may carry 300-DPI metadata for production compatibility, but approval must be based on effective DPI and actual pixels.
+
+### Refined processing architecture after Batch 002
+
+Candidate deterministic path:
+
+SOURCE
+  -> signature/header inspection
+  -> orientation normalization
+  -> ICC/profile inventory
+  -> alpha inventory
+  -> bounded preview decode
+  -> classification/router
+
+Transparent art:
+  -> transparent bounds
+  -> edge-band detection
+  -> halo/color contamination test
+  -> optional decontaminate
+  -> optional alpha morphology
+
+Opaque product/photo art:
+  -> segmentation
+  -> confidence analysis
+  -> alpha refinement/decontamination
+  -> approval if visual change is material
+
+Soft-alpha / glow / smoke:
+  -> preserve straight alpha master
+  -> optional ordered-halftone derivative
+  -> dark/light shirt comparison
+  -> underbase preview
+
+All:
+  -> product-fit effective DPI
+  -> mockup contract
+  -> sRGB display derivative
+  -> private print candidate
+  -> audit/version record
+
+### Current status after Batch 002
+
+Strong candidates, still not final:
+- Sharp/libvips for common deterministic raster transforms and web derivatives.
+- OpenCV/custom numeric operations for mask morphology, edge analysis and distance transforms.
+- Little CMS or Sharp ICC functions for explicit color-profile transforms.
+- Optional rembg-compatible model adapter for segmentation/matting, not hard-wired as the only provider.
+- Ordered dither as the first predictable halftone implementation.
+- Isolated worker/job execution with strict resource budgets.
+
+No storefront merge.
+No production deployment.
+No protected Home or current Mockup UI modifications.
