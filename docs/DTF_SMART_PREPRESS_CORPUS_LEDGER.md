@@ -1235,11 +1235,50 @@ Batch 037 counting notes:
 798. https://www.libvips.org/API/8.16/libvips-histogram.html
 799. https://www.libvips.org/API/8.17/method.Image.copy.html
 
-Verified unique pages: 799 / 10,000
-Remaining: 9,201
 
 Batch 038 counting notes:
 - All seven URLs above were individually opened/read successfully and were not already present in the ledger.
 - Many additional pages opened in this pass were already represented in the corpus and were deliberately not recounted.
 - Failed page opens were excluded.
 - Search-result snippets alone were not counted.
+
+
+## Verified Batch 039 — 27 pages — registration, topology, Fourier diagnostics, and localized graph operations
+
+800. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_label.html
+801. https://www.libvips.org/API/8.17/libvips-morphology.html
+802. https://www.libvips.org/API/8.17/method.Image.compass.html
+803. https://www.libvips.org/API/8.17/method.Image.hough_line.html
+804. https://www.libvips.org/API/8.17/method.Image.hough_circle.html
+805. https://www.libvips.org/API/8.17/method.Image.spectrum.html
+806. https://www.libvips.org/API/8.17/method.Image.globalbalance.html
+807. https://www.libvips.org/API/8.17/method.Image.hasalpha.html
+808. https://www.libvips.org/API/8.17/method.Image.countlines.html
+809. https://www.libvips.org/API/8.17/method.Image.draw_flood.html
+810. https://www.libvips.org/API/8.17/method.Image.clamp.html
+811. https://www.libvips.org/API/8.17/method.Image.abs.html
+812. https://www.libvips.org/API/8.17/method.Image.sign.html
+813. https://www.libvips.org/API/8.17/method.Image.invert.html
+814. https://www.libvips.org/API/8.17/method.Image.draw_circle.html
+815. https://www.libvips.org/API/8.17/method.Image.draw_line.html
+816. https://www.libvips.org/API/8.17/method.Image.spcor.html
+817. https://www.libvips.org/API/8.17/method.Image.phasecor.html
+818. https://www.libvips.org/API/8.17/method.Image.cross_phase.html
+819. https://www.libvips.org/API/8.17/method.Image.crop.html
+820. https://www.libvips.org/API/8.17/method.Image.insert.html
+821. https://www.libvips.org/API/8.17/method.Image.join.html
+822. https://www.libvips.org/API/8.17/method.Image.bandfold.html
+823. https://www.libvips.org/API/8.17/method.Image.bandunfold.html
+824. https://docs.opencv.org/doc/doxygen/html/dc/d6b/group__video__track.html
+825. https://usage.imagemagick.org/fourier/
+826. https://docs.opencv.org/doc/doxygen/html/d7/df3/group__imgproc__motion.html
+
+Verified unique pages: 826 / 10,000
+Remaining: 9,174
+
+Batch 039 counting notes:
+- All URLs above were individually opened/read successfully.
+- URLs already present in the corpus were excluded before counting.
+- Search-result snippets alone were not counted.
+- Failed page opens were excluded.
+- This batch focuses on measurable color/white-plane registration, topology preservation, frequency-domain diagnostics, and deterministic localized processing primitives.
