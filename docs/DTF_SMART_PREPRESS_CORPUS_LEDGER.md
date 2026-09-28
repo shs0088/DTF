@@ -1362,3 +1362,24 @@ Batch 046 counting notes:
 - The corpus still has an earlier unsynchronized 9-page Batch 045 (research count 854→863) whose exact URLs were not recoverable from the available record; they are not fabricated here and are not represented by entries 855–868.
 - GitHub ledger represented count after this batch: 868 / 10,000.
 - Research-continuity count including the prior verified-but-unsynchronized Batch 045: 877 / 10,000.
+
+
+## Verified Batch 047 — 9 pages — multilingual alpha thresholding, color-to-alpha, noise and blur semantics
+
+869. https://docs.gimp.org/3.0/ru/gimp-filter-threshold-alpha.html
+870. https://docs.gimp.org/3.0/pt_BR/gimp-tool-threshold.html
+871. https://docs.gimp.org/3.0/pt_BR/gimp-filter-noise-rgb.html
+872. https://docs.gimp.org/3.0/it/gimp-tool-threshold.html
+873. https://docs.gimp.org/3.0/ru/gimp-filter-lens-blur.html
+874. https://docs.gimp.org/3.0/it/gimp-filter-color-to-alpha.html
+875. https://docs.gimp.org/3.0/pt_BR/gimp-layer-transparency-menu.html
+876. https://docs.gimp.org/3.0/ru/gimp-imaging-photos.html
+877. https://docs.gimp.org/3.0/pt/plug-in-nl-filter.html
+
+Batch 047 counting notes:
+- All nine URLs above were individually opened/read successfully and were absent from the canonical ledger.
+- A Russian Blur/Sharpen tool page was opened but excluded because the same materially identical GIMP page was already represented by its Spanish localization at ledger entry 853.
+- Other localized threshold-alpha mirrors opened during discovery were excluded rather than counted repeatedly.
+- Search-result snippets alone were not counted.
+- GitHub ledger represented count after this batch: 877 / 10,000.
+- Research-continuity count including the earlier verified-but-unsynchronized nine-page Batch 045: 886 / 10,000.
