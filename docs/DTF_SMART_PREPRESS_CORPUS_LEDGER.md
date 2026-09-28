@@ -1447,3 +1447,17 @@ All ten pages were individually opened/read and absent from the canonical ledger
 912. https://docs.bfl.ai/kontext/kontext_image_editing
 
 Pages were individually opened/read during the AI-image-system pass and were absent from the canonical ledger. The VQA page was read during discovery but excluded from this batch because it did not add a direct image-processing/editing contract. Engineering transfer: reference-image consistency must be measured rather than assumed; masked editing needs leakage QA; generated text needs explicit integrity checking; AI upscaling/generation output must be re-preflighted for alpha, geometry and physical print resolution; generated/edited derivatives cannot silently replace the original print master. GitHub ledger: 912 / 10,000. Research continuity including unsynchronized Batch 045: 921 / 10,000.
+
+
+## Verified Batch 052 — Canva image authoring / AI editing / export
+
+913. https://www.canva.com/features/background-remover/
+914. https://www.canva.com/features/transparent-background/
+915. https://www.canva.com/features/image-resizer/
+916. https://www.canva.com/features/magic-edit/
+917. https://www.canva.com/features/magic-eraser/
+918. https://www.canva.com/features/ai-photo-editor/
+919. https://www.canva.com/features/image-enhancer/
+920. https://www.canva.com/features/image-upscaler/
+
+The eight feature pages were individually opened/read and absent from the canonical ledger. Several Canva Help URLs discovered during the pass did not resolve reliably in web retrieval and were excluded rather than counted. Engineering transfer: distinguish design-canvas dimensions from exported raster dimensions; re-preflight the exported file; detect transparency loss and non-uniform export scaling; AI erase/edit/enhance/upscale outputs require source comparison and alpha/edge reinspection; authoring-app canvas size is not proof of effective print PPI. GitHub ledger: 920 / 10,000. Research continuity including unsynchronized Batch 045: 929 / 10,000.
