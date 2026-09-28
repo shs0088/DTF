@@ -4568,3 +4568,231 @@ For PSD/PDF/TIFF-like rich containers:
 This prevents format-specific masks, spot channels, preblended colors, profile conversions, or dropped alpha from being misinterpreted as ordinary RGBA pixels.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 022 — foreground reconstruction, high-resolution matting, interpolation borders, and numerical precision
+
+The verified corpus now contains 453 individually opened/read unique pages.
+
+### 1. Foreground reconstruction is mathematically necessary for soft edges
+
+The foreground-estimation literature makes the failure mode explicit:
+using the original composite RGB as if it were foreground causes old-background colors to bleed into partially transparent pixels.
+
+For DTF this means the transparent candidate must not be defined only by alpha.
+The processing contract should carry:
+- alpha matte;
+- estimated foreground RGB;
+- optional estimated background RGB;
+- transition-band confidence.
+
+This is especially important for hair, fur, smoke, glow, soft antialiasing and any remove-background source with a colored or white background.
+
+### 2. Multi-level foreground estimation is a strong deterministic candidate
+
+Fast Multi-Level Foreground Estimation solves foreground/background colors progressively from coarse to full resolution.
+
+Important engineering advantages:
+- color propagation happens cheaply at low resolutions;
+- finer levels refine the result rather than starting from scratch;
+- memory/runtime are substantially lower than global full-resolution optimization.
+
+This is a good non-neural fallback or post-matting foreground reconstruction stage.
+
+### 3. Matting architecture should separate coarse semantics from edge refinement
+
+Deep Image Matting explicitly separates:
+- encoder-decoder coarse alpha prediction;
+- refinement network for sharper/more accurate alpha edges.
+
+This pattern repeats in later work and strongly supports our staged architecture:
+coarse subject understanding first, localized detail refinement second.
+
+### 4. Automatic trimap generation should be a dedicated subsystem
+
+Semantic-guided automatic matting predicts a trimap from segmentation/semantics before final matting.
+
+DTF implication:
+- do not hard-code trimap as simple erosion/dilation forever;
+- keep a pluggable trimap generator;
+- support deterministic morphology, learned trimap generation, and user-edited trimap;
+- benchmark trimap accuracy separately from matte accuracy.
+
+### 5. High-resolution matting needs explicit cross-patch consistency
+
+HDMatt exists specifically because naive patch-by-patch full-resolution inference creates contextual inconsistencies.
+
+If DTF Studio tiles large images:
+- tiles must overlap;
+- edge context must be shared or blended;
+- global coarse matte/semantics should guide each tile;
+- seam consistency must be tested;
+- topology-critical objects crossing tile boundaries must be handled specially.
+
+A simple independent 512x512 crop loop is not sufficient for production-quality hair/text/fine edges.
+
+### 6. Saliency-based automatic matting is useful, but "most salient object" is not always the DTF subject
+
+Salient Image Matting can automatically infer a foreground matte without a user trimap by using saliency.
+
+This is useful for portrait/product photos, but risky for:
+- full-canvas illustrations;
+- logos with disconnected elements;
+- multiple equally important objects;
+- decorative frames/background graphics.
+
+Therefore saliency-driven matting should be only one route in the artwork classifier.
+
+### 7. Premultiplied alpha is the natural rendering/filtering representation
+
+Microsoft's current Win2D documentation states that premultiplied alpha is preferred internally for rendering/filtering and that straight-alpha file/API values are converted before rendering.
+
+This reinforces:
+- file/storage semantics may be straight;
+- working/render semantics may be premultiplied;
+- the transition must be explicit and tested.
+
+### 8. Straight and premultiplied source-over equations differ only because RGB carries different meaning
+
+Straight alpha source-over:
+result = sourceRGB * sourceA + destinationRGB * (1 - sourceA)
+
+Premultiplied alpha source-over:
+result = sourceRGB + destinationRGB * (1 - sourceA)
+
+The engine should never use one formula on pixels encoded for the other representation.
+
+### 9. Alpha-only masks and luminance-derived masks must not inherit RGB gamma behavior
+
+The Direct2D luminance-to-alpha documentation explicitly recommends inverse gamma correction before computing luminance from gamma-encoded RGB.
+
+This is important for any future "derive mask from brightness" tool:
+- convert color values to an appropriate linear representation first;
+- compute luminance;
+- store resulting alpha as linear coverage;
+- do not gamma-correct the alpha channel itself.
+
+### 10. DPI-correction scaling and artwork scaling must remain separate concepts
+
+The Direct2D BitmapSource effect can automatically scale according to source/device DPI.
+
+DTF Studio must avoid letting graphics-runtime DPI correction silently alter print geometry.
+Our domain model remains authoritative for:
+- pixel dimensions;
+- intended physical print size;
+- effective DPI;
+- normalized placement.
+
+Display/UI DPI should not mutate print-master placement.
+
+### 11. Interpolation choice should be recorded as part of the recipe
+
+Direct2D exposes nearest, linear, cubic, Fant, mipmap-linear and higher-quality scale modes.
+
+For our processing engine:
+- line/pixel art may need nearest or specialized treatment;
+- normal photographic resize should use a high-quality kernel;
+- preview/downscale may use an optimized mipmap path;
+- the chosen interpolation mode belongs in recipe metadata.
+
+### 12. Border mode can change transparent-edge output
+
+The Direct2D scale effect documents two distinct border behaviors:
+- soft border pads with transparent black;
+- hard border mirrors/extends source content.
+
+Transparent black padding is not neutral for all alpha/color-processing pipelines.
+For DTF:
+- border policy must be explicit;
+- add controlled safe padding when filtering edge-touching art;
+- regression-test subjects touching all canvas borders.
+
+### 13. High-quality cubic filters can generate out-of-range intermediate values
+
+Direct2D precision documentation notes that cubic/high-quality cubic scaling and several other effects may emit values outside [0,1] in unpremultiplied space.
+
+This is a major QA point:
+- avoid implicit 8-bit clamping during intermediate processing;
+- use higher-precision float intermediates for authoritative transformations;
+- clamp only at a deliberate stage;
+- record precision/bit-depth changes.
+
+### 14. Effect-graph precision can change output across hardware/runtime versions
+
+Direct2D may fuse shaders or allocate intermediate buffers differently depending on Windows/GPU capabilities.
+
+This is another reason browser/GPU preview must not define the authoritative print master.
+
+Production reference processing should use a controlled server implementation and fixed library/version/precision policy.
+
+### 15. Higher source precision should be preserved where it exists
+
+Microsoft's bitmap-source documentation recommends preserving higher-than-8-bpc precision with suitable RGBA formats.
+
+For DTF:
+- do not reduce 16-bit TIFF/PSD-derived sources to 8-bit before profile conversion or tonal repair unless required;
+- web previews can be 8-bit;
+- production working artifacts may remain 16-bit/float until export.
+
+### 16. Large-image decode should not silently change alpha mode
+
+The Direct2D image-source API notes that it does not automatically apply appearance-changing gamma or alpha-premultiplication adjustments in some loading paths and that straight-alpha limitations exist.
+
+General rule:
+- decoder result metadata must state actual alpha representation;
+- never infer it only from the file having four channels;
+- normalize into a known working representation explicitly.
+
+### 17. White-underbase diagnosis remains orthogonal to alpha cleanup
+
+The DTF production page reviewed in this batch reinforces:
+- white laydown/density;
+- choke;
+- nozzle/mechanical white-ink problems;
+- registration.
+
+A clean alpha can still print badly because of white ink hardware or registration.
+Our report should keep DIGITAL_ARTWORK issues distinct from DEVICE_PROCESS issues.
+
+### 18. Render intent and black-point compensation are explicit transform parameters
+
+Adobe's current image-serving ICC documentation exposes:
+- output profile;
+- rendering intent;
+- black-point compensation;
+- optional dithering in one path.
+
+This supports the production color recipe fields already proposed.
+No color transform should be logged merely as "converted to profile X"; intent/BPC/dither can affect output too.
+
+### 19. Proposed high-resolution matting execution plan
+
+For production-scale images:
+1. decode authoritative RGB/profile/alpha;
+2. classify artwork;
+3. compute coarse semantic mask at bounded resolution;
+4. generate trimap/confidence;
+5. run global/coarse matte;
+6. identify high-uncertainty edge regions;
+7. tile only those regions with overlap and global context;
+8. reconstruct foreground RGB;
+9. blend tile refinements seam-safely;
+10. restore hard foreground/background/user constraints;
+11. run edge/topology/color QA;
+12. save versioned artifact.
+
+### 20. Batch 022 conclusion
+
+The strongest new constraint is that high-resolution processing cannot be reduced to "run the same model on tiles."
+
+Production quality requires:
+- global semantics;
+- explicit alpha representation;
+- trimap/confidence;
+- foreground-color reconstruction;
+- overlap/context-aware high-resolution refinement;
+- high-precision intermediates;
+- deterministic border/interpolation behavior;
+- structural QA before approval.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
