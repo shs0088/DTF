@@ -483,8 +483,6 @@ Batch 013 counting notes:
 332. https://github.com/PeterL1n/BackgroundMattingV2/blob/master/model/model.py
 333. https://github.com/hustvl/ViTMatte/blob/main/inference.py
 
-Verified unique pages: 333 / 10,000
-Remaining: 9,667
 
 Batch 014 counting notes:
 - Every URL above was individually opened/read successfully.
@@ -492,3 +490,37 @@ Batch 014 counting notes:
 - The already-counted MODNet repository root and PyMatting pages were excluded.
 - Mirror/fork duplicates of FBA, RobustVideoMatting, and BackgroundMattingV2 were not counted; only one canonical implementation plus materially distinct source-code pages were retained.
 - This batch prioritizes the actual image-matting and edge-processing implementation paths.
+
+
+## Verified Batch 015 — 20 pages — DTF choke/halftone physics, alpha decontamination, calibration, and alpha-safe raster processing
+
+334. https://www.nestsheet.com/blog/dtf-white-underbase-choke-explained
+335. https://dtfstation.com/knowledge-base/setting-the-white-choke-amount-with-the-digital-factory-queue-wizard/
+336. https://dtfpapercompany.com/dtf-rip-software-setup/
+337. https://help.housedtf.com/portal/en/kb/articles/choke-adjustments-in-dtf-printing
+338. https://github.com/aldegad/sprite-gen/blob/main/docs/chroma-alpha.md
+339. https://developer.apple.com/documentation/coregraphics/cgimagealphainfo?language=objc
+340. https://support.chamevo.com/en/kb/general/print-fundamentals/dtf-artwork
+341. https://nestsheet.com/white-underbase
+342. https://helpdesk.caldera.com/hc/en-us/articles/29224655665553--Best-Practices-and-Tips-for-Color-Management-in-DTF-Printing
+343. https://sharp.pixelplumbing.com/performance/
+344. https://docs.opencv.org/5.0.0-alpha/dc/da3/tutorial_copyMakeBorder.html
+345. https://help.cadlink.com/website/digital_factory/en/production/menus/full_print_mode_creation.htm
+346. https://help.cadlink.com/website/digital_factory/ja/bonus_documentation/underbase_strength_and_manual_curve.htm
+347. https://help.cadlink.com/website/digital_factory/en/bonus_documentation/ink_removal.htm
+348. https://help.cadlink.com/website/digital_factory/en/production/menus/jobs_menu_output.htm
+349. https://help.cadlink.com/website/digital_factory/de/production/menus/fiery_color_profiler.htm
+350. https://help.cadlink.com/website/digital_factory/it/bonus_documentation/white_ink_only_print_modes.htm
+351. https://help.cadlink.com/website/filmmaker/fr/bonus_documentation/separations_and_halftones.htm
+352. https://help.cadlink.com/website/digital_factory/en/production/menus/calibration.htm
+353. https://sharp.pixelplumbing.com/changelog/v0.23.1/
+
+Verified unique pages: 353 / 10,000
+Remaining: 9,647
+
+Batch 015 counting notes:
+- All 20 URLs above were individually opened/read successfully.
+- No URLs already present in the ledger were counted.
+- Search-result snippets alone were excluded.
+- Language/localization variants were counted only when they were materially distinct documentation pages, not mirrors of a page already counted.
+- This batch prioritizes actual DTF underbase behavior, physical choke/halftone relationships, alpha-edge decontamination, calibration, and premultiplied-alpha-safe raster processing.
