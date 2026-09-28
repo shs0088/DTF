@@ -5371,3 +5371,234 @@ The image-preparation architecture now needs a stronger separation between:
 The same grayscale raster can mean transparency, a saved selection, a spot-white plate, a confidence map, or a trimap. Every ingest and export path must preserve that meaning explicitly.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 027 — resampling precision, operation scope, mask semantics, and transform safety
+
+The verified corpus now contains 538 individually opened/read unique pages.
+
+### 1. Low-level horizontal/vertical reduction exposes an explicit speed-vs-quality trade-off
+
+libvips reduceh/reducev use interpolation kernels and can optionally pre-shrink with a box filter via the gap parameter. The documentation explicitly states that these operations do not update image x/y resolution.
+
+DTF rule:
+- recompute physical/effective DPI after any pixel resize;
+- quality-critical print derivatives should use the accurate path;
+- speed optimizations belong to preview paths until verified on transparent-edge fixtures.
+
+### 2. Box shrinking is useful for coarse stages, not final print reduction
+
+libvips shrinkh is a low-level box-filter reduction. Box averaging is valuable for fast coarse inference images, but it is not the preferred final reduction for antialiased text, fine line art, or soft alpha.
+
+Use:
+- coarse segmentation/inference preparation;
+- fast analysis pyramid;
+- never as the only final print-quality resampler unless validated for that content class.
+
+### 3. Arbitrary transforms are resampling operations, not merely geometry metadata
+
+libvips similarity/rotate delegate to affine processing and accept interpolation/background parameters.
+
+Therefore any arbitrary-angle rotation or scale can alter:
+- alpha transition width;
+- thin-stroke topology;
+- hidden RGB;
+- edge color.
+
+Production QA should run after the final placement transform, and newly exposed pixels must have explicit transparent-background semantics.
+
+### 4. Right-angle rotation should use discrete rotation where possible
+
+libvips rot handles fixed right-angle rotations separately.
+
+Policy:
+- 90/180/270-degree turns should use discrete rotation paths;
+- arbitrary-angle rotation triggers interpolation-aware QA;
+- repeated transformations should always derive from an immutable source/candidate rather than transforming the last transformed raster again.
+
+### 5. Cast/quantization is a destructive boundary
+
+libvips cast truncates floating-point values and clips values outside the output type range.
+
+DTF rule:
+- retain float/16-bit working data through high-quality alpha/color operations;
+- delay 8-bit quantization until an explicit export/display boundary;
+- record bit depth and quantization step in the processing recipe.
+
+### 6. Band joining is not enough; channel meaning must also be carried
+
+libvips bandjoin simply concatenates channels and may enlarge smaller images with zero padding.
+
+Every assembly step must preserve semantic labels:
+- R/G/B;
+- alpha coverage;
+- white spot plate;
+- confidence;
+- trimap;
+- auxiliary mask.
+
+A grayscale band must never become "alpha" merely because it is the fourth band.
+
+### 7. Thumbnail generation is a delivery path, not a production-master path
+
+libvips thumbnail uses shrink-on-load, block shrink, then Lanczos3 for at least the final stage, optimizing speed and quality for delivery.
+
+Use it for:
+- storefront;
+- gallery;
+- admin cards;
+- mockup previews.
+
+Never derive a print master from a thumbnail derivative.
+
+### 8. Exact crop should use stored coordinates
+
+extract_area gives deterministic rectangular extraction.
+
+For authoritative production geometry:
+- compute bounds from alpha/diagnostics;
+- store left/top/width/height;
+- crop exactly from those coordinates;
+- preserve crop origin in placement metadata.
+
+Attention/saliency crop belongs only to display derivatives.
+
+### 9. Morphology must operate on intentionally binary masks
+
+libvips morph expects binary object/background semantics and a structuring element with explicit object/background/don't-care values.
+
+Therefore:
+- do not feed continuous alpha directly into morphology;
+- derive a binary operation mask from a versioned threshold;
+- keep continuous alpha as the authoritative coverage;
+- use morphology to propose/derive controlled corrections rather than replacing the matte blindly.
+
+### 10. Median filtering is a targeted impulse-noise operation
+
+libvips median is the median rank-filter special case.
+
+Use for isolated specks/impulse noise only when diagnostics justify it. Protect text/logo topology by:
+- physical filter-size limit;
+- before/after component count;
+- skeleton continuity;
+- edge-energy check.
+
+### 11. ifthenelse is a strong deterministic primitive for confidence-gated refinement
+
+libvips ifthenelse selects per-pixel data from two candidates using a condition image.
+
+This directly supports:
+- keep original alpha in high-confidence regions;
+- use refined alpha only in uncertain regions;
+- replace RGB only inside an edge-decontamination band;
+- merge manual correction masks without reprocessing the whole image.
+
+This is exactly the kind of localized, explainable processing preferred for DTF.
+
+### 12. Gaussian kernels should be generated reproducibly
+
+libvips gaussmat creates a Gaussian kernel from sigma and a minimum-amplitude cutoff.
+
+If Gaussian blur/feathering is used:
+- store sigma/min-amplitude;
+- relate sigma to physical edge-band intent where practical;
+- use float precision for reference outputs;
+- do not expose arbitrary blur as an automatic "quality improvement."
+
+### 13. Approximate convolution should be restricted by workflow tier
+
+libvips conva trades accuracy for speed using layers and clustering, while convf performs convolution in floating-point.
+
+Suggested policy:
+- authoritative reference/master candidate: float/exact path;
+- preview/diagnostic path: approximate convolution allowed after benchmark validation;
+- record precision/approximation mode if it can change visible output.
+
+### 14. Frequency-domain multiplication is useful as a diagnostic primitive
+
+libvips freqmult performs Fourier-domain masking and inverse transformation.
+
+Potential DTF use:
+- controlled low/high/band-pass diagnostics;
+- frequency-energy analysis for blur/detail classification;
+- not a default master effect.
+
+Frequency-domain operations require boundary/windowing discipline to avoid interpreting rectangular-image boundaries as real signal.
+
+### 15. ImageMagick compositing confirms mask/read-mask semantics must be explicit
+
+ImageMagick's composite documentation distinguishes normal masks from read masks and exposes compositing, affine, alpha, profile, density and virtual-pixel behavior.
+
+The main architectural lesson is that:
+- mask direction/convention matters;
+- alpha/channel targeting matters;
+- virtual pixels/background during transforms matter;
+- command defaults must never be trusted implicitly for a production recipe.
+
+### 16. Processing tiers can now be formalized
+
+PREVIEW_FAST:
+- thumbnail/shrink-on-load;
+- coarse segmentation;
+- approximate/non-authoritative diagnostics.
+
+STANDARD:
+- alpha-aware high-quality resize;
+- confidence-gated edge refinement;
+- exact crop/placement geometry;
+- deterministic masks.
+
+QUALITY:
+- float convolution/reference kernels;
+- high-res matte/foreground reconstruction;
+- topology/color/alpha QA;
+- export/RIP contract validation.
+
+### 17. Proposed operation contract extension
+
+Each operation node should declare:
+- operationName/version;
+- inputAlphaRepresentation;
+- outputAlphaRepresentation;
+- maskMeaning if any;
+- colorSpace/encoding;
+- precision mode;
+- interpolation/kernel;
+- border/background policy;
+- physical-scale metadata;
+- whether geometry changes;
+- whether appearance changes;
+- output hash.
+
+### 18. Proposed transform regression suite
+
+For every resize/rotate/crop/morph pipeline test:
+- hard black text;
+- hard white text;
+- 1px/2px lines;
+- Arabic dots/diacritics;
+- soft glow;
+- smoke/fur edge;
+- transparent colored hidden RGB;
+- edge touching canvas boundary;
+- detached small components.
+
+Validate:
+- stroke width;
+- component count;
+- skeleton continuity;
+- alpha edge width;
+- color fringe;
+- effective DPI;
+- crop/placement coordinates.
+
+### 19. Batch 027 conclusion
+
+The image-processing architecture should distinguish three different optimization goals:
+- fast preview;
+- standard safe preparation;
+- high-quality production candidate.
+
+The same low-level library can support all three, but the kernels, precision, alpha handling, mask semantics, and QA gates must differ.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
