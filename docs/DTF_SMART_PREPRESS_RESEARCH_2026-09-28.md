@@ -827,3 +827,198 @@ Still not final.
 No deployment.
 No merge.
 No changes to protected Home or current Mockup behavior.
+
+
+## Research Batch 004 — alpha math, halftone physics, upload resilience, mockup transforms and security
+
+This batch focuses on programming details that directly affect visual correctness, large-file reliability, and keeping mockups identical to production placement.
+
+### Premultiplied alpha and edge correctness
+
+Modern compositing pipelines distinguish straight alpha from premultiplied alpha. This is not a cosmetic implementation detail. Resizing, blurring or compositing RGB without respecting the alpha representation can create dark or bright edge fringes that become obvious on black or white garments.
+
+Required internal metadata:
+- alphaMode: straight | premultiplied | opaque
+- sourceHasAlpha
+- alphaHistogramSummary
+- edgeBandWidthPx
+- edgeTreatmentRecipe
+
+Rule:
+- processing stages must explicitly convert alpha representation at boundaries rather than assuming one convention.
+
+### Edge diagnosis must be specific
+
+Research into matting/decontamination implementations shows that edge defects are not one problem.
+
+Proposed diagnostic codes:
+- COLOR_FRINGE: foreground RGB contaminated by previous background color
+- COVERAGE_HARD_EDGE: alpha transition too abrupt
+- COVERAGE_LEAK: unwanted low-alpha background remains
+- SOFT_DETAIL_LOSS: hair/smoke/glow detail removed
+- LOW_ALPHA_HAZE: broad low-opacity region likely to create white haze or unintended underbase
+
+Each code maps to a different suggested operation. A generic destructive "clean edges" button is rejected.
+
+### DTF halftone should be a derivative
+
+Ordered-dither documentation confirms deterministic threshold maps including dispersed, angled, orthogonal and circular patterns. The same method can be applied to alpha rather than destroying RGB.
+
+V1 halftone design:
+1. preserve source RGB;
+2. extract the alpha mask;
+3. apply selected deterministic threshold map to alpha;
+4. merge the new alpha with source RGB;
+5. generate dark/light garment previews;
+6. save as HALFTONE_DERIVATIVE;
+7. never overwrite the normal transparent master.
+
+The UI should expose physical meaning rather than only an arbitrary slider:
+- cell size in pixels;
+- effective DPI;
+- calculated physical cell size in mm/inches;
+- nominal screen frequency where meaningful.
+
+This lets the preflight flag patterns whose dots are too small for reliable transfer or so large that visual detail is lost.
+
+### Color management policy
+
+Programming documentation for Pillow, OpenImageIO, OpenColorIO, Little CMS and Sharp reinforces that display color and production color are separate concerns.
+
+Policy:
+- browser/display derivative: explicit sRGB display target;
+- original: preserve profile metadata;
+- print candidate: preserve profile unless an approved transform is requested;
+- ICC transforms are explicit, versioned and logged;
+- DTF Studio does not claim that generic RGB-to-CMYK conversion replaces the printer/RIP ICC, linearization, white-channel control or ink limits.
+
+The UI may offer an approximate soft-proof preview later, but it must be labeled as a preview rather than a guaranteed printer proof.
+
+### Security: file size is not enough
+
+OWASP, Pillow and binary-signature tooling reinforce a layered upload model.
+
+Required gates:
+- extension allowlist;
+- real signature/magic-byte detection;
+- MIME/signature agreement;
+- compressed byte-size limit;
+- decoded pixel-count limit;
+- maximum width/height;
+- maximum frame/page count;
+- decompression-bomb rejection;
+- worker CPU timeout;
+- worker memory/scratch-disk limits;
+- generated storage keys, never user paths;
+- private source storage;
+- metadata stripping on public web derivatives;
+- audit event for upload validation outcome.
+
+SVG requires its own security path because it is XML/text rather than a simple binary-signature image. Do not treat generic HTML sanitization as sufficient for every SVG sink. Prefer strict allowlisting and/or safe rasterization for customer previews.
+
+### Large-file upload architecture
+
+For normal artwork:
+- direct signed upload to private object storage.
+
+For large PSD/PDF/source assets:
+- multipart/resumable upload;
+- retry individual parts;
+- persist upload session state;
+- never base64-encode a large print asset into JSON.
+
+The request-serving process should not retain full high-resolution source bytes in memory while heavy processing occurs.
+
+### Job isolation
+
+Separate workloads by class:
+
+IO jobs:
+- storage operations;
+- metadata persistence;
+- provider API calls.
+
+CPU jobs:
+- raster transforms;
+- alpha morphology;
+- edge analysis;
+- halftone;
+- vectorization.
+
+GPU/AI jobs:
+- segmentation;
+- matting;
+- super-resolution where configured.
+
+Every job requires:
+- idempotency key;
+- immutable input artifact hash;
+- processing recipe/version;
+- progress;
+- timeout;
+- bounded retries/backoff;
+- cancellation state;
+- output artifact hash.
+
+### Browser memory rule
+
+The browser is not the production processor.
+
+Allowed browser work:
+- file selection;
+- basic early validation hints;
+- bounded preview decode;
+- small OffscreenCanvas/Web Worker enhancements;
+- visual comparison;
+- mockup transform controls;
+- progress/status.
+
+Browser cleanup:
+- cap preview dimensions;
+- close ImageBitmap resources when done;
+- revoke object URLs;
+- release replaced canvases;
+- never keep multiple full-resolution copies alive.
+
+### Provider-neutral mockup coordinates
+
+External mockup providers use different coordinate systems. DTF Studio should keep one authoritative placement record.
+
+Internal ArtworkPlacement:
+- printAreaId
+- normalized center x/y in [0,1]
+- normalized width/height relative to print area
+- rotationDeg
+- flipX / flipY
+- fitMode
+- physical width/height
+- processedVersionId
+
+Adapters derive provider payloads from that record.
+
+For a provider using top-left pixel coordinates:
+left = (x - width / 2) * areaWidth
+top  = (y - height / 2) * areaHeight
+artWidth  = width  * areaWidth
+artHeight = height * areaHeight
+
+Round only at the provider boundary to avoid transform drift.
+
+Critical rule:
+Mockup and print must NOT maintain separate placement values. Both derive from the same ArtworkPlacement record and the exact same processedVersionId.
+
+### Batch 004 decision status
+
+The following are stronger engineering conclusions but still not a final locked stack:
+- explicit alpha representation through the pipeline;
+- diagnosis-specific edge repair;
+- halftone stored as a versioned derivative;
+- explicit display-vs-production color policy;
+- layered upload security;
+- resumable object-storage uploads for large files;
+- isolated job classes;
+- one authoritative mockup/production placement record.
+
+No storefront merge.
+No deployment.
+No protected Home or current Mockup changes.
