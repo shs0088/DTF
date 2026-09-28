@@ -1,0 +1,8 @@
+{
+  "name": "DTF Smart Prepress",
+  "code": "dtf_smart_prepress",
+  "version": "0.1.0-research",
+  "author": "DTF Studio",
+  "link": "",
+  "description": "Research-driven DTF image preflight and decision engine for OpenCart 4. No storefront changes."
+}
