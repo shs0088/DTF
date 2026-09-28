@@ -1006,8 +1006,6 @@ Batch 029 counting notes:
 664. https://archive.color.org/files/IPA_2003-11_PDFX.pdf
 665. https://www.color.org/profilesecurity/
 
-Verified unique pages: 665 / 10,000
-Remaining: 9,335
 
 Batch 030 counting notes:
 - All 22 URLs above were individually opened/read successfully in this batch.
@@ -1015,3 +1013,41 @@ Batch 030 counting notes:
 - Previously counted corpus pages were checked and excluded before numbering.
 - Search-result snippets alone were not counted.
 - This batch focuses on ICC profile testing/proofing, rendering-intent behavior, DTF underbase/halftone practice, transformation QA, and production color-workflow controls.
+
+
+## Verified Batch 031 — 25 pages — edge geometry, local contrast, registration, morphology-footprints, texture and shape descriptors
+
+666. https://scikit-image.org/docs/stable/auto_examples/edges/plot_line_hough_transform.html
+667. https://scikit-image.org/docs/stable/auto_examples/edges/plot_circular_elliptical_hough_transform.html
+668. https://scikit-image.org/docs/stable/auto_examples/edges/plot_edge_filter.html
+669. https://scikit-image.org/docs/stable/auto_examples/transform/plot_edge_modes.html
+670. https://scikit-image.org/docs/stable/auto_examples/registration/plot_register_translation.html
+671. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_equalize.html
+672. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_local_equalize.html
+673. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_adapt_hist_eq_3d.html
+674. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_rgb_to_gray.html
+675. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_rgb_to_hsv.html
+676. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_histogram_matching.html
+677. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_adapt_rgb.html
+678. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_regional_maxima.html
+679. https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_tinting_grayscale_images.html
+680. https://scikit-image.org/docs/stable/auto_examples/edges/plot_shapes.html
+681. https://scikit-image.org/docs/stable/auto_examples/edges/plot_polygon.html
+682. https://scikit-image.org/docs/stable/auto_examples/transform/plot_radon_transform.html
+683. https://scikit-image.org/docs/stable/auto_examples/numpy_operations/plot_camera_numpy.html
+684. https://scikit-image.org/docs/stable/auto_examples/numpy_operations/plot_structuring_elements.html
+685. https://scikit-image.org/docs/stable/auto_examples/numpy_operations/plot_view_as_blocks.html
+686. https://scikit-image.org/docs/stable/auto_examples/numpy_operations/plot_footprint_decompositions.html
+687. https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_hog.html
+688. https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_glcm.html
+689. https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_shape_index.html
+690. https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_windowed_histogram.html
+
+Verified unique pages: 690 / 10,000
+Remaining: 9,310
+
+Batch 031 counting notes:
+- All 25 URLs above were individually opened/read successfully in this batch.
+- Previously counted pages were checked against the ledger and excluded.
+- Search-result snippets alone were not counted.
+- This batch emphasizes measurable edge/shape preservation, local-vs-global contrast behavior, registration, morphology-footprint design, and texture/shape descriptors that can drive the DTF image-processing router.
