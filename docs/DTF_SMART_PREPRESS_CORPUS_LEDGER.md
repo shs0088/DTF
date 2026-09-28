@@ -937,8 +937,6 @@ Batch 027 counting notes:
 619. https://scikit-image.org/docs/stable/auto_examples/transform/plot_ransac.html
 620. https://scikit-image.org/docs/stable/auto_examples/transform/plot_fundamental_matrix.html
 
-Verified unique pages: 620 / 10,000
-Remaining: 9,380
 
 Batch 028 counting notes:
 - All 20 URLs above were individually opened/read successfully in this batch.
@@ -946,3 +944,40 @@ Batch 028 counting notes:
 - Previously counted pages were checked against the ledger and excluded before numbering.
 - Search-result snippets alone were not counted.
 - This batch focuses on how resizing, affine/projective/nonlinear warps, registration, and boundary interpolation can change DTF artwork geometry or help detect white/color-plane misalignment.
+
+
+## Verified Batch 029 — 23 pages — alpha-safe resampling, decontamination, trimap/matting strategy, and ICC proofing
+
+621. https://github.com/MicrosoftDocs/windows-dev-docs/blob/docs/hub/apps/develop/win2d/premultiplied-alpha.md
+622. https://github.com/XiangCoder/rembg_background-removal
+623. https://github.com/didik-maulana/pas-photo-matting
+624. https://github.com/Tencent/TNN/blob/master/third_party/stb/stb_image_resize.h
+625. https://github.com/eyalfishler/segmo
+626. https://github.com/microsoft/DirectXTex/wiki/Texconv/b5273653d67a670c319b44bea431bc77b8cf29a9
+627. https://www.littlecms.com/img/training/LittleCMS2_training_2023.pdf
+628. https://github.com/libvips/libvips/discussions/4588
+629. https://github.com/BaepatLabs/background-remover/blob/main/SKILL.md
+630. https://github.com/feyninc/nobg
+631. https://github.com/useknockout/api/blob/main/main.py
+632. https://github.com/nothings/obbg/blob/master/stb/stb_image_resize.h
+633. https://www.color.org/getting-started/
+634. https://www.color.org/displaygamut/
+635. https://www.color.org/faqs/
+636. https://www.color.org/WP40-Black_Point_Compensation_2010-07-27.pdf
+637. https://www.color.org/ICC_white_paper_23_RGB_Workflow.pdf
+638. https://github.com/lnugraha/trimap_generator
+639. https://github.com/JizhiziLi/matting-survey
+640. https://github.com/kfeng123/LSA-Matting
+641. https://github.com/anorak-games/comfyui-sam2matting
+642. https://github.com/matplotlib/matplotlib/blob/main/lib/matplotlib/image.py
+643. https://github.com/sksamuel/scrimage/blob/master/scrimage-core/src/main/java/com/sksamuel/scrimage/ImmutableImage.java
+
+Verified unique pages: 643 / 10,000
+Remaining: 9,357
+
+Batch 029 counting notes:
+- All 23 URLs above were individually opened/read successfully.
+- Two attempted pages returned internal errors and were excluded.
+- Previously counted pages were checked against the ledger and excluded.
+- Search-result snippets alone were not counted.
+- This batch focuses on premultiplied-alpha resampling, edge-color decontamination, trimap/matting model selection, and color-management/proofing behavior.
