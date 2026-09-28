@@ -1461,3 +1461,28 @@ Pages were individually opened/read during the AI-image-system pass and were abs
 920. https://www.canva.com/features/image-upscaler/
 
 The eight feature pages were individually opened/read and absent from the canonical ledger. Several Canva Help URLs discovered during the pass did not resolve reliably in web retrieval and were excluded rather than counted. Engineering transfer: distinguish design-canvas dimensions from exported raster dimensions; re-preflight the exported file; detect transparency loss and non-uniform export scaling; AI erase/edit/enhance/upscale outputs require source comparison and alpha/edge reinspection; authoring-app canvas size is not proof of effective print PPI. GitHub ledger: 920 / 10,000. Research continuity including unsynchronized Batch 045: 929 / 10,000.
+
+
+## Verified Batch 053 — 12 pages — multilingual alpha/export/dither/color semantics
+
+921. https://whitebackgroundremover.com/ar/
+922. https://alphapng.org/trim-png
+923. https://imageat.com/remove-background
+924. https://imagefader.com/en/
+925. https://nobg.online/fr
+926. https://www.removemint.com/
+927. https://docs.gimp.org/3.0/fr/gimp-filter-dither.html
+928. https://docs.gimp.org/3.0/fr/gimp-image-color-management.html
+929. https://docs.gimp.org/3.0/fr/gimp-image-convert-indexed.html
+930. https://docs.gimp.org/3.0/es/gimp-image-flatten.html
+931. https://docs.gimp.org/3.0/es/gimp-filter-stretch-contrast.html
+932. https://docs.gimp.org/3.0/de/glossary.html
+
+Batch 053 counting notes:
+- All twelve pages were individually opened/read and were absent from the canonical ledger.
+- Search-result snippets and one French page that failed to open were excluded.
+- Localized mirrors of the same GIMP Dither/Color pages were deliberately not multiplied; one materially representative page per topic was counted here.
+- Commercial background-removal/editor pages are implementation/UX evidence, not algorithmic authority.
+- Engineering transfer: white/background removal benefits from separating background-color estimation, segmentation/alpha-map generation, edge smoothing and final compositing; alpha bounds trimming must preserve every alpha>0 pixel and must not resample artwork; transparent previews must be distinguished from real exported alpha; flattening destroys alpha and therefore must be a hard preflight warning for DTF masters; dithering can operate on color and alpha levels and should be treated as an explicit print strategy, never an accidental quantization side-effect; ICC assign/convert, soft-proof intent and black-point compensation must remain explicit; contrast operations differ in linear versus gamma-corrected data and should not silently alter master color.
+- GitHub ledger represented count after this batch: 932 / 10,000.
+- Research-continuity count including the earlier verified-but-unsynchronized nine-page Batch 045 and the four verified pages reported in the prior run but not recoverable as ledger URLs: 945 / 10,000.
