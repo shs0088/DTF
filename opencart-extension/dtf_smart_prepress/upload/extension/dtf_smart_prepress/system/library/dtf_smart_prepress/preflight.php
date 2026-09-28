@@ -33,6 +33,13 @@ final class Preflight {
         $mapSemantic = (string)($m['mapSemantic'] ?? 'color');
         $workingColorSpace = trim((string)($m['workingColorSpace'] ?? ''));
         $inputColorSpace = trim((string)($m['inputColorSpace'] ?? ''));
+        $aiGenerated = (bool)($m['aiGenerated'] ?? false);
+        $aiEdited = (bool)($m['aiEdited'] ?? false);
+        $identitySimilarity = isset($m['identitySimilarity']) ? max(0.0, min(1.0, (float)$m['identitySimilarity'])) : null;
+        $textIntegrity = isset($m['textIntegrity']) ? max(0.0, min(1.0, (float)$m['textIntegrity'])) : null;
+        $editMaskLeakage = isset($m['editMaskLeakage']) ? max(0.0, min(1.0, (float)$m['editMaskLeakage'])) : null;
+        $referenceCount = isset($m['referenceCount']) ? max(0, (int)$m['referenceCount']) : 0;
+        $generationModel = trim((string)($m['generationModel'] ?? ''));
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -86,6 +93,11 @@ final class Preflight {
         }
 
         $resampling = $this->resamplingDecision($artworkClass, $scaleFactor);
+        $aiQaRequired = $aiGenerated || $aiEdited;
+        $aiCritical = ($textIntegrity !== null && $textIntegrity < 0.98) || ($editMaskLeakage !== null && $editMaskLeakage > 0.02);
+        if ($aiQaRequired && $aiCritical) {
+            $warnings[] = ['code'=>'AI_EDIT_INTEGRITY_REVIEW_REQUIRED','severity'=>'warning'];
+        }
         $physicalSamplePpi = ($sampleWidthMm !== null && $sampleWidthMm > 0 && $sourceWidthPx !== null) ? ($sourceWidthPx / ($sampleWidthMm / 25.4)) : null;
         $samplingContaminatedPreview = $previewFilter !== 'unknown' || $previewMipBias !== null;
         $mapColorPolicy = in_array($mapSemantic, ['mask','cutout','roughness','displacement','scalar'], true) ? 'raw-data' : 'color-managed';
@@ -104,6 +116,19 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'aiGenerationIntegrityReport' => [
+                'aiGenerated'=>$aiGenerated,
+                'aiEdited'=>$aiEdited,
+                'model'=>$generationModel !== '' ? $generationModel : null,
+                'referenceCount'=>$referenceCount,
+                'identitySimilarity'=>$identitySimilarity,
+                'textIntegrity'=>$textIntegrity,
+                'editMaskLeakage'=>$editMaskLeakage,
+                'requiresSourceComparison'=>$aiQaRequired,
+                'requiresTextOcrOrVectorComparison'=>$aiQaRequired && $textIntegrity !== null,
+                'requiresAlphaReinspection'=>$aiQaRequired,
+                'mayReplaceOriginalPrintMasterWithoutQa'=>false
             ],
             'physicalSamplingReport' => [
                 'sourceWidthPx'=>$sourceWidthPx,
@@ -170,7 +195,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'0.2.0-research',
+                'contractVersion'=>'0.3.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
