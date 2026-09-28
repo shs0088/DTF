@@ -8152,3 +8152,204 @@ Recommended actions:
 A new distinction is now explicit: **artwork geometry correctness** and **white/color plane registration correctness** are separate. The preparation engine should measure both before recommending choke or changing alpha.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 043 — multilingual DTF production evidence and language-independent rules
+
+This batch deliberately broadens the research beyond English. Russian, Japanese, Arabic, Portuguese, Chinese, Spanish and Italian sources were individually read. Localized mirrors of already-counted English documentation were used for cross-checking terminology but not counted again.
+
+### 1. Multilingual sources strongly reinforce that print rules are process-specific, not universal
+
+Russian, Chinese, Japanese and Spanish production guides give different choke, minimum-line and density ranges. The important conclusion is not to choose one global number.
+
+DTF Studio should store production thresholds in a calibration/profile object:
+- printer/device;
+- RIP/print mode;
+- output resolution;
+- film/media;
+- ink set;
+- calibrated choke range;
+- minimum printable stroke/gap/dot;
+- white-density range;
+- date/test evidence.
+
+The application can provide a conservative default but must label vendor/shop numbers as process-specific evidence.
+
+### 2. Russian production guidance gives useful physical-detail constraints
+
+Russian DTF workshop requirements studied in this batch specify examples such as:
+- minimum line thickness around 0.6 mm;
+- reverse/negative gap around 0.7 mm;
+- white underbase contracted inward by a few pixels;
+- small serif/non-serif text limits.
+
+Other Russian sources use roughly 0.5 mm line guidance and different choke values.
+
+These disagreements are valuable: they confirm the engine should measure physical stroke/gap and compare against a selected production profile rather than hard-code one threshold.
+
+### 3. Russian sources also reinforce actual-size DPI instead of metadata-only DPI
+
+Several Russian preparation guides explicitly require approximately 300 DPI at the real print dimensions, not merely a file tagged "300 DPI".
+
+This directly supports effective-DPI preflight:
+effectiveDPI = pixels / placedPhysicalInches
+
+The rule is language-independent and should remain one of the first checks.
+
+### 4. White-channel generation practices differ between shops
+
+Some Russian workflows ask the customer to supply a dedicated spot/alpha white channel. Other shops generate white automatically in RIP from transparency.
+
+Therefore our export/handoff model should support both:
+- AUTO_WHITE_FROM_ALPHA;
+- SUPPLIED_WHITE_CHANNEL;
+- supplied spot-channel naming/mapping.
+
+The presence of these distinct real workflows is a strong reason not to assume one RIP handoff format.
+
+### 5. Japanese RIP documentation adds white-feathering as a distinct control
+
+The Japanese Absolute White RIP manual exposes:
+- White Choke;
+- White Feathering;
+- White Toner Volume;
+- black removal.
+
+Although this is a toner-oriented transfer workflow and not identical to inkjet DTF, it demonstrates an important control separation:
+- choke changes geometry;
+- feathering changes the transition profile;
+- white volume changes density/material load.
+
+Our white-plane model should keep an optional edge-feather/transition curve separate from choke and density.
+
+### 6. Density can affect mechanical feel and durability, not just opacity
+
+The Japanese manual warns that excessive white-toner volume can make transfers more brittle and less stretchable. Russian and other DTF sources similarly describe heavy white laydown as increasing transfer stiffness.
+
+This reinforces a process-quality tradeoff:
+white density influences opacity, hand feel, flexibility and potentially durability.
+
+The UI should not portray "more white" as always better.
+
+### 7. Chinese DTF sources distinguish fine-line choke from normal artwork choke
+
+The Chinese AGP guide proposes smaller choke for fine text/lines than for standard or large solid areas. A separate Chinese fine-line guide also recommends slight white shrink and warns that too much ink blurs small strokes.
+
+The important software rule is adaptive geometry:
+- estimate local stroke width;
+- cap choke so a minimum underbase core remains;
+- use lower choke for topology-critical features;
+- allow larger choke on broad shapes if the calibrated profile permits it.
+
+### 8. Chinese sources tie white problems to registration and wet-ink behavior
+
+The Chinese AGP article separates:
+- white-mask width;
+- mechanical feed/registration;
+- wet ink / ink pooling;
+- ICC/profile mismatch;
+- white density.
+
+This independently supports the HaloDiagnostic model already developed: a white edge is a symptom that can originate in several layers.
+
+### 9. Spanish DTF halftone guidance gives concrete production observations worth testing
+
+The Spanish DTF.pro guide reports:
+- very low tonal values can become visibly isolated dots;
+- stochastic screening can hide regular-pattern moiré;
+- long gradients may show banding;
+- creative halftone dots need a practical minimum physical size;
+- fades into transparency can expose white-dot behavior on dark garments.
+
+These are shop-specific observations, not universal standards, but they suggest benchmark cases:
+- 0–20% tone ramp;
+- long smooth gradient;
+- gradient-to-transparency;
+- dark-garment white-supported fade;
+- stochastic versus ordered screening.
+
+### 10. Halftone minimum feature size should be measured physically
+
+The Spanish source gives a creative-dot example in the 0.3–0.4 mm range. Russian line requirements cite larger values for ordinary printable strokes.
+
+This reinforces two separate production limits:
+- minimum structural stroke/gap;
+- minimum halftone dot/hole.
+
+They should not share one threshold.
+
+### 11. Russian white-ink production sources highlight pigment circulation
+
+A Russian production article notes that white DTF ink contains heavy titanium-dioxide pigment and commonly requires recirculation/agitation to avoid settling and uneven opacity.
+
+This is a machine/maintenance issue rather than an artwork-processing issue, but it should appear in diagnostic routing:
+if white density varies directionally or by pass while the generated white plane is correct, recommend printer/nozzle/circulation inspection instead of modifying artwork.
+
+### 12. Arabic prepress material adds language-specific text QA
+
+The Arabic prepress checklist stresses:
+- converting Arabic text to outlines/paths;
+- preserving correct Arabic shaping before export;
+- transparent backgrounds for DTF;
+- explicit white-underbase instructions when required.
+
+For DTF Studio, Arabic/RTL content needs a print-readiness check separate from UI language:
+- embedded/live font dependency;
+- shaping/ligature correctness;
+- whether text has been rasterized/vectorized for final production;
+- readability after scaling/choke.
+
+### 13. Portuguese process documentation broadens physical-process evidence
+
+The Portuguese DTF ink/process documentation describes DTF as a film-based pigment-ink process with white ink, powder and curing/transfer steps.
+
+It reinforces why the software must distinguish:
+- image/prepress correctness;
+- ink/media/cure process;
+- transfer/press process.
+
+A visually correct file cannot compensate for incorrect physical process settings.
+
+### 14. Localized CADlink manuals were useful for terminology validation but are duplicates
+
+German, Japanese, Chinese, French and Italian CADlink layer-tab pages were read. They describe the same underlying controls as the already-counted English page:
+- underbase/highlight;
+- choke/spread;
+- semi-transparent-as-opaque;
+- adaptive alpha behavior;
+- LPI/angle/dot shape;
+- jitter/supercell;
+- ICC controls.
+
+They were not counted again because they are localized mirrors. Their value is confirming that the underlying RIP concepts are stable across locales.
+
+### 15. Multilingual research policy going forward
+
+From this batch onward, discovery should deliberately rotate languages and regions:
+- Arabic;
+- Chinese;
+- Japanese;
+- Korean;
+- Russian;
+- Spanish;
+- Portuguese;
+- German;
+- French;
+- Italian;
+- Turkish and other relevant sources when available.
+
+Priority remains source quality and technical usefulness, not language quota. Translation mirrors do not inflate the corpus.
+
+### Batch 043 conclusion
+
+The main benefit of multilingual research is not merely finding more pages. It exposes different shop practices, printer conventions, RIP assumptions and physical tolerances.
+
+The architecture should therefore encode:
+- calibrated production profiles;
+- explicit handoff mode;
+- physical-unit thresholds;
+- adaptive choke/white behavior;
+- machine/process diagnostics separate from artwork diagnostics;
+- multilingual terminology/source provenance.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
