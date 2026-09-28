@@ -7683,3 +7683,202 @@ This contract becomes part of reproducibility and parity testing.
 The strongest result is that **geometry semantics are part of print fidelity**. An image can be visually close while RGB and alpha are sampled with a subpixel mismatch that later appears as a white halo. DTF Studio therefore needs one explicit transform contract shared by every backend and every derivative.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 036 — degradation-aware super-resolution, alpha-upscale policy, no-reference quality checks, and appearance-change gates
+
+The verified corpus now contains 789 individually opened/read unique pages.
+
+### 1. Super-resolution must be routed by degradation type, not only by scale factor
+
+Real-ESRGAN training documentation generates low-quality inputs on the fly from high-resolution images rather than assuming a single bicubic degradation. Its training configuration mixes resize up/down/keep, Gaussian noise, Poisson noise, JPEG compression and multiple blur kernels.
+
+DTF implication:
+- before upscale, classify likely degradation: JPEG artifacts, blur, scanner noise, screenshot resampling, genuine low-resolution vector-like art, etc.;
+- a model trained for one degradation family should not be assumed optimal for another;
+- the selected restoration model and its degradation assumptions belong in the processing recipe.
+
+### 2. Real-ESRGAN exposes alpha-upsample choice as an explicit parameter
+
+The reference inference script has a dedicated alpha upsampler option and tile/pre-padding controls. This is strong evidence that alpha cannot be treated as an incidental fourth RGB-like channel.
+
+Recommended DTF policy:
+- hard logo alpha: deterministic alpha resize plus edge QA is often safer;
+- soft/photo alpha: compare Real-ESRGAN/bicubic/deterministic alpha candidates;
+- never accept the RGB-upscale result automatically as the alpha-upscale result;
+- store alphaUpsampler separately from rgbUpsampler.
+
+### 3. Denoise strength is part of the restoration model, not a universal post-filter
+
+Real-ESRGAN's general model supports interpolating between normal and weak-denoise weights. This is preferable to blindly adding a generic blur after super-resolution.
+
+DTF rule:
+- estimate noise/artifact severity first;
+- choose model/denoise strength accordingly;
+- rerun edge/topology/color QA after restoration;
+- reject candidates that remove intended texture or thin strokes.
+
+### 4. Tiled inference requires overlap/padding QA
+
+Real-ESRGAN exposes tile, tile_pad and pre_pad. Tiling is necessary for large DTF masters, but it introduces seam risk if context is insufficient.
+
+Regression suite should include:
+- diagonal lines crossing tile boundaries;
+- text crossing tile boundaries;
+- glow/smoke crossing tile boundaries;
+- large flat gradients;
+- alpha transition bands at tile edges.
+
+Tile size and padding become recipe parameters for reproducibility.
+
+### 5. Perceptual SR and faithful SR are different objectives
+
+ESRGAN explicitly separates perceptual-quality-oriented and PSNR-oriented models and even supports interpolation between them.
+
+For DTF production this distinction is critical:
+- a perceptually sharper image may invent texture/details;
+- logos, typography and brand art require fidelity over hallucinated detail;
+- photographic customer art may tolerate a more perceptual mode only with preview/approval.
+
+Suggested modes:
+- FIDELITY_SR;
+- BALANCED_SR;
+- PERCEPTUAL_SR_REVIEW_REQUIRED.
+
+### 6. Training data/degradation assumptions should be visible in model governance
+
+BasicSR and Real-ESRGAN make restoration pipelines, datasets and training options explicit.
+
+The model registry should record:
+- architecture;
+- checkpoint hash;
+- training/degradation assumptions;
+- supported scale factors;
+- alpha support;
+- tile support;
+- bit-depth support;
+- commercial license status;
+- known failure classes.
+
+### 7. No-reference quality scores are useful only as secondary evidence
+
+OpenCV BRISQUE is a no-reference quality estimator based on natural-scene statistics. That makes it potentially useful for photographic uploads where no clean source exists.
+
+However it is not appropriate as a universal DTF score:
+- logos/flat graphics are not natural scenes;
+- a stylized design can score poorly while being perfectly correct;
+- a hallucinated photo can score well while changing content.
+
+Use BRISQUE only inside a photo/restoration branch and never as a publication gate by itself.
+
+### 8. Full-reference PSNR/SSIM should be localized as well as global
+
+OpenCV quality classes expose generated quality maps where supported. This is valuable because a high global average can hide a damaged small text edge.
+
+For DTF restoration QA:
+- compute global reference metrics when a trusted source/reference exists;
+- compute local maps;
+- weight alpha edges, text, thin structures and foreground regions more strongly;
+- do not let large transparent/background areas dominate the score.
+
+### 9. Restoration evaluation needs content-specific metrics
+
+A candidate upscale should be judged by artwork class:
+- photo: SSIM/PSNR/BRISQUE plus texture/color checks;
+- logo/text: topology, stroke width, OCR/line continuity, edge overshoot;
+- transparent soft art: alpha transition and multi-background compositing error;
+- geometric designs: line/hull/centroid preservation.
+
+No single metric should rank all DTF artwork.
+
+### 10. Equalization and CLAHE are intentionally appearance-changing
+
+Kornia exposes histogram equalization and CLAHE with explicit clip limit and grid size. This reinforces that local contrast enhancement has tunable behavior and can amplify noise/detail differently across tiles.
+
+Policy:
+- never auto-run histogram equalization on customer art;
+- if low contrast is diagnosed, show candidate preview;
+- preserve alpha independently;
+- measure color/edge changes after the adjustment.
+
+### 11. Adjustment conventions vary across libraries
+
+Kornia documents that brightness/contrast conventions may differ across frameworks. Torchvision likewise has its own image-transform definitions.
+
+Therefore the recipe must not merely store “contrast=1.2”. It should store:
+- operation implementation/backend;
+- exact definition/version;
+- input value range;
+- color space;
+- parameter values.
+
+This is required for reproducibility when the same operation can mean different math in different libraries.
+
+### 12. Gamma correction should be color-only, never alpha correction
+
+Kornia/Torchvision gamma operations apply nonlinear intensity transforms to image values. Alpha coverage is linear and should remain separate.
+
+DTF rule:
+- gamma/brightness/contrast operate on color/luminance channels;
+- alpha is excluded unless the user explicitly invokes an alpha/coverage operation;
+- underbase response curves are a separate production concept.
+
+### 13. Gaussian blur border behavior must be part of the backend parity tests
+
+Torchvision Gaussian blur uses reflection padding. Other libraries may replicate, constant-fill, wrap, or use their own extension rules.
+
+A blur recipe therefore needs border semantics if outputs must match across backends.
+
+This reinforces the existing GeometrySamplingContract and border regression fixtures.
+
+### 14. Random/augmentation transforms belong to training and QA generation, not production correction
+
+Torchvision/Kornia augmentation APIs are valuable for generating synthetic degradations and regression cases.
+
+Use them to create tests for:
+- blur;
+- compression-like degradation;
+- brightness/contrast drift;
+- sharpness changes;
+- resize/rotation variations.
+
+Do not expose random augmentation as a production image-preparation step.
+
+### 15. Synthetic degradations can become our benchmark generator
+
+Real-ESRGAN's degradation pipeline suggests a practical way to build DTF restoration tests from clean masters:
+- random blur kernel family;
+- resize down/up;
+- Gaussian or Poisson noise;
+- JPEG compression;
+- optional second degradation pass.
+
+Then measure whether a candidate restoration improves the corrupted image without changing topology/color/alpha relative to the clean master.
+
+### 16. Model hallucination risk should be explicit in the UI
+
+Generative/perceptual SR approaches can synthesize plausible detail rather than recover ground truth.
+
+For production assets:
+- no silent perceptual SR on logos/text/fine graphics;
+- appearance-changing SR creates a new candidate version;
+- side-by-side zoomed review is required when hallucination risk is nontrivial;
+- approval stores exact model/checkpoint/recipe.
+
+### 17. Third-party SR tools are useful implementation evidence, not authority
+
+The reviewed Real-ESRGAN wrapper and newer research repos demonstrate useful features such as RGBA support, tiling, alpha upsamplers and perceptual approaches. They should inform capability design, but official/reference implementations remain the preferred production basis.
+
+### Batch 036 conclusion
+
+The strongest result is that “upscale” should become a routed restoration workflow:
+1. diagnose degradation and artwork class;
+2. select fidelity/perceptual policy;
+3. select RGB and alpha upsamplers separately;
+4. choose tile/padding/precision settings;
+5. run restoration;
+6. evaluate content-specific global and local quality metrics;
+7. compare topology, alpha edges and colors;
+8. require approval for hallucination-prone appearance changes.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
