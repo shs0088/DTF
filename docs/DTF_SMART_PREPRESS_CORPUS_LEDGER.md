@@ -972,8 +972,6 @@ Batch 028 counting notes:
 642. https://github.com/matplotlib/matplotlib/blob/main/lib/matplotlib/image.py
 643. https://github.com/sksamuel/scrimage/blob/master/scrimage-core/src/main/java/com/sksamuel/scrimage/ImmutableImage.java
 
-Verified unique pages: 643 / 10,000
-Remaining: 9,357
 
 Batch 029 counting notes:
 - All 23 URLs above were individually opened/read successfully.
@@ -981,3 +979,39 @@ Batch 029 counting notes:
 - Previously counted pages were checked against the ledger and excluded.
 - Search-result snippets alone were not counted.
 - This batch focuses on premultiplied-alpha resampling, edge-color decontamination, trimap/matting model selection, and color-management/proofing behavior.
+
+
+## Verified Batch 030 — 22 pages — ICC proofing, DTF white-channel behavior, transform QA, and production color workflow
+
+644. https://www.color.org/profileview/
+645. https://registry.color.org/profile-library/
+646. https://registry.color.org/profile-library/prmg-rgb-gamut-warning
+647. https://www.color.org/v4_prmg/
+648. https://www.color.org/info_profiles/
+649. https://www.color.org/probeprofile_test/
+650. https://www.color.org/iccmax/connection2/
+651. https://usage.imagemagick.org/transform/
+652. https://usage.imagemagick.org/compare/
+653. https://dtf.scot/specs/
+654. https://arnoldprints.com/blogs/dtf-transfers/prepping-dtf-files-halftones-knockouts-white-ink
+655. https://printdtf.ca/blog/dtf-white-underbase-explained
+656. https://dtfgangsheetapp.com/blog/white-channel-explained
+657. https://dtfpro.com/resource-library/UNINET_IColor_ProRIP_User_Manual.pdf
+658. https://www.color.org/iccmax/
+659. https://archive.color.org/files/craigrevie.pdf
+660. https://archive.color.org/files/render.pdf
+661. https://archive.color.org/groups/medical/displays/controllingVCGT.pdf
+662. https://archive.color.org/files/TAGA_2007_Neutral_Scales_Press_Calibration.pdf
+663. https://archive.color.org/files/TAGA_2002_ReferencePrintingConditions.pdf
+664. https://archive.color.org/files/IPA_2003-11_PDFX.pdf
+665. https://www.color.org/profilesecurity/
+
+Verified unique pages: 665 / 10,000
+Remaining: 9,335
+
+Batch 030 counting notes:
+- All 22 URLs above were individually opened/read successfully in this batch.
+- Four attempted pages that returned internal errors/unsupported content were excluded.
+- Previously counted corpus pages were checked and excluded before numbering.
+- Search-result snippets alone were not counted.
+- This batch focuses on ICC profile testing/proofing, rendering-intent behavior, DTF underbase/halftone practice, transformation QA, and production color-workflow controls.
