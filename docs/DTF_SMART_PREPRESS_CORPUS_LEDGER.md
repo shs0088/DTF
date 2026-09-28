@@ -72,10 +72,66 @@ Notes:
 54. https://helpdesk.caldera.com/hc/en-us/articles/25408381491217-How-to-create-a-white-underbase-for-DTF-and-DTG-applications
 55. https://openimageio.readthedocs.io/en/stable/imagebufalgo.html
 
-Verified unique pages: 55 / 10,000
-Remaining: 9,945
 
 Batch 002 counting notes:
 - All 39 URLs above were individually opened/read.
 - Duplicate OpenCV versioned pages and translated CADlink duplicates were excluded from the count.
 - Search-result snippets alone remain excluded.
+
+
+## Verified Batch 003 — 45 pages
+
+56. https://docs.bullmq.io/patterns/idempotent-jobs
+57. https://usage.imagemagick.org/formats/
+58. https://usage.imagemagick.org/quantize/
+59. https://docs.bullmq.io/guide/rate-limiting
+60. https://docs.bullmq.io/patterns/flows
+61. https://usage.imagemagick.org/reference.html
+62. https://docs.bullmq.io/patterns/stop-retrying-jobs
+63. https://usage.imagemagick.org/anim_opt/
+64. https://docs.bullmq.io/guide/connections
+65. https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/createImageBitmap
+66. https://github.com/visioncortex/vtracer/blob/master/README.md
+67. https://github.com/visioncortex/vtracer/blob/master/crates/vtracer-py/README.md
+68. https://github.com/visioncortex/vtracer/blob/master/CHANGELOG.md
+69. https://github.com/xinntao/Real-ESRGAN/blob/master/realesrgan/utils.py
+70. https://github.com/xinntao/Real-ESRGAN/blob/master/README.md
+71. https://developers.cloudflare.com/queues/configuration/dead-letter-queues/
+72. https://developers.cloudflare.com/r2/api/s3/presigned-urls/
+73. https://developers.cloudflare.com/queues/
+74. https://developers.cloudflare.com/queues/configuration/batching-retries/
+75. https://developers.printful.com/docs/v2-preview/
+76. https://developers.printify.com/
+77. https://pillow.readthedocs.io/en/latest/reference/ImageCms.html
+78. https://developers.cloudflare.com/queues/configuration/configure-queues/
+79. https://github.com/meltingice/psd.js/
+80. https://docs.rs/image/latest/image/imageops/fn.resize.html
+81. https://libvips.github.io/pyvips/vimage.html
+82. https://mozilla.github.io/pdf.js/api/draft/module-pdfjsLib.html
+83. https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html
+84. https://docs.rs/crate/image/latest
+85. https://docs.rs/image/latest/image/
+86. https://wstg.owasp.org/latest/4-Web_Application_Security_Testing/07-Injection/07-XML_Injection/
+87. https://imagemagick.org/security-policy/
+88. https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/transferControlToOffscreen
+89. https://imagemagick.org/resources/
+90. https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas/convertToBlob
+91. https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvasRenderingContext2D
+92. https://imagemagick.org/architecture/
+93. https://docs.opencv.org/doc/doxygen/html/d3/db4/tutorial_py_watershed.html
+94. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_watershed.html
+95. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_marked_watershed.html
+96. https://docs.opencv.org/4.12.0/d8/d83/tutorial_py_grabcut.html
+97. https://docs.opencv.org/doc/doxygen/html/d3/d47/group__imgproc__segmentation.html
+98. https://docs.opencv.org/5.0/examples/samples_python_snippets_watershed_py.html
+99. https://scikit-image.org/docs/stable/auto_examples/edges/plot_active_contours.html
+100. https://scikit-image.org/docs/stable/api/skimage.segmentation
+
+Verified unique pages: 100 / 10,000
+Remaining: 9,900
+
+Batch 003 counting notes:
+- All 45 URLs above were individually opened/read.
+- URLs already present in earlier batches were not counted again.
+- Failed page opens were not counted.
+- Version aliases, query-string mirrors such as ?plain=1, and duplicate documentation pages were canonicalized to one count where they represented the same page.
