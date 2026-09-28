@@ -15,6 +15,9 @@ final class Preflight {
         $blurY = isset($m['blurRadiusY']) ? max(0.0, (float)$m['blurRadiusY']) : null;
         $noiseSigma = isset($m['noiseSigma']) ? max(0.0, (float)$m['noiseSigma']) : null;
         $textureScore = isset($m['textureScore']) ? max(0.0, min(1.0, (float)$m['textureScore'])) : null;
+        $brisque = isset($m['brisqueScore']) ? max(0.0, min(100.0, (float)$m['brisqueScore'])) : null;
+        $trimapAvailable = (bool)($m['trimapAvailable'] ?? false);
+        $edgeColorContamination = (bool)($m['edgeColorContamination'] ?? false);
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -76,6 +79,18 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'mattingDecision' => [
+                'trimapAvailable'=>$trimapAvailable,
+                'alphaEstimationRecommended'=>$trimapAvailable && $edgeClass !== 'hard-edge',
+                'foregroundColorEstimationRecommended'=>$edgeColorContamination || $edgeClass === 'soft-intentional',
+                'naiveRgbTimesAlphaAllowed'=>!($edgeColorContamination || $edgeClass === 'soft-intentional'),
+                'recompositionQaRequired'=>true
+            ],
+            'qualityDiagnostics' => [
+                'brisqueScore'=>$brisque,
+                'brisqueRole'=>'diagnostic-only',
+                'brisqueMayAcceptOrRejectPrintMaster'=>false
             ],
             'restorationEvidence' => [
                 'noiseSigma'=>$noiseSigma,
