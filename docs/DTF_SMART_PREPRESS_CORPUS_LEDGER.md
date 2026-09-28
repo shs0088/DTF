@@ -708,11 +708,47 @@ Batch 020 counting notes:
 472. https://www.libvips.org/API/8.17/method.Image.bandmean.html
 473. https://www.libvips.org/API/8.17/method.Image.recomb.html
 
-Verified unique pages: 473 / 10,000
-Remaining: 9,527
 
 Batch 021 counting notes:
 - Every URL above was individually opened/read successfully.
 - No duplicate corpus URLs were counted.
 - Search-result snippets alone were not counted.
 - This batch focuses on actual low-level image-processing primitives relevant to DTF preprocessing and QA.
+
+
+## Verified Batch 022 — 25 pages — TIFF/PSD/PDF channel semantics, alpha associations, spot separations, and color-proof workflow
+
+474. https://image-js.github.io/tiff/media/TIFF6.pdf
+475. https://helpx.adobe.com/photoshop/using/channel-basics.html
+476. https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/pdfreference1.6.pdf
+477. https://github.com/libvips/libvips/blob/master/doc/function-list.md
+478. https://imagemagick.org/command-line-options/
+479. https://helpx.adobe.com/photoshop/using/printing-spot-colors.html
+480. https://helpx.adobe.com/photoshop/using/proofing-colors.html
+481. https://helpx.adobe.com/photoshop/using/keeping-colors-consistent.html
+482. https://helpx.adobe.com/photoshop/using/color-managing-imported-images.html
+483. https://helpx.adobe.com/photoshop/using/printing-color-management-photoshop1.html
+484. https://helpx.adobe.com/photoshop/desktop/adjust-color/color-profiles/change-color-profile-for-documents.html
+485. https://helpx.adobe.com/photoshop/kb/preparing-print-photoshop.html
+486. https://helpx.adobe.com/photoshop/desktop/adjust-color/color-profiles/embed-color-profiles.html
+487. https://helpx.adobe.com/photoshop/using/color-adjustments.html
+488. https://helpx.adobe.com/photoshop/using/color-managing-documents--printing.html
+489. https://libtiff.gitlab.io/libtiff/specification/coverage.html
+490. https://libtiff.gitlab.io/libtiff/functions/TIFFRGBAImage.html
+491. https://libtiff.gitlab.io/libtiff/releases/v3.6.0.html
+492. https://libtiff.gitlab.io/libtiff/functions/TIFFSetField.html
+493. https://libtiff.gitlab.io/libtiff/releases/v4.0.9.html
+494. https://libtiff.gitlab.io/libtiff/functions/TIFFGetField.html
+495. https://libtiff.gitlab.io/libtiff/releases/v3.7.1.html
+496. https://libtiff.gitlab.io/libtiff/releases/v3.9.0beta.html
+497. https://libtiff.gitlab.io/libtiff/functions/TIFFReadRGBATile.html
+498. https://libtiff.gitlab.io/libtiff/addingtags.html
+
+Verified unique pages: 498 / 10,000
+Remaining: 9,502
+
+Batch 022 counting notes:
+- Every URL above was individually opened/read successfully in the research pass.
+- Failed opens and search-result-only snippets were excluded.
+- Pages already present in the corpus were filtered before counting.
+- This batch focuses on production file semantics: associated vs unassociated alpha, TIFF ExtraSamples, Photoshop alpha/spot channels, PDF soft masks, color-profile assignment/conversion, and soft-proof limitations.
