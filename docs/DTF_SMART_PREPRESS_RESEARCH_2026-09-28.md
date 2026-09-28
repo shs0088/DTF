@@ -348,3 +348,147 @@ Action names are declarative, e.g.
 - Arabic/English and RTL/LTR are supported.
 - Existing protected Home card sizing/navigation behavior is not altered.
 - No deployment or main merge without CI + runtime validation.
+
+
+## Research Batch 001 — programming/tutorial sources
+
+Scope of this batch: practical programming documentation, image-processing tutorials, print/preflight documentation, queue architecture, and mockup APIs. This is not the final design decision.
+
+### OpenCV / scikit-image findings
+
+- OpenCV erosion/dilation operate on shape with structuring elements. This maps directly to measurable DTF white-underbase choke/spread and alpha-edge cleanup rather than using arbitrary blur.
+- OpenCV opening/closing can remove small foreground specks and fill small holes in a binary/alpha mask.
+- Morphological gradient provides a practical way to isolate an edge band. That edge band is useful for halo detection and edge decontamination analysis.
+- Distance Transform gives per-pixel distance to background. This is a strong candidate for variable edge treatment and smart choke rather than a fixed one-pixel contraction.
+- Watershed and marker-based segmentation are useful for separating touching objects, but should not be the universal background remover.
+- scikit-image thresholding material confirms global thresholding is cheap when background is uniform; local/adaptive thresholding is more suitable when illumination varies but is slower.
+- scikit-image object-removal operations are suitable for cleaning tiny mask islands after segmentation.
+- Exposure/intensity transforms must preserve numeric ranges and data types carefully; careless uint8/float conversions can alter the result.
+
+### DTF RIP / white-underbase findings
+
+CADlink / Fiery documentation confirms:
+- automatic white underbase and externally supplied white layers are different paths;
+- choke can be measured in pixels;
+- adaptive white can use pixel opacity;
+- semi-transparent pixels can optionally be treated as opaque, proving that alpha policy needs to be explicit;
+- white-underbase strength, highlight white, and color data are distinct controls.
+
+Caldera documentation confirms:
+- white generation may track image transparency;
+- a 50% transparent pixel can produce proportionally reduced white undercoat;
+- spread expands the underbase while choke contracts it;
+- smart choke removes unsupported white near boundaries to prevent visible white outlines;
+- opacity reduction is explicitly used to suppress white halos caused by residual low-opacity pixels.
+
+Conclusion for our tool: DTF Smart Prep should generate a previewable UNDERBASE MASK object from alpha/content, with independent choke/spread and threshold parameters. This is a prepress preview/handoff artifact, not direct printer-channel output.
+
+### Effective resolution / print-fit finding
+
+Enfocus preflight documentation reinforces that resolution is evaluated in the output context and that scaling changes effective resolution. Therefore:
+- embedded DPI is metadata only;
+- effective DPI must be calculated against the selected physical print area;
+- a source can pass one product/placement and fail another;
+- unnecessarily excessive resolution can also be flagged to avoid huge files and wasted processing.
+
+### Mockup interoperability findings
+
+Printify:
+- uses normalized x/y coordinates;
+- placeholder center is x=0.5, y=0.5;
+- scale is relative to print-area width;
+- artwork angle is explicit;
+- product print areas can contain multiple artwork objects.
+
+Printful:
+- mockup generation accepts placement plus an explicit position object;
+- that position uses area_width, area_height, artwork width/height, top and left;
+- mockup generation is task-oriented rather than merely returning an immediate flattened image.
+
+Dynamic Mockups:
+- renders against a mockup UUID and smart-object UUID;
+- accepts a public artwork URL or binary file;
+- supports fit modes such as contain/cover/stretch;
+- can apply top/left placement overrides.
+
+Conclusion: use a provider-independent placement contract and write small adapters:
+1. DTF Studio local renderer adapter
+2. Printify normalized coordinate adapter
+3. Printful pixel/relative-area adapter
+4. Dynamic Mockups smart-object adapter
+
+The processed artwork version ID must be part of every mockup request so preview and production cannot silently diverge.
+
+### Browser/server architecture findings
+
+Cloudflare image-transformation documentation confirms that optimized delivery derivatives can:
+- scale down without upscaling;
+- contain/cover/crop/pad;
+- strip metadata;
+- produce separate delivery variants.
+
+BullMQ documentation confirms:
+- job state and progress can be reported;
+- failed jobs can retry with backoff;
+- multiple workers improve availability;
+- high async concurrency is useful for I/O-heavy jobs;
+- CPU-heavy processing should not simply run at high Node concurrency and is better isolated/sandboxed.
+
+Conclusion:
+- browser handles selection, a bounded lightweight preview, status and comparison UI;
+- server verifies and stores source;
+- CPU/GPU-heavy processing runs in isolated jobs;
+- web previews are generated as separate small delivery artifacts;
+- the original and print master remain private/high-resolution.
+
+### Provisional algorithm routing model
+
+Do not use one universal Auto Fix. Use a classifier/router with deterministic fallbacks:
+
+A. Already-transparent artwork
+- inspect alpha histogram
+- detect opaque background islands / low-alpha haze
+- crop transparent bounds
+- edge-band analysis
+- optional choke/halo cleanup
+
+B. Flat logo / line art
+- threshold/segmentation
+- remove small mask artifacts
+- optional vectorization candidate
+- preserve hard edges
+
+C. Photo / complex object
+- segmentation model or provider
+- alpha-matting refinement
+- edge color decontamination
+- no forced vectorization
+
+D. Smoke / glow / soft transparency
+- preserve soft alpha
+- do NOT binarize
+- allow optional halftone conversion for dark-garment output
+- compare normal-alpha and halftone variants
+
+E. Low-resolution source
+- compute required enlargement from target product
+- high-quality resampling for small changes
+- optional AI upscale for large changes
+- re-run preflight after upscale
+- never overwrite original
+
+### Current decision status
+
+No final stack decision yet.
+No merge to storefront.
+No deployment.
+No protected Home/Mockup behavior changed.
+
+The research direction currently favors:
+- deterministic core: Sharp/libvips + targeted OpenCV-style morphology/math
+- optional segmentation/upscale/vector adapters
+- server-side async jobs
+- versioned artifacts
+- provider-independent mockup contract
+
+This remains a hypothesis to be tested against further tutorial/API/source-code research before implementation is locked.
