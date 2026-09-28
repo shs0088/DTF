@@ -1167,8 +1167,6 @@ Batch 034 counting notes:
 765. https://scikit-image.org/docs/stable/auto_examples/filters/plot_cycle_spinning.html
 766. https://scikit-image.org/docs/stable/auto_examples/filters/plot_nonlocal_means.html
 
-Verified unique pages: 766 / 10,000
-Remaining: 9,234
 
 Batch 035 counting notes:
 - All 14 URLs above were individually opened/read successfully.
@@ -1176,3 +1174,40 @@ Batch 035 counting notes:
 - Canonical URL strings were checked directly against the branch ledger before numbering.
 - Search-result snippets alone were not counted.
 - This batch emphasizes evidence-gated restoration: measure blur/noise first, preserve texture and edge topology, keep inpainting mask-scoped, and test restoration behavior with reproducible synthetic degradations.
+
+
+## Verified Batch 036 — 23 pages — super-resolution routing, degradation-aware training, quality metrics, and appearance-change controls
+
+767. https://github.com/xinntao/ESRGAN
+768. https://github.com/XPixelGroup/BasicSR
+769. https://github.com/xinntao/Real-ESRGAN/blob/master/inference_realesrgan.py
+770. https://github.com/xinntao/Real-ESRGAN/blob/master/docs/Training.md
+771. https://github.com/xinntao/Real-ESRGAN/blob/master/options/train_realesrgan_x4plus.yml
+772. https://kornia.readthedocs.io/en/latest/enhance.html
+773. https://kornia.readthedocs.io/en/latest/augmentation.html
+774. https://kornia.readthedocs.io/en/latest/enhance.equalization.html
+775. https://kornia.readthedocs.io/en/latest/enhance.adjustment.html
+776. https://docs.pytorch.org/vision/main/transforms.html?highlight=torchvision+transforms+functional
+777. https://docs.pytorch.org/vision/main/auto_examples/transforms/plot_transforms_illustrations.html
+778. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.v2.functional.adjust_gamma.html
+779. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.v2.RandomEqualize.html
+780. https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.v2.GaussianBlur.html
+781. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.RandomAdjustSharpness.html
+782. https://docs.pytorch.org/vision/main/generated/torchvision.transforms.functional.adjust_contrast.html
+783. https://docs.opencv.org/doc/doxygen/html/d8/d0c/classcv_1_1quality_1_1QualityPSNR.html
+784. https://docs.opencv.org/doc/doxygen/html/d8/d99/classcv_1_1quality_1_1QualityBRISQUE.html
+785. https://docs.opencv.org/4.10.0/d9/db5/classcv_1_1quality_1_1QualitySSIM.html
+786. https://docs.opencv.org/doc/doxygen/html/dir_e06a0a11ee3b65f2223335f395c4de00.html
+787. https://github.com/mkamranr/Super-Resolution
+788. https://github.com/qpchen/ALAN
+789. https://github.com/Bingwen-Hu/CLIP-SR
+
+Verified unique pages: 789 / 10,000
+Remaining: 9,211
+
+Batch 036 counting notes:
+- Every URL above was individually opened/read successfully in this batch.
+- One failed BasicSR ModelZoo page open was excluded.
+- Canonical redirects were normalized before counting.
+- Search-result snippets alone were not counted.
+- This batch focuses on super-resolution/restoration behavior, synthetic degradation modeling, alpha-upscale choices, image-quality metrics, and safe use of contrast/sharpen/equalization operations.
