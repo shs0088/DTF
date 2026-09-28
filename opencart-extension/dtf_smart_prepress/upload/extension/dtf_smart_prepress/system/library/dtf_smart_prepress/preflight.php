@@ -26,6 +26,13 @@ final class Preflight {
         $embeddedProfile = trim((string)($m['embeddedProfile'] ?? ''));
         $targetProfile = trim((string)($m['targetProfile'] ?? ''));
         $matteColor = (string)($m['suspectedMatteColor'] ?? 'unknown');
+        $sampleWidthMm = isset($m['sampleWidthMm']) ? max(0.0, (float)$m['sampleWidthMm']) : null;
+        $sourceWidthPx = isset($m['sourceWidthPx']) ? max(0, (int)$m['sourceWidthPx']) : null;
+        $previewFilter = (string)($m['previewFilter'] ?? 'unknown');
+        $previewMipBias = isset($m['previewMipBias']) ? (float)$m['previewMipBias'] : null;
+        $mapSemantic = (string)($m['mapSemantic'] ?? 'color');
+        $workingColorSpace = trim((string)($m['workingColorSpace'] ?? ''));
+        $inputColorSpace = trim((string)($m['inputColorSpace'] ?? ''));
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -79,6 +86,9 @@ final class Preflight {
         }
 
         $resampling = $this->resamplingDecision($artworkClass, $scaleFactor);
+        $physicalSamplePpi = ($sampleWidthMm !== null && $sampleWidthMm > 0 && $sourceWidthPx !== null) ? ($sourceWidthPx / ($sampleWidthMm / 25.4)) : null;
+        $samplingContaminatedPreview = $previewFilter !== 'unknown' || $previewMipBias !== null;
+        $mapColorPolicy = in_array($mapSemantic, ['mask','cutout','roughness','displacement','scalar'], true) ? 'raw-data' : 'color-managed';
         $edgeCleanup = $this->edgeCleanupDecision($edgeClass, $edgeColorContamination, $matteColor);
         $profileStatus = $embeddedProfile === '' ? 'missing-source-profile' : ($targetProfile === '' ? 'target-profile-unset' : 'profile-route-defined');
         if ($embeddedProfile === '') {
@@ -94,6 +104,23 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'physicalSamplingReport' => [
+                'sourceWidthPx'=>$sourceWidthPx,
+                'sampleWidthMm'=>$sampleWidthMm,
+                'derivedPpi'=>$physicalSamplePpi,
+                'previewFilter'=>$previewFilter,
+                'previewMipBias'=>$previewMipBias,
+                'previewSamplingMayAlterPerceivedSharpness'=>$samplingContaminatedPreview,
+                'printMasterQualityMayBeJudgedFromRenderedPreview'=>false
+            ],
+            'mapSemanticReport' => [
+                'semantic'=>$mapSemantic,
+                'colorPolicy'=>$mapColorPolicy,
+                'inputColorSpace'=>$inputColorSpace !== '' ? $inputColorSpace : null,
+                'workingColorSpace'=>$workingColorSpace !== '' ? $workingColorSpace : null,
+                'scalarMapGammaConversionAllowed'=>$mapColorPolicy !== 'raw-data' ? null : false,
+                'cutoutRequiresBinaryIntent'=>$mapSemantic === 'cutout'
             ],
             'edgeCleanupDecision' => $edgeCleanup,
             'resamplingDecision' => $resampling,
@@ -143,7 +170,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'0.1.0-research',
+                'contractVersion'=>'0.2.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
