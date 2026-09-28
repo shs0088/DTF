@@ -7334,3 +7334,251 @@ The strongest result is that resize must become a reproducible, versioned operat
 For DTF, even a subpixel discrepancy between RGB and alpha can later become a visible white fringe because the underbase is generated from coverage. Therefore resampling semantics are part of print correctness, not a cosmetic implementation detail.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 033 — matting mode selection, transform parity, accelerated-path safeguards, and edge-local quality metrics
+
+The verified corpus now contains 732 individually opened/read unique pages.
+
+### 1. Matting should support multiple interaction modes, not one universal remove-background route
+
+The reviewed matting systems cover several distinct input modes:
+- automatic natural-image matting;
+- trimap-guided matting;
+- referring/text-guided matting.
+
+Deep Automatic Natural Image Matting is explicitly designed for natural images where the foreground may be transparent, meticulous, or not strongly salient. Referring Image Matting targets a specific foreground selected by a language expression.
+
+DTF implication:
+- AUTO_MATTE for clear single-subject uploads;
+- TRIMAP_MATTE when automatic confidence is low or the user brushes corrections;
+- REFERRED_SUBJECT_SELECTION as an optional future UX when an image contains multiple objects and the user wants only one.
+
+The selected mode must be stored in the processing recipe.
+
+### 2. Referring matting is useful conceptually but licensing must block accidental production adoption
+
+The RIM project is distributed under a CC BY-NC license and its dataset has noncommercial restrictions.
+
+Therefore:
+- it can inform UX/research;
+- it is not automatically production-eligible;
+- the model registry must keep commercial-use eligibility separate from technical quality.
+
+### 3. Generalized trimap prediction is a strong intermediate representation
+
+AIM predicts a generalized trimap/semantic representation and then focuses matting attention on transition areas.
+
+This supports our current architecture:
+semantic understanding -> uncertainty/transition representation -> detail matte.
+
+Even when a different model is eventually selected, a normalized internal trimap/confidence contract remains useful across providers.
+
+### 4. Information-Flow Alpha Matting remains a deterministic trimap baseline
+
+OpenCV's alphamat InfoFlow API takes:
+- RGB image;
+- grayscale trimap with foreground/background/unknown;
+- outputs grayscale alpha matte.
+
+That makes it a useful deterministic benchmark/fallback against learned matting systems.
+
+### 5. Geometry conventions are a direct source of RGB/alpha misregistration bugs
+
+Kornia documents several critical conventions:
+- points use (x,y), while sizes use (h,w);
+- normalized grids use [-1,1];
+- pixel-center conventions matter;
+- align_corners defaults differ between functions;
+- some warp/remap APIs currently have convention mismatches unless align_corners is explicitly selected.
+
+For DTF this is critical because a half-pixel disagreement between RGB and alpha can later become a visible white fringe when the underbase is derived from alpha.
+
+Rule:
+- transform RGB and alpha through the exact same coordinate transform implementation and settings;
+- explicitly store pixel-center and align-corners conventions;
+- never rely on library defaults.
+
+### 6. Accelerated image-processing paths are not guaranteed bit-exact
+
+OpenCV FastCV documentation explicitly describes accelerated operations that are not bit-exact equivalents of the standard CPU path.
+
+Therefore:
+- accelerated preview/inference paths may be acceptable after tolerance testing;
+- the authoritative print artifact should use a versioned reference path or a separately validated accelerated path;
+- output hashes should not be assumed identical across CPU/GPU/hardware backends.
+
+### 7. G-API feature support differs from ordinary OpenCV APIs
+
+The reviewed G-API transformation documentation notes feature differences such as unsupported BORDER_TRANSPARENT in some graph operations.
+
+This means pipeline migration to a graph/runtime acceleration layer cannot be done mechanically.
+
+Each primitive needs a capability contract:
+- interpolation modes;
+- border modes;
+- dtype;
+- alpha semantics;
+- deterministic/tolerance guarantees.
+
+### 8. Guided blur can be run with a different guidance image and signal
+
+Kornia guided_blur supports separate guidance and input tensors, and can use subsampling for fast guided filtering.
+
+This matches the DTF matte-refinement pattern:
+- guidance = original RGB/luminance;
+- signal = coarse alpha;
+- fast preview = subsampled guided filtering;
+- quality path = full-resolution or reduced-subsample guided filtering.
+
+### 9. Joint bilateral filtering is another useful cross-signal edge-preserving primitive
+
+Kornia joint bilateral filtering computes its range weights from a guidance image rather than the signal itself.
+
+This is useful for:
+- smoothing alpha while respecting source-image boundaries;
+- reducing noise in a derived mask without blurring across a strong RGB edge.
+
+It should be benchmarked against guided filtering and full matting for different edge classes.
+
+### 10. Border mode is part of the filter recipe
+
+Kornia explicitly exposes border_type choices such as reflect, replicate, constant, and circular for guided/bilateral filtering.
+
+For transparent DTF art:
+- border mode can change edge pixels near the canvas boundary;
+- circular is normally inappropriate for artwork boundaries;
+- reflect/replicate may also create false support;
+- explicit safe padding plus crop-back remains a strong reference strategy.
+
+### 11. Differentiable Otsu is interesting for learned or calibrated pipelines, but ordinary Otsu remains a simple deterministic tool
+
+Kornia offers both normal and differentiable Otsu threshold calculation.
+
+For production:
+- normal deterministic Otsu is enough for simple diagnostics;
+- differentiable Otsu is useful only if thresholding becomes part of a trainable model or tuning process;
+- neither replaces matting for soft transparency.
+
+### 12. Distance transform has a GPU-friendly approximate implementation
+
+Kornia contrib includes an approximate Euclidean distance transform using cascaded convolutions, and current export-support docs show it can be exported/compiled in supported configurations.
+
+Potential use:
+- GPU physical-distance masks;
+- choke/spread preview;
+- edge-band weighting;
+- min-stroke/gap measurements in batched QA.
+
+But because it is approximate, exact reference measurements for critical print thresholds should still be validated against an exact CPU distance transform.
+
+### 13. Hausdorff-style boundary loss/metric is useful for matting and segmentation QA
+
+Kornia provides a morphology-based differentiable approximation of Hausdorff distance.
+
+This supports an additional QA metric:
+- detect worst-case boundary displacement, not just average overlap.
+
+For DTF thin details, a small region with a large boundary error can matter more than a strong global IoU score.
+
+### 14. Quality metrics need local maps, not only global scores
+
+Kornia SSIM can return a spatial map, while OpenCV Quality provides objective image-quality tooling.
+
+For DTF:
+- calculate quality over opaque foreground;
+- calculate a separate edge-band quality map;
+- calculate a separate alpha-transition error;
+- avoid letting large empty transparent backgrounds dominate global metrics.
+
+### 15. PSNR remains a regression metric, not a perceptual approval metric
+
+Kornia/OpenCV expose PSNR, but it is based on pixel MSE.
+
+Use PSNR for:
+- catching unintended numerical changes;
+- comparing codec/resampling regression outputs.
+
+Do not use it alone to approve:
+- edge quality;
+- topology;
+- color appearance;
+- transparency.
+
+### 16. Edge maps should be part of every appearance-changing operation's QA
+
+Kornia exposes Sobel, Laplacian, Canny and spatial gradients in a GPU-batch-friendly API.
+
+For each candidate denoise/upscale/sharpen/background-removal step, compare:
+- edge energy;
+- edge continuity;
+- newly created double edges;
+- lost thin-line components;
+- edge displacement.
+
+This can run as a batched QA stage.
+
+### 17. Image hashing is useful for deduplication/caching, not print-quality assessment
+
+OpenCV's img_hash module provides perceptual/image hashing algorithms.
+
+Potential use:
+- detect near-duplicate uploads;
+- avoid recomputing identical/similar previews;
+- group repeated customer assets.
+
+But hashes must not be used as a quality score for a master.
+
+### 18. Saliency is a routing/crop hint, not an authoritative foreground mask
+
+OpenCV saliency algorithms can estimate visually salient regions.
+
+Possible uses:
+- initial subject proposal;
+- smart crop suggestion;
+- candidate print placement center.
+
+Do not treat saliency as proof of foreground ownership; non-salient text/logo details can still be essential.
+
+### 19. Exportability/runtime support must be checked before selecting a GPU processing stack
+
+Kornia's export-support matrix shows that operator support differs across ONNX, torch.export and torch.compile.
+
+Therefore the algorithm-selection process must include:
+- quality;
+- commercial license;
+- memory/runtime;
+- exportability;
+- target hardware compatibility.
+
+A mathematically attractive primitive is not automatically deployable in the chosen worker runtime.
+
+### 20. Proposed TransformParityReport
+
+Add:
+- transformType;
+- matrix/hash;
+- sourceSize;
+- destinationSize;
+- coordinateConvention;
+- pixelCenterConvention;
+- alignCorners;
+- interpolation;
+- borderMode;
+- alphaRepresentation;
+- backend;
+- backendVersion;
+- maxRgbDeltaVsReference;
+- maxAlphaDeltaVsReference;
+- edgeBandDelta;
+- acceptedTolerance.
+
+This report becomes mandatory when a faster runtime replaces the reference implementation.
+
+### Batch 033 conclusion
+
+The strongest result is that image quality is not enough; **mathematical convention parity** is now part of print correctness.
+
+For DTF, RGB, alpha, underbase, and mockup placement must share exactly the same geometry semantics. A fast backend that is visually close but shifts alpha by a fraction of a pixel can still create a visible white fringe after underbase generation.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
