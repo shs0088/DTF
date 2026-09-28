@@ -6050,3 +6050,171 @@ The deterministic processing layer is becoming clearer:
 - explicitly control padding/interpolation at every geometric operation.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 030 — topology-aware mask repair, non-overlapping expansion, boundary-distance QA, and region-graph cleanup
+
+The verified corpus now contains 600 individually opened/read unique pages.
+
+### 1. Mask blending should use explicit condition semantics
+
+libvips ifthenelse can select hard branches or smoothly blend by a condition value. For DTF this supports a clear primitive for combining:
+- hard trusted foreground/background;
+- soft uncertainty/confidence;
+- local repair candidates.
+
+The condition image must be typed semantically: MASK, COVERAGE, or CONFIDENCE. A confidence map should not accidentally become print alpha.
+
+### 2. Band construction must be deliberate
+
+bandjoin_const is useful for adding alpha or auxiliary channels, but only after channel order and interpretation are explicit. We should never infer that a four-band image means RGBA merely from band count.
+
+### 3. Draw-mask style blending is useful for manual corrections
+
+A user brush mask can be treated as a bounded edit layer rather than destructive painting on the source. Manual keep/remove strokes should become constraint masks that later matting/refinement respects.
+
+### 4. Region adjacency graphs offer a smarter alternative to deleting tiny components independently
+
+RAG methods model neighboring regions and their boundary/color relationships. This is useful when deciding whether a tiny region is:
+- legitimate detached artwork;
+- a fragment that should merge with a nearby region;
+- background residue.
+
+Component area alone is insufficient.
+
+### 5. Boundary-weighted RAGs can use edge evidence directly
+
+Boundary-based RAG examples weight adjacency by boundary evidence. In DTF cleanup, a strong edge between two regions argues against merging them, while a weak boundary plus similar color may support a merge.
+
+### 6. Hierarchical RAG merging can create explainable cleanup stages
+
+Instead of one destructive threshold, regions can be progressively merged by similarity. This is attractive for photographed sketches and simple-background art where illumination fragments one intended area into many pieces.
+
+Every merge should remain bounded by topology/detail guards.
+
+### 7. Hausdorff distance is useful for worst-case boundary displacement
+
+Average boundary error can hide one severe local defect. Hausdorff distance reports the maximum nearest-boundary mismatch.
+
+For DTF edge QA, compare source/reference and processed boundary sets and report both:
+- mean/percentile boundary distance;
+- Hausdorff/worst-case distance.
+
+This is especially useful for missing serifs, clipped corners, and local choke damage.
+
+### 8. Perimeter change is a practical complexity-loss metric
+
+Different perimeter estimators show that perimeter measurement is sensitive to rasterization. Still, under a fixed method and scale, perimeter ratios are useful for detecting over-smoothing or jagged edge creation.
+
+Do not compare perimeter values measured at different resolutions without normalization.
+
+### 9. Flood fill is a strong deterministic background tool for connected uniform backgrounds
+
+Flood fill grows from seeded pixels under a tolerance. For images with simple border-connected backgrounds, it can remove only the connected background while preserving same-colored interior elements that are not connected to the border.
+
+This is safer than global color deletion in many logo/photo-on-solid-background cases.
+
+### 10. Non-overlapping label expansion is ideal for controlled spread/repair zones
+
+scikit-image expand_labels grows labeled regions by distance without overlaps. This suggests a powerful internal primitive for:
+- expanding competing component influence zones;
+- assigning ambiguous pixels to the nearest trusted component;
+- preventing repair masks from different letters/logo parts from bleeding into each other.
+
+It is not the same as ordinary binary dilation.
+
+### 11. Euler number is a compact topology guard
+
+Euler number captures components minus holes (with connectivity dependence). A change can indicate:
+- a letter hole closed;
+- a new hole appeared;
+- components merged/split.
+
+For text/logo art, topology-change warnings should accompany component count and skeleton metrics.
+
+### 12. Random walker is a good user-guided fallback
+
+Random-walker segmentation uses labeled seeds and image gradients to assign unlabeled pixels probabilistically. It fits semi-automatic correction well:
+- user marks KEEP/REMOVE seeds;
+- algorithm resolves the uncertain region;
+- resulting mask goes through matting/edge QA.
+
+This can be a deterministic fallback when learned segmentation is uncertain.
+
+### 13. Superpixels are useful for diagnostics and local editing, not master rasterization
+
+SLIC/felzenszwalb/quickshift/watershed segmentations can reduce millions of pixels into regions for analysis. They can accelerate:
+- color/background statistics;
+- local defect grouping;
+- candidate region selection.
+
+They should not directly quantize the approved master unless explicitly requested.
+
+### 14. Compact watershed can regularize oversegmentation but may distort irregular art
+
+Compactness biases segments toward regular shapes. That can help create analysis regions, but it is inappropriate as a final mask method for highly irregular artwork, hair, smoke, or calligraphy.
+
+### 15. Contour extraction supports subpixel boundary QA
+
+Contour finding on continuous-valued masks can extract an iso-alpha boundary, for example alpha=0.5, rather than relying only on thresholded raster edges.
+
+This is useful for measuring:
+- boundary displacement;
+- shape change;
+- choke/spread effect;
+- contour smoothness.
+
+### 16. Region properties can classify suspicious islands more intelligently
+
+regionprops gives geometry such as area, bbox, centroid, eccentricity, orientation and related measurements.
+
+A debris classifier can combine:
+- physical area;
+- aspect/eccentricity;
+- distance from main artwork;
+- alpha strength;
+- relation to nearby components.
+
+This is safer than remove-everything-below-N-pixels.
+
+### 17. Local extrema and peak detection help with distance-field geometry
+
+Peaks in a distance transform can approximate centers of thick components or candidate watershed markers. This can help split accidentally merged blobs or quantify local maximum stroke radius.
+
+Parameters must be physical-scale aware because min_distance in pixels changes meaning with resolution.
+
+### 18. Joining segmentations can combine independent evidence maps
+
+The intersection/join of two segmentations can encode agreement between:
+- color-based regions;
+- alpha/edge-based regions;
+- semantic model regions.
+
+This provides a path to hybrid routing without forcing one segmentation algorithm to solve every case.
+
+### 19. Normalized cuts are a higher-cost graph option for ambiguous region grouping
+
+Graph cuts can separate regions using global graph structure rather than a local threshold. This is valuable as an advanced fallback, but likely too expensive/complex for routine uploads compared with simpler RAG merging and seeded methods.
+
+### 20. Proposed topology integrity report extension
+
+Add:
+- componentCountDelta;
+- holeCountDelta;
+- eulerNumberDelta;
+- meanBoundaryDistanceMm;
+- p95BoundaryDistanceMm;
+- hausdorffDistanceMm;
+- perimeterRatio;
+- mergeEvents;
+- splitEvents;
+- nearestComponentGapMm;
+- suspiciousIslandCount.
+
+For text/logo/line art, any topology change should normally require review unless the operation was explicitly meant to remove debris.
+
+### Batch 030 conclusion
+
+This batch strengthens a key principle: DTF cleanup should preserve **relationships between regions**, not just pixels. A clean-looking mask can still be wrong if it closes a letter hole, merges two nearby strokes, deletes punctuation, or shifts one local boundary too far.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
