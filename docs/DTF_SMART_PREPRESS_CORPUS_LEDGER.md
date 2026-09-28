@@ -808,11 +808,43 @@ Batch 023 counting notes:
 537. https://www.libvips.org/API/8.17/method.Image.convf.html
 538. https://www.libvips.org/API/8.17/method.Image.freqmult.html
 
-Verified unique pages: 538 / 10,000
-Remaining: 9,462
 
 Batch 024 counting notes:
 - All 20 URLs above were individually opened/read successfully.
 - Pages already present in the corpus were excluded before counting.
 - Search-result snippets alone were not counted.
 - This batch focuses on implementation-level resampling, compositing, band handling, morphology, local-statistics filtering, and frequency-domain operations relevant to DTF image preparation.
+
+
+## Verified Batch 025 — 20 pages — perceptual QA, histogram diagnostics, calibration statistics, and linear-light color transforms
+
+539. https://www.libvips.org/API/8.17/method.Image.bandbool.html
+540. https://www.libvips.org/API/8.17/method.Image.scale.html
+541. https://www.libvips.org/API/8.17/method.Image.hist_entropy.html
+542. https://www.libvips.org/API/8.17/method.Image.measure.html
+543. https://www.libvips.org/API/8.17/method.Image.deviate.html
+544. https://www.libvips.org/API/8.17/method.Image.avg.html
+545. https://www.libvips.org/API/8.17/method.Image.max.html
+546. https://www.libvips.org/API/8.17/method.Image.min.html
+547. https://www.libvips.org/API/8.17/method.Image.percent.html
+548. https://www.libvips.org/API/8.17/method.Image.hist_find.html
+549. https://www.libvips.org/API/8.17/method.Image.hist_cum.html
+550. https://www.libvips.org/API/8.17/method.Image.hist_norm.html
+551. https://www.libvips.org/API/8.17/method.Image.hist_match.html
+552. https://www.libvips.org/API/8.17/method.Image.dE00.html
+553. https://www.libvips.org/API/8.17/method.Image.dE76.html
+554. https://www.libvips.org/API/8.17/method.Image.dECMC.html
+555. https://www.libvips.org/API/8.17/method.Image.sRGB2scRGB.html
+556. https://www.libvips.org/API/8.17/method.Image.scRGB2sRGB.html
+557. https://www.libvips.org/API/8.17/method.Image.XYZ2Lab.html
+558. https://www.libvips.org/API/8.17/method.Image.Lab2XYZ.html
+
+Verified unique pages: 558 / 10,000
+Remaining: 9,442
+
+Batch 025 counting notes:
+- Every URL above was individually opened/read successfully.
+- A failed scRGB-to-XYZ page open was excluded.
+- Pages already present in the corpus were excluded before counting.
+- Search-result snippets alone were not counted.
+- This batch focuses on measurable color/tonal QA, entropy/statistics, histogram-derived thresholds, color-difference maps, and explicit encoded-sRGB versus linear-scRGB transforms.
