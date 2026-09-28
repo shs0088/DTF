@@ -8353,3 +8353,33 @@ The architecture should therefore encode:
 - multilingual terminology/source provenance.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Multilingual research Batch 046 — alpha edges, halftone channels, restoration ordering, and print-safe preprocessing
+
+### Engineering findings
+
+1. **Do not globally binarize alpha.** DTF-oriented sources correctly expose the halo risk of low/partial alpha, but a hard threshold is safe only for artwork classified as hard-edge. Soft artwork such as hair, smoke, glass, glow and intentional shadows requires continuous-alpha preservation plus underbase-aware handling.
+2. **Separate alpha geometry from edge RGB decontamination.** Adobe's matte-removal workflow and DTF background-removal material reinforce that an edge can have correct opacity geometry yet still carry RGB contamination from the old background. The pipeline should diagnose and repair alpha and edge color independently.
+3. **Halftone must be channel-addressable.** Krita's halftone documentation supports intensity, independent-channel and alpha-only modes. DTF Smart Prepress should therefore represent halftone as a plane-specific operation, not a single image-wide effect; color, alpha and white-underbase screening require separate policies.
+4. **Matting remains an ill-posed estimation problem.** The Japanese matting reference explicitly frames I = alpha*F + (1-alpha)*B and explains why segmentation alone cannot recover soft foreground boundaries. Preserve a trimap/uncertainty-band route for difficult edges.
+5. **Noise reduction needs scale and color-component awareness.** darktable's profiled denoising separates luminance/chrominance behavior and supports wavelet scale-dependent control. Smart Prepress should classify noise by spatial scale and color component before choosing strength.
+6. **Sharpening is not automatically beneficial.** darktable documents USM as edge-contrast enhancement and warns about undesirable behavior in its Lab implementation; thresholding can prevent noise amplification. Keep sharpening evidence-gated and compare fine-detail survival plus halo/ringing after processing.
+7. **Directional blur parameters matter.** Krita exposes independent horizontal/vertical Gaussian radii and directional motion blur. Blur diagnosis should estimate anisotropy before attempting restoration rather than assuming an isotropic PSF.
+8. **Surface/color smoothing can destroy local contrast.** The surface-blur reference notes channel-specific behavior and local-contrast loss. Any chroma cleanup should be masked, channel-aware and followed by edge/texture preservation checks.
+9. **White-underbase defects must be classified before correction.** DTF sources distinguish insufficient white opacity, pullback/choke errors and registration errors. Density changes must not be used as a substitute for fixing geometry or registration.
+10. **Mockup-safe derivatives remain separate from the print master.** Browser/client-side preparation sources reinforce that preview placement, background compositing and convenience resizing should not become authoritative print-master transformations.
+
+### Pipeline consequences
+
+Add/retain explicit contracts for:
+- EdgeClass: hard-edge | soft-intentional | contaminated | uncertain.
+- AlphaPolicy: preserve-continuous | threshold-hard-edge | refine-matte | reject-for-review.
+- EdgeColorPolicy: none | remove-white-matte | remove-black-matte | local-decontaminate.
+- HalftoneRecipe: targetPlane, screenFamily, dotGeometry, angle, quantization, seed, minPrintableFeature.
+- RestorationEvidence: noiseScale, lumaNoise, chromaNoise, blurAnisotropy, sharpeningNeed, haloRisk, textureLoss.
+- UnderbaseDiagnosis: opacityDeficit, geometrySpread, chokeRisk, registrationOffset, lowAlphaResidue.
+
+### Corpus accounting
+
+Batch 046 added 14 canonical, materially distinct pages that were individually opened/read. The branch ledger now explicitly contains 868 entries. Research continuity is 877 because the immediately preceding verified Batch 045 contained 9 pages whose exact URLs were not preserved in the available record; those URLs are intentionally not reconstructed or fabricated.
