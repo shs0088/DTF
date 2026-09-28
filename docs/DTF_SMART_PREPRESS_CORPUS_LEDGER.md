@@ -306,8 +306,6 @@ Batch 007 counting notes:
 222. https://scikit-image.org/docs/0.25.x/auto_examples/filters/plot_blur_effect.html
 223. https://scikit-image.org/docs/0.24.x/auto_examples/filters/plot_unsharp_mask.html
 
-Verified unique pages: 223 / 10,000
-Remaining: 9,777
 
 Batch 008 counting notes:
 - All 20 pages above were individually opened/read in this batch.
@@ -315,3 +313,33 @@ Batch 008 counting notes:
 - The Difference-of-Gaussians URL was canonicalized by removing the search-query parameter before counting.
 - Failed page opens were not counted.
 - This batch intentionally prioritizes the actual image-processing methods themselves rather than infrastructure.
+
+
+## Verified Batch 009 — 18 pages — pixel-processing methods focus
+
+224. https://docs.opencv.org/4.13.0/d5/d69/tutorial_py_non_local_means.html
+225. https://docs.opencv.org/5.0/main_modules/photo_denoise.html
+226. https://scikit-image.org/docs/stable/auto_examples/filters/plot_tophat.html
+227. https://scikit-image.org/docs/stable/auto_examples/filters/plot_butterworth.html
+228. https://docs.opencv.org/5.0/tutorials_contrib/xphoto/fsr_for_inpainting.html
+229. https://scikit-image.org/docs/stable/auto_examples/filters/plot_rank_mean.html
+230. https://www.ipol.im/pub/pre/532/
+231. https://www.ipol.im/pub/art/2011/bcm_nlm/
+232. https://www.ipol.im/pub/art/2013/16/
+233. https://www.ipol.im/pub/art/2014/120/
+234. https://usage.imagemagick.org/bugs/ordered-dither/
+235. https://usage.imagemagick.org/filter/nicolas/
+236. https://scikit-image.org/docs/stable/auto_examples/segmentation/plot_niblack_sauvola.html
+237. https://docs.opencv.org/5.0/main_modules/photo_clone.html
+238. https://docs.opencv.org/5.0/main_modules/white__balance_8hpp.html
+239. https://docs.opencv.org/doc/doxygen/html/d7/d71/classcv_1_1xphoto_1_1GrayworldWB.html
+240. https://docs.opencv.org/5.0/main_modules/photo_render.html
+241. https://docs.opencv.org/4.12.0/d6/d80/edge__filter_8hpp.html
+
+Verified unique pages: 241 / 10,000
+Remaining: 9,759
+
+Batch 009 counting notes:
+- Every URL above was individually opened/read in this batch.
+- Version duplicates and URLs already present in Batches 001–008 were excluded before counting.
+- This batch prioritizes denoising, matting, thresholding, resampling, edge-preserving filtering, inpainting, halftoning, white balance and local image editing.
