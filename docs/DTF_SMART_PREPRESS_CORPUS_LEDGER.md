@@ -775,8 +775,6 @@ Batch 022 counting notes:
 517. https://www.libvips.org/API/8.17/method.Image.hist_local.html
 518. https://www.libvips.org/API/8.17/method.Image.labelregions.html
 
-Verified unique pages: 518 / 10,000
-Remaining: 9,482
 
 Batch 023 counting notes:
 - All 20 URLs above were individually opened/read successfully.
@@ -785,3 +783,36 @@ Batch 023 counting notes:
 - OpenImageIO ImageOutput/stdmetadata pages already present in the corpus were excluded.
 - Search-result snippets alone were not counted.
 - This batch focuses on how libraries actually read/write associated versus unassociated alpha, preserve alpha/spot channels, carry ICC/profile metadata, and perform local contrast / connected-region analysis.
+
+
+## Verified Batch 024 — 20 pages — resampling primitives, masks, morphology, compositing and frequency-domain processing
+
+519. https://imagemagick.org/composite/
+520. https://www.libvips.org/API/8.17/method.Image.reducev.html
+521. https://www.libvips.org/API/8.17/method.Image.shrinkh.html
+522. https://www.libvips.org/API/8.17/method.Image.similarity.html
+523. https://www.libvips.org/API/8.17/method.Image.rot.html
+524. https://www.libvips.org/API/8.17/method.Image.cast.html
+525. https://www.libvips.org/API/8.17/type_func.Image.bandjoin.html
+526. https://www.libvips.org/API/8.17/method.Image.reduceh.html
+527. https://www.libvips.org/API/8.17/method.Image.rotate.html
+528. https://www.libvips.org/API/8.17/ctor.Image.thumbnail.html
+529. https://www.libvips.org/API/current/method.Image.extract_area.html
+530. https://www.libvips.org/API/8.17/method.Image.cast_uchar.html
+531. https://www.libvips.org/API/8.17/method.Image.morph.html
+532. https://www.libvips.org/API/8.17/method.Image.median.html
+533. https://www.libvips.org/API/current/method.Image.ifthenelse.html
+534. https://www.libvips.org/API/current/ctor.Image.gaussmat.html
+535. https://www.libvips.org/API/8.17/method.Image.stdif.html
+536. https://www.libvips.org/API/8.17/method.Image.conva.html
+537. https://www.libvips.org/API/8.17/method.Image.convf.html
+538. https://www.libvips.org/API/8.17/method.Image.freqmult.html
+
+Verified unique pages: 538 / 10,000
+Remaining: 9,462
+
+Batch 024 counting notes:
+- All 20 URLs above were individually opened/read successfully.
+- Pages already present in the corpus were excluded before counting.
+- Search-result snippets alone were not counted.
+- This batch focuses on implementation-level resampling, compositing, band handling, morphology, local-statistics filtering, and frequency-domain operations relevant to DTF image preparation.
