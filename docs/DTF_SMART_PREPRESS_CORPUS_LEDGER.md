@@ -366,11 +366,32 @@ Batch 009 counting notes:
 260. https://scikit-image.org/docs/stable/auto_examples/filters/plot_attribute_operators.html
 261. https://scikit-image.org/docs/stable/api/skimage.feature.html
 
-Verified unique pages: 261 / 10,000
-Remaining: 9,739
 
 Batch 010 counting notes:
 - All 20 URLs above were individually opened/read.
 - Pages already present in prior batches were removed before counting.
 - One very large scikit-image page that failed to open was not counted.
 - This batch continues the explicit priority on the image-processing methods themselves.
+
+
+## Verified Batch 011 — 10 pages — image-processing and print-control focus
+
+262. https://docs.opencv.org/doc/doxygen/html/df/d2d/group__ximgproc.html
+263. https://docs.opencv.org/doc/doxygen/html/db/d50/classcv_1_1ximgproc_1_1FastBilateralSolverFilter.html
+264. https://docs.opencv.org/doc/doxygen/html/de/d13/classcv_1_1ximgproc_1_1FastGlobalSmootherFilter.html
+265. https://scikit-image.org/docs/0.25.x/auto_examples/edges/plot_ridge_filter.html
+266. https://littlecms.com/blog/2019/10/02/visualizing-gamut/
+267. https://help.cadlink.com/website/digital_factory/en/production/menus/settings_tab.htm
+268. https://www.littlecms.com/blog/2026/09/14/calc-icc-launch/
+269. https://www.littlecms.com/abstractor/
+270. https://helpdesk.caldera.com/hc/en-us/articles/30781495911441--How-to-create-a-white-underlay-in-DTG
+271. https://help.cadlink.com/website/filmmaker/en/production/job_tab.htm
+
+Verified unique pages: 271 / 10,000
+Remaining: 9,729
+
+Batch 011 counting notes:
+- All 10 URLs above were individually opened/read.
+- Two pages opened in the same research pass were duplicates already present in the ledger and were excluded.
+- Search-result snippets alone were not counted.
+- This batch prioritizes edge-aware smoothing, topology diagnostics, gamut/proofing, and white-ink/halftone behavior.
