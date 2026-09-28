@@ -3816,3 +3816,276 @@ The strongest architectural refinement from this batch is a staged quality ladde
 9. save a new version only after passing structural checks.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 020 — straight-vs-premultiplied alpha contracts, linear compositing, guided refinement, and libvips execution rules
+
+The verified corpus now contains 393 individually opened/read unique pages.
+
+### 1. PNG is explicitly straight-alpha storage
+
+The PNG Third Edition states that PNG stores color samples unassociated/non-premultiplied by alpha. Alpha is linear coverage and is not gamma-corrected.
+
+This gives us an authoritative file-boundary rule:
+- PNG decode produces straight/unassociated RGB+alpha semantics;
+- internal processing may convert to premultiplied form when a filter/compositor expects it;
+- PNG export should return to straight alpha unless the encoder/API explicitly handles the conversion.
+
+### 2. Alpha should remain linear even when RGB is gamma-encoded
+
+The PNG specification explicitly says gamma correction does not apply to alpha.
+
+Therefore:
+- never apply RGB gamma/transfer-function operations to alpha;
+- alpha resize/filtering is a coverage problem;
+- color-space conversion and alpha processing remain separate paths.
+
+### 3. Correct compositing should happen in intensity/working-light space, not blindly in encoded sRGB
+
+The PNG specification says compositing equations should be applied to intensity samples rather than gamma-encoded samples.
+
+For high-quality QA/proof compositing:
+1. decode/convert RGB to the chosen linear-light working representation;
+2. composite using alpha;
+3. encode to display color space.
+
+For lightweight browser previews we may accept browser-native behavior, but production QA should have a deterministic linear-light reference implementation.
+
+### 4. W3C compositing confirms the Porter-Duff contract
+
+W3C defines source-over and related operators using premultiplied output color contributions:
+co = alpha_s * C_s + alpha_b * C_b * (1 - alpha_s)
+
+This gives us a canonical mathematical reference for black/white/gray diagnostic composites.
+
+Important distinction:
+- compositing math uses alpha-weighted/premultiplied contributions;
+- blend-mode color functions are defined on non-premultiplied colors.
+
+Our primitives must not conflate these two concepts.
+
+### 5. Fully transparent RGB can be meaningful source data
+
+The PNG specification notes two valid semantics:
+- transparent pixels may preserve meaningful color for future edits;
+- or they may be filler where color is irrelevant.
+
+DTF Studio should therefore avoid destructive normalization of hidden RGB on the immutable source.
+
+For processed transparent candidates:
+- preserve source hidden RGB by default away from edges;
+- reconstruct plausible foreground RGB in the edge decontamination band;
+- only normalize fully transparent far-background RGB in a derived artifact when there is a concrete reason.
+
+### 6. Apple Core Image reinforces explicit alpha-state transitions
+
+Core Image exposes separate operations for premultiplying and unpremultiplying alpha and states that filters generally expect premultiplied input.
+
+This supports a processing primitive with explicit state:
+
+RGBA_STRAIGHT
+-> PREMULTIPLY
+-> FILTER/RESIZE/COMPOSITE
+-> UNPREMULTIPLY if the next stage/export expects straight alpha.
+
+Every operation should declare:
+- required alpha representation;
+- output alpha representation.
+
+### 7. Guided filter is especially suitable for mask refinement because the guide and signal are separate
+
+The guided-filter implementation computes local linear relationships between a guide image and the signal being filtered.
+
+For DTF alpha refinement:
+- guide = source RGB/luminance;
+- signal = coarse alpha;
+- output = alpha aligned to source edges.
+
+The color implementation uses local covariance across RGB guide channels, which is stronger than filtering alpha based only on alpha neighborhoods.
+
+### 8. Guided-filter border behavior is not an incidental detail
+
+The reviewed implementation uses a replicated border for its box filter.
+
+This means edge behavior near the canvas boundary depends on the chosen extension rule.
+
+Our regression suite should include subjects touching:
+- left/right border;
+- top/bottom border;
+- corners.
+
+For production, add transparent safe padding before refinement when appropriate, then crop back after processing.
+
+### 9. Global matting shows a useful deterministic fallback sequence
+
+The global-matting implementation uses:
+- trimap;
+- optional expansion of known regions;
+- global foreground/background sampling;
+- alpha solution;
+- guided-filter refinement;
+- re-imposition of known trimap values.
+
+This is a valuable deterministic fallback for hard/simple cases and a strong pattern even when we use learned models:
+hard constraints must be restored after soft refinement.
+
+### 10. User-confirmed trimap pixels should be immutable constraints
+
+The reviewed global-matting flow explicitly resets alpha to 0/255 in known trimap regions after guided filtering.
+
+Our workflow should do the same conceptually:
+- user-marked definite foreground cannot drift;
+- user-marked definite background cannot drift;
+- only UNKNOWN is freely optimized unless the user changes the constraints.
+
+### 11. Pillow is useful as a reference implementation and test oracle
+
+Pillow exposes:
+- alpha_composite;
+- putalpha;
+- per-channel access;
+- alpha-aware bounding boxes.
+
+Its implementation routes alpha compositing through a core alpha_composite operation.
+
+This makes Pillow useful for:
+- small correctness fixtures;
+- cross-checking Porter-Duff behavior;
+- generating regression expectations.
+
+It is not necessarily the high-throughput production engine for large DTF files.
+
+### 12. libvips explicitly warns that resize does not premultiply alpha
+
+This is one of the strongest implementation findings in the batch.
+
+The current libvips resize documentation explicitly says:
+- vips_resize does not premultiply alpha;
+- if an image has alpha, premultiply first.
+
+Therefore the server-side transparent resize primitive should be explicit:
+premultiply -> resize -> unpremultiply.
+
+This should be a unit-tested helper rather than relying on callers to remember the rule.
+
+### 13. libvips affine/mapim/composite expose premultiplied flags
+
+Affine, mapim and composite operations have explicit premultiplied options.
+
+This means the recipe/runtime can consistently propagate alpha-state metadata into:
+- geometric transforms;
+- mockup warps;
+- arbitrary coordinate maps;
+- compositing.
+
+Do not assume every operation shares the same default alpha convention.
+
+### 14. libvips compositing space should be explicit
+
+libvips composite allows a compositing_space option and can work in scRGB/Lab or other interpretations.
+
+For our production QA:
+- choose a documented working/compositing space;
+- avoid silently compositing in whichever encoded space happens to be attached;
+- convert display derivatives separately.
+
+### 15. libvips resize is a strong deterministic production candidate
+
+Current documentation states:
+- Lanczos3 is the normal final reduction kernel;
+- resize may combine shrink/reduce/affine for quality/performance;
+- resize does not update xres/yres automatically.
+
+DTF implications:
+- keep physical-size/effective-DPI metadata under application control;
+- resizing pixels alone must not silently preserve stale DPI semantics;
+- after any resize, recompute effective DPI for each target placement.
+
+### 16. libvips thumbnail is not the same as master resize
+
+The resample documentation notes that thumbnail combines loading, resize, color management, and correct alpha handling for efficient delivery.
+
+Use case split:
+- thumbnail/display pipeline: vips thumbnail-style optimization is attractive;
+- authoritative print candidate: explicit decode/profile/alpha/resize steps with logged recipe.
+
+### 17. Browser Canvas compositing is suitable for UI preview semantics
+
+MDN documents Canvas globalCompositeOperation and globalAlpha, including source-over and Porter-Duff-style operators.
+
+This is useful for:
+- dark/light garment preview;
+- mask/debug overlays;
+- selection visualization;
+- non-authoritative mockup interactions.
+
+But browser canvas remains preview-only for deterministic print QA because implementation/color-management details can vary.
+
+### 18. Preview and production should share the same logical compositing operator names
+
+Even if browser and server implementations differ, the domain model can standardize:
+- SOURCE_OVER;
+- SOURCE_IN;
+- DESTINATION_IN;
+- DESTINATION_OUT;
+- etc.
+
+This lets us test that browser previews and server reference composites are semantically aligned.
+
+### 19. Proposed AlphaState metadata
+
+Add explicit metadata to intermediate artifacts/recipe nodes:
+
+alphaRepresentation:
+- STRAIGHT
+- PREMULTIPLIED
+- NONE
+
+alphaMeaning:
+- COVERAGE
+- BINARY_MASK
+- TRIMAP
+- CONFIDENCE
+
+colorEncoding:
+- SRGB_ENCODED
+- LINEAR_SRGB
+- PROFILED_RGB
+- OTHER
+
+This prevents an alpha mask, confidence map, and compositing alpha from being treated as interchangeable simply because each is a one-channel image.
+
+### 20. Proposed transparent-resample regression suite
+
+Before locking the processing engine, create synthetic fixtures:
+- opaque red square with transparent blue hidden RGB outside;
+- white anti-aliased text over transparent black hidden RGB;
+- black anti-aliased text over transparent white hidden RGB;
+- thin saturated 1px/2px strokes;
+- radial soft glow;
+- smoke-like soft alpha;
+- edge touching canvas border;
+- alpha=0 / alpha≈0 transition;
+- repeated downscale/upscale;
+- affine rotation then resize.
+
+For every fixture compare:
+- straight-naive resize;
+- premultiply-resize-unpremultiply;
+- browser preview;
+- libvips reference;
+- optional Pillow reference.
+
+Measure edge color error, alpha error, halo visibility on black/white, and topology retention.
+
+### Batch 020 conclusion
+
+The strongest new conclusion is that alpha handling must be encoded as a type/contract, not inferred from “RGBA”.
+
+A large class of halos and edge errors can be prevented if every operation knows:
+- whether RGB is straight or premultiplied;
+- whether alpha is coverage, mask, trimap or confidence;
+- which color/working space the operation assumes;
+- whether physical resolution metadata must be recomputed after the operation.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
