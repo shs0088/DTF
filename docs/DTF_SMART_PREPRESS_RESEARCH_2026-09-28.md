@@ -4325,3 +4325,246 @@ The image-preparation system now needs two explicit boundaries:
 Many production failures happen at the second boundary even when the pixels looked correct in the editor.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 022 — PSD/PDF normalization, soft-mask decontamination, source-vs-master separation, and output validation
+
+The verified corpus now contains 433 individually opened/read unique pages.
+
+### 1. PSD/PSB should be accepted as rich source containers, not assumed to be directly print-ready rasters
+
+Adobe's Photoshop format specification confirms that PSD/PSB can contain:
+- many image channels;
+- layers;
+- per-layer transparency and masks;
+- user masks and vector masks;
+- ICC profile resources;
+- alpha-channel names/identifiers;
+- spot/halftone-related resources;
+- 8/16/32-bit channel depths.
+
+DTF implication:
+- preserve the original PSD/PSB;
+- normalize to a versioned raster/vector-derived print candidate;
+- do not flatten destructively in place;
+- capability-scan the file before claiming full editability.
+
+### 2. "Alpha channel" in PSD does not automatically mean document transparency
+
+Photoshop can store alpha channels as saved selections/masks, while layer transparency and layer masks are separate concepts.
+
+Therefore the importer must distinguish:
+- layer transparency;
+- layer/user/vector masks;
+- extra alpha selection channels;
+- spot-color channels;
+- merged composite transparency.
+
+Do not map every extra channel to print transparency.
+
+### 3. Merged PSD transparency has format-specific semantics
+
+Adobe's PSD specification notes that when the layer count is negative, the absolute value is the layer count and the first alpha channel contains transparency for the merged result.
+
+This is useful for fallback rendering:
+- if layers cannot be fully interpreted, a trustworthy merged composite may still be available;
+- record whether the normalized preview came from a composite or reconstructed layers;
+- never claim layer-level fidelity when using only the merged fallback.
+
+### 4. PSD parser support is often partial
+
+OpenImageIO documents limited PSD reading and no PSD writing in the examined plugin documentation.
+
+It also exposes options that can change interpretation:
+- non-RGB color modes may be auto-converted to RGB unless raw color is requested;
+- unassociated alpha may be premultiplied unless explicitly preserved.
+
+This reinforces the earlier capability-negotiation design:
+PSD_ACCEPTED_SOURCE != PSD_FULLY_EDITABLE != PSD_PRINT_MASTER_READY.
+
+### 5. Photoshop can preserve transparency in TIFF as an extra alpha channel
+
+Adobe's TIFF save documentation explicitly says that "Save Transparency" stores transparency as an additional alpha channel when opened in other applications.
+
+DTF implication:
+- TIFF import/export needs an explicit alpha-channel interpretation rule;
+- a TIFF alpha channel may be intended transparency, but arbitrary extra channels may also exist;
+- perform a readback validation after export.
+
+### 6. ImageOutput success does not guarantee semantic fidelity
+
+OpenImageIO warns that an output format may:
+- silently drop alpha if the target format only supports RGB;
+- substitute a supported pixel type;
+- ignore per-channel formats;
+- drop arbitrary channel names;
+- drop unsupported metadata.
+
+This is a critical production finding.
+
+Every print-master export should therefore perform POST-WRITE VERIFICATION:
+- reopen;
+- verify dimensions;
+- verify bit depth;
+- verify channel count/names;
+- verify alpha/white-channel presence and semantics;
+- verify ICC profile/hash where required;
+- verify resolution metadata;
+- compare pixel/hash expectations where lossless output is required.
+
+"write() succeeded" is not a sufficient acceptance condition.
+
+### 7. Header-first inspection can avoid unnecessary full-file decoding
+
+OpenImageIO ImageBuf/ImageSpec can read the image specification before reading pixels.
+
+This supports a safer preflight sequence:
+1. signature/type inspection;
+2. dimensions/channel count/bit depth/profile/metadata;
+3. reject impossible or risky files before full decode;
+4. only then allocate/decode pixels.
+
+This reduces memory pressure and decompression-bomb exposure.
+
+### 8. Data window and display/full window are different concepts
+
+OpenEXR and OpenImageIO both model:
+- a pixel/data window;
+- a full/display window.
+
+This is relevant beyond EXR:
+- a cropped artifact can have pixel data smaller than the intended canvas;
+- placement should not be inferred only from the stored pixel rectangle;
+- original/full bounds can matter for alignment.
+
+Our normalized artifact schema should therefore distinguish:
+pixelBounds vs logicalCanvasBounds.
+
+### 9. OpenEXR establishes a useful reference convention for premultiplied alpha
+
+OpenEXR conventionally stores color premultiplied by alpha, while allowing nonzero RGB at zero alpha.
+
+This reinforces two design rules:
+- alpha representation is format-specific;
+- zero-alpha RGB must not be destroyed casually.
+
+OpenEXR is not a primary DTF customer format, but it is an excellent reference/test format for high-precision alpha behavior.
+
+### 10. OpenEXR cropped data can preserve the original full window
+
+OpenEXR's data/display windows and originalDataWindow attribute illustrate a robust crop model.
+
+For DTF processing:
+- Original Source keeps original canvas/bounds;
+- Cropped Working Artifact records its crop rectangle relative to source;
+- placement remains stable because geometry can be reconstructed.
+
+This is safer than permanently rewriting the origin to 0,0 without provenance.
+
+### 11. PDF transparency is richer than a simple raster alpha channel
+
+PDF can represent transparency through:
+- soft masks derived from alpha;
+- soft masks derived from luminosity;
+- transparency groups;
+- blend modes;
+- constant stroking/nonstroking alpha;
+- shape versus opacity semantics.
+
+Therefore a PDF import path must not assume that rasterizing "the alpha channel" reproduces PDF transparency semantics.
+
+### 12. PDF soft-mask images may include a Matte / preblended background color
+
+The PDF reference describes images whose samples were preblended with a matte color and supplies the Matte value so the original source can be recovered.
+
+This is directly relevant to edge halos.
+
+If extracting raster content from PDF:
+- detect SMask/Matte;
+- undo preblending correctly where possible;
+- otherwise rasterize through a trusted PDF renderer at the target resolution;
+- do not blindly reuse preblended RGB with a newly extracted alpha.
+
+### 13. PDF shape and opacity are distinct
+
+Adobe pdfmark documentation exposes AIS ("alpha is shape") plus separate stroking/nonstroking alpha constants and soft masks.
+
+For DTF normalization:
+- preserve appearance through a conforming renderer when semantic interpretation is complex;
+- do not collapse shape and opacity into one mask unless the rendering result has been validated.
+
+### 14. PDF luminosity masks can depend on color as well as opacity
+
+A luminosity-derived soft mask uses the rendered luminosity of a transparency group, not merely geometric coverage.
+
+This matters when converting PDF artwork to a single transparent raster:
+- the mask may intentionally encode tonal softness;
+- replacing it with binary object coverage can alter the design.
+
+### 15. OpenImageIO normalizes some exotic file formats on read
+
+OIIO's introductory documentation explains that non-RGB models may be converted to RGB and subsampled channels may be upsampled through plugins.
+
+This is convenient but dangerous for forensic/source-preserving preflight.
+
+Recommended split:
+- SOURCE_INSPECTION mode requests raw/native semantics where supported;
+- NORMALIZED_WORKING mode converts deliberately to a known working representation;
+- record every conversion in the recipe.
+
+### 16. OIIO channel identity should be explicit
+
+ImageSpec can identify alpha and depth channels separately from arbitrary channel names.
+
+Our normalized intermediate should likewise declare:
+channelRole = COLOR_R/G/B, ALPHA_COVERAGE, MASK, SPOT_WHITE, SPOT_OTHER, DEPTH, AUXILIARY.
+
+Do not infer channel role from position alone.
+
+### 17. Photoshop preserves spot colors and alpha channels independently
+
+Adobe's normal save workflow exposes separate switches for:
+- alpha channels;
+- spot colors;
+- layers;
+- embedded color profile.
+
+This confirms that a PSD/TIFF source can contain print-relevant spot information independent of transparency.
+
+For DTF:
+- custom white/spot channels must be detected and surfaced;
+- never silently discard them during normalization;
+- operator can choose whether to honor or regenerate white.
+
+### 18. PSD and PSB limits support a two-tier parser policy
+
+PSD uses version 1 and standard dimensions up to 30,000 px, while PSB uses version 2 and can reach 300,000 px per dimension.
+
+A secure importer must have application-level decoded-pixel and memory limits far below theoretical format maxima.
+
+Format-valid does not mean operationally safe.
+
+### 19. Lossless versus lossy source normalization must be explicit
+
+OpenEXR supports both lossless and lossy compression families; OIIO writers may also choose supported encodings.
+
+For authoritative print masters:
+- prefer lossless output;
+- if a lossy source is supplied, preserve source but do not pretend lost data can be recovered;
+- any new lossy derivative belongs only to display/preview unless explicitly approved.
+
+### 20. Batch 022 conclusion
+
+The most important new architecture refinement is a strict SOURCE NORMALIZATION boundary before the prepress pipeline.
+
+For PSD/PDF/TIFF-like rich containers:
+1. preserve immutable original;
+2. inspect container/channel/profile/mask semantics;
+3. select a trusted rendering/normalization path;
+4. create a normalized working artifact with explicit channel roles and alpha representation;
+5. post-validate the normalized output;
+6. only then run background removal, cleanup, resize, underbase, halftone and product-fit checks.
+
+This prevents format-specific masks, spot channels, preblended colors, profile conversions, or dropped alpha from being misinterpreted as ordinary RGBA pixels.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
