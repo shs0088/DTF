@@ -4089,3 +4089,239 @@ A large class of halos and edge errors can be prevented if every operation knows
 - whether physical resolution metadata must be recomputed after the operation.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 021 — export semantics, hidden-RGB preservation, resolution-aware sharpening, ICC proofing, and DTF screening controls
+
+The verified corpus now contains 413 individually opened/read unique pages.
+
+### 1. TIFF export can carry production-critical semantics that must be explicit
+
+libvips TIFF output supports:
+- 1-bit, 2-bit, 4-bit and ordinary higher-depth data;
+- MINISBLACK/MINISWHITE behavior for 1-bit TIFF;
+- explicit x/y resolution;
+- tiled/strip output;
+- metadata;
+- optional premultiplied-alpha output.
+
+This matters for DTF because a white-channel mask exported as 1-bit TIFF is not just "an image":
+- bit sense must match the downstream RIP;
+- resolution metadata must match the intended physical scale;
+- the exporter must not accidentally invert white/black meaning;
+- output alpha semantics must match the consumer.
+
+Therefore export format/settings belong in a versioned production recipe.
+
+### 2. libvips resolution units are pixels per millimetre
+
+The TIFF API documents libvips resolution values in pixels/mm.
+
+Internal DTF metadata should retain a canonical physical-resolution representation and convert carefully at file boundaries.
+
+For example:
+pixelsPerMm = DPI / 25.4
+
+Do not confuse TIFF resolution metadata with the already-computed effective DPI at product placement; both need to be consistent but represent different layers of intent.
+
+### 3. Premultiply/unpremultiply can destroy hidden RGB at alpha=0
+
+The libvips unpremultiply operation outputs zero RGB when alpha is zero.
+
+This is an important caveat:
+- premultiply -> unpremultiply is not lossless for fully transparent hidden RGB;
+- immutable sources that may contain meaningful transparent RGB must not be round-tripped destructively merely for convenience;
+- processing copies may normalize/reconstruct hidden RGB under an explicit policy.
+
+This refines the earlier alpha-safe-resize rule: use premultiplication for filtering correctness, but never confuse it with a lossless preservation transform for hidden source color.
+
+### 4. Transparent source and processed derivative need different hidden-RGB policies
+
+Recommended:
+- ORIGINAL_SOURCE: preserve bytes/profile/hidden RGB exactly.
+- WORKING_COPY: may premultiply/filter with explicit state.
+- APPROVED_TRANSPARENT_CANDIDATE: edge hidden RGB should be reconstructed toward foreground color where it prevents halos; far fully-transparent RGB may be normalized if justified.
+- DISPLAY_DERIVATIVE: optimized for delivery; hidden RGB preservation is secondary to artifact-free rendering.
+
+### 5. Automatic trim should not rely blindly on flattened color
+
+libvips find_trim flattens alpha, median-filters photographic input, compares against a background color, and has a line_art option that disables median filtering.
+
+That makes it a useful tool for photographs, but not the authoritative transparent-bound computation for all DTF artwork.
+
+Recommended:
+- transparent artwork: derive primary bounds from alpha/coverage;
+- line art: avoid median filtering that could erase small strokes;
+- photos on opaque/simple backgrounds: find_trim can be a useful candidate;
+- preserve separate diagnostic bounds and production placement bounds.
+
+### 6. Sharpening should be tied to raster resolution
+
+libvips sharpen works on the L channel in LAB and explicitly suggests larger sigma as raster resolution increases; its documentation distinguishes image raster resolution from halftone resolution.
+
+This supports:
+- resolution-aware sharpening parameters;
+- no fixed radius across all export sizes;
+- luminance-focused sharpening as a candidate to reduce chroma artifacts;
+- explicit post-sharpen edge/ringing QA.
+
+Sharpening remains appearance-changing and should not run automatically without a diagnosed blur/softness need.
+
+### 7. Blur/convolution precision should be explicit in high-quality edge work
+
+libvips Gaussian blur exposes precision, and generic convolution can run in floating-point or faster integer/approximate modes.
+
+For alpha/matte refinement and regression-reference outputs:
+- prefer float precision where edge fidelity matters;
+- allow approximate paths only for non-authoritative previews or after benchmark validation;
+- record precision mode in the recipe if it can change output pixels.
+
+### 8. Safe padding must explicitly set the new pixel values
+
+libvips embed defaults to black for generated edge pixels.
+
+For transparent-art filtering, default-black padding can contaminate results if RGB/alpha are not deliberately constructed.
+
+Before convolution/blur/guided filtering near a canvas edge:
+- create explicit transparent padding with controlled hidden RGB/alpha semantics;
+- apply the operation;
+- crop back;
+- test corner/border fixtures.
+
+### 9. ICC transform is distinct from generic color-space conversion
+
+libvips colourspace converts among known mathematical color-space interpretations. ICC transform instead:
+- selects an input profile;
+- moves through PCS;
+- applies an output profile;
+- supports rendering intent and black-point compensation;
+- attaches the output profile.
+
+DTF Studio should model these as separate operations:
+- COLORSPACE_CONVERT;
+- ICC_PROFILE_TRANSFORM.
+
+A tagged RGB image is not equivalent to "just convert to CMYK" without an explicit target profile.
+
+### 10. ICC profile selection needs deterministic precedence
+
+libvips icc_transform can use:
+1. embedded profile;
+2. explicitly supplied input profile;
+3. compatible built-in profile.
+
+Our server should not silently fall through these choices for production masters.
+
+Policy should be explicit:
+- detect and record embedded profile;
+- if missing, mark ASSUMED_PROFILE and identify the assumed profile;
+- require explicit output profile for production transform;
+- log intent, black-point compensation and output bit depth.
+
+### 11. 16-bit input should not be silently reduced when quality matters
+
+The ICC transform API defaults output depth to 16 when the input is 16-bit.
+
+This supports preserving high bit depth through production color transforms when the source and downstream path benefit from it, while web/display derivatives can remain 8-bit.
+
+### 12. Soft proofing requires three profile roles
+
+Little CMS documentation distinguishes:
+- input/source profile;
+- display/output profile for the monitor;
+- proofing profile representing the printer/device being simulated.
+
+A proof therefore needs its own rendering intent and can include black-point compensation/gamut checking.
+
+The proof is a display artifact only; it must never become the print master.
+
+### 13. Black-point compensation is mainly paired with relative colorimetric intent
+
+Little CMS documentation and its validation paper describe BPC as mapping source/destination black points to preserve tonal detail when using relative-colorimetric conversions.
+
+DTF implication:
+- BPC is a profile-transform choice, not a generic "make blacks better" image adjustment;
+- it belongs in printer/profile configuration;
+- do not expose it as an ordinary customer brightness control.
+
+### 14. Browser color management should never be the authoritative proof path
+
+Little CMS has historically documented browser differences in ICC support. Even as browsers evolve, the architectural lesson remains:
+- browser preview can be useful;
+- server-side proof/reference transforms must be deterministic and versioned;
+- color-critical acceptance cannot depend on a particular browser's current rendering behavior.
+
+### 15. DTF white underbase controls should remain orthogonal
+
+The reviewed DTF production guides repeatedly separate:
+- white density/strength;
+- choke/spread;
+- threshold/alpha eligibility;
+- halftone LPI;
+- dot shape;
+- angle;
+- registration.
+
+A single "white amount" slider cannot substitute for geometric choke, and choke cannot fix directional registration.
+
+The engine should diagnose which dimension is wrong before suggesting a setting.
+
+### 16. Dot shape is a process variable, not only a visual preference
+
+The halftone guide distinguishes round, ellipse, diamond and square dots for different behaviors.
+
+Our simulation should therefore store:
+- screeningMethod;
+- lpi;
+- angleDeg;
+- dotShape;
+- targetCoverageCurve;
+- minimumPrintableDotMm.
+
+The physical printer profile can restrict which combinations are allowed.
+
+### 17. Practical DTF guides reinforce testing rather than universal choke values
+
+Current production guidance varies in recommended choke amounts and explicitly ties results to printer/ink/film/registration behavior.
+
+Therefore:
+- default choke is only a starting profile value;
+- operator test charts remain authoritative for a specific production line;
+- the software should store calibrated ranges, not present one universal number as "correct."
+
+### 18. White density and print feel are linked
+
+Practical DTF guidance consistently warns that too much white increases stiffness/heavy hand while too little white reduces opacity/vibrancy.
+
+This strengthens the reason for underbase halftoning:
+- white response is both an optical and material/coverage decision;
+- soft-hand profiles should be evaluated for minimum dot/bridge integrity and sufficient color support;
+- the software can preview relative coverage, but physical print validation remains necessary.
+
+### 19. Proposed export contract
+
+For every generated production artifact, record:
+- format;
+- bitDepth;
+- widthPx/heightPx;
+- xResolution/yResolution + unit;
+- colorProfileId/hash;
+- alphaRepresentation;
+- alphaMeaning;
+- TIFF photometric/1-bit sense where relevant;
+- white-channel semantics;
+- compression/lossless state;
+- recipeVersion;
+- outputHash.
+
+This makes the artifact reproducible and auditable.
+
+### 20. Batch 021 conclusion
+
+The image-preparation system now needs two explicit boundaries:
+1. a processing boundary where alpha/color operations are mathematically correct;
+2. an export boundary where file-format semantics, resolution, profile, bit depth, channel meaning and RIP compatibility are made explicit.
+
+Many production failures happen at the second boundary even when the pixels looked correct in the editor.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
