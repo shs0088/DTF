@@ -611,8 +611,6 @@ Batch 017 counting notes:
 412. https://www.littlecms.com/BlackPointCompensationTests.pdf
 413. https://www.libvips.org/API/8.17/method.Image.icc_transform.html
 
-Verified unique pages: 413 / 10,000
-Remaining: 9,587
 
 Batch 018 counting notes:
 - All 20 URLs above were individually opened/read successfully.
@@ -620,3 +618,38 @@ Batch 018 counting notes:
 - Search-result snippets alone were not counted.
 - Version-alias super-resolution and already-counted pages were excluded rather than inflating the corpus.
 - This batch prioritizes production-safe output/export behavior, alpha-state round-trips, trimming/cropping, sharpening, ICC transforms/proofing, and DTF white/halftone controls.
+
+
+## Verified Batch 019 — 20 pages — PSD/PDF/TIFF-adjacent transparency semantics, OpenEXR alpha conventions, and output-format safety
+
+414. https://www.adobe.com/devnet-apps/photoshop/fileformatashtml/
+415. https://helpx.adobe.com/photoshop/desktop/save-and-export/export-files-to-different-formats/image-file-formats-supported-in-photoshop.html
+416. https://helpx.adobe.com/photoshop/desktop/save-and-export/export-files-to-different-formats/photoshop-file-formats-overview.html
+417. https://openexr.com/en/latest/TechnicalIntroduction.html
+418. https://pdf-issues.pdfa.org/32000-2-2020/clause11.html
+419. https://openimageio.readthedocs.io/en/latest/imageoutput.html
+420. https://printtechnologies.org/standards/files/pdf-reference-1.6-1.pdf
+421. https://opensource.adobe.com/dc-acrobat-sdk-docs/library/pdfmark/pdfmark_Basic.html
+422. https://pdf-issues.pdfa.org/32000-2-2020/clause08.html
+423. https://openexr.com/en/latest/StandardAttributes.html
+424. https://helpx.adobe.com/photoshop/using/saving-selections-alpha-channel-masks.html
+425. https://openexr.com/en/latest/OpenEXRFileLayout.html
+426. https://helpx.adobe.com/photoshop/using/saving-files-graphics-formats.html
+427. https://openexr.com/en/latest/python.html
+428. https://helpx.adobe.com/photoshop/desktop/save-and-export/save-files/save-your-work.html
+429. https://openexr.com/en/latest/ReadingAndWritingImageFiles.html
+430. https://openimageio.readthedocs.io/en/stable/builtinplugins.html
+431. https://openimageio.readthedocs.io/en/main/imageioapi.html
+432. https://openimageio.readthedocs.io/en/latest/oiiointro.html
+433. https://openimageio.readthedocs.io/en/latest/imagebuf.html
+
+Verified unique pages: 433 / 10,000
+Remaining: 9,567
+
+Batch 019 counting notes:
+- Every URL above was individually opened/read successfully.
+- Two separately attempted PDF pages that returned internal errors were excluded.
+- A libtiff source page that opened without readable body content was excluded from the verified count.
+- URLs already present in the corpus were filtered before counting.
+- Search-result snippets alone were not counted.
+- This batch focuses on alpha/transparency semantics across PSD, PDF, OpenEXR and image I/O libraries, plus format-output failure modes relevant to print-master normalization.
