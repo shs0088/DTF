@@ -5602,3 +5602,230 @@ The image-processing architecture should distinguish three different optimizatio
 The same low-level library can support all three, but the kernels, precision, alpha handling, mask semantics, and QA gates must differ.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 028 — quantitative QA from entropy/histograms, per-pixel Delta-E maps, and linear-light working conversions
+
+The verified corpus now contains 558 individually opened/read unique pages.
+
+### 1. Entropy can be a cheap routing feature, but not a quality score by itself
+
+libvips exposes histogram entropy as:
+- sum(p * log2(p)) with sign inversion.
+
+For DTF routing, global or regional entropy can help distinguish:
+- flat/logo-like regions;
+- textured photographic regions;
+- near-empty/low-information transparent assets.
+
+But entropy alone is not "quality." A clean flat logo may intentionally have low entropy, while a noisy photograph may have high entropy.
+
+Use entropy as a classifier feature, not an acceptance threshold.
+
+### 2. Percentile-derived thresholds are more robust than hard-coded 8-bit values
+
+vips_percent returns the pixel value below which a requested percentage of pixels falls and is explicitly suitable for thresholding scaled filter results.
+
+That supports adaptive diagnostics such as:
+- edge-strength cutoff based on the 90th/95th percentile;
+- low-alpha haze cutoff from an alpha histogram percentile;
+- bright/dark residue candidate thresholds based on distribution rather than one universal numeric value.
+
+These thresholds still need guardrails for sparse graphics and bimodal masks.
+
+### 3. Histogram matching is appearance-changing and should remain an opt-in repair
+
+libvips hist_match can build a lookup mapping one normalized cumulative histogram toward another reference distribution.
+
+This is useful as:
+- controlled restoration toward a known reference;
+- batch normalization under a documented template.
+
+It is not safe as a generic "improve colors" operation for customer artwork because it can materially alter intentional tonal design.
+
+### 4. Histograms can support diagnostics without applying histogram equalization
+
+The combination of hist_find, hist_norm, hist_cum, percent, avg and deviate allows us to measure:
+- alpha occupancy distribution;
+- low-opacity residue;
+- luminance spread;
+- clipped highlight/shadow fractions;
+- color-channel imbalance;
+- before/after tonal redistribution.
+
+This gives the preflight engine strong non-destructive evidence before it suggests contrast or cleanup.
+
+### 5. Per-pixel Delta-E maps are practical in the chosen raster engine
+
+libvips has explicit dE00, dE76 and dECMC image operations that produce an output image of color differences between corresponding pixels.
+
+This enables:
+- a full color-difference heat map, not just one average number;
+- median / p95 / max Delta-E over opaque foreground;
+- special weighting around text, logos, faces, and alpha-transition bands;
+- exclusion of intentionally edited regions.
+
+CIEDE2000 should be the main perceptual drift metric for general QA, with dE76 and CMC useful for supporting comparisons.
+
+### 6. Color-difference QA should be region-aware
+
+A whole-canvas average can be misleading because transparent/background pixels dominate many DTF files.
+
+Compute color QA over masks such as:
+- confident opaque foreground;
+- edge transition band;
+- user-designated protected colors;
+- optional skin/text/logo semantic regions where available.
+
+Report both global and masked percentiles.
+
+### 7. Color transforms need an explicit encoded-to-linear step
+
+libvips provides sRGB2scRGB and scRGB2sRGB, with 16-bit output support when converting back to sRGB.
+
+This gives us a concrete deterministic route for operations that should be linear-light:
+sRGB encoded -> scRGB linear working representation -> processing/compositing -> sRGB encoded display/export derivative.
+
+Alpha remains separate and linear coverage throughout.
+
+### 8. 16-bit display/export derivatives are technically possible
+
+scRGB2sRGB supports 16-bit output.
+
+That means the internal pipeline does not need to collapse every high-quality result to 8-bit immediately. For selected high-bit-depth artifacts, we can preserve additional precision through:
+- color transform;
+- high-quality composite/proof;
+- later export.
+
+Web display still usually receives an 8-bit optimized derivative.
+
+### 9. Lab/XYZ conversion white-point assumptions must be explicit
+
+libvips Lab2XYZ defaults to D65 but allows a specified color temperature.
+
+Therefore any Lab/XYZ metric pipeline must record or control the reference white/temperature. Mixing Lab values computed under different white-point assumptions would invalidate color-difference interpretation.
+
+The QA recipe should record:
+- source profile/working space;
+- Lab reference white;
+- conversion path;
+- Delta-E formula.
+
+### 10. Patch measurement can support printer/profile validation
+
+vips_measure analyzes a grid of color patches, averages the central 50% of each patch, and warns when patch deviation is high relative to the mean.
+
+This is useful for a future calibration/verification workflow:
+- photograph/scan/measured chart input;
+- patch localization;
+- patch average statistics;
+- compare against expected values.
+
+It should not replace spectrophotometer-based calibration, but it can support software-side chart QA and detect badly captured/uneven patch images.
+
+### 11. Mean, standard deviation, minima and maxima are useful primitive checks
+
+libvips avg, deviate, min and max are simple but valuable for robust assertions:
+- alpha entirely zero -> empty asset;
+- alpha entirely full -> opaque asset;
+- suspiciously low RGB variance -> nearly blank/flat;
+- extreme clipped regions -> possible posterization or bad levels;
+- compare edge-band variation before/after processing.
+
+These checks are fast and should run early in preflight.
+
+### 12. Statistics should be computed on semantically relevant masks
+
+For transparent DTF art:
+- ignore fully transparent pixels for foreground color statistics;
+- analyze alpha separately;
+- use transition-band masks for halo diagnostics;
+- use connected-component masks when one stray island would distort global min/max/bounds.
+
+This avoids false alarms from hidden RGB under alpha=0.
+
+### 13. Boolean band reductions can simplify mask-combination logic
+
+vips_bandbool can reduce multiple bands to one using boolean operators.
+
+Potential internal uses:
+- combine per-channel threshold results;
+- assert all channels satisfy a range condition;
+- build one QA mask from multi-band relational outputs.
+
+Because float input is cast to integer before boolean processing, use it only after deliberate thresholding/casting, not directly on continuous color values.
+
+### 14. Automatic thresholds should use distributions, not only absolute values
+
+A robust low-alpha residue detector could combine:
+- alpha histogram;
+- percentile threshold;
+- connected-component size;
+- distance from strong foreground;
+- edge-band membership.
+
+This is stronger than saying "delete every alpha below 5%" because legitimate smoke/glow may intentionally occupy that range.
+
+### 15. Proposed ColorIntegrityReport
+
+Add:
+- deltaE00Median;
+- deltaE00P95;
+- deltaE00Max;
+- edgeDeltaE00P95;
+- protectedRegionDeltaE00P95;
+- luminanceMeanDelta;
+- luminanceStdDelta;
+- clippedShadowFraction;
+- clippedHighlightFraction;
+- histogramShiftScore;
+- workingColorSpace;
+- referenceWhite;
+- profileTransformId;
+- intentionalColorEditMaskId.
+
+The report is evidence for approval, not an automatic aesthetic judgment.
+
+### 16. Proposed AlphaDistributionReport
+
+Add:
+- opaqueFraction;
+- transparentFraction;
+- semiTransparentFraction;
+- alphaEntropy;
+- lowAlphaResidueFraction;
+- lowAlphaIslandCount;
+- p01/p05/p50/p95/p99 alpha;
+- transitionBandArea;
+- disconnectedForegroundCount.
+
+This gives the router a compact quantitative view of whether the artwork is hard-edged, soft, noisy, or mostly empty.
+
+### 17. Calibration charts should have capture-quality gates
+
+Before using a photographed or scanned patch chart:
+- check patch uniformity/deviation;
+- reject motion blur/glare/strong gradients;
+- verify crop/grid alignment;
+- use only central patch areas for robust averages;
+- record capture lighting/device metadata when available.
+
+Actual ICC calibration remains a measured production workflow; this software-side analysis is a validation aid.
+
+### 18. Batch 028 conclusion
+
+The prepress engine can obtain a large amount of reliable evidence with cheap deterministic statistics before invoking expensive AI.
+
+A recommended early analysis pass is now:
+1. alpha occupancy + histogram;
+2. luminance/color histograms;
+3. entropy/texture features;
+4. min/max/mean/deviation;
+5. connected-component geometry;
+6. effective DPI;
+7. edge/blur metrics;
+8. only then choose AI or appearance-changing corrections.
+
+This reduces unnecessary processing and makes every suggestion explainable.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
