@@ -1458,3 +1458,120 @@ Stronger conclusions now:
 - production alpha reconstruction/refinement must operate against source-resolution pixels.
 
 Still no storefront merge, no deployment, and no protected Home/Mockup modification.
+
+
+## Research Batch 008 — resampling quality, alpha compositing, preview decoding and geometric diagnostics
+
+The verified corpus has reached 142 individually opened/read unique pages.
+
+### Alpha compositing must preserve hidden-edge color semantics
+
+ImageMagick compositing documentation reinforces an important transparency fact: fully transparent pixels can contain arbitrary RGB values, and alpha composition methods differ in whether those hidden colors can later become visible. This is directly relevant to DTF edge halos.
+
+Implementation rule:
+- do not treat alpha replacement and Porter-Duff compositing as equivalent operations;
+- keep edge RGB and alpha diagnostics separate;
+- test transparent artwork over black, white and checkerboard backgrounds after every edge-changing operation.
+
+### Resampling quality is content-dependent
+
+ImageMagick's resampling documentation shows the trade-off between blocking, aliasing, ringing and blur across filters. scikit-image likewise notes that anti-aliasing is crucial when downscaling.
+
+For DTF Studio:
+- downscale previews with explicit anti-aliasing;
+- do not use nearest-neighbor except for intentionally pixel-art-like inputs;
+- do not assume one interpolation kernel is best for photos, logos and line art;
+- keep production master untouched when creating display-size derivatives.
+
+### Morphological distance is useful beyond binary cleanup
+
+ImageMagick morphology documentation demonstrates Euclidean distance gradients and feathering based on distance from an edge. This strengthens the design for variable choke/spread and controlled alpha feathering.
+
+Potential use:
+- measure distance inward/outward from the alpha boundary;
+- create a physically meaningful edge band;
+- vary underbase opacity or decontamination strength by edge distance rather than a crude fixed blur.
+
+### Distortion and mockup preview are separate from production geometry
+
+ImageMagick distortion examples confirm that perspective/polar/general distortions are resampling operations and can introduce interpolation artifacts.
+
+Policy:
+- a mockup may use perspective/distortion to look realistic;
+- production placement remains an undistorted authoritative 2D print-area transform;
+- never derive print-master pixels back from a distorted mockup render.
+
+### Sharp pipeline details
+
+Sharp provides:
+- composition with explicit blend modes;
+- auto-orientation using EXIF Orientation;
+- pipeline color-space controls;
+- trimming/flattening/threshold/blur/sharpen and related operations.
+
+This supports a deterministic processing core, but the operation order must be explicit in the recipe because orientation, resize, extract and composition order changes output.
+
+### Pillow is useful for validation/testing utilities, not necessarily the main high-throughput engine
+
+Pillow ImageOps/ImageChops/ImageFilter/ImageEnhance provide useful reference implementations for:
+- contain/cover/fit/pad semantics;
+- per-channel arithmetic and difference masks;
+- edge/sharpen/blur filters;
+- controlled contrast/color/brightness/sharpness adjustments.
+
+These are valuable for tests and prototypes. The high-throughput server path still favors libvips/Sharp for large raster jobs unless benchmarking proves otherwise.
+
+### PDF preview sizing must not be confused with print resolution
+
+PDF.js examples state that a PDF viewport at scale 1 is based on the PDF coordinate system and commonly described in 72-DPI-style units for rendering. PDF.js then scales the canvas independently for display/HiDPI.
+
+Critical rule:
+- browser canvas dimensions from a PDF preview are not evidence of the print file's native raster DPI;
+- PDF preflight must inspect page geometry, embedded raster resolution where relevant, and intended physical placement separately.
+
+### Browser image decoding options can alter preview behavior
+
+MDN createImageBitmap exposes explicit options for:
+- EXIF orientation behavior;
+- premultiplyAlpha;
+- colorSpaceConversion;
+- resizeWidth/resizeHeight;
+- resizeQuality.
+
+WebCodecs ImageDecoder can decode in a Worker and may expose progressive/partial decoding where supported, but it is not universally available across browsers.
+
+Architecture consequence:
+- createImageBitmap is a practical cross-browser preview primitive with bounded resize;
+- ImageDecoder can be an optional progressive path behind feature detection;
+- browser decoder choices must be recorded as preview-only behavior, never print-master authority.
+
+### Geometric diagnostics can improve automatic crop/placement suggestions
+
+OpenCV contour features and image moments provide:
+- area;
+- centroid;
+- perimeter;
+- bounding rectangles;
+- convexity and contour approximation.
+
+scikit-image region properties provide a broad measurement layer for labeled regions.
+
+Potential DTF use:
+- identify main foreground component;
+- detect tiny detached islands/noise;
+- compute transparent bounds and visual center separately;
+- recommend placement centered on visual mass rather than only rectangular bounds;
+- flag a design whose important foreground lies close to the printable-area edge.
+
+### Batch 008 current position
+
+New stronger conclusions:
+- alpha color and alpha coverage must be treated separately;
+- preview downsampling needs explicit anti-aliasing policy;
+- edge-distance fields are a useful common primitive for choke/spread/feather analysis;
+- realistic mockup distortion must never feed back into production artwork;
+- PDF preview pixels are not print-resolution evidence;
+- browser decode is bounded and preview-only;
+- visual-centroid/region measurements can improve automated placement suggestions.
+
+No storefront merge, no deployment, and no protected Home/Mockup modification.
