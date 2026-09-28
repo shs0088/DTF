@@ -5829,3 +5829,224 @@ A recommended early analysis pass is now:
 This reduces unnecessary processing and makes every suggestion explainable.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 029 — orientation-first normalization, distance-based physical masks, response-curve validation, and diagnostic-only frequency transforms
+
+The verified corpus now contains 578 individually opened/read unique pages.
+
+### 1. Orientation must be normalized before any geometry or DPI analysis
+
+libvips autorot applies EXIF/orientation metadata to the pixels and removes the orientation tag afterward to prevent accidental double rotation.
+
+DTF ingestion order should therefore be:
+1. inspect source metadata;
+2. preserve immutable original;
+3. create orientation-normalized working copy;
+4. only then calculate width/height, alpha bounds, print placement, effective DPI, crop and mockup geometry.
+
+Otherwise portrait/rotated phone artwork can receive incorrect physical-size and placement calculations.
+
+### 2. Orientation normalization must be versioned, but not treated as an artistic edit
+
+Record:
+- sourceOrientationTag;
+- normalizedRotationDeg;
+- normalizedFlip;
+- normalizedWidthPx/HeightPx.
+
+This is a geometric normalization step, not a user appearance correction.
+
+### 3. Adding an alpha channel is not the same as deriving transparency
+
+libvips addalpha only appends an alpha channel.
+
+The pipeline must distinguish:
+- HAS_NO_ALPHA;
+- OPAQUE_ALPHA_ADDED;
+- SOURCE_ALPHA;
+- DERIVED_ALPHA.
+
+An opaque alpha added for API compatibility must never be misreported as successful background removal or transparency analysis.
+
+### 4. Crop primitives should only execute after authoritative bounds are chosen
+
+libvips extract_area performs an exact rectangular crop and requires the crop to fit the input.
+
+For DTF, compute crop intent first from:
+- alpha coverage bounds;
+- component filtering;
+- required safety margin;
+- product placement rules.
+
+Then use deterministic rectangular extraction. Crop should not itself decide what is meaningful artwork.
+
+### 5. Geometric transforms require explicit interpolation and border policy
+
+OpenCV documents geometric transforms as inverse mappings with two separate concerns:
+- interpolation at fractional source coordinates;
+- extrapolation outside source bounds.
+
+Its available interpolation choices include nearest, linear, cubic, area and Lanczos, and it also supports BORDER_TRANSPARENT in warp operations.
+
+This reinforces the need for every transform recipe to store:
+- interpolation;
+- borderMode;
+- borderColor/alpha where relevant;
+- alphaRepresentation;
+- whether physical resolution metadata was recomputed.
+
+### 6. Downscale and upscale need different interpolation policy
+
+OpenCV specifically notes INTER_AREA as a preferred shrink method, while cubic or linear are typical enlargement choices.
+
+For DTF:
+- web/downscale path may use area/Lanczos-style antialiased reduction;
+- print enlargement should be benchmarked by artwork class;
+- nearest-neighbour is reserved for intentionally pixelated art or diagnostic masks.
+
+### 7. Distance transform is a core primitive for physically meaningful choke/spread
+
+OpenCV distanceTransform computes distance from each foreground pixel to the nearest zero/background pixel, with approximate and precise L2 modes.
+
+This gives a stronger mask model than repeated morphology for larger physical distances:
+- compute signed/paired inside-outside distance;
+- threshold by physical radius converted from mm to pixels;
+- derive choke/spread with consistent Euclidean geometry;
+- compute local stroke radius along the medial structure.
+
+### 8. Distance labels can link pixels to nearest background components
+
+The labeled distance-transform variant can identify the nearest zero pixel or connected zero component.
+
+Potential diagnostic uses:
+- distinguish holes from exterior background;
+- detect narrow gaps between design components;
+- measure which background pocket would disappear first under spread/closing;
+- support minimum-gap analysis.
+
+### 9. Flood-fill and threshold functions remain deterministic fallback tools
+
+OpenCV miscellaneous image transformations include thresholding, adaptive thresholding, flood fill and distance transforms.
+
+For simple backgrounds:
+- border-seeded flood fill constrained by color distance can identify connected background;
+- thresholding can generate seeds/diagnostic masks;
+- learned segmentation is unnecessary when deterministic evidence is strong.
+
+These primitives should remain scoped to simple/controlled cases.
+
+### 10. Lookup tables are a good implementation for reproducible underbase/tone response curves
+
+libvips buildlut creates a piecewise-linear LUT from control points and maplut applies the LUT to selected bands.
+
+This is a strong implementation candidate for:
+- underbase response curves;
+- calibrated opacity-response curves;
+- deterministic tone corrections;
+- printer-profile calibration helper curves.
+
+The curve control points become part of the recipe and can be hashed/versioned.
+
+### 11. Response curves should be validated for monotonicity
+
+libvips hist_ismonotonic tests whether a LUT is monotonic.
+
+For DTF underbase and calibration curves, monotonicity is a useful safety gate when a curve is intended to preserve ordering:
+- increasing input coverage should not unexpectedly reduce output white unless the recipe explicitly allows a non-monotonic artistic/process curve.
+
+Reject or warn on accidental inversions.
+
+### 12. Measurement-derived inverse LUTs can support calibration helpers
+
+libvips invertlut builds a response correction LUT from measured target-versus-real values and explicitly notes its utility for linearizing measurements from a color chart.
+
+This is relevant to calibration-assist tooling:
+- measured patches -> response table -> inverse correction curve.
+
+But the documentation also warns that simple piecewise-linear inversion is poor for non-monotonic responses, so this is a helper, not a replacement for full ICC/device calibration.
+
+### 13. Indexed histograms are useful for connected-component statistics
+
+libvips hist_find_indexed can aggregate image values by an index/label image and is specifically useful together with region labeling for finding blob centers of gravity.
+
+For DTF masks this can support:
+- component area/centroid aggregation;
+- residue cluster statistics;
+- punctuation/detached-element analysis;
+- comparing component geometry before and after processing.
+
+### 14. Histogram plotting is diagnostic UI only
+
+libvips hist_plot converts a histogram-shaped image into a visual plot.
+
+This can power an advanced diagnostics panel for:
+- alpha histogram;
+- luminance histogram;
+- white-underbase coverage histogram.
+
+The plotted image is never production data; the underlying numeric histogram remains authoritative.
+
+### 15. Frequency-domain transforms should stay diagnostic in the first production version
+
+libvips fwfft and invfft provide Fourier-domain round trips.
+
+Potential DTF uses:
+- estimate directional periodic noise;
+- inspect halftone/screen frequency;
+- diagnose resampling aliasing;
+- analyze repeated texture.
+
+Do not apply arbitrary frequency masks to customer artwork automatically; FFT processing can create ringing and boundary artifacts if used carelessly.
+
+### 16. Wrap/shift is useful for Fourier visualization, not normal artwork placement
+
+libvips wrap moves image segments so a selected pixel shifts to a target position, defaulting toward the image center.
+
+This is useful for centering Fourier spectra or cyclic diagnostic data. It must not be confused with ordinary canvas translation because content wraps across edges.
+
+### 17. Nearest-neighbour subsampling is explicitly a speed primitive
+
+libvips subsample is a fast nearest-neighbour integer shrink.
+
+Use:
+- coarse classifier input where quality is noncritical;
+- rough masks;
+- fast diagnostics.
+
+Do not use it for customer-facing previews or print derivatives where aliasing can destroy thin details.
+
+### 18. Canvas expansion must not inherit default black accidentally
+
+libvips gravity places an image in a larger canvas and defaults new pixels to black unless another extend/background is specified.
+
+For transparent DTF artwork:
+- explicitly create transparent pixels with intended hidden-RGB policy;
+- never rely on default black padding before blur/resize/matting;
+- otherwise new black RGB can leak into semitransparent edges.
+
+### 19. False-colour images are useful confidence/diagnostic visualizations
+
+libvips falsecolour can turn scalar maps into easier-to-read visual diagnostics.
+
+Good uses:
+- uncertainty heatmap;
+- alpha-edge risk;
+- effective-DPI risk;
+- blur/noise map.
+
+Never persist false-colour output as part of the print-master path.
+
+### 20. Batch 029 conclusion
+
+The deterministic processing layer is becoming clearer:
+- normalize orientation first;
+- classify alpha semantics explicitly;
+- derive geometry from masks/components before cropping;
+- use distance fields for physical choke/spread/gap logic;
+- use LUTs for reproducible response curves;
+- validate those curves;
+- reserve FFT/false-colour/subsample operations for diagnostics or bounded low-quality stages;
+- explicitly control padding/interpolation at every geometric operation.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
