@@ -387,11 +387,44 @@ Batch 010 counting notes:
 270. https://helpdesk.caldera.com/hc/en-us/articles/30781495911441--How-to-create-a-white-underlay-in-DTG
 271. https://help.cadlink.com/website/filmmaker/en/production/job_tab.htm
 
-Verified unique pages: 271 / 10,000
-Remaining: 9,729
 
 Batch 011 counting notes:
 - All 10 URLs above were individually opened/read.
 - Two pages opened in the same research pass were duplicates already present in the ledger and were excluded.
 - Search-result snippets alone were not counted.
 - This batch prioritizes edge-aware smoothing, topology diagnostics, gamut/proofing, and white-ink/halftone behavior.
+
+
+## Verified Batch 012 — 21 pages — processing algorithms, geometry QA, and proofing
+
+272. https://docs.opencv.org/doc/doxygen/html/da/d17/group__ximgproc__filters.html
+273. https://docs.opencv.org/5.0.0-alpha/d2/d2c/tutorial_sobel_derivatives.html
+274. https://docs.opencv.org/5.0/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html
+275. https://docs.opencv.org/5.0/tutorials/imgproc/morph_lines_detection/morph_lines_detection.html
+276. https://docs.opencv.org/5.0/tutorials/imgproc/threshold/threshold.html
+277. https://docs.opencv.org/5.0/main_modules/imgproc_shape.html
+278. https://docs.opencv.org/5.0/main_modules/imgproc_feature.html
+279. https://docs.opencv.org/5.0/tutorials/imgproc/histograms/histogram_equalization/histogram_equalization.html
+280. https://docs.opencv.org/5.0/tutorials/imgproc/gausian_median_blur_bilateral_filter/gausian_median_blur_bilateral_filter.html
+281. https://docs.opencv.org/5.0/main_modules/imgproc_hist.html
+282. https://docs.opencv.org/5.0/main_modules/classcv_1_1CLAHE.html
+283. https://docs.opencv.org/5.0/main_modules/imgproc_filter.html
+284. https://www.littlecms.com/calcicc/
+285. https://littlecms.com/insighter/
+286. https://www.littlecms.com/img/abstractor/manual.pdf
+287. https://docs.opencv.org/5.0/tutorials/geometry/convex_hull/convex_hull.html
+288. https://docs.opencv.org/5.0/tutorials/imgproc/shapedescriptors/moments/moments.html
+289. https://docs.opencv.org/5.0/tutorials/imgproc/shapedescriptors/find_contours/find_contours.html
+290. https://docs.opencv.org/5.0/js_tutorials/js_imgproc/js_contours/js_contour_features/js_contour_features.html
+291. https://docs.opencv.org/5.0/tutorials/imgproc/shapedescriptors/bounding_rects_circles/bounding_rects_circles.html
+292. https://docs.opencv.org/5.0/tutorials/imgproc/imgtrans/laplace_operator/laplace_operator.html
+
+Verified unique pages: 292 / 10,000
+Remaining: 9,708
+
+Batch 012 counting notes:
+- All 21 URLs above were individually opened/read.
+- A Canny tutorial page was reopened for comparison but excluded because it was already present in the ledger.
+- A failed page open was excluded.
+- Existing duplicate pages from earlier batches were not counted.
+- This batch continues the explicit priority on image-processing methods themselves.
