@@ -2552,3 +2552,139 @@ For every uploaded image, the engine should first build a diagnostic vector befo
 Only then should it propose or run the narrowest correction path.
 
 No storefront merge, deployment, or protected Home/Mockup changes.
+
+
+## Research Batch 014 — edge-aware refinement, topology QA, proofing, and DTF white-ink behavior
+
+The verified corpus now contains 271 individually opened/read unique pages.
+
+### Edge-aware refinement can use confidence, not only a mask
+
+OpenCV's Fast Bilateral Solver accepts a guide image, the signal to be smoothed, and a separate confidence map. This is especially interesting for alpha refinement.
+
+Possible DTF use:
+- source RGB as guide;
+- coarse alpha as the signal;
+- confidence = high in definite foreground/background and low in unknown transition band;
+- solve a smooth matte that respects image edges.
+
+This creates a more principled refinement path than uniformly blurring a mask.
+
+### Fast Global Smoother is useful when the matte must stay globally coherent
+
+The Fast Global Smoother can regularize a signal while respecting a guide image. It is a candidate for:
+- smoothing uneven alpha noise;
+- maintaining a coherent broad matte;
+- avoiding isolated local corrections that create visible seams.
+
+It still requires comparison against guided/bilateral/matting methods because aggressive regularization can flatten fine transparent detail.
+
+### Ximgproc confirms a useful deterministic toolkit
+
+The current OpenCV ximgproc module includes:
+- anisotropic diffusion;
+- edge-preserving filter;
+- Niblack/Sauvola/Wolf/NICK local thresholding;
+- Zhang-Suen and Guo-Hall thinning.
+
+This supports a deterministic fallback toolbox for:
+- noisy scans;
+- line-art cleanup;
+- topology measurement;
+- local thresholding on uneven simple backgrounds.
+
+These are routed by diagnosis, not chained by default.
+
+### Ridge filters can detect elongated thin structures
+
+scikit-image's Frangi/Sato/Meijering/Hessian ridge filters are designed to enhance elongated ridge-like structures at multiple scales.
+
+For DTF these can be used diagnostically on:
+- thin decorative strokes;
+- fine line art;
+- narrow Arabic/Latin calligraphy features;
+- very thin contours vulnerable to background-removal or downsampling damage.
+
+They are not a default visual enhancement; they are a QA/detection primitive.
+
+### Gamut checking should be treated as a warning layer, not a color-changing auto-fix
+
+Little CMS documents gamut checking and soft proofing as distinct operations.
+
+DTF Studio should use gamut checking to flag colors that the selected proof/printer profile may not reproduce, while leaving the source master unchanged.
+
+Suggested status:
+- IN_GAMUT;
+- NEAR_GAMUT_BOUNDARY;
+- OUT_OF_GAMUT_PREVIEW_WARNING.
+
+The actual rendering intent/profile transform remains an explicit operation.
+
+### Soft proofing needs a selected output profile and display transform
+
+Little CMS tooling reinforces that soft proofing means simulating a target output device on a display; it is not just converting an image to CMYK.
+
+Therefore:
+- select an output/printer profile;
+- apply proof transform + display transform;
+- mark the result as an approximation;
+- never store the proof image as the authoritative print master.
+
+### DTF white ink needs multiple independent controls
+
+CADlink and Caldera documentation reinforce that white ink behavior can include:
+- underbase strength;
+- highlight white;
+- maximum white ink;
+- choke;
+- halftone frequency and angle;
+- hole size;
+- varying hole size with transparency;
+- opacity-sensitive/adaptive white;
+- low-opacity cleanup to reduce halos.
+
+This means the DTF preview model should expose these as separate internal parameters rather than one generic "white layer" slider.
+
+### Halftone frequency must be treated as a physical print parameter
+
+CADlink describes halftone frequency in Lines Per Inch (LPI) and angle as a rotation of the halftone cell.
+
+For our engine:
+- LPI must be connected to effective output resolution;
+- a physical minimum dot/hole size must be validated;
+- preview must show the chosen pattern at realistic zoom;
+- halftone remains a derivative, never an overwrite of the normal master.
+
+### Semi-transparent areas need a deliberate policy
+
+Both CADlink and Caldera offer controls that decide whether semi-transparent pixels stay proportional, are treated as opaque, or are modified by transparency-sensitive rules.
+
+Therefore the engine must not silently decide this globally.
+
+Required recipe field:
+semiTransparentPolicy = preserve | opaque_for_white | thresholded | halftone
+
+Default should be preserve unless the selected production profile or user-approved workflow requires otherwise.
+
+### White-ink and color logic must remain distinct
+
+Coverage underbase may depend on grayscale/color values while transparency separately determines where ink should exist.
+
+This strengthens the three-signal model:
+1. foreground color;
+2. continuous alpha/coverage;
+3. derived white-ink response.
+
+The third signal may use both color and alpha, but must be reproducible from an explicit recipe.
+
+### Batch 014 conclusion
+
+The processing engine is converging toward:
+- confidence-aware alpha refinement;
+- topology/line preservation metrics;
+- optional gamut/proof warnings;
+- explicit physical halftone parameters;
+- separate semi-transparent policy;
+- separate color, coverage, and white-ink response.
+
+No storefront merge, deployment, or protected Home/Mockup change.
