@@ -6218,3 +6218,247 @@ For text/logo/line art, any topology change should normally require review unles
 This batch strengthens a key principle: DTF cleanup should preserve **relationships between regions**, not just pixels. A clean-looking mask can still be wrong if it closes a letter hole, merges two nearby strokes, deletes punctuation, or shifts one local boundary too far.
 
 No storefront merge, deployment, or protected Home/Mockup modification.
+
+
+## Research Batch 028 — transform integrity, white/color registration, interpolation boundaries, and mockup-safe warping
+
+The verified corpus now contains 620 individually opened/read unique pages.
+
+### 1. Production artwork and mockup geometry must be treated as separate transform domains
+
+The transform references reinforce a critical architectural rule:
+- the production master remains in an undistorted 2D print-area coordinate system;
+- affine, projective, piecewise-affine, thin-plate-spline, optical-flow, and other warps are preview/mockup operations unless the production process explicitly requires a geometric correction.
+
+This protects the print master from accidental mockup distortion.
+
+### 2. Inverse mapping is the safer mental model for image warping
+
+Both scikit-image and OpenCV explain geometric warping through inverse mapping: for each destination pixel, determine the corresponding source location and interpolate.
+
+For our image engine:
+- record the exact forward placement transform for domain semantics;
+- use an inverse map internally when rasterizing the transformed preview;
+- do not repeatedly transform an already-transformed raster because repeated interpolation compounds blur and alpha damage;
+- whenever possible, re-render from the approved source artifact plus transform metadata.
+
+### 3. Interpolation choice should depend on direction and artwork type
+
+OpenCV recommends INTER_AREA for shrink and cubic/linear options for enlargement; scikit-image supports interpolation orders and anti-aliasing.
+
+DTF implications:
+- photographic downscale: area/anti-aliased reduction candidate;
+- logo/line art: benchmark line retention and ringing, not just perceived smoothness;
+- alpha should follow the explicit premultiply/filter/unpremultiply contract already established;
+- geometric preview transforms should never silently become production resampling decisions.
+
+### 4. Border/edge mode is a first-class artifact parameter
+
+The interpolation-edge examples show materially different results for:
+- constant;
+- edge;
+- wrap;
+- reflect;
+- symmetric.
+
+For transparent DTF artwork, wrap is generally inappropriate because it can pull content from the opposite canvas edge. Edge/reflect can also create false RGB support near a transparent boundary.
+
+Recommended transform primitive:
+- explicit borderMode;
+- explicit border RGBA;
+- safe transparent padding where needed;
+- crop back after filtering/warping.
+
+### 5. Affine transforms are appropriate for placement; projective transforms belong mainly to mockups
+
+Affine transforms preserve straight lines and parallelism, making them suitable for:
+- scale;
+- rotation;
+- translation;
+- simple skew/shear when needed.
+
+Projective transforms preserve lines but not parallelism and are useful for mockup perspective.
+
+Therefore the existing MockupRenderer adapter should use provider-neutral placement data and apply projective/perspective distortion only to the displayed mockup, never to the authoritative print geometry.
+
+### 6. Thin-plate spline and piecewise-affine warps are useful for curved/surface mockups
+
+Thin-plate splines provide smooth nonlinear deformation from sparse control points. Piecewise affine deformation fits local affine transforms over a mesh.
+
+Possible mockup use:
+- cloth curvature;
+- cap crown distortion;
+- localized garment folds;
+- more realistic perspective/deformation.
+
+Production rule:
+- these are display transforms;
+- keep original normalized placement/physical dimensions intact;
+- never derive the print master from the deformed mockup raster.
+
+### 7. Registration can detect white/color-plane translation errors
+
+Phase cross-correlation can recover translation with subpixel precision, while masked normalized cross-correlation supports invalid/masked regions.
+
+This is directly useful for DTF QA when we have:
+- color-plane preview;
+- generated white underbase;
+- scanned/photographed calibration output or aligned reference.
+
+Potential metric:
+- estimated X/Y registration offset;
+- confidence/error;
+- valid overlap mask.
+
+A directional shift should be reported as REGISTRATION_ERROR rather than repaired using symmetric choke.
+
+### 8. Rotation and scale mismatch can be measured separately from translation
+
+Log-polar transforms convert:
+- rotation into angular translation;
+- scale into radial translation.
+
+This gives a possible diagnostic for:
+- print/scan calibration images;
+- provider-generated previews;
+- checking whether a white layer or derived asset was inadvertently scaled/rotated relative to color.
+
+Again, a scale error is not a choke problem.
+
+### 9. ECC alignment is useful for intensity-based plane comparison
+
+OpenCV findTransformECC estimates translation/euclidean/affine/homography alignment based on image intensity similarity and can use masks.
+
+Potential production-calibration use:
+- align photographed/scanned test charts to a digital reference;
+- estimate small affine registration errors;
+- compare before measuring edge/white-plane offsets.
+
+Because ECC can fail without a good initialization under large displacement, it should be a refinement stage after coarse alignment.
+
+### 10. Robust feature matching needs outlier rejection
+
+RANSAC tutorials demonstrate why ordinary least-squares transform estimation can be badly distorted by incorrect correspondences.
+
+For calibration/matching:
+- detect/match features;
+- estimate candidate transform;
+- reject outlier correspondences with RANSAC;
+- validate residual distribution;
+- only then trust the geometric correction/measurement.
+
+This is useful when aligning camera-captured test prints where some feature matches are wrong.
+
+### 11. Masked registration is better when large image regions are invalid
+
+Masked normalized cross-correlation specifically handles missing/invalid pixels without letting the masks themselves corrupt the correlation.
+
+DTF uses:
+- compare only printed calibration marks;
+- exclude transparent/empty canvas;
+- exclude folds/glare in captured test prints;
+- register only stable opaque regions.
+
+This is more robust than filling invalid regions with black/white and correlating normally.
+
+### 12. Optical flow is valuable mainly for diagnosis of nonrigid deformation
+
+Dense optical flow estimates a vector field, not just one global transform.
+
+Potential use:
+- analyze photographed garment/fabric deformation;
+- compare a mockup surface warp against a reference;
+- visualize local geometric distortion.
+
+But it is not a good default correction for production artwork because it can introduce nonrigid geometry that has no direct print-space meaning.
+
+### 13. Image stitching reinforces the importance of one reference coordinate system
+
+The stitching example registers multiple images to a reference and composes transforms into a global domain.
+
+The same principle should apply to DTF:
+- one stable print-area coordinate system;
+- every mockup/provider view derives from it;
+- do not create chains of independent transforms between successive preview images.
+
+This reduces accumulated interpolation and coordinate drift.
+
+### 14. Fundamental-matrix/stereo geometry is low priority for the initial DTF engine
+
+The fundamental-matrix material is relevant to multi-view 3D reconstruction, but it is not necessary for the first production-prepress implementation.
+
+This is a useful negative result:
+- do not add stereo-vision complexity simply because geometric libraries expose it;
+- 2D normalized placement plus explicit mockup warps is sufficient for the current scope.
+
+### 15. Phase unwrapping is also low priority for ordinary DTF artwork
+
+Phase unwrapping is specialized for modulo-2π phase data and similar scientific signals. It does not solve our normal raster-artwork preparation problems.
+
+It should not enter the initial processing stack.
+
+### 16. Transform integrity should be measured after every appearance-changing warp
+
+Add a TransformIntegrityReport for any transformed candidate:
+- transformType;
+- matrix/controlPointHash;
+- interpolation;
+- borderMode;
+- sourceArtifactId/hash;
+- outputDimensions;
+- alphaRepresentation;
+- boundingBoxDelta;
+- centroidDelta;
+- minStrokeBefore/After;
+- componentCountDelta;
+- edgeEnergyRatio;
+- effectiveDpiBefore/After.
+
+This makes warping auditable.
+
+### 17. Re-render from source rather than repeatedly editing transformed rasters
+
+The combined findings strongly favor a non-destructive model:
+source artifact + recipe + placement/warp parameters -> rendered derivative.
+
+For example:
+- changing mockup scale should re-render from the approved transparent artifact;
+- changing rotation should not rotate yesterday's already-rotated preview;
+- changing print size should recompute from the approved master and effective-DPI rules.
+
+This prevents interpolation debt.
+
+### 18. White-plane registration should use directional correction, not geometry erosion when possible
+
+CADlink supports X/Y plane shifts separately from choke in its white/color layer controls. Registration sources reinforce why these are different operations.
+
+Internal diagnosis:
+- symmetric white overshoot around all sides -> choke candidate;
+- mostly one-sided offset -> X/Y registration shift;
+- changing offset across image -> affine/nonlinear registration issue;
+- white density visible without geometric overshoot -> density/underbase issue.
+
+### 19. Mockup realism and print correctness should have separate quality metrics
+
+Mockup metric:
+- perceived surface fit;
+- perspective/curvature plausibility;
+- alignment to visible garment landmarks.
+
+Print metric:
+- physical size;
+- normalized placement;
+- effective DPI;
+- print-area bounds;
+- alpha/topology/color integrity.
+
+A very realistic mockup can coexist with a wrong print placement if these domains are not separated.
+
+### 20. Batch 028 conclusion
+
+The major new architectural rule is:
+**store placement and print geometry as clean mathematical data, and treat raster warps as disposable derivatives.**
+
+Registration tools should be used mainly to measure and diagnose real output/calibration or to align external imagery, while mockup warps should never become the source of truth for the print master.
+
+No storefront merge, deployment, or protected Home/Mockup modification.
