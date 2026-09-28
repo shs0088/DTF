@@ -18,6 +18,9 @@ final class Preflight {
         $brisque = isset($m['brisqueScore']) ? max(0.0, min(100.0, (float)$m['brisqueScore'])) : null;
         $trimapAvailable = (bool)($m['trimapAvailable'] ?? false);
         $edgeColorContamination = (bool)($m['edgeColorContamination'] ?? false);
+        $psfConfidence = isset($m['psfConfidence']) ? max(0.0, min(1.0, (float)$m['psfConfidence'])) : 0.0;
+        $hausdorffDeltaPx = isset($m['hausdorffDeltaPx']) ? max(0.0, (float)$m['hausdorffDeltaPx']) : null;
+        $jInvariantLoss = isset($m['jInvariantLoss']) ? max(0.0, (float)$m['jInvariantLoss']) : null;
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -90,7 +93,11 @@ final class Preflight {
             'qualityDiagnostics' => [
                 'brisqueScore'=>$brisque,
                 'brisqueRole'=>'diagnostic-only',
-                'brisqueMayAcceptOrRejectPrintMaster'=>false
+                'brisqueMayAcceptOrRejectPrintMaster'=>false,
+                'hausdorffBoundaryDeltaPx'=>$hausdorffDeltaPx,
+                'jInvariantCalibrationLoss'=>$jInvariantLoss,
+                'boundaryMetricRole'=>'preservation-gate',
+                'selfSupervisedDenoiseCalibrationAvailable'=>$jInvariantLoss !== null
             ],
             'restorationEvidence' => [
                 'noiseSigma'=>$noiseSigma,
@@ -99,6 +106,8 @@ final class Preflight {
                 'blurRadiusY'=>$blurY,
                 'blurAnisotropy'=>$blurAnisotropy,
                 'recommendedAction'=>$restorationAction,
+                'psfConfidence'=>$psfConfidence,
+                'deconvolutionCandidate'=>$psfConfidence >= 0.8 && $blurAnisotropy !== null,
                 'autoDeblurAllowed'=>false,
                 'sharpenWithoutEvidenceAllowed'=>false
             ],
