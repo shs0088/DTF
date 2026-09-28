@@ -451,11 +451,44 @@ Batch 012 counting notes:
 311. https://scikit-image.org/docs/stable/auto_examples/edges/plot_skeleton.html
 312. https://docs.opencv.org/4.13.0/d3/dc0/group__imgproc__shape.html
 
-Verified unique pages: 312 / 10,000
-Remaining: 9,688
 
 Batch 013 counting notes:
 - All 20 URLs above were individually opened/read in this research pass.
 - The Caldera DTF underlay page, current scikit-image morphology API, distance-transform tutorial, scikit-image package index, and remove-objects tutorial were reopened for comparison but excluded because they were already in the ledger.
 - Search-result snippets alone were not counted.
 - This batch intentionally prioritizes how image pixels, alpha, foreground color and structural masks are processed.
+
+
+## Verified Batch 014 — 21 pages — matting implementation, foreground recovery, alpha compositing, and DTF underbase
+
+313. https://pubmed.ncbi.nlm.nih.gov/18084055/
+314. https://github.com/MarcoForte/closed-form-matting
+315. https://www.vecspine.com/guides/dtf-white-underbase.html
+316. https://developer.apple.com/documentation/coreimage/ciimage/premultiplyingalpha()?language=objc
+317. https://developer.apple.com/documentation/accelerate/compositing-images-with-alpha-blending?changes=l_2&language=objc
+318. https://github.com/webtoon/matteformer
+319. https://github.com/nowsyn/SIM
+320. https://github.com/PeterL1n/RobustVideoMatting
+321. https://github.com/PeterL1n/BackgroundMattingV2
+322. https://github.com/hustvl/ViTMatte
+323. https://github.com/MarcoForte/FBA_Matting
+324. https://github.com/poppinace/indexnet_matting
+325. https://github.com/Yaoyi-Li/GCA-Matting/blob/master/README.md
+326. https://github.com/MarcoForte/FBA_Matting/blob/master/demo.py
+327. https://github.com/99991/matting
+328. https://github.com/nathanbain314/alphaMatting
+329. https://github.com/bsuleymanov/alpha-matting
+330. https://github.com/PeterL1n/RobustVideoMatting/blob/master/model/model.py
+331. https://github.com/webtoon/matteformer/blob/master/inference.py
+332. https://github.com/PeterL1n/BackgroundMattingV2/blob/master/model/model.py
+333. https://github.com/hustvl/ViTMatte/blob/main/inference.py
+
+Verified unique pages: 333 / 10,000
+Remaining: 9,667
+
+Batch 014 counting notes:
+- Every URL above was individually opened/read successfully.
+- Failed CVF/IEEE page opens were excluded from the count even when search snippets were available.
+- The already-counted MODNet repository root and PyMatting pages were excluded.
+- Mirror/fork duplicates of FBA, RobustVideoMatting, and BackgroundMattingV2 were not counted; only one canonical implementation plus materially distinct source-code pages were retained.
+- This batch prioritizes the actual image-matting and edge-processing implementation paths.
