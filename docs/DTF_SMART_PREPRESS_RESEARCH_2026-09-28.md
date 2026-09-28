@@ -2169,3 +2169,194 @@ The core philosophy is now more specific:
 - never chain generic denoise + sharpen + contrast + background removal on every upload.
 
 This is still research. No storefront merge, no deployment, and no protected Home/Mockup changes.
+
+
+## Research Batch 012 — deeper study of the image-processing methods themselves
+
+The verified corpus now contains 241 individually opened/read unique pages. This batch continues the requested shift toward actual pixel-processing algorithms.
+
+### 1. Denoising should have at least three technical families, not one slider
+
+OpenCV's current denoising documentation exposes both Non-Local Means and TV-L1. The two methods have different assumptions:
+- NLM searches for similar patches and averages them; it is strong when an image contains repeated local structures, but stronger filtering removes detail and costs more computation.
+- TV-L1 is variational: it favors spatial smoothness while staying close to observed data; it can remove outliers while tending toward piecewise-smooth regions.
+
+The router should therefore distinguish likely noise classes and texture importance before choosing a denoiser.
+
+For color NLM, OpenCV converts to CIELAB and denoises luminance and chroma components separately. This is a useful design pattern: luminance detail and chroma noise should not necessarily share one strength parameter.
+
+### 2. NL-Bayes is a meaningful advanced candidate for photographic art
+
+IPOL's NL-Bayes improves on plain NLM by estimating a Gaussian model/covariance for groups of similar patches. This makes it a useful research candidate where repeated photographic texture must be preserved.
+
+It is probably too expensive for a default synchronous path, but could be evaluated in an offline quality benchmark against:
+- fast NLM;
+- wavelet denoising;
+- bilateral/guided filtering;
+- modern learned denoisers.
+
+### 3. Parameter-free or self-tuned denoising is preferable to arbitrary UI defaults
+
+The IPOL parameter-free NLM work reinforces the idea that denoising strength can be derived from noise estimates/training rather than forcing customers to guess a number.
+
+Combined with the previously studied J-Invariance, the product direction becomes:
+- estimate noise/quality signals;
+- generate a small bounded candidate set;
+- choose a conservative candidate automatically only when confidence is high;
+- otherwise show two or three preview choices.
+
+### 4. Matting should use explicit known/unknown regions
+
+Closed-form natural image matting models opacity in an unknown transition region using foreground/background constraints. This strengthens the trimap architecture for difficult hair/fur/smoke edges.
+
+Proposed matte representation:
+- definite foreground alpha = 1;
+- definite background alpha = 0;
+- unknown band solved/refined by matting;
+- RGB foreground decontamination remains a separate step.
+
+A segmentation model can create the first trimap by eroding/dilating its coarse mask:
+- eroded core -> definite foreground;
+- exterior beyond dilated mask -> definite background;
+- band between them -> unknown.
+
+### 5. Top-hat morphology is useful for defect detection, not only cleanup
+
+White top-hat extracts small bright structures relative to their neighborhood. The complementary black top-hat concept can highlight small dark structures.
+
+DTF diagnostic uses:
+- detect tiny white residue/specks around a removed background;
+- find pinholes or small detached artifacts;
+- detect isolated dust-like defects before deciding whether morphology/inpainting is justified.
+
+This should primarily produce a defect map; automatic removal depends on object size and whether the component is connected to meaningful artwork.
+
+### 6. Butterworth frequency filtering gives a controlled frequency-domain diagnostic
+
+Butterworth low/high-pass filtering exposes cutoff frequency and order, with padding needed to reduce DFT boundary artifacts.
+
+Potential DTF uses:
+- estimate how much of a design's visual energy is fine detail versus broad tone;
+- distinguish coarse blur from missing high-frequency detail;
+- create diagnostic high-frequency maps for edge/detail analysis.
+
+It should not become a generic visual effect applied to masters.
+
+### 7. Mean, percentile mean and bilateral mean reinforce content-aware smoothing
+
+scikit-image's rank-filter examples show that ordinary mean smoothing affects both background and detail, while bilateral-style local means preserve higher-frequency structures better.
+
+This supports a processing rule:
+- use plain mean/box blur mainly for diagnostics or intentionally low-frequency masks;
+- prefer edge-aware methods for actual artwork cleanup;
+- never smooth text/logo edges simply because noise was detected elsewhere in the image.
+
+### 8. FSR inpainting adds a frequency-domain repair option
+
+OpenCV's xphoto FSR inpainting reconstructs missing pixels using a frequency-selective model. Compared with biharmonic inpainting, this gives us another specialized candidate for small damaged regions.
+
+Policy remains strict:
+- inpainting is allowed only on an explicit defect mask;
+- small dust/scratch/pinhole repairs can be auto-suggested;
+- faces, typography, logos and large missing regions require manual approval and should not be silently invented.
+
+### 9. Ordered dithering is a strong first DTF halftone implementation
+
+ImageMagick's ordered-dither documentation provides named threshold maps, including angled/orthogonal halftone patterns, and explicitly demonstrates dithering only the alpha channel.
+
+This is very useful for DTF because we can preserve RGB while converting continuous alpha into dot occupancy.
+
+V1 halftone candidate:
+- operate on alpha only;
+- selectable threshold map/cell size;
+- keep RGB unchanged;
+- calculate physical dot/cell size from effective DPI;
+- reject settings that create dots below a configurable printer/process limit;
+- save as a derivative, never overwrite normal master.
+
+Floyd-Steinberg can also be tested, but its directional error-diffusion texture should not be assumed superior to ordered patterns for transfer printing.
+
+### 10. Resampling must be benchmarked in both perceptual and alpha-edge terms
+
+ImageMagick's Nicolas Robidoux resampling guidance highlights that filter choice, linear-light versus nonlinear-light processing, HDRI intermediate precision and negative-lobe filters all influence resize artifacts.
+
+This suggests a benchmark matrix for DTF artwork:
+- photo enlargement;
+- logo enlargement;
+- transparent anti-aliased text;
+- thin white/black lines;
+- glow/smoke alpha;
+- downsample to web preview.
+
+Metrics should include:
+- edge overshoot/ringing;
+- alpha halo width;
+- Delta-E in opaque foreground;
+- SSIM/PSNR only as supporting metrics;
+- text/line continuity.
+
+### 11. Niblack/Sauvola should be limited to locally varying backgrounds and line/text art
+
+These methods calculate local thresholds from neighborhood statistics and are useful when illumination/background is uneven.
+
+DTF uses:
+- scanned lettering;
+- photographed sketches;
+- monochrome logos on nonuniform paper/background;
+- recovery of dark lines without forcing one global threshold.
+
+They are not general photo background-removal methods.
+
+### 12. Edge-preserving filtering has several classes worth benchmarking
+
+OpenCV ximgproc provides guided, joint bilateral, fast global smoother, L0 smoothing and rolling-guidance filters.
+
+Potential roles:
+- guided filter: refine alpha/masks using original RGB structure;
+- joint bilateral: smooth one signal while respecting edges in a guide image;
+- rolling guidance: remove small structures/noise while retaining strong edges;
+- L0 smoothing: simplify strong structures, potentially useful diagnostically for logo/flat-art classification;
+- fast global smoother: candidate for globally coherent edge-aware smoothing.
+
+These need synthetic edge/halo tests before any automatic use.
+
+### 13. Non-photorealistic detail enhancement is not a default "quality improvement"
+
+OpenCV detailEnhance/edgePreservingFilter can make images look subjectively sharper or more stylized. But they intentionally alter appearance.
+
+Therefore:
+- edgePreservingFilter may be useful as a processing primitive in controlled cases;
+- detailEnhance/stylization/pencilSketch are not automatic prepress fixes;
+- any use of them belongs to an optional creative-edit path, not preflight correction.
+
+### 14. White-balance algorithms are risky for designed artwork
+
+OpenCV supports Gray-world, SimpleWB and learning-based white balance. Gray-world assumes average scene color should be gray, which can be reasonable for photographs but wrong for intentionally color-biased artwork.
+
+Policy:
+- never auto-white-balance logos/illustrations;
+- for photographs, detect likely color cast and only suggest a correction;
+- keep ICC/profile handling separate from photographic white-balance correction;
+- measure resulting color drift and require approval for appearance-changing corrections.
+
+### 15. Poisson/seamless local editing should stay out of the automatic master path
+
+OpenCV's seamless cloning, local color change, illumination change and texture flattening are useful editing tools, but they can materially alter artwork. Texture flattening deliberately removes texture while preserving selected edges; illuminationChange modifies gradient fields.
+
+These belong, if ever exposed, in an advanced/manual editing mode. They are not safe automatic DTF prepress operations.
+
+### Batch 012 processing architecture update
+
+The image-processing router is now better defined around measurable defect classes:
+- NOISE -> NLM/wavelet/bilateral/NL-Bayes candidate path;
+- BLUR -> blur metric -> conservative sharpen/deconvolution candidate;
+- BACKGROUND -> segmentation -> trimap -> matting -> decontamination;
+- SPECKS/PINHOLES -> top-hat/component analysis -> morphology/inpainting;
+- UNEVEN SIMPLE BACKGROUND -> Sauvola/Niblack/local threshold;
+- ALPHA SOFTNESS -> preserve continuous alpha -> guided/matting refinement;
+- HALFTONE NEED -> alpha-only deterministic threshold-map derivative;
+- COLOR CAST PHOTO -> optional white-balance suggestion;
+- COLOR PROFILE -> explicit ICC transform, separate from white balance;
+- LOW EFFECTIVE DPI -> resample/upscale path, not sharpen masquerading as resolution.
+
+No final algorithm stack is locked yet. No storefront merge, deployment, or protected Home/Mockup modification.
