@@ -744,11 +744,44 @@ Batch 021 counting notes:
 497. https://libtiff.gitlab.io/libtiff/functions/TIFFReadRGBATile.html
 498. https://libtiff.gitlab.io/libtiff/addingtags.html
 
-Verified unique pages: 498 / 10,000
-Remaining: 9,502
 
 Batch 022 counting notes:
 - Every URL above was individually opened/read successfully in the research pass.
 - Failed opens and search-result-only snippets were excluded.
 - Pages already present in the corpus were filtered before counting.
 - This batch focuses on production file semantics: associated vs unassociated alpha, TIFF ExtraSamples, Photoshop alpha/spot channels, PDF soft masks, color-profile assignment/conversion, and soft-proof limitations.
+
+
+## Verified Batch 023 — 20 pages — alpha I/O semantics, PSD/spot-channel preservation, local contrast, and region labeling
+
+499. https://openimageio.readthedocs.io/en/latest/builtinplugins.html
+500. https://openimageio.readthedocs.io/en/main/maketx.html
+501. https://www.loc.gov/standards/mix/docs/Z39_87_200x_2nd_ballot_May1_2006.pdf
+502. https://developer.adobe.com/photoshop/uxp/2022/ps-reference/objects/saveoptions/photoshopsaveoptions
+503. https://developer.adobe.com/photoshop/uxp/2022/ps-reference/media/imaging
+504. https://developer.adobe.com/photoshop/uxp/2022/ps-reference/classes/channels
+505. https://developer.adobe.com/photoshop/uxp/ps_reference/classes/document/
+506. https://developer.adobe.com/photoshop/uxp/2022/ps-reference/modules/constants
+507. https://developer.adobe.com/firefly-services/docs/photoshop/guides/photoshop-v2/v1-to-v2/output-types-migration
+508. https://www.libvips.org/API/8.17/method.Image.icc_import.html
+509. https://developer.adobe.com/photoshop/uxp/ps_reference/classes/selection/
+510. https://developer.adobe.com/photoshop/uxp/ps_reference/changelog/
+511. https://developer.adobe.com/photoshop/uxp/2022/ps-reference/classes/preferences/preferencesfilehandling
+512. https://developer.adobe.com/photoshop/uxp/2022/ps-reference/classes/channel
+513. https://developer.adobe.com/photoshop/uxp/2022/ps-reference/objects/saveoptions/jpegsaveoptions
+514. https://helpx.adobe.com/photoshop/using/duotones.html
+515. https://openimageio.readthedocs.io/en/latest/imageinput.html
+516. https://www.libvips.org/API/8.17/method.Image.hist_equal.html
+517. https://www.libvips.org/API/8.17/method.Image.hist_local.html
+518. https://www.libvips.org/API/8.17/method.Image.labelregions.html
+
+Verified unique pages: 518 / 10,000
+Remaining: 9,482
+
+Batch 023 counting notes:
+- All 20 URLs above were individually opened/read successfully.
+- Pages already present in the corpus were excluded before counting.
+- An Adobe Channel URL that returned an internal error was excluded and replaced by the working canonical channel page.
+- OpenImageIO ImageOutput/stdmetadata pages already present in the corpus were excluded.
+- Search-result snippets alone were not counted.
+- This batch focuses on how libraries actually read/write associated versus unassociated alpha, preserve alpha/spot channels, carry ICC/profile metadata, and perform local contrast / connected-region analysis.
