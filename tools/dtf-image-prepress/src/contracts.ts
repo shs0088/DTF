@@ -127,6 +127,9 @@ export interface ProcessingPlan {
 
 export interface CandidateProvenance {
   sourceSha256: string;
+  sourceFacts: ImageFacts;
+  candidateSha256: string;
+  candidateFacts: ImageFacts;
   createdAt: string;
   operations: Array<{ name: string; version?: string; parameters?: Record<string, unknown> }>;
   preflight: PreflightResult;
