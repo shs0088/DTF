@@ -2,12 +2,14 @@ import { describe, expect, test } from "bun:test";
 import {
   buildBen2OnnxLocalSpec,
   buildPaddleOcrLocalSpec,
+  buildPyMattingForegroundSpec,
   buildRealEsrganNcnnSpec,
   buildResvgSpec,
   buildTesseractTsvSpec,
   buildVTracerSpec,
   parseBen2OnnxLocalReport,
   parsePaddleOcrNormalizedJson,
+  parsePyMattingForegroundReport,
   parseTesseractTsv,
 } from "../src/local-tool-adapters";
 import { assertLocalProcessSpec } from "../src/local-process-runner";
@@ -101,6 +103,34 @@ describe("local tool adapters", () => {
       }),
     );
     expect(parsed.preprocess.mean_std_normalization).toBe(false);
+  });
+
+  test("builds PyMatting foreground reconstruction without changing alpha contract", () => {
+    const spec = buildPyMattingForegroundSpec({
+      pythonExecutablePath: "/opt/dtf/python/bin/python3",
+      wrapperScriptPath: "/opt/dtf/adapters/pymatting_foreground_local.py",
+      sourcePath: "/work/source.png",
+      alphaMaskPath: "/work/alpha.png",
+      outputRgbaPath: "/work/foreground.png",
+      outputJsonPath: "/work/foreground.json",
+    });
+    expect(() => assertLocalProcessSpec(spec)).not.toThrow();
+
+    const parsed = parsePyMattingForegroundReport(
+      JSON.stringify({
+        engine: "pymatting-foreground-ml",
+        input: "/work/source.png",
+        alpha: "/work/alpha.png",
+        output_rgba: "/work/foreground.png",
+        size: [4800, 5400],
+        regularization: 0.00001,
+        semi_transparent_ratio: 0.04,
+        alpha_preserved: true,
+        foreground_rgb_reconstructed: true,
+        output_alpha_mode: "straight-unassociated",
+      }),
+    );
+    expect(parsed.alpha_preserved).toBe(true);
   });
 
   test("builds PaddleOCR only with explicit local model directories", () => {
