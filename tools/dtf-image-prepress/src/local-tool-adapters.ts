@@ -289,3 +289,86 @@ export function parsePaddleOcrNormalizedJson(value: string): PaddleOcrNormalized
   }
   return parsed;
 }
+
+
+export function buildBen2OnnxLocalSpec(input: {
+  pythonExecutablePath: string;
+  wrapperScriptPath: string;
+  modelPath: string;
+  sourcePath: string;
+  outputMaskPath: string;
+  outputJsonPath: string;
+  device?: "cpu" | "cuda";
+}): LocalProcessSpec {
+  requireAbsoluteFile(input.wrapperScriptPath, "BEN2 wrapper");
+  requireAbsoluteFile(input.sourcePath, "BEN2 source");
+  requireAbsoluteFile(input.outputMaskPath, "BEN2 output mask");
+  requireAbsoluteFile(input.outputJsonPath, "BEN2 output JSON");
+  const modelPath = assertLocalModelPath(input.modelPath);
+  if (!modelPath.toLowerCase().endsWith(".onnx")) {
+    throw new Error("BEN2 production adapter accepts an ONNX model path only.");
+  }
+
+  return baseSpec({
+    id: "ben2-onnx-local",
+    executablePath: input.pythonExecutablePath,
+    args: [
+      input.wrapperScriptPath,
+      "--model",
+      modelPath,
+      "--input",
+      input.sourcePath,
+      "--output-mask",
+      input.outputMaskPath,
+      "--output-json",
+      input.outputJsonPath,
+      "--device",
+      input.device ?? "cpu",
+    ],
+    cwd: dirname(input.outputMaskPath),
+    timeoutMs: 180_000,
+  });
+}
+
+export interface Ben2OnnxLocalReport {
+  engine: "ben2-onnx";
+  model_path: string;
+  input_path: string;
+  output_mask: string;
+  input_name: string;
+  declared_input_shape: Array<number | string | null>;
+  runtime_input_shape: number[];
+  output_shape: number[];
+  original_size: number[];
+  preprocess: {
+    resize: [number, number];
+    rgb: boolean;
+    scale: string;
+    mean_std_normalization: boolean;
+  };
+  postprocess: {
+    min: number;
+    max: number;
+    normalization: string;
+    resize_to_original: boolean;
+  };
+  providers: string[];
+}
+
+export function parseBen2OnnxLocalReport(value: string): Ben2OnnxLocalReport {
+  const parsed = JSON.parse(value) as Ben2OnnxLocalReport;
+  if (parsed.engine !== "ben2-onnx") {
+    throw new Error("Invalid BEN2 ONNX local report.");
+  }
+  if (
+    parsed.preprocess?.resize?.[0] !== 1024 ||
+    parsed.preprocess?.resize?.[1] !== 1024 ||
+    parsed.preprocess?.mean_std_normalization !== false
+  ) {
+    throw new Error("BEN2 preprocessing report does not match the pinned local adapter contract.");
+  }
+  if (!Array.isArray(parsed.providers) || parsed.providers.length === 0) {
+    throw new Error("BEN2 report must include the local ONNX Runtime provider list.");
+  }
+  return parsed;
+}
