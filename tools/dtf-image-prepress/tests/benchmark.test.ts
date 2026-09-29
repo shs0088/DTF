@@ -30,6 +30,41 @@ describe("candidate benchmark", () => {
     expect(result.hardFailures).toContain("topology changed");
   });
 
+  test("hard-fails alpha leakage only when a calibrated limit exists", () => {
+    const result = benchmarkCandidate(
+      {
+        id: "halo",
+        effectiveDpi: 300,
+        topologyPreserved: true,
+        outsideLeakRatio: 0.04,
+        lostOpaqueRatio: 0,
+      },
+      {
+        criticalDpi: 150,
+        targetDpi: 300,
+        minimumTextPreservation: 0.98,
+        maximumEdgeDisplacementPx: 2,
+        maximumColorDeltaE00: 5,
+        maximumAlphaFringeScore: 0.05,
+        maximumOutsideLeakRatio: 0.01,
+        maximumLostOpaqueRatio: 0.01,
+      },
+    );
+    expect(result.eligible).toBe(false);
+    expect(result.hardFailures.join(" ")).toContain("outside alpha leakage");
+  });
+
+  test("reports uncalibrated leakage as warning instead of inventing a universal threshold", () => {
+    const result = benchmarkCandidate({
+      id: "needs-local-calibration",
+      effectiveDpi: 300,
+      topologyPreserved: true,
+      outsideLeakRatio: 0.02,
+    });
+    expect(result.eligible).toBe(true);
+    expect(result.warnings.join(" ")).toContain("calibrated acceptance threshold");
+  });
+
   test("ranks eligible candidates before rejected candidates", () => {
     const ranked = rankCandidates([
       {
