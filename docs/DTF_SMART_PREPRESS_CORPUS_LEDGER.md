@@ -1693,3 +1693,66 @@ Key transfer: CUPS raster handoff is a device contract carrying hardware resolut
 Implementation transfer: Smart Prepress research contract 1.1.0 adds DeviceRasterContractReport, PrinterPlaneAndWeaveReport, RipSpotWhiteHandoffReport and ProductionProofTransformReport, with guards for incomplete raster metadata, unverified plane ordering, missing required white channel, unknown spot polarity and changed physical-size/DPI metadata.
 
 GitHub ledger: 1043 / 10,000. Research continuity: 1070 / 10,000.
+
+
+## Verified Batch 064 — 51 materially distinct pages/files — image-only pre-RIP, Adobe/Autodesk/MATLAB, AI editing and open-source matting/restoration
+
+1044. https://helpx.adobe.com/uk/photoshop/desktop/make-selections/refine-modify-selections/refine-your-selection-and-mask.html
+1045. https://helpx.adobe.com/photoshop/desktop/repair-retouch/clean-restore-images/enhance-image-quality-with-generative-upscale.html
+1046. https://helpx.adobe.com/photoshop/desktop/create-open-import-images/create-images/use-reference-images-for-consistent-results.html
+1047. https://helpx.adobe.com/firefly/web/unified-generation-and-editing-experience/generate-and-edit-content.html
+1048. https://helpx.adobe.com/au/photoshop/desktop/make-selections/automatic-color-based-selections/make-improved-hair-selections.html
+1049. https://www.mathworks.com/help/images/resize-an-image.html
+1050. https://www.mathworks.com/help/images/what-is-guided-image-filtering.html
+1051. https://www.mathworks.com/help/images/ref/grabcut.html
+1052. https://www.mathworks.com/help/images/ref/deconvlucy.html
+1053. https://www.mathworks.com/help/images/ref/imsharpen.html
+1054. https://www.mathworks.com/help/images/ref/wiener2.html
+1055. https://www.mathworks.com/help/images/ref/regionfill.html
+1056. https://www.mathworks.com/help/images/ref/imgradient.html
+1057. https://www.mathworks.com/help/images/ref/imbinarize.html
+1058. https://www.mathworks.com/help/images/ref/deltae.html
+1059. https://help.autodesk.com/cloudhelp/2026/ENU/MAXDEV-Developer/files/3ds_max_sdk_features/rendering/working_with_bitmaps/pre-multiplied_alpha.html
+1060. https://help.autodesk.com/cloudhelp/ENU/AR-Core/files/arnold_user_guide_ac_denoising_html.html
+1061. https://help.autodesk.com/cloudhelp/ENU/AR-Core/files/ac-denoising/arnold_user_guide_ac_denoising_ac_denoiser_oidn_html.html
+1062. https://help.autodesk.com/cloudhelp/2026/ENU/Maya-Rendering/files/GUID-B260195C-A0FE-4F51-9EA2-099B61B7725A.htm
+1063. https://help.autodesk.com/cloudhelp/2026/ENU/Flame-Action/files/Action-Selectives/GUID-A4A91A5E-A2F2-48CE-8405-0E4D6CF436CC.html
+1064. https://help.autodesk.com/cloudhelp/2026/ENU/MAXDEV-CPP-API-REF/group__bitmap_flags.html
+1065. https://help.autodesk.com/cloudhelp/2025/ENU/3DSMax-Manage-Scenes/files/GUID-CF062571-6C55-4DC6-A48B-9B659CE42CF6.htm
+1066. https://help.autodesk.com/cloudhelp/ENU/AR-Core/files/arnold_user_guide_ac_post_processing_html.html
+1067. https://www.photopea.com/learn/refine-edge
+1068. https://help.photoroom.com/en/articles/16033415-how-to-use-background-remover
+1069. https://www.remove.bg/a/api-docs
+1070. https://clipdrop.co/apis/docs/remove-background
+1071. https://clipdrop.co/apis/docs/cleanup
+1072. https://clipdrop.co/apis/docs/image-upscaling
+1073. https://docs.photoroom.com/remove-background-api-basic-plan/download-the-segmentation-mask.md
+1074. https://docs.photoroom.com/remove-background-api-basic-plan/green-screen-despill.md
+1075. https://docs.photoroom.com/image-editing-api-plus-plan/edit-with-ai.md
+1076. https://github.com/facebookresearch/sam2/blob/main/README.md
+1077. https://github.com/facebookresearch/sam2/blob/main/sam2/automatic_mask_generator.py
+1078. https://github.com/Sanster/IOPaint/blob/main/README.md
+1079. https://github.com/Comfy-Org/ComfyUI/blob/master/nodes.py
+1080. https://github.com/comfyorg/comfyui-crop-and-stitch/blob/main/README.md
+1081. https://github.com/advimman/lama/blob/main/README.md
+1082. https://github.com/ZhengPeng7/BiRefNet/blob/main/README.md
+1083. https://github.com/np-csu/AlphaMatting/blob/master/README.md
+1084. https://github.com/pangxiaobin/image-matting/blob/main/README.md
+1085. https://github.com/Ketbome/alphaveil/blob/main/README.md
+1086. https://github.com/MarkoUnity/NanoAlpha/blob/main/README.md
+1087. https://github.com/XIAOTsune/MatteBackgroundFree/blob/main/README.md
+1088. https://github.com/thhanns/local-background-remover/blob/main/README.md
+1089. https://github.com/AdaWong2/precision-cutout/blob/main/README.md
+1090. https://github.com/shauryadata/cleanplate/blob/main/README.md
+1091. https://github.com/cueqzapper/PICORN-Background-Remover/blob/main/README.md
+1092. https://github.com/bsuleymanov/alpha-matting/blob/main/README.md
+1093. https://github.com/poppuppy/alpha-free-matting/blob/main/README.md
+1094. https://github.com/MarcoForte/FBA_Matting/blob/master/README.md
+
+All fifty-one pages/files above were individually opened/read and were still absent after a final canonical comparison against the 1043-entry ledger. Search was deliberately rotated through Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian, Turkish and other languages; localized mirrors and previously represented pages were excluded rather than counted. This batch deliberately limits Smart Prepress responsibility to image preparation before an external RIP performs printing.
+
+Key transfer: Adobe Select & Mask/Refine Hair reinforces separate semantic selection, edge refinement and multi-background inspection; Adobe Generative Upscale requires a provenance distinction between detail-preserving/restorative and creative-detail generation, while Generative Fill/reference-image workflows require source comparison and full re-preflight. MATLAB adds deterministic reference algorithms for antialiased resize, guided edge-preserving alpha refinement, GrabCut segmentation, Lucy-Richardson deconvolution with PSF evidence, adaptive Wiener denoise with noise assumptions, masked region fill, gradient direction, adaptive threshold polarity/sensitivity and Delta-E color-change measurement. Autodesk adds explicit premultiplied-alpha semantics, bitmap alpha/dither flags, scene-linear vs display-view separation, matte morphology/threshold controls and denoise-before-post-effect ordering. Photopea/Photoroom show that high-quality matting may need foreground RGB reconstruction/decontamination in addition to alpha; despill must be boundary-scoped and measured so opaque subject colors are not corrupted. Clipdrop/Photoroom APIs demonstrate that mask polarity, required binary-vs-gray semantics, exact dimensions, pre-existing-alpha handling and output format can differ by provider and therefore must be recorded rather than assumed. SAM2 exposes predicted-IoU/stability/mask-threshold/crop controls as useful evidence but not print acceptance. IOPaint/ComfyUI/LaMa show that localized inpainting should preserve and diff-check unmasked regions. BiRefNet and multiple matting projects reinforce high-resolution soft-alpha refinement rather than treating segmentation as final transparency. Open-source projects also expose a commercial requirement: repository source availability does not prove model-weight commercial rights; the image pipeline must store model/revision/license evidence and block known non-commercial weights. FBA Matting additionally reinforces joint foreground/background/alpha estimation and its published weights carry non-commercial dataset-license constraints.
+
+Implementation transfer: Smart Prepress research contract advanced through 1.2.0 to 1.3.0. New image-only reports cover RIP-boundary ownership, background-removal integrity, AI mask semantics, generative-edit integrity, AI-upscale integrity, inpainting integrity, model-license evidence, deterministic alpha refinement, opaque-edge color preservation and restoration-algorithm evidence. Printing/device execution remains deferred to the external RIP.
+
+GitHub ledger: 1094 / 10,000. Research continuity: 1121 / 10,000.
