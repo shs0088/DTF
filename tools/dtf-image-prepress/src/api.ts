@@ -4,6 +4,7 @@ import { extname, join } from "node:path";
 import { analyzeSource } from "./engine";
 import type { ArtworkKind } from "./contracts";
 import { getResearchLedgerStatus } from "./research-ledger";
+import { getRuntimeProviders, LOCAL_ONLY_EXECUTION_POLICY } from "./execution-policy";
 
 const ALLOWED_KINDS = new Set<ArtworkKind>([
   "photo",
@@ -53,6 +54,13 @@ export async function createApiHandler(request: Request): Promise<Response> {
     return json(getResearchLedgerStatus());
   }
 
+  if (request.method === "GET" && url.pathname === "/v1/providers") {
+    return json({
+      executionPolicy: LOCAL_ONLY_EXECUTION_POLICY,
+      providers: getRuntimeProviders(),
+    });
+  }
+
   if (request.method === "GET" && url.pathname === "/health") {
     return json({
       status: "ok",
@@ -60,6 +68,7 @@ export async function createApiHandler(request: Request): Promise<Response> {
       version: "0.1.0",
       opencartCoupled: false,
       adminUiIncluded: false,
+      executionPolicy: LOCAL_ONLY_EXECUTION_POLICY,
     });
   }
 
