@@ -8796,3 +8796,12 @@ DAPR-QA separates full-reference fidelity metrics, perceptual metrics and no-ref
 DAPR-BlurMap fuses local edge response, multiscale sharpness, frequency loss and directional anisotropy to localize blur and distinguish motion-like versus defocus-like evidence before PSF/solver selection. DAPR-Noise builds spatial noise-type/severity maps and compares classical, noise-map-conditioned, plug-and-play, supervised and self/noisy-supervised candidates while protecting text, texture and alpha detail.
 
 Corpus: 1329 / 10,000 verified ledger pages; research continuity 1356 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 085 — degradation diagnosis, blind SR and task-aware QA
+
+Thirty-seven new verified pages were added after deduplication. DAPR-DegradationProfile now combines authoritative deterministic artifact measurements with optional learned distortion/degradation evidence; agreement raises confidence and disagreement forces conservative routing.
+
+Blind SR becomes hybrid: explicit blur/noise/JPEG/scale parameters where measurable, broad synthetic degradation candidates, and learned degradation embeddings only for unexplained residuals. Candidate QA is region/task aware rather than a flat metric vote. Illustration/anime engines (including local NCNN/Vulkan families) are benchmark candidates against conventional resampling and vectorization, never automatic winners.
+
+Corpus: 1381 / 10,000 verified ledger pages; research continuity 1408 / 10,000. No merge, deployment, Oracle execution or storefront modification.
