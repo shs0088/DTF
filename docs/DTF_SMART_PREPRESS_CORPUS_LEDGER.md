@@ -2468,3 +2468,41 @@ DAPR-Ringing Gate: quantify alternating overshoot/undershoot near strong edges, 
 Mixed degradations are represented as an ordered degradation graph rather than one label, because blur, resize, noise and compression can compose non-commutatively. Candidate inverse routes are tested against observation consistency and hard DTF invariants.
 
 GitHub ledger: 1406 / 10,000. Research continuity: 1433 / 10,000.
+
+
+## Verified Batch 087 — 20 pages — image-only colour economy and raster/vector preparation
+
+1407. https://github.com/ImageMagick/ImageMagick
+1408. https://github.com/strukturag/libheif
+1409. https://github.com/colour-science/colour
+1410. https://github.com/colour-science/colour-checker-detection
+1411. https://github.com/CGAL/cgal
+1412. https://github.com/autotrace/autotrace
+1413. https://github.com/skyrpex/potrace
+1414. https://github.com/GlitchCog/ssim
+1415. https://github.com/kornelski/pngquant
+1416. https://github.com/ImageOptim/libimagequant
+1417. https://github.com/wanadev/pix2svg
+1418. https://github.com/visioncortex/visioncortex
+1419. https://github.com/colour-science/colour-datasets
+1420. https://github.com/colour-science/colour-hdri
+1421. https://github.com/colour-science/colour-demosaicing
+1422. https://github.com/colour-science/colour-science-notebooks
+1423. https://github.com/colour-science/colour-visuals
+1424. https://github.com/colour-science/colour-quality
+1425. https://github.com/colour-science/colour-homography
+1426. https://github.com/colour-science/colour-maps
+
+20 new pages were opened/read and deduplicated.
+
+Scope correction remains strict: the system prepares image files only. It does not control printers or RIP execution and does not claim actual physical ink consumption.
+
+New DAPR Image Ink-Demand Proxy: estimate image-side colour/coverage demand using alpha-weighted occupied area, perceptual lightness/chroma, colour complexity and optional profile-aware transformed channel-density proxies when a trustworthy destination profile is supplied. This is a relative optimization signal, not an ink-volume prediction.
+
+Economy candidates include transparent-pixel/RGB cleanup, redundant low-alpha fringe removal, perceptually constrained palette simplification, selective chroma/density compression and vector simplification for eligible flat artwork. Palette reduction/file-size reduction alone is explicitly not treated as ink saving.
+
+Optimization is Pareto constrained: minimize the demand proxy only after hard alpha/topology/text/edge constraints, and bound perceptual colour change using colour-science/Delta-E style measurements plus structural checks. If no candidate reduces the proxy safely, preserve the fidelity-first master.
+
+Raster/vector routing expands with Potrace/AutoTrace/VTracer-style candidates and rasterization-back QA. Vectorization is eligible only for flat/line/logo-like regions and must survive topology, boundary displacement, colour and alpha comparisons against the source.
+
+GitHub ledger: 1426 / 10,000. Research continuity: 1453 / 10,000.
