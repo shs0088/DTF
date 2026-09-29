@@ -28,23 +28,30 @@ export async function inspectRaster(path: string): Promise<ImageFacts> {
   });
   const metadata = await image.metadata();
 
-  const { data, info } = await image
+  // Read only the alpha plane for alpha statistics. This avoids allocating
+  // a full RGBA raw buffer for large print artwork.
+  const { data: alphaData } = await image
     .clone()
     .autoOrient()
     .ensureAlpha()
+    .extractChannel("alpha")
     .raw({ depth: "uchar" })
     .toBuffer({ resolveWithObject: true });
 
   let transparent = 0;
   let semi = 0;
   let opaque = 0;
-  const channels = info.channels;
-  const alphaIndex = channels - 1;
-  for (let i = alphaIndex; i < data.length; i += channels) {
-    const a = data[i];
+  let nearTransparent = 0;
+  const histogram16 = Array.from({ length: 16 }, () => 0);
+
+  for (const a of alphaData) {
+    histogram16[Math.min(15, Math.floor(a / 16))]++;
     if (a === 0) transparent++;
     else if (a === 255) opaque++;
-    else semi++;
+    else {
+      semi++;
+      if (a < 32) nearTransparent++;
+    }
   }
 
   const total = Math.max(1, transparent + semi + opaque);
@@ -53,6 +60,8 @@ export async function inspectRaster(path: string): Promise<ImageFacts> {
     transparentRatio: clampRatio(transparent / total),
     semiTransparentRatio: clampRatio(semi / total),
     opaqueRatio: clampRatio(opaque / total),
+    nearTransparentRatio: clampRatio(nearTransparent / total),
+    histogram16: histogram16.map((count) => clampRatio(count / total)),
   };
 
   const orientation = metadata.orientation ?? null;
