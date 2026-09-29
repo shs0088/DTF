@@ -1576,3 +1576,18 @@ All six pages were individually opened/read and absent from the canonical ledger
 966. https://docs.gimp.org/3.0/pt_BR/gimp-image-combining.html
 
 All six pages were individually opened/read and absent from the canonical ledger. Search also rotated through Chinese, Japanese, Korean, Russian, German, French, Italian, Turkish and Arabic material; simple localized mirrors of already represented operations were excluded rather than counted. Key transfer: precision reduction can independently dither layers/text/channels-and-masks, so alpha-mask dithering must be explicit; intermediate alpha values represent continuous opacity and alpha-to-selection preserves partial membership; color replacement thresholds can be channel-specific; curves can modify alpha directly and can be viewed in linear/non-linear/perceptual TRC contexts. GitHub ledger: 966 / 10,000. Research continuity: 993 / 10,000.
+
+
+## Verified Batch 060 — 9 materially distinct pages — resize QA, blur mechanisms, output color, topology, multilingual proofing
+
+967. https://docs.darktable.org/usermanual/development/en/module-reference/processing-modules/diffuse/
+968. https://docs.darktable.org/usermanual/4.2/en/module-reference/processing-modules/denoise-profiled/
+969. https://docs.darktable.org/usermanual/development/en/module-reference/processing-modules/output-color-profile/
+970. https://docs.opencv.org/doc/doxygen/html/d7/d1b/group__imgproc__misc.html
+971. https://docs.opencv.org/doc/doxygen/html/d3/dc0/group__imgproc__shape.html
+972. https://docs.gimp.org/3.0/ja/gimp-file-new.html
+973. https://docs.gimp.org/3.0/tr/gimp-view-color-management.html
+974. https://docs.gimp.org/3.0/ja/gimp-image-color-management.html
+975. https://docs.gimp.org/3.0/ja/gimp-image-convert-indexed.html
+
+All nine pages were individually opened/read and absent from the canonical ledger. Research rotated across Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian, Turkish and additional languages. Simple localized mirrors and already-counted ImageMagick/OpenCV/GIMP pages were excluded. Key transfer: distinguish diffusive/static blur from motion blur before deconvolution; denoise strength must account for signal-dependent noise; output profile/intent and embedded profile belong to export handoff rather than display proof; distance transform and connected-component statistics support physical stroke/topology QA; authoring precision/gamma/profile and soft-proof profile are separate; indexed conversion/dithering can synthesize colors and alter fine structures. GitHub ledger: 975 / 10,000. Research continuity: 1002 / 10,000.
