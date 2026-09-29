@@ -6,6 +6,8 @@ export interface CandidateBenchmarkMetrics {
   edgeDisplacementPx?: number;
   colorDeltaE00?: number;
   alphaFringeScore?: number;
+  outsideLeakRatio?: number;
+  lostOpaqueRatio?: number;
 }
 
 export interface BenchmarkPolicy {
@@ -15,6 +17,8 @@ export interface BenchmarkPolicy {
   maximumEdgeDisplacementPx: number;
   maximumColorDeltaE00: number;
   maximumAlphaFringeScore: number;
+  maximumOutsideLeakRatio?: number;
+  maximumLostOpaqueRatio?: number;
 }
 
 export interface CandidateBenchmarkResult {
@@ -88,6 +92,30 @@ export function benchmarkCandidate(
     hardFailures.push(
       `alpha fringe score ${metrics.alphaFringeScore} exceeds ${policy.maximumAlphaFringeScore}`,
     );
+  }
+
+  if (metrics.outsideLeakRatio != null && metrics.outsideLeakRatio > 0) {
+    if (policy.maximumOutsideLeakRatio == null) {
+      warnings.push(
+        `outside alpha leakage ${round(metrics.outsideLeakRatio * 100)}% requires a calibrated acceptance threshold`,
+      );
+    } else if (metrics.outsideLeakRatio > policy.maximumOutsideLeakRatio) {
+      hardFailures.push(
+        `outside alpha leakage ${round(metrics.outsideLeakRatio * 100)}% exceeds calibrated ${round(policy.maximumOutsideLeakRatio * 100)}%`,
+      );
+    }
+  }
+
+  if (metrics.lostOpaqueRatio != null && metrics.lostOpaqueRatio > 0) {
+    if (policy.maximumLostOpaqueRatio == null) {
+      warnings.push(
+        `lost original opacity ${round(metrics.lostOpaqueRatio * 100)}% requires a calibrated acceptance threshold`,
+      );
+    } else if (metrics.lostOpaqueRatio > policy.maximumLostOpaqueRatio) {
+      hardFailures.push(
+        `lost original opacity ${round(metrics.lostOpaqueRatio * 100)}% exceeds calibrated ${round(policy.maximumLostOpaqueRatio * 100)}%`,
+      );
+    }
   }
 
   const dpiScore = clamp01(metrics.effectiveDpi / policy.targetDpi);
