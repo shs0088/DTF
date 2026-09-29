@@ -2223,3 +2223,70 @@ DAPR-Screen: compare error diffusion, ordered/clustered screens, blue-noise and 
 Color remains deterministic: existing LittleCMS evidence continues as the ICC transform/soft-proof/Delta-E reference. AI is not used to decide color-management policy.
 
 GitHub ledger: 1257 / 10,000. Research continuity: 1284 / 10,000.
+
+
+## Verified Batch 082 — 37 materially distinct pages — artifact diagnosis and DAPR hybrid expansion
+
+1258. https://github.com/Ir1d/AFN
+1259. https://github.com/CVMI-Lab/UHDM
+1260. https://github.com/Mr-Ma-yikun/DMMNet
+1261. https://github.com/google/bband-adaband
+1262. https://github.com/google/knusperli
+1263. https://github.com/kilobyte/jpegqs
+1264. https://github.com/jiaxi-jiang/FBCNN
+1265. https://github.com/woongchan789/BREMOLA
+1266. https://github.com/mleiwe/ChromaticAberrationCorrection
+1267. https://github.com/RayXie29/Chromatic_aberration_correction
+1268. https://github.com/bllanos/chromatic-aberration
+1269. https://github.com/teboli/chromatic_aberration_filtering
+1270. https://github.com/TeamMoeAI/MoeSR
+1271. https://github.com/yqwu905/TextSR_Wiki
+1272. https://github.com/c-yn/AdaIR
+1273. https://github.com/TxpHome/DFPIR
+1274. https://github.com/xfwang23/DSRIR
+1275. https://github.com/House-yuyu/Perceive-IR
+1276. https://github.com/c-yn/BioIR
+1277. https://github.com/leonmakise/EvoIR
+1278. https://github.com/3SO-N/arabic-ocr
+1279. https://github.com/VisionWrks/Accurate_Arabic_OCR
+1280. https://github.com/MhdMartini/araclean
+1281. https://github.com/danielgatis/rembg/blob/main/rembg/matting.py
+1282. https://github.com/kthaas/fast-pymatting
+1283. https://github.com/Volumental/colorchecker
+1284. https://github.com/kmatzen/chromacal
+1285. https://github.com/edo1z/image-to-svg
+1286. https://github.com/realproject7/svgsmith
+1287. https://github.com/laszlokorte/blue-noise
+1288. https://github.com/obareau/mono
+1289. https://github.com/pbkx/dithr
+1290. https://github.com/grom358/hqx
+1291. https://github.com/kayahr/xbrz
+1292. https://github.com/tecnickcom/inedi
+1293. https://github.com/pbkx/deconvolution
+1294. https://github.com/eacna/lucy_richardson_deconvolution
+
+Thirty-seven new pages from a 42-page candidate set were individually opened/read and absent from the ledger; five already-counted sources were rejected by deduplication. Sources include Chinese, Korean, Japanese/Asian, Arabic and international university/open-source work.
+
+DAPR-Alias: detect moire/aliasing before upscale using spatial-frequency evidence (FFT peaks/periodicity, color oscillation, scale behavior). Compare spatial, frequency/wavelet and multiscale candidates; protect text/logo regions. UHD demoire evidence shows resolution/scale robustness matters, while DMMNet motivates sequential spatial + frequency reconstruction rather than treating moire as generic noise.
+
+DAPR-JPEG/Banding: if original JPEG coefficients/quantization metadata are available, prefer coefficient-domain deterministic recovery first. Knusperli searches coefficient intervals consistent with stored quantization to reduce block discontinuities; jpegqs reconstructs coefficient precision from quantization tables. Only residual artifacts proceed to RGB restoration candidates such as FBCNN. BBAND supplies no-reference banding maps/adaptive debanding evidence. Never upscale blocking/banding before artifact diagnosis.
+
+DAPR-Fringe: classify lateral/channel-displacement versus axial/purple false-color fringe. Candidate families include channel registration/warping, edge-local R-G/B-G constraint correction and false-color filtering. Apply only to detected boundary bands; hard-check Delta-E outside the band and preserve intentional design colors.
+
+DAPR-SR: route PHOTO / ILLUSTRATION / TEXT / PIXEL-LOW-COLOR / MIXED. Chinese illustration tools and TextSR literature reinforce content-specialized restoration. Pixel/flat-art routes compare hqx/xBRZ/iNEDI and vectorization rather than photographic generative SR. Text route remains glyph-first and ambiguity-aware.
+
+DAPR-Restoration router: recent all-in-one work demonstrates task interference and degradation-dependent routing/frequency modulation. DAPR uses this as evidence for explicit deterministic degradation diagnosis and specialist eligibility rather than delegating routing to a unified AI model.
+
+DAPR-Alpha: alpha coverage and foreground RGB reconstruction remain separate. ViTMatte/closed-form/etc. can estimate coverage candidates; foreground unmix/decontamination follows separately. Any pixel-mixing operation on RGBA must use explicit alpha association, normally premultiply -> process -> unpremultiply. Multi-background fringe QA is mandatory.
+
+DAPR-Color: ICC transforms remain primary when profiles are known. ColorChecker calibration is allowed only with trusted reference patches. Compare linear CCM against robust tone+CCM/LUT candidates using Delta-E plus texture/structure preservation. Never infer design truth from histogram transfer alone.
+
+DAPR-Vector: expand self-verifying vectorization. Segment/quantize -> protect tiny components -> Potrace per binary/color mask or VTracer color/watershed/cutout candidates -> shared-boundary simplification -> rasterize at final size -> hard-check topology, Hausdorff/boundary displacement, Delta-E, glyph survival and alpha. SSIM alone cannot approve a vector result.
+
+DAPR-Screen: candidate families now include classical error diffusion, Ostromoukhov variable coefficients, Riemersma/Hilbert, Bayer, clustered dot, void-and-cluster blue noise, stochastic clustered-dot and AM/FM hybrids. Selection uses tone/DC conservation, radial spectrum, low-frequency energy, periodic peaks, minimum printable feature and text/edge survival. Generate only at final physical size.
+
+DAPR-Deblur: broaden solver pool to Wiener/unsupervised Wiener, Richardson-Lucy, RL-TV, Landweber, Tikhonov-type, ISTA/FISTA, Krylov and constrained blind parametric PSF methods. Pipeline order is PSF/noise estimation -> edge taper/apodization -> eligible solver candidates -> convergence/regularization control -> ringing/noise/text-edge hard gates. Sharpening is not a substitute for unresolved blur.
+
+Arabic visual-text rule strengthened: OCR linguistic/LLM correction is advisory only. Visual reconstruction requires source geometry plus OCR consensus and preserves diacritics/offsets; lossless normalization is the default.
+
+GitHub ledger: 1294 / 10,000. Research continuity: 1321 / 10,000.
