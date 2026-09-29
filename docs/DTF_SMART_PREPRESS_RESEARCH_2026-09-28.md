@@ -8470,3 +8470,17 @@ Corpus: GitHub explicit 954 / 10,000; research continuity 981 / 10,000.
 Implementation: contract 0.6.0-research adds AlphaMattingQualityReport and UnderbaseCanvasSafetyReport plus regression coverage. No deployment, merge, Oracle or storefront change.
 
 Corpus: GitHub explicit 960 / 10,000; research continuity 987 / 10,000.
+
+
+## Batch 059 — multilingual precision and alpha semantics
+
+- Bit-depth reduction is not merely a storage change: dithering can be configured independently for ordinary layers, text, and channels/masks. Alpha/mask dithering therefore requires explicit print intent and boundary QA.
+- Text dithering is unsafe as a default because it can rasterize/alter text-layer semantics; Smart Prepress defaults it off.
+- Alpha remains continuous data: intermediate values are partial opacity, and alpha-to-selection preserves partial membership. Selection/mask conversion must not silently binarize soft boundaries.
+- Curves can operate directly on alpha; any alpha-tone operation must be recorded and compared against boundary/gradient/connectivity metrics.
+- Channel-specific color-replacement thresholds reinforce that background/color decontamination should record per-channel tolerances rather than a single undocumented tolerance.
+- Linear, non-linear and perceptual TRC views/operations are distinct; provenance must record the working transfer context for tone/edge processing.
+
+Implementation: contract 0.7.0-research adds PrecisionConversionReport and an explicit ALPHA_MASK_DITHER_ON_PRECISION_REDUCTION warning plus regression coverage. No deployment, merge, Oracle or storefront change.
+
+Corpus: GitHub explicit 966 / 10,000; research continuity 993 / 10,000.
