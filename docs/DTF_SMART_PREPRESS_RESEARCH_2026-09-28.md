@@ -8583,3 +8583,10 @@ Implementation: contract 1.2.0 added ImageOnlyRipBoundaryReport, BackgroundRemov
 Regression assertions were updated on the research branch, but execution of the PHP test suite was not verified in the current runtime. No deployment, merge, Oracle or storefront modification was performed.
 
 Corpus: GitHub explicit 1094 / 10,000; research continuity 1121 / 10,000.
+
+
+## Batch 065
+
+Verified 9 new pages. Key findings: keep alpha cleanup separate from white-underbase generation; express choke in physical units derived from effective PPI; preserve intentional soft alpha; record morphology kernel geometry; calibrate halftone min/max tone from physical output; and rerun edge preflight after resizing.
+
+Corpus: 1103 / 10,000 verified ledger pages; research continuity 1130 / 10,000.
