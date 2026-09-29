@@ -2030,3 +2030,35 @@ NIMA demonstrates no-reference perceptual quality prediction but does not replac
 Implementation direction: ImageNatureProfile = content_class probabilities + semantic_region masks + alpha_class + degradation vector + technical metrics + confidence/uncertainty. ProcessingRoutePolicy consumes this profile. Low-confidence or conflicting classifications select conservative/no-destructive processing or review rather than aggressive automatic AI editing. Add classifier calibration and out-of-distribution checks so an unknown artwork style does not receive a confident but unsafe treatment.
 
 GitHub ledger: 1182 / 10,000. Research continuity: 1209 / 10,000.
+
+
+## Verified Batch 075 — 16 materially distinct pages — multilingual text detection, OCR and safe text reconstruction
+
+1183. https://github.com/PaddlePaddle/PaddleOCR
+1184. https://github.com/JaidedAI/EasyOCR
+1185. https://github.com/tesseract-ocr/tesseract
+1186. https://github.com/open-mmlab/mmocr
+1187. https://github.com/clovaai/deep-text-recognition-benchmark
+1188. https://github.com/baudm/parseq
+1189. https://github.com/FangShancheng/ABINet
+1190. https://github.com/mindee/doctr
+1191. https://github.com/MichalBusta/E2E-MLT
+1192. https://github.com/MhLiao/DB
+1193. https://github.com/clovaai/CRAFT-pytorch
+1194. https://github.com/Belval/TextRecognitionDataGenerator
+1195. https://github.com/harfbuzz/harfbuzz
+1196. https://github.com/fonttools/fonttools
+1197. https://github.com/googlefonts/fontations
+1198. https://github.com/googlefonts/ots
+
+Sixteen new repositories/pages were individually opened/read and absent from the ledger. Unrelated PixelLib and auxiliary font-list/rendering repositories were not counted. Repository README aliases/forks were not counted separately.
+
+Scope remains IMAGE PREPARATION ONLY. Text handling is now a dedicated evidence pipeline rather than a generic upscale side effect. Detection and recognition are separate: CRAFT/DB/E2E-MLT provide geometry/region detection approaches; PaddleOCR, EasyOCR, Tesseract, MMOCR, PARSeq, ABINet, docTR and related benchmarks provide multilingual recognition families with differing language/script coverage and confidence behavior. Reconstruction must not be driven by OCR text alone.
+
+Arabic and other shaping scripts require Unicode/script-aware shaping, bidi direction and glyph substitution/positioning. HarfBuzz provides the shaping layer; fontTools/fontations provide font parsing/manipulation; OTS provides font sanitization. The reconstruction record must preserve recognized Unicode sequence, script/language, direction, line/word/character polygons, baseline/orientation, confidence, candidate alternatives, selected font evidence and shaping engine/version.
+
+Critical safety/fidelity rule: low-confidence OCR is evidence of ambiguity, not permission to invent text. AI/OCR may propose candidates, but automatic print-master replacement is allowed only above calibrated confidence and geometry/fidelity thresholds or when the original text can be independently verified. Otherwise retain the source region and request/review reconstruction. Text damaged by upscale should preferentially be rebuilt from verified characters and vector glyph outlines rather than repeatedly sharpened or generatively hallucinated.
+
+Implementation direction: add TextRegionProfile, OCRConsensusReport, TextReconstructionEvidence and GlyphRenderRoundTripReport. Run multiple OCR recognizers where valuable, compare character-level consensus, preserve Arabic diacritics and connected shaping, rasterize reconstructed text at final print size, then compare baseline, bounding geometry, stroke widths, glyph topology, color and edge alignment against the source. Synthetic-data generation can train robustness against blur, perspective, noise, compression and low resolution without treating synthetic labels as proof for a customer's ambiguous source text.
+
+GitHub ledger: 1198 / 10,000. Research continuity: 1225 / 10,000.
