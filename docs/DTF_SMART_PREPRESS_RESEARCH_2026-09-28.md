@@ -8750,3 +8750,16 @@ For denoise, eligible NLM/Wavelet/TV-style candidates can be parameter-calibrate
 Architecture: AlgorithmComparisonMatrix -> EligibilityRules -> CandidateSet -> HardConstraintFilter -> ParetoRanking -> DeterministicTreatmentPlan. Hard failures cannot be averaged away by PSNR/SSIM or perceptual scores. AI implementations may enter CandidateSet but have no administrative authority and face identical deterministic gates.
 
 Corpus: 1231 / 10,000 verified ledger pages; research continuity 1258 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 080 — DAPR: custom deterministic DTF Adaptive Prepress Router
+
+Six new comparative filtering/matting sources were opened/read and deduplicated. Based on the accumulated corpus, a custom algorithm is now proposed rather than merely selecting named algorithms: DTF Adaptive Prepress Router (DAPR).
+
+DAPR is deterministic orchestration: immutable decode/provenance -> MeasuredImageProfile -> region evidence -> RepairabilityProfile/risk budgets -> eligibility rules -> candidate transforms -> hard constraints -> Pareto comparison -> alpha-safe composition -> final-size preflight -> prepared master. AI can implement a candidate transform but has no authority over routing, fusion, thresholds, acceptance, publishing or master selection.
+
+The first custom subalgorithm is reliability-weighted alpha fusion. Hard foreground/background are locked where evidence is strong. Only the uncertain boundary band receives multiple eligible matte candidates. Reliability is estimated from foreground/background reconstruction residual, local color-model fit, gradient alignment, candidate disagreement and perturbation stability. DAPR selects or fuses candidates locally rather than accepting one matte globally. Foreground-RGB decontamination is separate from alpha estimation. Multi-background compositing, fringe/halo, topology and text/stroke tests are hard gates.
+
+This design is motivated by complementary failure modes in local-affinity, non-local/sampling and guided approaches and by measured robustness changes under blur/noise. The same synthesis principle will be extended to resize/upscale, denoise/deblur, vectorization, OCR/text restoration, sharpening, color and halftone preparation.
+
+Corpus: 1237 / 10,000 verified ledger pages; research continuity 1264 / 10,000. No merge, deployment, Oracle execution or storefront modification.
