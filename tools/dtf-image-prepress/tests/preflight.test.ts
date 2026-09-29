@@ -14,6 +14,7 @@ const baseFacts = {
   embeddedDpi: 72,
   colorSpace: "srgb",
   hasIccProfile: true,
+  pages: 1,
   alpha: {
     hasAlpha: true,
     transparentRatio: 0.4,
@@ -43,18 +44,32 @@ describe("standalone DTF image prepress", () => {
     expect(result.decision).toBe("rejected");
   });
 
-  test("blocks material OCR text changes", () => {
+  test("blocks material OCR text changes only with reliable OCR", () => {
     const result = runPreflight({
       facts: baseFacts,
       intent: { widthIn: 16, heightIn: 18 },
       profile: DEFAULT_RIP_PROFILE,
       evidence: {
-        ocrBefore: { text: "PRINT YOUR DREAM" },
-        ocrAfter: { text: "PRINT Y0UR DREAM" },
+        ocrBefore: { text: "PRINT YOUR DREAM", confidence: 0.97 },
+        ocrAfter: { text: "PRINT Y0UR DREAM", confidence: 0.96 },
       },
     });
     expect(result.checks.find((x) => x.code === "text-preservation")?.status).toBe("fail");
     expect(result.decision).toBe("rejected");
+  });
+
+  test("low-confidence OCR disagreement requires review instead of false rejection", () => {
+    const result = runPreflight({
+      facts: baseFacts,
+      intent: { widthIn: 16, heightIn: 18 },
+      profile: DEFAULT_RIP_PROFILE,
+      evidence: {
+        ocrBefore: { text: "اطبع حلمك", confidence: 0.61 },
+        ocrAfter: { text: "اطبع حلك", confidence: 0.65 },
+      },
+    });
+    expect(result.checks.find((x) => x.code === "text-preservation")?.status).toBe("warn");
+    expect(result.decision).toBe("review");
   });
 
   test("supports Arabic text comparison", () => {
@@ -118,5 +133,25 @@ describe("standalone DTF image prepress", () => {
     });
     expect(result.checks.find((x) => x.code === "alpha-fringe")?.status).toBe("fail");
     expect(result.decision).toBe("rejected");
+  });
+
+  test("rejects animated or multi-page sources as direct masters", () => {
+    const result = runPreflight({
+      facts: { ...baseFacts, pages: 4 },
+      intent: { widthIn: 16, heightIn: 18 },
+      profile: DEFAULT_RIP_PROFILE,
+    });
+    expect(result.checks.find((x) => x.code === "multi-page")?.status).toBe("fail");
+    expect(result.decision).toBe("rejected");
+  });
+
+  test("defers SVG/PDF until dedicated inspectors exist", () => {
+    const result = runPreflight({
+      facts: { ...baseFacts, format: "svg" },
+      intent: { widthIn: 16, heightIn: 18 },
+      profile: DEFAULT_RIP_PROFILE,
+    });
+    expect(result.checks.find((x) => x.code === "format")?.status).toBe("warn");
+    expect(result.decision).toBe("review");
   });
 });
