@@ -2183,3 +2183,43 @@ New comparative evidence strengthens the hybrid design. Guided filtering uses a 
 Proposed DAPR alpha fusion: establish hard foreground/background where evidence is strong; define uncertain band; generate eligible matte candidates; compute per-pixel/patch reliability from reconstruction residual, local color-model fit, gradient alignment, candidate disagreement and perturbation stability; select or weighted-fuse only where reliability is adequate; run foreground-RGB decontamination separately; reject if multi-background composite tests reveal fringe/halo or if topology/stroke gates fail. AI matte may be one candidate but never controls fusion or acceptance.
 
 GitHub ledger: 1237 / 10,000. Research continuity: 1264 / 10,000.
+
+
+## Verified Batch 081 — 20 materially distinct pages — multilingual/open research synthesis for DAPR
+
+1238. https://arxiv.org/abs/2402.18109
+1239. https://github.com/JXVision/DTP
+1240. https://github.com/supersupercong/uhdpromer
+1241. https://github.com/nonwhy/PURE/
+1242. https://github.com/cvlab-kaist/TAIR
+1243. https://github.com/sonhm3029/FreqOrtho-SR
+1244. https://github.com/honeygupta/PAGSR
+1245. https://github.com/IITB-LEAP-OCR
+1246. https://github.com/opensuh/DocumentBinarization
+1247. https://github.com/KojiKobayashi/ImageBinarization
+1248. https://github.com/DIGI-VUB/image.binarization
+1249. https://github.com/chriswolfvision/local_adaptive_binarization
+1250. https://github.com/HusseinYoussef/Arabic-OCR/blob/master/src/preprocessing.py
+1251. https://github.com/zamazan4ik/PRLib
+1252. https://github.com/brandonmpetty/Doxa
+1253. https://github.com/RuiyangJu/DKDS
+1254. https://github.com/jjanousek/dither_app
+1255. https://github.com/Oslonline/dithering-studio
+1256. https://github.com/JesseRWeigel/dithertool
+1257. https://patents.google.com/patent/CN103402042A/zh
+
+Twenty new pages were individually opened/read and absent from the ledger. Existing PyMatting, GCA-Matting, Alpha-Free Matting, FudanOCR and LittleCMS evidence was deliberately reused without recounting.
+
+Multilingual/region expansion includes Chinese/Hong Kong academic matting/restoration, Korean KAIST text restoration/SR, Indian IIT guided SR and OCR tooling, Japanese binarization code, Arabic OCR preprocessing, European document-binarization implementations, and Chinese-language halftone patent literature. Public preprints/code/demos are included; inaccessible or genuinely unpublished work is not claimed as read.
+
+DAPR-Matte refinement: recent universal matting reinforces separating global semantic/object context from local appearance/boundary refinement. DAPR keeps this separation but removes AI authority: semantic/automatic models may propose coarse foreground or alpha candidates, while deterministic uncertain-band fusion, perturbation stability, reconstruction residual, alpha-gradient and multi-background composite QA decide acceptance. Existing PyMatting classical families remain reference candidates.
+
+DAPR-SR refinement: separate fidelity and semantic/perceptual restoration. Recent frequency-aware expert work uses FFT degradation cues and distinct pixel/semantic experts; DAPR adopts the architectural lesson without delegating control. Print-master priority is fidelity. Semantic/generative candidates are optional and cannot overwrite protected text/logo/alpha regions. Text-aware restoration evidence explicitly acknowledges failure when source text is too degraded to contain sufficient information; therefore unreadable glyphs remain ambiguous/review rather than hallucinated.
+
+DAPR-TextMask: build an ensemble over global/local threshold families (Otsu, Bernsen, Niblack, Sauvola, Wolf, NICK, Su, Singh, ISauvola, Feng, Phansalkar and others when eligible). Estimate background nonuniformity, local contrast and stroke scale first; generate eligible candidates; preserve Arabic dots/diacritics and small punctuation using connected-component/stroke topology; score with foreground/background separation, DRD-like distortion, component survival and OCR consensus. No single threshold family is universal. Arabic preprocessing evidence further supports deskew, blur control and Otsu-style baselines, while a non-ML Arabic/Persian-oriented pipeline highlights thin-stroke/nuqta preservation.
+
+DAPR-Screen: compare error diffusion, ordered/clustered screens, blue-noise and related families by measured tonal error, radial power spectrum/low-frequency energy, periodic peaks, minimum printable feature size, edge/text survival and final physical scale. Spectral tests are important because visually plausible dither implementations can still have incorrect low-frequency or tonal behavior. Generate screening only at final size; any later resize invalidates it. External RIP remains responsible for printing; this module is only for image-level screening when explicitly needed.
+
+Color remains deterministic: existing LittleCMS evidence continues as the ICC transform/soft-proof/Delta-E reference. AI is not used to decide color-management policy.
+
+GitHub ledger: 1257 / 10,000. Research continuity: 1284 / 10,000.
