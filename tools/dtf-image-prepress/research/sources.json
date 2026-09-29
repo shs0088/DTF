@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 69,
-  "remaining": 9931,
+  "verifiedCount": 86,
+  "remaining": 9914,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -557,6 +557,142 @@
       "verification": "opened-and-reviewed",
       "decision": "Profile registry provenance/distribution requirements.",
       "ordinal": 69
+    },
+    {
+      "id": "onnxruntime-execution-providers",
+      "category": "inference-backend",
+      "url": "https://onnxruntime.ai/docs/execution-providers/",
+      "verification": "opened-and-reviewed",
+      "decision": "Execution Provider abstraction supports local CPU/GPU/NPU backends without changing model-facing logic.",
+      "ordinal": 70
+    },
+    {
+      "id": "onnxruntime-cuda",
+      "category": "inference-backend",
+      "url": "https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Local NVIDIA CUDA execution path and dependency/version constraints.",
+      "ordinal": 71
+    },
+    {
+      "id": "onnxruntime-tensorrt",
+      "category": "inference-backend",
+      "url": "https://onnxruntime.ai/docs/execution-providers/TensorRT-ExecutionProvider.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Local TensorRT EP can prioritize TensorRT with CUDA fallback.",
+      "ordinal": 72
+    },
+    {
+      "id": "openvino-devices",
+      "category": "inference-backend",
+      "url": "https://docs.openvino.ai/2026/openvino-workflow/running-inference/inference-devices-and-modes.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Local CPU/GPU/NPU execution and automatic device modes.",
+      "ordinal": 73
+    },
+    {
+      "id": "openvino-npu",
+      "category": "inference-backend",
+      "url": "https://docs.openvino.ai/2026/openvino-workflow/running-inference/inference-devices-and-modes/npu-device.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Intel NPU local inference path requires compatible driver/runtime.",
+      "ordinal": 74
+    },
+    {
+      "id": "ncnn",
+      "category": "inference-backend",
+      "url": "https://github.com/Tencent/ncnn",
+      "verification": "opened-and-reviewed",
+      "decision": "Local CPU/Vulkan inference framework with BSD-3-Clause license and low dependency footprint.",
+      "ordinal": 75
+    },
+    {
+      "id": "ncnn-vulkan",
+      "category": "inference-backend",
+      "url": "https://github.com/Tencent/ncnn/wiki/FAQ-ncnn-vulkan",
+      "verification": "opened-and-reviewed",
+      "decision": "Vulkan local acceleration reference for multiple desktop/mobile GPU families.",
+      "ordinal": 76
+    },
+    {
+      "id": "tensorrt-docs",
+      "category": "inference-backend",
+      "url": "https://docs.nvidia.com/deeplearning/tensorrt/latest/",
+      "verification": "opened-and-reviewed",
+      "decision": "Native NVIDIA local inference optimization backend.",
+      "ordinal": 77
+    },
+    {
+      "id": "png-spec-3",
+      "category": "format-spec",
+      "url": "https://www.w3.org/TR/png-3/",
+      "verification": "opened-and-reviewed",
+      "decision": "PNG alpha is linear and color metadata precedence is cICP, ICC, sRGB, then cHRM/gAMA.",
+      "ordinal": 78
+    },
+    {
+      "id": "webp-overview",
+      "category": "format-spec",
+      "url": "https://developers.google.com/speed/webp",
+      "verification": "opened-and-reviewed",
+      "decision": "WebP supports lossy/lossless RGB, alpha and animation; source-only policy is safer for print masters.",
+      "ordinal": 79
+    },
+    {
+      "id": "webp-lossless-spec",
+      "category": "format-spec",
+      "url": "https://developers.google.com/speed/webp/docs/webp_lossless_bitstream_specification",
+      "verification": "opened-and-reviewed",
+      "decision": "Lossless WebP ARGB bitstream reference.",
+      "ordinal": 80
+    },
+    {
+      "id": "tiff-6-alpha",
+      "category": "format-spec",
+      "url": "https://image-js.github.io/tiff/media/TIFF6.pdf",
+      "verification": "opened-and-reviewed",
+      "decision": "TIFF ExtraSamples distinguishes alpha/matte semantics and requires explicit inspection.",
+      "ordinal": 81
+    },
+    {
+      "id": "imagemagick-connected-components",
+      "category": "quality-metric",
+      "url": "https://imagemagick.org/connected-components/",
+      "verification": "opened-and-reviewed",
+      "decision": "Connected-component analysis reference for topology QA.",
+      "ordinal": 82
+    },
+    {
+      "id": "imagemagick-morphology",
+      "category": "quality-metric",
+      "url": "https://usage.imagemagick.org/morphology/",
+      "verification": "opened-and-reviewed",
+      "decision": "Morphology reference for shape cleanup, edge distance and structural analysis.",
+      "ordinal": 83
+    },
+    {
+      "id": "colour-delta-e",
+      "category": "color-management",
+      "url": "https://github.com/colour-science/colour/blob/develop/colour/difference/delta_e.py",
+      "verification": "opened-and-reviewed",
+      "decision": "CIEDE2000 and textile weighting reference for color-difference QA.",
+      "ordinal": 84
+    },
+    {
+      "id": "pngquant",
+      "category": "compression-reference",
+      "url": "https://github.com/kornelski/pngquant",
+      "verification": "opened-and-reviewed",
+      "decision": "Premultiplied-alpha/gamma-aware quantization reference; licensing prevents default proprietary embedding.",
+      "ordinal": 85
+    },
+    {
+      "id": "opencolorio",
+      "category": "color-management",
+      "url": "https://opencolorio.org/",
+      "verification": "opened-and-reviewed",
+      "decision": "Scene/VFX color-management reference; not required for core DTF ICC path.",
+      "ordinal": 86
     }
   ]
 }
