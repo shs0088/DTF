@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 117,
-  "remaining": 9883,
+  "verifiedCount": 139,
+  "remaining": 9861,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -941,6 +941,182 @@
       "verification": "opened-and-reviewed",
       "decision": "scikit-image identifies its project license as BSD.",
       "ordinal": 117
+    },
+    {
+      "id": "openvino-nncf-optimization",
+      "category": "model-optimization",
+      "url": "https://docs.openvino.ai/2026/openvino-workflow/model-optimization.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Model optimization is optional development-time work; quantized model variants require quality revalidation.",
+      "ordinal": 118
+    },
+    {
+      "id": "openvino-ptq",
+      "category": "model-optimization",
+      "url": "https://docs.openvino.ai/2026/openvino-workflow/model-optimization-guide/quantizing-models-post-training.html",
+      "verification": "opened-and-reviewed",
+      "decision": "INT8 PTQ can reduce accuracy; accuracy-aware quantization uses calibration and validation datasets.",
+      "ordinal": 119
+    },
+    {
+      "id": "openvino-qat",
+      "category": "model-optimization",
+      "url": "https://docs.openvino.ai/2026/openvino-workflow/model-optimization-guide/compressing-models-during-training/quantization-aware-training.html",
+      "verification": "opened-and-reviewed",
+      "decision": "QAT exists to reduce quantization accuracy loss; compressed variants are separate validated artifacts.",
+      "ordinal": 120
+    },
+    {
+      "id": "openvino-quantized-restrictions",
+      "category": "model-optimization",
+      "url": "https://docs.openvino.ai/2026/documentation/openvino-extensibility/openvino-plugin-library/advanced-guides/quantized-models.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Mixed precision and per-channel quantization rules reinforce variant-specific validation.",
+      "ordinal": 121
+    },
+    {
+      "id": "realesrgan-official-readme",
+      "category": "upscale-restoration",
+      "url": "https://github.com/xinntao/Real-ESRGAN/blob/master/README.md",
+      "verification": "opened-and-reviewed",
+      "decision": "Official implementation supports tiles, alpha, 16-bit, FP16/FP32; NCNN notes tile block inconsistency risk.",
+      "ordinal": 122
+    },
+    {
+      "id": "realesrgan-official-inference",
+      "category": "local-runtime-policy",
+      "url": "https://github.com/xinntao/Real-ESRGAN/blob/master/inference_realesrgan.py",
+      "verification": "opened-and-reviewed",
+      "decision": "Official script auto-downloads missing weights; local adapter must disable this path and require verified local files.",
+      "ordinal": 123
+    },
+    {
+      "id": "swinir-official-test",
+      "category": "local-runtime-policy",
+      "url": "https://github.com/JingyunLiang/SwinIR/blob/main/main_test_swinir.py",
+      "verification": "opened-and-reviewed",
+      "decision": "Official test script can download missing models and uses overlapping tiled inference; adapter must require local model and seam QA.",
+      "ordinal": 124
+    },
+    {
+      "id": "tesseract-arabic-traineddata",
+      "category": "ocr",
+      "url": "https://github.com/tesseract-ocr/tessdata/blob/main/script/Arabic.traineddata",
+      "verification": "opened-and-reviewed",
+      "decision": "Official Arabic script traineddata exists for local OCR cross-check.",
+      "ordinal": 125
+    },
+    {
+      "id": "tesseract-data-files",
+      "category": "ocr",
+      "url": "https://github.com/tesseract-ocr/tessdoc/blob/main/tess3/Data-Files.md",
+      "verification": "opened-and-reviewed",
+      "decision": "Tesseract documentation maps ara to Arabic traineddata.",
+      "ordinal": 126
+    },
+    {
+      "id": "p3m-official",
+      "category": "benchmark-dataset",
+      "url": "https://github.com/JizhiziLi/P3M",
+      "verification": "opened-and-reviewed",
+      "decision": "P3M-10k supplies high-resolution portrait mattes with a dataset agreement labeled MIT; benchmark only, no runtime use.",
+      "ordinal": 127
+    },
+    {
+      "id": "aim500-official",
+      "category": "benchmark-dataset",
+      "url": "https://github.com/JizhiziLi/AIM",
+      "verification": "opened-and-reviewed",
+      "decision": "AIM-500 supplies diverse natural-image alpha mattes and a release agreement labeled MIT.",
+      "ordinal": 128
+    },
+    {
+      "id": "animal-matting-am2k",
+      "category": "benchmark-dataset",
+      "url": "https://github.com/bruinxiong/animal-matting",
+      "verification": "opened-and-reviewed",
+      "decision": "AM-2k supplies high-resolution animal/fur mattes; dataset agreement requires review before use.",
+      "ordinal": 129
+    },
+    {
+      "id": "div2k-official",
+      "category": "benchmark-dataset",
+      "url": "https://data.vision.ee.ethz.ch/cvl/DIV2K/",
+      "verification": "opened-and-reviewed",
+      "decision": "Official DIV2K page restricts dataset to academic research; keep reference-only under commercial tool policy.",
+      "ordinal": 130
+    },
+    {
+      "id": "realsr-official",
+      "category": "benchmark-dataset",
+      "url": "https://github.com/csjcai/RealSR",
+      "verification": "opened-and-reviewed",
+      "decision": "Real camera/lens super-resolution benchmark; usage license must be verified before local commercial-development inclusion.",
+      "ordinal": 131
+    },
+    {
+      "id": "printfactory-dtf-image-processing",
+      "category": "dtf-rip",
+      "url": "https://support.printfactory.cloud/portal/en/kb/articles/direct-to-film-image-processing",
+      "verification": "opened-and-reviewed",
+      "decision": "DTF screening/choke values are calibrated using white/LPI test charts; setup-dependent, not universal.",
+      "ordinal": 132
+    },
+    {
+      "id": "brother-advanced-choke",
+      "category": "dtf-rip",
+      "url": "https://help.brother-usa.com/app/answers/detail/a_id/160921",
+      "verification": "opened-and-reviewed",
+      "decision": "Brother documents choke width as resolution-dependent pixels, supporting conversion to physical units/calibration.",
+      "ordinal": 133
+    },
+    {
+      "id": "brother-driver-artwork",
+      "category": "dtf-rip",
+      "url": "https://help.brother-usa.com/app/answers/detail/a_id/160920/~/working-with-artwork%3A-review-print-driver-settings",
+      "verification": "opened-and-reviewed",
+      "decision": "Driver controls printable area, white/color ink modes and mask settings; printer settings remain downstream of master artwork.",
+      "ordinal": 134
+    },
+    {
+      "id": "brother-255-254",
+      "category": "dtf-rip",
+      "url": "https://help.brother-usa.com/app/answers/detail/a_id/160917/~/working-with-artwork%3A-convert-255-to-254",
+      "verification": "opened-and-reviewed",
+      "decision": "Printer-specific RGB 255/254 behavior proves white handling can be device/driver-specific and belongs in target profile logic.",
+      "ordinal": 135
+    },
+    {
+      "id": "cadlink-calibration",
+      "category": "color-management",
+      "url": "https://help.cadlink.com/website/digital_factory/en/production/menus/calibration.htm",
+      "verification": "opened-and-reviewed",
+      "decision": "Color calibration is printer/media/print-mode specific and measured with charts/spectrophotometer.",
+      "ordinal": 136
+    },
+    {
+      "id": "cadlink-create-icc",
+      "category": "color-management",
+      "url": "https://help.cadlink.com/website/digital_factory/en/production/menus/create_icc.htm",
+      "verification": "opened-and-reviewed",
+      "decision": "Digital Factory exposes a Direct To Film ICC creation preset; reinforces printer/media-specific ICC output.",
+      "ordinal": 137
+    },
+    {
+      "id": "cadlink-soft-proof",
+      "category": "color-management",
+      "url": "https://help.cadlink.com/website/digital_factory/en/production/menus/options_dialog.htm",
+      "verification": "opened-and-reviewed",
+      "decision": "RIP preview supports output ICC and soft proofing; preview profile is separate from master artwork.",
+      "ordinal": 138
+    },
+    {
+      "id": "icc-black-point-compensation",
+      "category": "color-management",
+      "url": "https://www.color.org/BlackPointCompensation.pdf",
+      "verification": "opened-and-reviewed",
+      "decision": "Black point compensation depends on source/destination profiles and rendering intent; output proofing requires target profile context.",
+      "ordinal": 139
     }
   ]
 }
