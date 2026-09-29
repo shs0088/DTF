@@ -9,7 +9,22 @@ describe("standalone API boundary", () => {
     expect(body.service).toBe("dtf-image-prepress");
     expect(body.opencartCoupled).toBe(false);
     expect(body.adminUiIncluded).toBe(false);
+    expect(body.executionPolicy.externalNetworkAllowed).toBe(false);
+    expect(body.executionPolicy.imageDataMayLeaveSite).toBe(false);
+    test("providers endpoint exposes only local runtime providers", async () => {
+    const response = await createApiHandler(new Request("http://localhost/v1/providers"));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.executionPolicy.externalNetworkAllowed).toBe(false);
+    expect(body.providers.length).toBeGreaterThan(0);
+    for (const provider of body.providers) {
+      expect(provider.deploymentModes).toContain("local");
+      expect(provider.deploymentModes).not.toContain("external-api");
+      expect(provider.status).not.toBe("commercial-api");
+    }
   });
+});
+
 
   test("analyze endpoint rejects missing file without touching image engine", async () => {
     const form = new FormData();
