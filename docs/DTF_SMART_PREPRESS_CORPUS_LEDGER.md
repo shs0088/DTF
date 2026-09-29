@@ -1626,3 +1626,32 @@ All seven pages were individually opened/read and absent from the canonical ledg
 998. https://dergipark.org.tr/tr/pub/okufbed/article/1064594
 
 All sixteen pages were individually opened/read and were absent after normalized canonical comparison (host/path normalization, ignored presentation-language/query variants). Search deliberately rotated Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian and Turkish; inaccessible pages and simple translations/mirrors were not counted. Previously counted Microsoft premultiplied-alpha and bitmap-source pages were reopened but excluded from the count. Key transfer: filtering/interpolation of transparent artwork needs explicit straight-vs-premultiplied alpha ownership and a linear-light processing contract; wrong alpha association can create colored or black edge halos. Print color workflows require explicit image state and device/process-specific profile evidence because generic ICC profiles may only approximate a real press. Inkjet output quality couples resolution conversion, color conversion, total-ink limiting, gradation and halftoning; dot-placement/halftone parameters require process calibration and banding/streak QA. Boundary preservation benefits from coarse global segmentation followed by local refinement, and interpolation can route differently along edges, across edges and in smooth regions. Local/adaptive thresholding and morphology should use physically/resolution-aware parameters rather than fixed pixel constants. GitHub ledger: 998 / 10,000. Research continuity: 1025 / 10,000.
+
+
+## Batch 2026-09-29 — device/RIP contract, white-underbase survivability, open-source raster/color internals (19 verified new pages)
+
+999. https://dtf.printphase.com/blogs/news/dtf-rip-software-settings
+1000. https://dtfgears.com/how-to-use-cadlink-dtf-software-with-expert-setup-support-from-dtf-gears/
+1001. https://aeroprint.si/print-file-preparation/
+1002. https://dtfwiz.com/tools/dtf-white-layer
+1003. https://twotrees3d.com/blogs/knowledge/how-to-create-and-print-dtf-gang-sheets-for-apparel
+1004. https://dtfgangsheetapp.com/auto-spot-channels
+1005. https://imakedtf.com/what-is-dtf-white-ink/
+1006. https://pundiwarnakreasi.com/mesin-uv-dtf/
+1007. https://www.erasmart.com/ko/dtf-printer/a3-max-dtf-printer-single-dx7/
+1008. https://github.com/OpenPrinting/cups-filters/blob/master/filter/rastertoescpx.c
+1009. https://github.com/OpenPrinting/cups-filters/blob/master/filter/rastertopclx.c
+1010. https://github.com/libvips/libvips/blob/master/libvips/resample/resize.c
+1011. https://github.com/libvips/libvips/blob/master/libvips/resample/thumbnail.c
+1012. https://github.com/mm2/Little-CMS/blob/master/src/cmsxform.c
+1013. https://github.com/mm2/Little-CMS/blob/master/utils/transicc/transicc.c
+1014. https://github.com/scribusproject/scribus/blob/master/scribus/sccolorengine.h
+1015. https://github.com/echiu64/gutenprint/blob/master/src/main/print-escp2.c
+1016. https://github.com/ArtifexSoftware/ghostpdl/blob/master/base/gxdevcli.h
+1017. https://github.com/ArtifexSoftware/ghostpdl/blob/master/base/gsicc.c
+
+All nineteen pages/files above were individually opened/read and were absent from the existing ledger after exact/canonical URL comparison. Search rotation included Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian, Turkish and Indonesian terms; simple localized mirrors were not counted. This batch intentionally weighted implementation code and RIP/device behavior.
+
+Engineering synthesis update: (1) white-underbase generation must be treated as a physical-size morphology problem, not a fixed-pixel effect: choke/contract should be stored in mm (or converted from device DPI), and a post-choke survivability test must flag strokes, text and halftone islands that disappear; (2) the white mask should derive from alpha/spot intent, with explicit threshold, density/amount and optional screening, and should be previewed as its own channel before export; (3) device handoff needs a DeviceRasterContract carrying raster resolution, color space/channel count/order, bits per color, white/spot-channel mapping, screening/dither mode, pass/weave assumptions and profile/rendering intent. OpenPrinting ESC/P/PCL code shows that color planes, bit planes, dither LUT/state, dot buffers and weave/interleave are real driver concerns, not abstract image metadata; Gutenprint likewise exposes multi-channel ESC/P2 device behavior. (4) alpha-safe resampling is now a hard rule: libvips explicitly warns that resize does not premultiply alpha, while its thumbnail pipeline wraps resizing with premultiplication and color-management logic. The prepress pipeline should therefore premultiply before interpolation and unpremultiply afterward, while preserving a clean straight-alpha master. (5) ICC transforms must remain explicit and auditable: LittleCMS exposes input/output/proof profiles, rendering/proofing intents, gamut checking, black-point compensation and device-link transforms; Ghostscript maps ICC spaces to destination device profiles before possible alpha/halftoning. Do not silently reinterpret untagged RGB or collapse profile state. (6) RIP guidance is inconsistent on universal choke/white-density numbers, so numeric presets must be printer/media/profile-specific starting points, never global acceptance criteria. Fine typography and high-LPI halftones are especially vulnerable because choke can erase their white support. (7) white-ink circulation and physical printer configuration matter to stable density, so image QA should distinguish artwork defects from device/process faults such as registration, nozzle/banding, ink spread and white-settling behavior.
+
+GitHub ledger: 1017 / 10,000. Research continuity: 1044 / 10,000.
