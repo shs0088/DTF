@@ -1486,3 +1486,23 @@ Batch 053 counting notes:
 - Engineering transfer: white/background removal benefits from separating background-color estimation, segmentation/alpha-map generation, edge smoothing and final compositing; alpha bounds trimming must preserve every alpha>0 pixel and must not resample artwork; transparent previews must be distinguished from real exported alpha; flattening destroys alpha and therefore must be a hard preflight warning for DTF masters; dithering can operate on color and alpha levels and should be treated as an explicit print strategy, never an accidental quantization side-effect; ICC assign/convert, soft-proof intent and black-point compensation must remain explicit; contrast operations differ in linear versus gamma-corrected data and should not silently alter master color.
 - GitHub ledger represented count after this batch: 932 / 10,000.
 - Research-continuity count including the earlier verified-but-unsynchronized nine-page Batch 045 and the four verified pages reported in the prior run but not recoverable as ledger URLs: 945 / 10,000.
+
+
+## Verified Batch 054 — 8 pages — multilingual alpha recovery, edge RGB, scaling, color management
+
+933. https://blog.vberai.com/ar/blog/vberai-free-background-removal-glow-matting
+934. https://www.adobe.com/ae_ar/products/photoshop/remove-background.html
+935. https://docs.krita.org/ko/reference_manual/layers_and_masks/file_layers.html
+936. https://docs.krita.org/ko/reference_manual/preferences/color_management_settings.html
+937. https://docs.krita.org/ko/reference_manual/separate_image.html
+938. https://docs.krita.org/ko/reference_manual/filters/colors.html
+939. https://docs.krita.org/pt_BR/tutorials/flat-coloring.html
+940. https://docs.krita.org/ja/reference_manual/layers_and_masks/transformation_masks.html
+
+Batch 054 counting notes:
+- All eight pages were individually opened/read successfully and were absent from the canonical ledger.
+- NanoAlpha, PyMatting, rmbg.ai and Creen pages were reopened during discovery but excluded because their canonical URLs were already represented.
+- Localized mirrors of materially identical GIMP/Krita pages were excluded when they added no distinct technical content.
+- Engineering transfer: preserve graded alpha for glow/smoke/hair instead of forcing binary cutouts; distinguish alpha from RGB hidden under transparency; propagate foreground RGB into fully transparent edge neighborhoods without expanding alpha when decontaminating halos; treat physical-size/resolution adaptation separately from pixel resampling and record the scaling filter; pixel-art/binary masks require nearest-neighbor while continuous-tone art normally benefits from bicubic-class resampling; color-critical processing must record assumed/embedded ICC, rendering intent and BPC; channel separation must explicitly preserve/discard/separate alpha rather than doing so implicitly; non-destructive transform/filter masks are preferred until final export.
+- GitHub ledger represented count after this batch: 940 / 10,000.
+- Research-continuity count including previously verified but unsynchronized pages: 959 / 10,000.
