@@ -8805,3 +8805,12 @@ Thirty-seven new verified pages were added after deduplication. DAPR-Degradation
 Blind SR becomes hybrid: explicit blur/noise/JPEG/scale parameters where measurable, broad synthetic degradation candidates, and learned degradation embeddings only for unexplained residuals. Candidate QA is region/task aware rather than a flat metric vote. Illustration/anime engines (including local NCNN/Vulkan families) are benchmark candidates against conventional resampling and vectorization, never automatic winners.
 
 Corpus: 1381 / 10,000 verified ledger pages; research continuity 1408 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 087 — image-only colour economy
+
+Twenty new verified pages were added. A new image-side economy objective was introduced without extending scope into printing: DAPR estimates a relative Image Ink-Demand Proxy from alpha-weighted coverage, perceptual lightness/chroma, colour complexity and, only when a trusted destination profile exists, profile-transformed channel-density proxies. It is not an actual ink-volume estimate.
+
+Economy candidates are Pareto-constrained by fidelity: transparent RGB/fringe cleanup, perceptually constrained palette simplification, selective chroma/density compression and eligible flat-art vector simplification. Palette/file-size reduction alone is not treated as ink saving. Any candidate that violates text, topology, alpha, edge or perceptual colour limits is rejected; if no safe reduction exists, the fidelity-first master is retained.
+
+Corpus: 1426 / 10,000 verified ledger pages; research continuity 1453 / 10,000. No printing/RIP execution, merge, deployment, Oracle execution or storefront modification.
