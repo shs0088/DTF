@@ -48,7 +48,7 @@ async function readMask(
       width: analysisWidth,
       height: analysisHeight,
       fit: "fill",
-      kernel: sharp.kernel.bilinear,
+      kernel: sharp.kernel.linear,
     })
     .toColourspace("b-w")
     .raw({ depth: "uchar" })
