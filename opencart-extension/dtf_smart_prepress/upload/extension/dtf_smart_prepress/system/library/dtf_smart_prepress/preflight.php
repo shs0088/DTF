@@ -54,6 +54,12 @@ final class Preflight {
         $ripTextProfile = trim((string)($m['ripTextProfile'] ?? ''));
         $spotSeparationExpected = (bool)($m['spotSeparationExpected'] ?? false);
         $ripHalftoneMode = trim((string)($m['ripHalftoneMode'] ?? ''));
+        $alphaSad = isset($m['alphaSad']) ? max(0.0, (float)$m['alphaSad']) : null;
+        $alphaMse = isset($m['alphaMse']) ? max(0.0, (float)$m['alphaMse']) : null;
+        $alphaGradientError = isset($m['alphaGradientError']) ? max(0.0, (float)$m['alphaGradientError']) : null;
+        $alphaConnectivityError = isset($m['alphaConnectivityError']) ? max(0.0, (float)$m['alphaConnectivityError']) : null;
+        $transparentPaddingMm = isset($m['transparentPaddingMm']) ? max(0.0, (float)$m['transparentPaddingMm']) : null;
+        $requestedSpreadMm = isset($m['requestedSpreadMm']) ? max(0.0, (float)$m['requestedSpreadMm']) : 0.0;
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -114,6 +120,9 @@ final class Preflight {
         if ($exportScaleMismatch) {
             $warnings[] = ['code'=>'EXPORT_ASPECT_OR_SCALE_MISMATCH','severity'=>'warning'];
         }
+        if ($transparentPaddingMm !== null && $requestedSpreadMm > $transparentPaddingMm) {
+            $warnings[] = ['code'=>'UNDERBASE_SPREAD_CLIPPED_BY_CANVAS','severity'=>'warning','requestedSpreadMm'=>$requestedSpreadMm,'transparentPaddingMm'=>$transparentPaddingMm];
+        }
         if ($hasAlpha && $exportHasTransparency === false) {
             $warnings[] = ['code'=>'EXPORT_TRANSPARENCY_LOST','severity'=>'warning'];
         }
@@ -139,6 +148,20 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'alphaMattingQualityReport' => [
+                'sad'=>$alphaSad,
+                'mse'=>$alphaMse,
+                'gradientError'=>$alphaGradientError,
+                'connectivityError'=>$alphaConnectivityError,
+                'multiMetricRequired'=>true,
+                'singleMetricMayAcceptMaster'=>false
+            ],
+            'underbaseCanvasSafetyReport' => [
+                'transparentPaddingMm'=>$transparentPaddingMm,
+                'requestedSpreadMm'=>$requestedSpreadMm,
+                'spreadFitsCanvas'=>$transparentPaddingMm === null ? null : $requestedSpreadMm <= $transparentPaddingMm,
+                'paddingMustBeCheckedBeforeRipSpread'=>true
             ],
             'directionalEdgeIntegrityReport' => [
                 'orientationDeg'=>$edgeOrientationDeg,
@@ -247,7 +270,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'0.5.0-research',
+                'contractVersion'=>'0.6.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
