@@ -10,6 +10,9 @@ export interface ProviderDescriptor {
     | "segmentation"
     | "background-matting"
     | "edge-refinement"
+    | "color-management"
+    | "vector-rasterizer"
+    | "quality-metric"
     | "upscale-restoration"
     | "mockup";
   status: ProviderStatus;
@@ -34,7 +37,7 @@ export const PROVIDER_CATALOG: ProviderDescriptor[] = [
     role: "ocr",
     status: "safe-candidate",
     deploymentModes: ["local"],
-    licenseNote: "Check PaddleOCR code and selected model licenses at deployment time.",
+    licenseNote: "Official PaddleOCR repository is Apache-2.0; selected downloaded model assets and transitive dependencies are still recorded explicitly.",
     autoEnable: false,
     note: "Arabic/English OCR QA provider. OCR is evidence, never an artwork editor.",
   },
@@ -79,7 +82,7 @@ export const PROVIDER_CATALOG: ProviderDescriptor[] = [
     role: "segmentation",
     status: "safe-candidate",
     deploymentModes: ["local"],
-    licenseNote: "rembg application is MIT; every bundled/downloaded model weight has its own independent license.",
+    licenseNote: "Official rembg application is MIT; every bundled/downloaded model weight has its own independent license/provenance record.",
     autoEnable: false,
     note: "Useful model orchestrator. Provider selection must inspect the chosen model license rather than inheriting rembg's license.",
   },
@@ -91,6 +94,33 @@ export const PROVIDER_CATALOG: ProviderDescriptor[] = [
     licenseNote: "OpenCV licensing applies; verify packaged module version at deployment.",
     autoEnable: false,
     note: "Deterministic edge-aware refinement candidate; does not invent semantic content.",
+  },
+  {
+    id: "littlecms",
+    role: "color-management",
+    status: "safe-candidate",
+    deploymentModes: ["local"],
+    licenseNote: "MIT",
+    autoEnable: false,
+    note: "ICC V2/V4 color transform engine candidate for explicit profile conversion and soft-proof support.",
+  },
+  {
+    id: "resvg",
+    role: "vector-rasterizer",
+    status: "safe-candidate",
+    deploymentModes: ["local"],
+    licenseNote: "MIT OR Apache-2.0",
+    autoEnable: false,
+    note: "Deterministic SVG rasterizer candidate used to compare vectorized artwork against the source at target print resolution.",
+  },
+  {
+    id: "lpips",
+    role: "quality-metric",
+    status: "safe-candidate",
+    deploymentModes: ["local"],
+    licenseNote: "BSD-style license in the official PerceptualSimilarity repository.",
+    autoEnable: false,
+    note: "Supplementary perceptual similarity metric only. It never overrides OCR, topology, edge, alpha, or color hard gates.",
   },
   {
     id: "real-esrgan",
