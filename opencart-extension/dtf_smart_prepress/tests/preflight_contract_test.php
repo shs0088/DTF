@@ -49,6 +49,14 @@ $soft = $engine->analyze([
  'aiReferenceCount'=>2,'aiSeed'=>'12345','outsideMaskChanged'=>true,'generatedPixelFraction'=>0.12,'containsTextOrLogo'=>true,'textLogoIntegrityVerified'=>false,
  'aiUpscaleUsed'=>true,'aiUpscaleModel'=>'preserve-details-2','aiUpscaleScale'=>2.0,'aiUpscaleAlphaPreserved'=>false,
  'inpaintUsed'=>true,'inpaintMaskHasGray'=>true,'inpaintMaskExpandedPercent'=>15,'unmaskedRegionPreserved'=>false,'inpaintContextExpansionPx'=>64,
+ 'aiModelLicenses'=>[
+   ['name'=>'BiRefNet','license'=>'MIT','commercialUseAllowed'=>true,'source'=>'upstream'],
+   ['name'=>'RMBG-1.4','license'=>'BRIA non-commercial','commercialUseAllowed'=>false,'source'=>'model-card']
+ ],
+ 'aiUpscaleDetailPolicy'=>'creative-add','maskThresholdMethod'=>'adaptive','maskThresholdSensitivity'=>0.45,'maskForegroundPolarity'=>'bright',
+ 'guidedAlphaRefinementApplied'=>true,'guidedAlphaGuide'=>'source-rgb','despillOrDecontaminateColor'=>'green',
+ 'opaqueSubjectDeltaE'=>4.2,'opaqueSubjectDeltaEThreshold'=>2.0,'restorationAlgorithm'=>'lucy-richardson','restorationPsfKnown'=>false,
+ 'restorationNoiseModelKnown'=>false,'denoiseStage'=>'post-enhancement',
  'authoringApp'=>'canva','canvasWidthPx'=>4000,'canvasHeightPx'=>5000,
  'exportWidthPx'=>2000,'exportHeightPx'=>2400,'exportFormat'=>'png','exportHasTransparency'=>false
 ]);
@@ -64,6 +72,18 @@ assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRendere
 assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
 assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
 assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
+assert($soft['aiModelLicenseReport']['commercialUseBlocked']===true);
+assert(in_array('AI_MODEL_LICENSE_NOT_COMMERCIAL', array_column($soft['errors'],'code'), true));
+assert($soft['deterministicImageRefinementReport']['guidedAlphaRefinementApplied']===true);
+assert($soft['deterministicImageRefinementReport']['softAlphaShouldNotBeBinarizedByDefault']===true);
+assert(in_array('SOFT_ALPHA_BINARIZATION_RISK', array_column($soft['warnings'],'code'), true));
+assert($soft['edgeColorPreservationReport']['opaqueSubjectColorMustBeProtected']===true);
+assert(in_array('DESPILL_CHANGED_OPAQUE_SUBJECT_COLOR', array_column($soft['warnings'],'code'), true));
+assert($soft['restorationAlgorithmEvidenceReport']['deconvolutionRequiresPsfEvidence']===true);
+assert(in_array('DECONVOLUTION_WITHOUT_PSF_EVIDENCE', array_column($soft['warnings'],'code'), true));
+assert(in_array('DENOISE_AFTER_ENHANCEMENT_RISK', array_column($soft['warnings'],'code'), true));
+assert(in_array('GENERATIVE_UPSCALE_SYNTHETIC_DETAIL', array_column($soft['warnings'],'code'), true));
+assert($soft['aiUpscaleIntegrityReport']['detailPolicy']==='creative-add');
 assert($soft['imageOnlyRipBoundaryReport']['validatesImagePreparationOnly']===true);
 assert($soft['imageOnlyRipBoundaryReport']['ripOwnsPrintExecution']===true);
 assert($soft['backgroundRemovalIntegrityReport']['segmentationMaskMaySubstituteSoftAlpha']===false);
