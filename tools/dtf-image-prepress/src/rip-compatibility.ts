@@ -23,6 +23,13 @@ export function buildRipCompatibilityAdvice(input: {
     "Protect thin white-only text/lines from blanket choke because they can disappear or lose clarity.",
   ];
 
+  const nearTransparentRatio = input.facts.alpha.nearTransparentRatio ?? 0;
+  if (nearTransparentRatio > 0) {
+    warnings.push(
+      `Artwork contains ${Math.round(nearTransparentRatio * 10000) / 100}% very-low-opacity pixels (alpha 1-31/255). Inspect the target RIP white-channel preview for specks/halo; do not delete these pixels automatically because they may be intentional soft artwork.`,
+    );
+  }
+
   if (input.facts.alpha.semiTransparentRatio > 0) {
     if (input.profile.alphaHandlingMode === "binary-edge") {
       warnings.push(
