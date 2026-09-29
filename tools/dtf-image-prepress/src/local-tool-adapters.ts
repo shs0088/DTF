@@ -215,3 +215,77 @@ export function buildRealEsrganNcnnSpec(input: {
     timeoutMs: 10 * 60_000,
   });
 }
+
+
+export function buildPaddleOcrLocalSpec(input: {
+  pythonExecutablePath: string;
+  wrapperScriptPath: string;
+  sourcePath: string;
+  outputJsonPath: string;
+  detectionModelDirectory: string;
+  recognitionModelDirectory: string;
+  device?: string;
+  recognitionScoreThreshold?: number;
+}): LocalProcessSpec {
+  requireAbsoluteFile(input.wrapperScriptPath, "PaddleOCR wrapper");
+  requireAbsoluteFile(input.sourcePath, "PaddleOCR source");
+  requireAbsoluteFile(input.outputJsonPath, "PaddleOCR output");
+  const detectionModelDirectory = assertLocalModelPath(input.detectionModelDirectory);
+  const recognitionModelDirectory = assertLocalModelPath(input.recognitionModelDirectory);
+  const threshold = input.recognitionScoreThreshold ?? 0;
+  if (threshold < 0 || threshold > 1) {
+    throw new Error("PaddleOCR recognition score threshold must be between 0 and 1.");
+  }
+
+  return baseSpec({
+    id: "paddleocr-local",
+    executablePath: input.pythonExecutablePath,
+    args: [
+      input.wrapperScriptPath,
+      "--input",
+      input.sourcePath,
+      "--output-json",
+      input.outputJsonPath,
+      "--det-model-dir",
+      detectionModelDirectory,
+      "--rec-model-dir",
+      recognitionModelDirectory,
+      "--device",
+      input.device ?? "cpu",
+      "--rec-score-thresh",
+      String(threshold),
+    ],
+    cwd: dirname(input.outputJsonPath),
+    timeoutMs: 120_000,
+  });
+}
+
+export interface PaddleOcrNormalizedPage {
+  texts: string[];
+  scores: number[];
+  boxes: number[][];
+  polys: number[][][];
+  detection_scores: number[];
+}
+
+export interface PaddleOcrNormalizedResult {
+  engine: "paddleocr";
+  input: string;
+  pages: PaddleOcrNormalizedPage[];
+}
+
+export function parsePaddleOcrNormalizedJson(value: string): PaddleOcrNormalizedResult {
+  const parsed = JSON.parse(value) as PaddleOcrNormalizedResult;
+  if (parsed.engine !== "paddleocr" || !Array.isArray(parsed.pages)) {
+    throw new Error("Invalid normalized PaddleOCR JSON.");
+  }
+  for (const page of parsed.pages) {
+    if (!Array.isArray(page.texts) || !Array.isArray(page.scores)) {
+      throw new Error("Invalid PaddleOCR page result.");
+    }
+    if (page.texts.length !== page.scores.length) {
+      throw new Error("PaddleOCR text/score count mismatch.");
+    }
+  }
+  return parsed;
+}
