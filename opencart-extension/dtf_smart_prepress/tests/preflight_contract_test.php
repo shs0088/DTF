@@ -35,6 +35,12 @@ $soft = $engine->analyze([
  'sourceImageState'=>'output-referred','iccProfileClass'=>'generic','dotGainPercent'=>18,'measuredWhitePoint'=>'D50',
  'totalInkLimitPercent'=>240,'halftoneAlgorithm'=>'error-diffusion','dotPlacementCalibrated'=>false,'bandingRiskScore'=>0.25,
  'coarseSegmentationUsed'=>true,'localBoundaryRefinement'=>true,'boundaryRefinementBandPx'=>8,'orientationAwareInterpolation'=>true,
+ 'deviceHandoffRequired'=>true,'deviceRasterDpiX'=>1440,'deviceRasterDpiY'=>720,'deviceBitsPerColor'=>2,'deviceBitsPerPixel'=>12,
+ 'deviceColorOrder'=>'banded','deviceColorSpace'=>'DeviceN','deviceNumColors'=>6,'deviceSeparations'=>true,'deviceBytesPerLine'=>8192,'deviceProtocol'=>'ESC/P2',
+ 'printerPlanes'=>6,'printerPlaneOrder'=>['W','K','C','M','Y'],'weaveMode'=>'softweave','dotRowStep'=>2,'dotColStep'=>1,'dotRowFeed'=>4,'printDirection'=>'bidirectional',
+ 'spotWhiteRequiredByRip'=>true,'spotWhitePresent'=>true,'whiteChannelName'=>'W1','spotChannelPolarity'=>'unknown','alphaCopiedToSpot'=>true,'alphaDeletedAfterSpotCopy'=>false,
+ 'ripOutputContainer'=>'TIFF','physicalSizeMetadataPreserved'=>true,'dpiMetadataPreserved'=>false,'whiteCoveragePercent'=>62.5,'whiteAverageDensity'=>0.74,
+ 'proofProfile'=>'DTF-proof.icc','proofRenderingIntent'=>'relative-colorimetric','deviceLinkProfile'=>'DTF-device-link.icc','softProofEnabled'=>true,'rawTechCheckAvailable'=>true,
  'authoringApp'=>'canva','canvasWidthPx'=>4000,'canvasHeightPx'=>5000,
  'exportWidthPx'=>2000,'exportHeightPx'=>2400,'exportFormat'=>'png','exportHasTransparency'=>false
 ]);
@@ -50,6 +56,16 @@ assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRendere
 assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
 assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
 assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
+assert($soft['deviceRasterContractReport']['complete']===true);
+assert($soft['deviceRasterContractReport']['fileChannelOrderMaySubstituteDevicePlaneOrder']===false);
+assert($soft['printerPlaneAndWeaveReport']['weaveAndHeadGeometryAreDeviceProperties']===true);
+assert(in_array('DEVICE_PLANE_ORDER_UNVERIFIED', array_column($soft['warnings'],'code'), true));
+assert($soft['ripSpotWhiteHandoffReport']['spotAndAlphaAreSeparateSemantics']===true);
+assert($soft['ripSpotWhiteHandoffReport']['masterAlphaMayBeDeletedAfterCopy']===false);
+assert(in_array('SPOT_CHANNEL_POLARITY_UNVERIFIED', array_column($soft['warnings'],'code'), true));
+assert(in_array('PRINT_MASTER_PHYSICAL_SIZE_METADATA_CHANGED', array_column($soft['warnings'],'code'), true));
+assert($soft['productionProofTransformReport']['proofMaySubstituteProductionTransform']===false);
+assert($soft['productionProofTransformReport']['rawTechCheckAvailable']===true);
 assert($soft['alphaFilteringIntegrityReport']['linearPremultipliedFilteringReady']===false);
 assert($soft['alphaFilteringIntegrityReport']['zeroAlphaUnpremultiplyGuardRequired']===true);
 assert(in_array('ALPHA_FILTERING_HALO_RISK', array_column($soft['warnings'],'code'), true));
@@ -86,5 +102,12 @@ assert($soft['aiGenerationIntegrityReport']['requiresAlphaReinspection']===true)
 assert($soft['aiGenerationIntegrityReport']['mayReplaceOriginalPrintMasterWithoutQa']===false);
 assert(in_array('AI_EDIT_INTEGRITY_REVIEW_REQUIRED', array_column($soft['warnings'],'code'), true));
 assert($soft['provenance']['mockupMayReplaceMaster']===false);
+
+$missingWhite = $engine->analyze([
+ 'effectivePpi'=>300,'hasAlpha'=>true,'edgeClass'=>'hard-edge',
+ 'spotWhiteRequiredByRip'=>true,'spotWhitePresent'=>false
+]);
+assert($missingWhite['accepted']===false);
+assert(in_array('RIP_WHITE_CHANNEL_MISSING', array_column($missingWhite['errors'],'code'), true));
 
 echo "PASS\n";
