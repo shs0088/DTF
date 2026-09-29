@@ -2133,3 +2133,29 @@ scikit-image thresholding guidance reinforces algorithm selection by histogram/l
 Implementation direction: add RepairabilityProfile and DeterministicTreatmentPlan. For each region record defect class, measurements, permitted operation families, forbidden operations, maximum geometry/alpha/color change and revalidation tests. For text/line art, skeleton/connected-component/stroke-width topology from prior sources becomes a preservation gate. For soft alpha/photo regions, binary morphology/threshold operations are forbidden unless the rule explicitly establishes binary artwork. Every candidate transform is compared to pre-transform evidence and can be rolled back independently.
 
 GitHub ledger: 1225 / 10,000. Research continuity: 1252 / 10,000.
+
+
+## Verified Batch 079 — 6 materially distinct pages — comparative algorithm selection and hybrid synthesis
+
+1226. https://scikit-image.org/docs/stable/auto_examples/filters/plot_wavelet_denoising.html
+1227. https://scikit-image.org/docs/stable/auto_examples/filters/plot_restoration.html
+1228. https://scikit-image.org/docs/stable/auto_examples/filters/plot_j_invariant.html
+1229. https://scikit-image.org/docs/stable/auto_examples/filters/plot_j_invariant_tutorial.html
+1230. https://scikit-image.org/docs/stable/auto_examples/filters/plot_inpaint.html
+1231. https://scikit-image.org/docs/stable/auto_examples/applications/plot_cornea_spot_inpainting.html
+
+Six new pages were individually opened/read and absent from the ledger. ImageMagick resize/filter, segmentation, morphology and skimage metric pages used for cross-family comparison were already represented and were not recounted.
+
+New research rule requested by the user: when two or more algorithms address the same purpose, do not merely catalogue them. Compare assumptions, input class, artifact/failure modes, parameter sensitivity, preservation of text/alpha/geometry/color, computational cost and measurable output. Then derive a deterministic selection rule or hybrid pipeline when that is superior to a single universal algorithm.
+
+Denoising comparison: Wavelet thresholding separates signal/noise by scale and offers BayesShrink/VisuShrink tradeoffs; NLM exploits repeated patches; TV preserves piecewise-smooth structure. J-Invariant/Noise2Self calibration can tune and compare denoisers using noisy data itself under independent-noise assumptions, providing a deterministic parameter-selection signal without clean ground truth. However self-supervised loss cannot override DTF hard gates for text strokes, alpha edges, color and topology. Recommended hybrid: estimate degradation -> protect semantic/alpha regions -> calibrate eligible denoiser families -> generate candidates -> reject structural failures -> choose among survivors by multi-metric evidence.
+
+Resampling comparison from already-counted ImageMagick evidence: Lanczos-family filters favor sharpness but can ring/halo; Mitchell/Robidoux provide compromise behavior; Quadratic/Gaussian-like filters suppress ringing at the cost of blur. Linear-light versus nonlinear-domain processing can materially alter results. Recommended hybrid is image/region-aware candidate generation plus edge/halo/text QA, not one kernel globally.
+
+Segmentation comparison from already-counted skimage evidence: watershed depends strongly on markers and is useful for touching components; random walker is slower but robust on noisy/holey boundaries; MorphGAC favors visible contours after preprocessing; MorphACWE favors inside/outside statistical separation even without clear contours; SLIC/Felzenszwalb/Quickshift are often oversegmentation tools rather than final mattes. Recommended deterministic selector uses boundary strength, region statistics, seed quality and noise evidence before choosing the family.
+
+Inpainting comparison: biharmonic inpainting reconstructs masked defects from surrounding pixels and is suitable for constrained/local damage. It is not authority for missing semantic text/logo content. Any generative inpainting remains a proposal path only. Masks must be explicit, protected regions immutable, and unmasked pixels diff-checked.
+
+Selection architecture: AlgorithmComparisonMatrix -> EligibilityRules -> CandidateSet -> HardConstraintFilter -> ParetoRanking -> DeterministicTreatmentPlan. Hard constraints include glyph/text correctness, connected-component/topology survival, alpha integrity, maximum boundary displacement, color/profile constraints and final-size physical resolution. Soft metrics such as SSIM/PSNR/no-reference quality are used only after hard constraints pass; improvement in one metric cannot compensate for a destroyed glyph or logo boundary.
+
+GitHub ledger: 1231 / 10,000. Research continuity: 1258 / 10,000.
