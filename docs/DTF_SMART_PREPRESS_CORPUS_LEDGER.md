@@ -1756,3 +1756,24 @@ Key transfer: Adobe Select & Mask/Refine Hair reinforces separate semantic selec
 Implementation transfer: Smart Prepress research contract advanced through 1.2.0 to 1.3.0. New image-only reports cover RIP-boundary ownership, background-removal integrity, AI mask semantics, generative-edit integrity, AI-upscale integrity, inpainting integrity, model-license evidence, deterministic alpha refinement, opaque-edge color preservation and restoration-algorithm evidence. Printing/device execution remains deferred to the external RIP.
 
 GitHub ledger: 1094 / 10,000. Research continuity: 1121 / 10,000.
+
+
+## Verified Batch 065 — 9 materially distinct pages — DTF white/halftone controls, morphology, file printability, async bitmap handling
+
+1095. https://www.nestsheet.com/white-underbase
+1096. https://www.brandum.com/free-halftone-generator-print-prep-tool/
+1097. https://dtftransferstudio.com/white-halo-dusty-edges-dtf-prints-fix/
+1098. https://srdtf.com/herramientas/contraer-bordes-dtf/
+1099. https://bkshin.tistory.com/entry/OpenCV-19-%EB%AA%A8%ED%8F%B4%EB%A1%9C%EC%A7%80Morphology-%EC%97%B0%EC%82%B0-%EC%B9%A8%EC%8B%9D-%ED%8C%BD%EC%B0%BD-%EC%97%B4%EB%A6%BC-%EB%8B%AB%ED%9E%98-%EA%B7%B8%EB%A0%88%EB%94%94%EC%96%B8%ED%8A%B8-%ED%83%91%ED%96%87-%EB%B8%94%EB%9E%99%ED%96%87
+1100. https://mvcv.tistory.com/40
+1101. https://euthelearner.tistory.com/41
+1102. https://help.printful.com/hc/en-us/articles/50264019148177-How-should-I-prepare-my-print-file-for-the-best-results
+1103. https://developer.mozilla.org/en-US/docs/Web/API/ImageBitmapRenderingContext
+
+All nine pages above were individually opened/read and remained absent after canonical-URL comparison against the 1094-entry ledger. The search pass deliberately rotated Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian and Turkish queries. Six additional opened pages were rejected from counting because their canonical URLs were already present in the corpus; failed fetches and localized mirrors were also excluded.
+
+Key transfer: white-underbase generation should expose alpha threshold, choke, density and halftone as independent controls rather than one opaque preset. Choke is a morphology operation whose safe radius depends on final physical size/effective PPI and minimum surviving feature width; the Spanish DTF tool explicitly computes contraction from final physical size instead of trusting PNG DPI metadata. A white channel derived from soft alpha can be halftoned rather than forced solid when intentional fades must survive, while dusty near-zero alpha contamination is a different problem that may justify thresholding. Therefore thresholding must remain edge-class dependent: hard/binary art may use alpha clipping, but intentional soft alpha must not be globally binarized. The halftone source adds a useful calibration concept: min/max printable dot should be measured from a press calibration wedge and fed back into tonal mapping, not assumed from generic percentages. Korean morphology tutorials reinforce structuring-element shape as part of the operation contract: erosion/dilation direction and survival depend on kernel geometry, while opening/closing can remove islands/fill holes with less global size change than raw repeated erosion/dilation. Printful's current preparation guidance reinforces evaluating effective resolution at final physical dimensions and checking loose pixels/transparency before submission. MDN ImageBitmapRenderingContext confirms transferable bitmap rendering can live in workers, supporting a browser-side architecture that decodes/processes previews asynchronously without blocking the main UI.
+
+Implementation implication: retain separate AlphaContaminationPolicy, WhiteUnderbasePolicy, MorphologyRecipe and HalftoneCalibration evidence. Do not promote vendor defaults such as 2–3 px choke or a single alpha threshold to universal acceptance limits; normalize morphology to physical units and verify post-operation survivability of text, thin strokes and isolated islands.
+
+GitHub ledger: 1103 / 10,000. Research continuity: 1130 / 10,000.
