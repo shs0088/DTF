@@ -85,3 +85,39 @@ A future connector should send an asset reference + print intent to this engine 
 4. Accepted / Review / Rejected status.
 
 No OpenCart coupling is required inside this engine. The management/admin UI for this engine is also separate and can be added later.
+
+
+## Standalone API
+
+The engine also exposes a Bun HTTP API that is still fully separate from OpenCart and from the future management UI.
+
+```bash
+cd tools/dtf-image-prepress
+bun install
+bun run serve
+```
+
+Health check:
+
+```
+GET /health
+```
+
+Analyze an uploaded image:
+
+```
+POST /v1/analyze
+Content-Type: multipart/form-data
+
+file=<image>
+widthIn=16
+heightIn=18
+kind=text-heavy
+backgroundPresent=true
+textDetected=true
+foregroundSharesBackgroundColor=false
+lowContrastBoundary=false
+intentionalGlowOrShadow=false
+```
+
+The API returns facts, the processing plan, the RIP profile and the deterministic preflight decision. It does not publish products, write OpenCart records, select a Ready-to-Print Master, or operate any storefront.
