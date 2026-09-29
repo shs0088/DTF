@@ -24,9 +24,40 @@ export interface MaskConsensusResult {
   agreements: PairwiseMaskAgreement[];
   reasons: string[];
   calibrationId?: string;
+  representativeProviderId?: string;
 }
 
 const round = (value: number) => Math.round(value * 10000) / 10000;
+
+function selectMedoidProviderId(
+  masks: AlphaMaskReading[],
+  agreements: PairwiseMaskAgreement[],
+): string | undefined {
+  if (masks.length === 0) return undefined;
+  if (masks.length === 1) return masks[0].providerId;
+
+  const totals = new Map<string, { sum: number; count: number }>();
+  for (const mask of masks) totals.set(mask.providerId, { sum: 0, count: 0 });
+  for (const agreement of agreements) {
+    for (const id of [agreement.leftProviderId, agreement.rightProviderId]) {
+      const item = totals.get(id);
+      if (!item) continue;
+      item.sum += agreement.alphaMad;
+      item.count += 1;
+    }
+  }
+
+  return [...totals.entries()]
+    .map(([id, value]) => ({
+      id,
+      meanAlphaMad: value.count === 0 ? Number.POSITIVE_INFINITY : value.sum / value.count,
+    }))
+    .sort((a, b) =>
+      a.meanAlphaMad === b.meanAlphaMad
+        ? a.id.localeCompare(b.id)
+        : a.meanAlphaMad - b.meanAlphaMad,
+    )[0]?.id;
+}
 
 function validPolicy(policy: MaskConsensusPolicy): boolean {
   return (
@@ -127,10 +158,13 @@ export function evaluateMaskConsensus(
     }
   }
 
+  const status = reasons.length === 0 ? "pass" : "review";
   return {
-    status: reasons.length === 0 ? "pass" : "review",
+    status,
     agreements,
     reasons,
     calibrationId: policy.id,
+    representativeProviderId:
+      status === "pass" ? selectMedoidProviderId(masks, agreements) : undefined,
   };
 }
