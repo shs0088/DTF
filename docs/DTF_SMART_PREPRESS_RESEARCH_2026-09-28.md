@@ -8499,3 +8499,19 @@ Corpus: GitHub explicit 966 / 10,000; research continuity 993 / 10,000.
 Implementation: contract 0.8.0-research adds ResamplingArtifactReport, BlurMechanismReport and OutputColorHandoffReport with regression coverage. No deployment, merge, Oracle or storefront change.
 
 Corpus: GitHub explicit 975 / 10,000; research continuity 1002 / 10,000.
+
+
+## Batch 061 — multilingual matting, underbase intent and RIP halftone ownership
+
+- Trimap matting treats unknown pixels as foreground/background mixtures and estimates continuous alpha; segmentation masks must not substitute for this on soft boundaries.
+- Boundary-focused/deformable receptive fields reinforce source-resolution edge refinement after coarse/global inference.
+- White underbase intent is not universally binary. Vintage, distressed, fades and soft effects can intentionally require multiple white-opacity zones. Prepress must preserve declared tonal-underbase intent rather than flattening it.
+- RIP screening owns dot shape, angle and lineature. File-level creative halftones require minimum physical dot/tone checks and must not be screened a second time.
+- Very low tones can resolve as isolated visible dots; printability thresholds are process-specific and should be calibrated, not treated as universal constants.
+- White opacity, registration, total ink limit and ICC/color conversion are separate failure axes. Color complaints should not automatically trigger artwork edits.
+- Repeated RGB/CMYK conversion can accumulate color damage; preserve source profile and make the production transform once at the controlled handoff.
+- Choke requires one owner. Applying file/prepress choke and RIP choke simultaneously is a critical double-choke risk.
+
+Implementation: contract 0.9.0-research adds UnderbaseIntentReport, HalftonePrintabilityReport and ChokeOwnershipReport plus DOUBLE_CHOKE_RISK regression coverage. No deployment, merge, Oracle or storefront change.
+
+Corpus: GitHub explicit 982 / 10,000; research continuity 1009 / 10,000.
