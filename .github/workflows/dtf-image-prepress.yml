@@ -1,0 +1,28 @@
+name: DTF Image Prepress
+
+on:
+  push:
+    branches:
+      - feature/dtf-image-prepress-standalone-v1
+    paths:
+      - "tools/dtf-image-prepress/**"
+      - ".github/workflows/dtf-image-prepress.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/dtf-image-prepress
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install --frozen-lockfile=false
+      - name: Typecheck
+        run: bun run typecheck
+      - name: Tests
+        run: bun test
