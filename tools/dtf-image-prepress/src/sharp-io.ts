@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { stat } from "node:fs/promises";
 import sharp from "sharp";
 import type { AlphaMetrics, ImageFacts } from "./contracts";
+import { DEFAULT_INPUT_SECURITY_POLICY } from "./input-security";
 
 const clampRatio = (value: number) => Math.max(0, Math.min(1, value));
 const ORIENTATION_SWAPS_AXES = new Set([5, 6, 7, 8]);
@@ -17,7 +18,14 @@ function sha256Buffer(value?: Buffer): string | null {
 }
 
 export async function inspectRaster(path: string): Promise<ImageFacts> {
-  const image = sharp(path, { failOn: "warning" });
+  const image = sharp(path, {
+    failOn: DEFAULT_INPUT_SECURITY_POLICY.failOn,
+    limitInputPixels: DEFAULT_INPUT_SECURITY_POLICY.maxPixels,
+    limitInputChannels: DEFAULT_INPUT_SECURITY_POLICY.maxChannels,
+    unlimited: DEFAULT_INPUT_SECURITY_POLICY.unlimited,
+    sequentialRead: DEFAULT_INPUT_SECURITY_POLICY.sequentialRead,
+    pages: 1,
+  });
   const metadata = await image.metadata();
 
   const { data, info } = await image
@@ -85,7 +93,14 @@ export async function writeSafeRgbaCandidate(
 ) {
   const targetWidth = Math.round(options.widthIn * options.targetDpi);
   const targetHeight = Math.round(options.heightIn * options.targetDpi);
-  const metadata = await sharp(sourcePath).metadata();
+  const metadata = await sharp(sourcePath, {
+    failOn: DEFAULT_INPUT_SECURITY_POLICY.failOn,
+    limitInputPixels: DEFAULT_INPUT_SECURITY_POLICY.maxPixels,
+    limitInputChannels: DEFAULT_INPUT_SECURITY_POLICY.maxChannels,
+    unlimited: DEFAULT_INPUT_SECURITY_POLICY.unlimited,
+    sequentialRead: DEFAULT_INPUT_SECURITY_POLICY.sequentialRead,
+    pages: 1,
+  }).metadata();
   const orientation = metadata.orientation ?? null;
   const swapAxes = orientation != null && ORIENTATION_SWAPS_AXES.has(orientation);
   const sourceWidth = swapAxes ? (metadata.height ?? 0) : (metadata.width ?? 0);
@@ -96,7 +111,14 @@ export async function writeSafeRgbaCandidate(
     throw new Error("Upscaling is disabled for this candidate. Route the source through a validated upscaler first.");
   }
 
-  await sharp(sourcePath, { failOn: "warning" })
+  await sharp(sourcePath, {
+    failOn: DEFAULT_INPUT_SECURITY_POLICY.failOn,
+    limitInputPixels: DEFAULT_INPUT_SECURITY_POLICY.maxPixels,
+    limitInputChannels: DEFAULT_INPUT_SECURITY_POLICY.maxChannels,
+    unlimited: DEFAULT_INPUT_SECURITY_POLICY.unlimited,
+    sequentialRead: DEFAULT_INPUT_SECURITY_POLICY.sequentialRead,
+    pages: 1,
+  })
     .autoOrient()
     .ensureAlpha()
     .pipelineColourspace("rgb16")
@@ -109,8 +131,8 @@ export async function writeSafeRgbaCandidate(
     })
     .toColourspace("srgb")
     .withIccProfile("srgb")
+    .withDensity(options.targetDpi)
     .png({ compressionLevel: 9, adaptiveFiltering: true })
-    .withMetadata({ orientation: 1, density: options.targetDpi })
     .toFile(outputPath);
 
   return { targetWidth, targetHeight, outputPath };
@@ -121,7 +143,14 @@ export async function writePreviewOnBackground(
   outputPath: string,
   background: { r: number; g: number; b: number },
 ) {
-  await sharp(sourcePath)
+  await sharp(sourcePath, {
+    failOn: DEFAULT_INPUT_SECURITY_POLICY.failOn,
+    limitInputPixels: DEFAULT_INPUT_SECURITY_POLICY.maxPixels,
+    limitInputChannels: DEFAULT_INPUT_SECURITY_POLICY.maxChannels,
+    unlimited: DEFAULT_INPUT_SECURITY_POLICY.unlimited,
+    sequentialRead: DEFAULT_INPUT_SECURITY_POLICY.sequentialRead,
+    pages: 1,
+  })
     .autoOrient()
     .ensureAlpha()
     .flatten({ background })
