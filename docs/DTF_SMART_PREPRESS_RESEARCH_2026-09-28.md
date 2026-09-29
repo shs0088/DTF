@@ -8533,3 +8533,26 @@ Corpus: GitHub explicit 982 / 10,000; research continuity 1009 / 10,000.
 Implementation: contract advanced to 1.0.0-research with AlphaFilteringIntegrityReport, DeviceProfileCalibrationReport, InkjetProcessReport and BoundaryRefinementReport. Added warnings ALPHA_FILTERING_HALO_RISK, NONLINEAR_RESAMPLING_COMPOSITE_RISK, GENERIC_OUTPUT_PROFILE_NEEDS_DEVICE_PROOF and HALFTONE_PROCESS_NOT_CALIBRATED, plus regression assertions. No deployment, merge, Oracle or storefront change.
 
 Corpus: GitHub explicit 998 / 10,000; research continuity 1025 / 10,000.
+
+
+## Batch 063 — open-source device code, drawing applications and RIP production handoff
+
+This pass was synchronized with a concurrent 19-page device/RIP batch that had already moved the canonical ledger from 998 to 1017. Batch 063 then added 26 non-overlapping pages, so no concurrently written source was double-counted.
+
+- A print-ready image is not yet a device-ready raster. CUPS/PWG raster metadata exposes hardware X/Y resolution, bits per color/pixel, color order (chunky/banded/planar), color space, number of colors, separations, bytes/row and rendering intent. Smart Prepress therefore needs a DeviceRasterContract at the RIP/driver boundary.
+- CUPS filters/backends and Printer Applications are distinct pipeline stages. Application-level validation must not pretend to validate device rasterization unless the driver/RIP contract is known.
+- Gutenprint and ESC/P2 documentation/source show that printer output has its own channel/plane order, dot buffers, weave/interleave, row/column step/feed and device command language. File channel order is not authority for head-plane order.
+- Alpha-safe scaling remains mandatory. libvips implementation documentation explicitly separates ordinary resize from a thumbnail path that premultiplies, color-manages, resamples and unpremultiplies. Intel IPP likewise provides explicit alpha-premultiplication primitives. This supports a strict alpha-association contract around every filter/resample stage.
+- RIP white/spot channels are not interchangeable with Alpha. Caldera can copy Alpha to a selected spot channel and may delete the Alpha afterward; TIFF spot channels can also require polarity inversion. Therefore the print derivative may derive a white spot from Alpha, but the immutable master must retain its original Alpha and the derivative must record spot name, polarity and conversion provenance.
+- Special inks need calibration independently of process color. Caldera exposes linearization and maximum limits for white, varnish, fluorescent and metallic channels. White density is therefore a calibrated device/media variable, not a universal constant.
+- Recent DTF RIP behavior reinforces defensive input handling: white-spot aliases may map differently, incomplete white data can be blended with generated white, corrupt/indexed PNG transparency can affect output, and invalid ICC profiles must not be treated as valid production profiles.
+- Soft proof is not the production transform. LittleCMS, OpenColorIO, Krita, Scribus and Inkscape all reinforce separate roles for display/view transforms, proof profiles, rendering/proofing intent, gamut checks, production ICC and DeviceLink transforms. A proof preview never substitutes for the production transform recorded at handoff.
+- EXR is a useful warning case: high-precision/scene-referred pixels can exist without embedded color-space metadata. Missing color metadata must remain an explicit uncertainty rather than being silently assumed from pixel precision or file format.
+- Transparency flattening is a prepress transformation, not a harmless save operation. Adobe documents vector/raster splitting, stitching boundaries, spot/overprint interactions, altered thin text/strokes and rasterization-resolution effects. Any flattened derivative must be re-preflighted.
+- Host-based separations and In-RIP separations have different ownership. Smart Prepress must record where separation, trapping, color management, white/spot mapping and screening occur to prevent duplicated or contradictory processing.
+- Device behavior can dominate visible defects. The Arabic printhead/RIP reference traces pixels into PRN dot states, channel order, encoder timing, nozzle interleave and variable droplet states; mismatched head/channel configuration can create banding or registration errors even when the source artwork is correct.
+- Fiery XF spot/process overprint controls further reinforce that overprint and dot-gain simulation are process models and should not be baked blindly into the master image.
+
+Implementation: research contract advanced to 1.1.0-research. Added DeviceRasterContractReport, PrinterPlaneAndWeaveReport, RipSpotWhiteHandoffReport and ProductionProofTransformReport. New guards include RASTER_HANDOFF_METADATA_INCOMPLETE, DEVICE_PLANE_ORDER_UNVERIFIED, RIP_WHITE_CHANNEL_MISSING, SPOT_CHANNEL_POLARITY_UNVERIFIED and PRINT_MASTER_PHYSICAL_SIZE_METADATA_CHANGED. Regression assertions were added for these contracts. This remains research-branch code; no Oracle execution, deployment or storefront modification was performed.
+
+Corpus: GitHub explicit 1043 / 10,000; research continuity 1070 / 10,000.
