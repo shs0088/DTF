@@ -96,6 +96,40 @@ final class Preflight {
         $localBoundaryRefinement = (bool)($m['localBoundaryRefinement'] ?? false);
         $boundaryRefinementBandPx = isset($m['boundaryRefinementBandPx']) ? max(0,(int)$m['boundaryRefinementBandPx']) : null;
         $orientationAwareInterpolation = (bool)($m['orientationAwareInterpolation'] ?? false);
+        $deviceHandoffRequired = (bool)($m['deviceHandoffRequired'] ?? false);
+        $deviceRasterDpiX = isset($m['deviceRasterDpiX']) ? max(1,(int)$m['deviceRasterDpiX']) : null;
+        $deviceRasterDpiY = isset($m['deviceRasterDpiY']) ? max(1,(int)$m['deviceRasterDpiY']) : null;
+        $deviceBitsPerColor = isset($m['deviceBitsPerColor']) ? max(1,(int)$m['deviceBitsPerColor']) : null;
+        $deviceBitsPerPixel = isset($m['deviceBitsPerPixel']) ? max(1,(int)$m['deviceBitsPerPixel']) : null;
+        $deviceColorOrder = trim((string)($m['deviceColorOrder'] ?? ''));
+        $deviceColorSpace = trim((string)($m['deviceColorSpace'] ?? ''));
+        $deviceNumColors = isset($m['deviceNumColors']) ? max(1,(int)$m['deviceNumColors']) : null;
+        $deviceSeparations = isset($m['deviceSeparations']) ? (bool)$m['deviceSeparations'] : null;
+        $deviceBytesPerLine = isset($m['deviceBytesPerLine']) ? max(1,(int)$m['deviceBytesPerLine']) : null;
+        $deviceProtocol = trim((string)($m['deviceProtocol'] ?? ''));
+        $printerPlanes = isset($m['printerPlanes']) ? max(1,(int)$m['printerPlanes']) : null;
+        $printerPlaneOrder = isset($m['printerPlaneOrder']) && is_array($m['printerPlaneOrder']) ? array_values($m['printerPlaneOrder']) : [];
+        $weaveMode = trim((string)($m['weaveMode'] ?? ''));
+        $dotRowStep = isset($m['dotRowStep']) ? max(0,(int)$m['dotRowStep']) : null;
+        $dotColStep = isset($m['dotColStep']) ? max(0,(int)$m['dotColStep']) : null;
+        $dotRowFeed = isset($m['dotRowFeed']) ? max(0,(int)$m['dotRowFeed']) : null;
+        $printDirection = trim((string)($m['printDirection'] ?? ''));
+        $spotWhiteRequiredByRip = (bool)($m['spotWhiteRequiredByRip'] ?? false);
+        $spotWhitePresent = (bool)($m['spotWhitePresent'] ?? false);
+        $whiteChannelName = trim((string)($m['whiteChannelName'] ?? ''));
+        $spotChannelPolarity = trim((string)($m['spotChannelPolarity'] ?? 'unknown'));
+        $alphaCopiedToSpot = (bool)($m['alphaCopiedToSpot'] ?? false);
+        $alphaDeletedAfterSpotCopy = (bool)($m['alphaDeletedAfterSpotCopy'] ?? false);
+        $ripOutputContainer = trim((string)($m['ripOutputContainer'] ?? ''));
+        $physicalSizeMetadataPreserved = isset($m['physicalSizeMetadataPreserved']) ? (bool)$m['physicalSizeMetadataPreserved'] : null;
+        $dpiMetadataPreserved = isset($m['dpiMetadataPreserved']) ? (bool)$m['dpiMetadataPreserved'] : null;
+        $whiteCoveragePercent = isset($m['whiteCoveragePercent']) ? max(0.0,min(100.0,(float)$m['whiteCoveragePercent'])) : null;
+        $whiteAverageDensity = isset($m['whiteAverageDensity']) ? max(0.0,min(1.0,(float)$m['whiteAverageDensity'])) : null;
+        $proofProfile = trim((string)($m['proofProfile'] ?? ''));
+        $proofRenderingIntent = trim((string)($m['proofRenderingIntent'] ?? ''));
+        $deviceLinkProfile = trim((string)($m['deviceLinkProfile'] ?? ''));
+        $softProofEnabled = (bool)($m['softProofEnabled'] ?? false);
+        $rawTechCheckAvailable = (bool)($m['rawTechCheckAvailable'] ?? false);
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -156,6 +190,22 @@ final class Preflight {
         if ($exportScaleMismatch) {
             $warnings[] = ['code'=>'EXPORT_ASPECT_OR_SCALE_MISMATCH','severity'=>'warning'];
         }
+        $deviceRasterComplete = $deviceRasterDpiX !== null && $deviceRasterDpiY !== null && $deviceBitsPerColor !== null && $deviceColorOrder !== '' && $deviceColorSpace !== '' && $deviceNumColors !== null;
+        if ($deviceHandoffRequired && !$deviceRasterComplete) {
+            $warnings[] = ['code'=>'RASTER_HANDOFF_METADATA_INCOMPLETE','severity'=>'warning'];
+        }
+        if ($printerPlanes !== null && $printerPlanes > 1 && count($printerPlaneOrder) !== $printerPlanes) {
+            $warnings[] = ['code'=>'DEVICE_PLANE_ORDER_UNVERIFIED','severity'=>'warning','printerPlanes'=>$printerPlanes,'declaredPlaneOrderCount'=>count($printerPlaneOrder)];
+        }
+        if ($spotWhiteRequiredByRip && !$spotWhitePresent) {
+            $errors[] = ['code'=>'RIP_WHITE_CHANNEL_MISSING','severity'=>'critical'];
+        }
+        if ($spotWhiteRequiredByRip && $spotWhitePresent && $spotChannelPolarity === 'unknown') {
+            $warnings[] = ['code'=>'SPOT_CHANNEL_POLARITY_UNVERIFIED','severity'=>'warning'];
+        }
+        if ($physicalSizeMetadataPreserved === false || $dpiMetadataPreserved === false) {
+            $warnings[] = ['code'=>'PRINT_MASTER_PHYSICAL_SIZE_METADATA_CHANGED','severity'=>'warning'];
+        }
         if ($chokeSource === 'prepress' && $ripChokeEnabled) {
             $warnings[] = ['code'=>'DOUBLE_CHOKE_RISK','severity'=>'critical'];
         }
@@ -202,6 +252,58 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'deviceRasterContractReport' => [
+                'required'=>$deviceHandoffRequired,
+                'dpiX'=>$deviceRasterDpiX,
+                'dpiY'=>$deviceRasterDpiY,
+                'bitsPerColor'=>$deviceBitsPerColor,
+                'bitsPerPixel'=>$deviceBitsPerPixel,
+                'colorOrder'=>$deviceColorOrder !== '' ? $deviceColorOrder : null,
+                'colorSpace'=>$deviceColorSpace !== '' ? $deviceColorSpace : null,
+                'numColors'=>$deviceNumColors,
+                'separations'=>$deviceSeparations,
+                'bytesPerLine'=>$deviceBytesPerLine,
+                'protocol'=>$deviceProtocol !== '' ? $deviceProtocol : null,
+                'complete'=>$deviceRasterComplete,
+                'fileChannelOrderMaySubstituteDevicePlaneOrder'=>false
+            ],
+            'printerPlaneAndWeaveReport' => [
+                'printerPlanes'=>$printerPlanes,
+                'planeOrder'=>$printerPlaneOrder,
+                'weaveMode'=>$weaveMode !== '' ? $weaveMode : null,
+                'dotRowStep'=>$dotRowStep,
+                'dotColStep'=>$dotColStep,
+                'dotRowFeed'=>$dotRowFeed,
+                'printDirection'=>$printDirection !== '' ? $printDirection : null,
+                'devicePlaneOrderMustBeExplicit'=>true,
+                'weaveAndHeadGeometryAreDeviceProperties'=>true
+            ],
+            'ripSpotWhiteHandoffReport' => [
+                'required'=>$spotWhiteRequiredByRip,
+                'present'=>$spotWhitePresent,
+                'channelName'=>$whiteChannelName !== '' ? $whiteChannelName : null,
+                'polarity'=>$spotChannelPolarity,
+                'alphaCopiedToSpot'=>$alphaCopiedToSpot,
+                'alphaDeletedAfterSpotCopy'=>$alphaDeletedAfterSpotCopy,
+                'outputContainer'=>$ripOutputContainer !== '' ? $ripOutputContainer : null,
+                'physicalSizeMetadataPreserved'=>$physicalSizeMetadataPreserved,
+                'dpiMetadataPreserved'=>$dpiMetadataPreserved,
+                'coveragePercent'=>$whiteCoveragePercent,
+                'averageDensity'=>$whiteAverageDensity,
+                'spotAndAlphaAreSeparateSemantics'=>true,
+                'masterAlphaMayBeDeletedAfterCopy'=>false
+            ],
+            'productionProofTransformReport' => [
+                'softProofEnabled'=>$softProofEnabled,
+                'proofProfile'=>$proofProfile !== '' ? $proofProfile : null,
+                'proofRenderingIntent'=>$proofRenderingIntent !== '' ? $proofRenderingIntent : null,
+                'productionProfile'=>$targetProfile !== '' ? $targetProfile : null,
+                'productionRenderingIntent'=>$outputRenderingIntent !== '' ? $outputRenderingIntent : null,
+                'deviceLinkProfile'=>$deviceLinkProfile !== '' ? $deviceLinkProfile : null,
+                'rawTechCheckAvailable'=>$rawTechCheckAvailable,
+                'gamutCheckIsDiagnostic'=>true,
+                'proofMaySubstituteProductionTransform'=>false
             ],
             'alphaFilteringIntegrityReport' => [
                 'storageMode'=>$alphaStorageMode,
@@ -410,7 +512,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'1.0.0-research',
+                'contractVersion'=>'1.1.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
