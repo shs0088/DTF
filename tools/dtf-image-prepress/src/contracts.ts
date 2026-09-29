@@ -7,6 +7,15 @@ export type ArtworkKind =
 
 export type Decision = "accepted" | "review" | "rejected";
 
+export type AlphaHandlingMode =
+  | "preserve-continuous"
+  | "rip-adaptive"
+  | "binary-edge";
+
+export type UnderbaseStrategy =
+  | "rip-generated"
+  | "external-prepress";
+
 export interface OcrSnapshot {
   text: string;
   confidence?: number;
@@ -49,8 +58,11 @@ export interface RipProfile {
   maxUpscaleFactor: number;
   allowSemiTransparency: boolean;
   semiTransparencyReviewThreshold: number;
+  alphaHandlingMode: AlphaHandlingMode;
+  preserveIntentionalSoftEffects: boolean;
   preferredColorSpace: "srgb";
   bakeWhiteUnderbase: false;
+  underbaseStrategy: UnderbaseStrategy;
 }
 
 export interface QualityEvidence {
@@ -60,6 +72,7 @@ export interface QualityEvidence {
   topologyAfter?: TopologySnapshot;
   colorDeltaE00?: number;
   edgeDisplacementPx?: number;
+  alphaFringeScore?: number;
 }
 
 export interface PreflightInput {
