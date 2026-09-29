@@ -8693,3 +8693,14 @@ Photo-vs-illustration can be inferred from pixels without trusting filename/meta
 Contract direction: ImageNatureProfile plus ProcessingRoutePolicy. Low confidence, contradictory heads or out-of-distribution evidence must downgrade to conservative/no-destructive processing or human review rather than aggressive AI restoration/vectorization. This profile will ultimately choose among vectorization, soft matting, conservative resampling, artifact-specific denoise/deblur, restorative AI upscale, generative derivative, or no enhancement.
 
 Corpus: 1182 / 10,000 verified ledger pages; research continuity 1209 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 075 — multilingual OCR and safe text reconstruction
+
+Sixteen new open-source sources were opened/read and deduplicated. Text is now a first-class semantic region with its own preservation/reconstruction pipeline. Detection geometry (CRAFT/DB/E2E-MLT family) is separated from recognition (PaddleOCR/EasyOCR/Tesseract/MMOCR/PARSeq/ABINet/docTR and benchmark families). OCR output alone is insufficient for reconstruction: retain polygons/baselines/orientation and character-level confidence, and use multi-recognizer consensus where ambiguity matters.
+
+For Arabic and other complex scripts, reconstruction must operate on verified Unicode text plus script/language/direction through a shaping engine such as HarfBuzz; font parsing/manipulation and sanitization are separate concerns handled by fontTools/fontations/OTS-class tooling. Preserve diacritics, joining behavior, ligatures and bidi order. If an upscale/restoration step damages small text, re-run recognition against the best pre-upscale source and, only when content is sufficiently verified, reconstruct glyphs at target resolution instead of sharpening hallucinated letterforms.
+
+New contracts: TextRegionProfile, OCRConsensusReport, TextReconstructionEvidence and GlyphRenderRoundTripReport. A reconstructed region is rasterized at final physical size and compared for baseline, geometry, stroke width, glyph topology, color and edge placement. Low-confidence or conflicting OCR cannot silently modify a print master; it remains review-required evidence.
+
+Corpus: 1198 / 10,000 verified ledger pages; research continuity 1225 / 10,000. No merge, deployment, Oracle execution or storefront modification.
