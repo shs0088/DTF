@@ -1958,3 +1958,31 @@ Scope remains IMAGE PREPARATION ONLY. Edge operators (Sobel/Laplacian/Canny) are
 Implementation implication: add EdgeIntegrityDiagnostic with Canny/Sobel/Laplacian maps and before/after edge-distance statistics; DecodeSemanticsEvidence for orientation/alpha/bit-depth decode policy; ColorTransformRoundTripReport for transform/domain/range/profile evidence. Do not auto-apply contrast enhancement or edge detection to the print master merely because it improves machine-visible structure.
 
 GitHub ledger: 1166 / 10,000. Research continuity: 1193 / 10,000.
+
+
+## Verified Batch 073 — 6 materially distinct pages — multilingual matting, browser-local AI, anisotropic denoise and halftone algorithms
+
+1167. https://www.alphaxiv.org/de/abs/2403.15789
+1168. https://habr.com/ru/articles/326936/
+1169. https://habr.com/ru/articles/1042598/
+1170. https://habr.com/ru/companies/sberdevices/articles/742528/
+1171. https://habr.com/ru/articles/331618/
+1172. https://habr.com/ru/companies/bothubchat/articles/1083376/
+
+Six materially distinct pages were individually opened/read. Searches deliberately rotated German, Russian, Spanish, Portuguese, French, Japanese, Korean and Chinese. Localized GIMP manual mirrors and localized commercial-product mirrors were rejected rather than counted; a Spanish GIMP tutorial timed out on explicit open and therefore was not counted. Existing PyMatting and previously-counted pages were also rejected.
+
+Scope remains IMAGE PREPARATION ONLY.
+
+Key transfer — matting is not segmentation. The German In-Context Matting paper summary explicitly distinguishes binary segmentation from semitransparency estimation and reports SAD, MSE, gradient and connectivity as complementary matting metrics. Its reference-guided batch concept suggests a future designer/product workflow: one manually corrected exemplar may guide repeated similar artwork, but only when similarity and annotation quality are sufficient; it must fall back rather than force transfer.
+
+Key transfer — classical matting evidence. The Russian matting review reiterates the compositing model I = alpha*F + (1-alpha)*B and the underdetermined nature of recovering F, B and alpha from one observed RGB pixel. This reinforces that a segmentation mask copied directly into alpha is not equivalent to foreground estimation and true matting.
+
+Key transfer — edge-preserving denoise. Perona-Malik anisotropic diffusion varies smoothing according to local gradient rather than applying uniform Gaussian diffusion. It is a useful deterministic benchmark for suppressing low-gradient noise while retaining boundaries, but parameter/time-step stability and thin-stroke survival must be tested; per-channel color processing can also create chromatic inconsistencies if channels evolve independently.
+
+Key transfer — dithering/halftone. The Russian 11-algorithm implementation survey compares error-diffusion kernels and warns against simplified formulas mislabeled as Floyd-Steinberg. For Smart Prepress, store the exact kernel, scan order/serpentine policy, divisor, palette/levels and processing domain. A generic label such as 'Floyd-Steinberg' is insufficient provenance. Dithering for display/palette reduction must not be confused with DTF-specific image-level halftone preparation.
+
+Key transfer — AI/browser execution. A Russian ONNX Runtime Web tutorial demonstrates fully local background-removal inference in the browser, avoiding upload of source pixels. This is architecturally valuable for privacy and latency, but model/WASM caching, dynamic imports, memory pressure and deterministic model versioning become part of reproducibility. A separate 2026 Russian comparative test of AI background removers shows an important failure class for print preparation: transparent glass may retain colors/reflections from the original environment even when alpha looks plausible, and hair may retain bright fringes. Therefore QA must test foreground RGB decontamination as well as alpha.
+
+Implementation implication: add MattingMetricSuite(SAD,MSE,gradient,connectivity), ReferenceGuidedBatchMattingEvidence, AnisotropicDenoiseEvidence, DitherKernelProvenance and LocalAIExecutionEvidence. Add a translucent-object recomposition test over multiple synthetic backgrounds to expose environment-color contamination that a single checkerboard preview can hide.
+
+GitHub ledger: 1172 / 10,000. Research continuity: 1199 / 10,000.
