@@ -41,6 +41,14 @@ $soft = $engine->analyze([
  'spotWhiteRequiredByRip'=>true,'spotWhitePresent'=>true,'whiteChannelName'=>'W1','spotChannelPolarity'=>'unknown','alphaCopiedToSpot'=>true,'alphaDeletedAfterSpotCopy'=>false,
  'ripOutputContainer'=>'TIFF','physicalSizeMetadataPreserved'=>true,'dpiMetadataPreserved'=>false,'whiteCoveragePercent'=>62.5,'whiteAverageDensity'=>0.74,
  'proofProfile'=>'DTF-proof.icc','proofRenderingIntent'=>'relative-colorimetric','deviceLinkProfile'=>'DTF-device-link.icc','softProofEnabled'=>true,'rawTechCheckAvailable'=>true,
+ 'processingScope'=>'image-pre-rip','ripOwnsPrintExecution'=>true,'sourceImageWidthPx'=>2000,'sourceImageHeightPx'=>2400,
+ 'backgroundRemovalProvider'=>'photoroom','backgroundRemovalModel'=>'segment-v1','rawSegmentationMaskAvailable'=>true,'mattingApplied'=>true,
+ 'foregroundColorReconstruction'=>true,'edgeDecontaminationApplied'=>true,'backgroundRemovalUncertainty'=>0.08,
+ 'originalAlphaPresentBeforeAi'=>true,'originalAlphaAction'=>'replace','maskSource'=>'ai-selection','maskPolarity'=>'unknown','maskWidthPx'=>1024,'maskHeightPx'=>1024,
+ 'maskQualityPredictedIou'=>0.91,'maskStabilityScore'=>0.96,'aiEditUsed'=>true,'aiProvider'=>'firefly','aiModelName'=>'fill-expand','aiEditType'=>'masked-generative-fill',
+ 'aiReferenceCount'=>2,'aiSeed'=>'12345','outsideMaskChanged'=>true,'generatedPixelFraction'=>0.12,'containsTextOrLogo'=>true,'textLogoIntegrityVerified'=>false,
+ 'aiUpscaleUsed'=>true,'aiUpscaleModel'=>'preserve-details-2','aiUpscaleScale'=>2.0,'aiUpscaleAlphaPreserved'=>false,
+ 'inpaintUsed'=>true,'inpaintMaskHasGray'=>true,'inpaintMaskExpandedPercent'=>15,'unmaskedRegionPreserved'=>false,'inpaintContextExpansionPx'=>64,
  'authoringApp'=>'canva','canvasWidthPx'=>4000,'canvasHeightPx'=>5000,
  'exportWidthPx'=>2000,'exportHeightPx'=>2400,'exportFormat'=>'png','exportHasTransparency'=>false
 ]);
@@ -56,6 +64,24 @@ assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRendere
 assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
 assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
 assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
+assert($soft['imageOnlyRipBoundaryReport']['validatesImagePreparationOnly']===true);
+assert($soft['imageOnlyRipBoundaryReport']['ripOwnsPrintExecution']===true);
+assert($soft['backgroundRemovalIntegrityReport']['segmentationMaskMaySubstituteSoftAlpha']===false);
+assert($soft['backgroundRemovalIntegrityReport']['foregroundColorAndAlphaAreSeparateOutputs']===true);
+assert($soft['aiMaskSemanticsReport']['matchesSourceDimensions']===false);
+assert($soft['aiMaskSemanticsReport']['automaticMaskQualityIsEvidenceNotAcceptance']===true);
+assert(in_array('AI_MASK_POLARITY_UNVERIFIED', array_column($soft['warnings'],'code'), true));
+assert(in_array('AI_MASK_DIMENSION_MISMATCH', array_column($soft['warnings'],'code'), true));
+assert(in_array('ORIGINAL_ALPHA_CHANGED_BY_AI_TOOL', array_column($soft['warnings'],'code'), true));
+assert($soft['aiImageEditIntegrityReport']['requiresFullRepreflight']===true);
+assert($soft['aiImageEditIntegrityReport']['mayReplaceMasterWithoutQa']===false);
+assert(in_array('GENERATIVE_EDIT_REQUIRES_REPREFLIGHT', array_column($soft['warnings'],'code'), true));
+assert(in_array('AI_EDIT_CHANGED_OUTSIDE_MASK', array_column($soft['warnings'],'code'), true));
+assert(in_array('AI_TEXT_LOGO_INTEGRITY_UNVERIFIED', array_column($soft['warnings'],'code'), true));
+assert($soft['aiUpscaleIntegrityReport']['syntheticDetailPossible']===true);
+assert(in_array('AI_UPSCALE_ALPHA_NOT_PRESERVED', array_column($soft['warnings'],'code'), true));
+assert($soft['inpaintIntegrityReport']['outsideMaskPixelDiffMustBeChecked']===true);
+assert(in_array('INPAINT_CHANGED_UNMASKED_REGION', array_column($soft['warnings'],'code'), true));
 assert($soft['deviceRasterContractReport']['complete']===true);
 assert($soft['deviceRasterContractReport']['fileChannelOrderMaySubstituteDevicePlaneOrder']===false);
 assert($soft['printerPlaneAndWeaveReport']['weaveAndHeadGeometryAreDeviceProperties']===true);
