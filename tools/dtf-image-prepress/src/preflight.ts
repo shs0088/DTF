@@ -12,6 +12,7 @@ import {
 } from "./rules";
 
 const round = (value: number) => Math.round(value * 100) / 100;
+const MIN_RELIABLE_OCR_CONFIDENCE = 0.8;
 
 export function effectiveDpi(
   pixelWidth: number,
@@ -215,10 +216,24 @@ export function runPreflight(input: PreflightInput): PreflightResult {
   const evidence = input.evidence;
   if (evidence?.ocrBefore && evidence?.ocrAfter) {
     const ratio = textPreservationRatio(evidence.ocrBefore.text, evidence.ocrAfter.text);
+    const beforeConfidence = evidence.ocrBefore.confidence ?? 0;
+    const afterConfidence = evidence.ocrAfter.confidence ?? 0;
+    const reliable =
+      beforeConfidence >= MIN_RELIABLE_OCR_CONFIDENCE &&
+      afterConfidence >= MIN_RELIABLE_OCR_CONFIDENCE;
+
     checks.push({
       code: "text-preservation",
-      status: ratio === 1 ? "pass" : ratio >= 0.98 ? "warn" : "fail",
-      message: `OCR text preservation ratio: ${round(ratio * 100)}%.`,
+      status: !reliable
+        ? "warn"
+        : ratio === 1
+          ? "pass"
+          : ratio >= 0.98
+            ? "warn"
+            : "fail",
+      message: !reliable
+        ? `OCR evidence is not reliable enough for an automatic text decision (before ${round(beforeConfidence * 100)}%, after ${round(afterConfidence * 100)}%).`
+        : `OCR text preservation ratio: ${round(ratio * 100)}%.`,
     });
   }
 
