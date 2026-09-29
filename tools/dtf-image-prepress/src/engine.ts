@@ -9,6 +9,7 @@ import { runPreflight } from "./preflight";
 import { DEFAULT_RIP_PROFILE } from "./rules";
 import { buildProcessingPlan } from "./router";
 import { inspectRaster, sha256File, writeSafeRgbaCandidate } from "./sharp-io";
+import { inspectInputSecurity } from "./input-security";
 
 export interface AnalyzeRequest {
   sourcePath: string;
@@ -20,10 +21,14 @@ export interface AnalyzeRequest {
 
 export async function analyzeSource(request: AnalyzeRequest) {
   const profile = request.profile ?? DEFAULT_RIP_PROFILE;
+  const inputSecurity = await inspectInputSecurity(request.sourcePath);
+  if (!inputSecurity.allowed) {
+    throw new Error(`Input rejected by local security policy: ${inputSecurity.failures.join(" | ")}`);
+  }
   const facts = await inspectRaster(request.sourcePath);
   const preflight = runPreflight({ facts, intent: request.intent, profile, evidence: request.evidence });
   const plan = buildProcessingPlan(request.routing);
-  return { facts, preflight, plan, profile };
+  return { facts, preflight, plan, profile, inputSecurity };
 }
 
 export async function createDeterministicCandidate(
