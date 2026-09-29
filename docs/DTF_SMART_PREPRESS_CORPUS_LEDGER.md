@@ -2427,3 +2427,44 @@ Task-aware candidate QA: MS-SSIM/structural metrics, LPIPS-like perceptual featu
 Illustration deployment route: waifu2x, Real-CUGAN, RealSR/Real-ESRGAN NCNN/Vulkan, Anime4K, Upscayl and related local engines become reproducible candidates for illustration/anime/flat-art classes. They are benchmarked against vectorization and conventional resampling at final physical size rather than selected by brand/model name.
 
 GitHub ledger: 1381 / 10,000. Research continuity: 1408 / 10,000.
+
+
+## Verified Batch 086 — 25 pages — mixed degradation, hallucination/data consistency, ringing
+
+1382. https://github.com/jiangyitong/AutoDIR
+1383. https://github.com/Archaic-Atom/Expert-restore
+1384. https://github.com/Amazingren/AnyIR
+1385. https://github.com/va1shn9v/PromptIR
+1386. https://github.com/JunyuFan/UDAIR
+1387. https://github.com/c-yn/adair
+1388. https://github.com/tonia86/DOD
+1389. https://github.com/Tusiwei/BIR-D
+1390. https://github.com/tirer-lab/CM4IR
+1391. https://github.com/Rain-sy/PGSR
+1392. https://github.com/aiimaginglab/PCFlow
+1393. https://onlinelibrary.wiley.com/doi/10.1155/2014/295615
+1394. https://github.com/yuanzhi-zhu/oftsr
+1395. https://github.com/ZHT150798/CorPiR
+1396. https://research.tue.nl/en/publications/a-no-reference-metric-for-perceived-ringing-artifacts-in-images/
+1397. https://github.com/andreasfloros/trustworthy-super-resolution
+1398. https://github.com/majedelhelou/SFM
+1399. https://github.com/StarNextDay/SubDAPS
+1400. https://arxiv.org/abs/2507.14367
+1401. https://openaccess.thecvf.com/content/ICCV2025/html/Lee_Reference-based_Super-Resolution_via_Image-based_Retrieval-Augmented_Generation_Diffusion_ICCV_2025_paper.html
+1402. https://github.com/davidatroberts/No-Reference-Sharpness-Metric
+1403. https://github.com/TN1ck/mathematical-deblur
+1404. https://github.com/GreatAttractor/imppg
+1405. https://openaccess.thecvf.com/content/CVPR2026/html/Ryou_Beyond_the_Ground_Truth_Enhanced_Supervision_for_Image_Restoration_CVPR_2026_paper.html
+1406. https://github.com/Youngforgithub/Deblurring-Text-Images-via-L0-Regularized-Intensity-and-Gradient/blob/master/ringing_artifacts_removal.m
+
+25 new pages were opened/read and deduplicated.
+
+DAPR now separates ContentProfile from DegradationProfile. All-in-one learned restorers (prompt, frequency-adaptive, diffusion, expert and domain-adaptive families) are candidate generators; image content must not itself be mistaken for degradation.
+
+DAPR-BackProjection Gate: after SR/restoration, project the candidate through the estimated degradation operator back to observation space and compare with the immutable input. Large unexplained residual increases hallucination risk. Combine this with multi-candidate/seed stability, protected edge/glyph consistency and high-frequency provenance. Learned hallucination/IQA scores are advisory only.
+
+DAPR-Ringing Gate: quantify alternating overshoot/undershoot near strong edges, spatial extent, oscillation energy and visibility relative to local background activity. New oscillation unsupported by source evidence is penalized as ringing rather than rewarded as sharpness. For deconvolution compare edge-taper/apodized Wiener/RL/TV/L0/regularized candidates and reject candidates exceeding the ringing budget.
+
+Mixed degradations are represented as an ordered degradation graph rather than one label, because blur, resize, noise and compression can compose non-commutatively. Candidate inverse routes are tested against observation consistency and hard DTF invariants.
+
+GitHub ledger: 1406 / 10,000. Research continuity: 1433 / 10,000.
