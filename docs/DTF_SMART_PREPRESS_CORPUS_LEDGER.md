@@ -2374,3 +2374,56 @@ DAPR-ParameterCalibrator: J-invariant self-supervised loss may propose denoiser 
 DAPR-Resample: classify smooth versus directional-edge versus text/flat-art regions. Smooth regions use low-ringing conventional candidates; directional edges add NEDI/iNEDI/EEDI-style candidates; text/flat art also compare vector/pixel-art routes. Select only after final-size boundary, ringing, topology and color tests.
 
 GitHub ledger: 1344 / 10,000. Research continuity: 1371 / 10,000.
+
+
+## Verified Batch 085 — 37 pages — degradation diagnosis, blind SR and task-aware QA
+
+1345. https://github.com/IVRL/DeQA-Score
+1346. https://github.com/chaofengc/pyiqa
+1347. https://github.com/bo-zhang-cs/Perceptual-Image-Quality-Assessment
+1348. https://github.com/zwx8981/UNIQUE
+1349. https://github.com/zwx8981/DBCNN
+1350. https://github.com/zwx8981/HyperIQA
+1351. https://github.com/IceClear/CLIPIQA
+1352. https://github.com/zwx8981/MANIQA
+1353. https://github.com/miccunifi/ARNIQA
+1354. https://github.com/miccunifi/ARNIQA-Enhanced
+1355. https://github.com/LeviBorodenko/motionblur
+1356. https://github.com/guptapraful/blur-detection
+1357. https://github.com/cszn/BSRGAN
+1358. https://github.com/XPixelGroup/Real-ESRGAN
+1359. https://github.com/cszn/USRNet
+1360. https://github.com/JingyunLiang/DASR
+1361. https://github.com/LongguangWang/DASR
+1362. https://github.com/greatlog/Unsupervised-Degredation-Representation-Learning-for-Blind-Super-Resolution
+1363. https://github.com/ckkelvinchan/RealBasicVSR
+1364. https://github.com/jorge-pessoa/pytorch-msssim
+1365. https://github.com/VainF/pytorch-msssim
+1366. https://github.com/richzhang/PerceptualSimilarity
+1367. https://github.com/layer6ai-labs/dists
+1368. https://github.com/dingkeyan93/DISTS
+1369. https://github.com/jorge-pessoa/pytorch-ssim
+1370. https://github.com/Po-Hsun-Su/pytorch-ssim
+1371. https://github.com/jorge-pessoa/pytorch-fsim
+1372. https://github.com/mikhailiuk/pytorch-fsim
+1373. https://github.com/xinntao/BasicSR-examples
+1374. https://github.com/xinntao/Real-ESRGAN-ncnn-vulkan
+1375. https://github.com/nihui/realsr-ncnn-vulkan
+1376. https://github.com/nihui/waifu2x-ncnn-vulkan
+1377. https://github.com/nihui/realcugan-ncnn-vulkan
+1378. https://github.com/nihui/waifu2x-ncnn-vulkan-python
+1379. https://github.com/upscayl/upscayl
+1380. https://github.com/AaronFeng753/Waifu2x-Extension-GUI
+1381. https://github.com/bloc97/Anime4K
+
+37 new pages were opened/read and deduplicated.
+
+DAPR-DegradationProfile now combines deterministic artifact measurements with optional learned distortion/IQA evidence. Explicit measurements (block grid/DCT evidence, blur anisotropy, noise map, alias spectrum, scale and alpha/color diagnostics) remain authoritative; learned degradation labels/embeddings are corroborating evidence. Agreement raises confidence; disagreement triggers conservative routing.
+
+Blind-SR hybrid: combine explicit degradation parameters inspired by USRNet with broad synthetic degradation coverage from BSRGAN/Real-ESRGAN and optional learned degradation representations from DASR-style systems. Measure what can be measured; use learned embeddings only for unexplained residual degradation; all outputs remain bounded by invariant budgets.
+
+Task-aware candidate QA: MS-SSIM/structural metrics, LPIPS-like perceptual features and DISTS-like texture/structure evidence are not equal votes. Text/logo/line-art prioritize topology and geometry; photos may use perceptual/texture ranking after hard gates; alpha edges use dedicated alpha/foreground metrics. Learned IQA never approves a print master.
+
+Illustration deployment route: waifu2x, Real-CUGAN, RealSR/Real-ESRGAN NCNN/Vulkan, Anime4K, Upscayl and related local engines become reproducible candidates for illustration/anime/flat-art classes. They are benchmarked against vectorization and conventional resampling at final physical size rather than selected by brand/model name.
+
+GitHub ledger: 1381 / 10,000. Research continuity: 1408 / 10,000.
