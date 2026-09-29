@@ -53,8 +53,8 @@ export function buildProcessingPlan(signals: RoutingSignals): ProcessingPlan {
     if ((signals.vectorLikelihood ?? 0) >= 0.6) stages.push("vector-candidate");
     stages.push("text-safe-raster-candidate");
   } else if (signals.kind === "photo") {
-    if ((signals.blurScore ?? 0) > 0.5) stages.push("deblur-candidate");
-    if ((signals.jpegArtifactScore ?? 0) > 0.5) stages.push("artifact-reduction-candidate");
+    if (signals.requiresDeblurCandidate === true) stages.push("deblur-candidate");
+    if (signals.requiresArtifactReductionCandidate === true) stages.push("artifact-reduction-candidate");
     stages.push("photo-super-resolution-candidate");
     if (signals.facesDetected) stages.push("face-local-restoration-candidate");
   } else {
