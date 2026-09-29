@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 175,
-  "remaining": 9825,
+  "verifiedCount": 183,
+  "remaining": 9817,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -1405,6 +1405,70 @@
       "verification": "opened-and-reviewed",
       "decision": "Portuguese vendor guidance links white bleed to RIP choke and ICC calibration; numerical settings remain vendor-specific and are not hard-coded.",
       "ordinal": 175
+    },
+    {
+      "id": "ben2-official-model",
+      "category": "background-matting",
+      "url": "https://huggingface.co/PramaLLC/BEN2",
+      "verification": "opened-and-reviewed",
+      "decision": "Official BEN2 model card is MIT and exposes ONNX/SafeTensors/PyTorch artifacts; runtime uses only pinned local deployment artifacts.",
+      "ordinal": 176
+    },
+    {
+      "id": "ben2-official-onnx-run",
+      "category": "background-matting",
+      "url": "https://huggingface.co/PramaLLC/BEN2/blob/main/onnx_run.py",
+      "verification": "opened-and-reviewed",
+      "decision": "Official BEN2 ONNX reference uses RGB resize 1024x1024, ToTensor scaling to 0..1 without mean/std normalization, then min-max mask normalization.",
+      "ordinal": 177
+    },
+    {
+      "id": "ben2-official-onnx-file",
+      "category": "model-security",
+      "url": "https://huggingface.co/PramaLLC/BEN2/blob/main/BEN2_Base.onnx",
+      "verification": "opened-and-reviewed",
+      "decision": "Official BEN2 ONNX artifact is MIT-model-card content and publishes a SHA-256/Xet identity for pinning.",
+      "ordinal": 178
+    },
+    {
+      "id": "ben2-official-safetensors",
+      "category": "model-security",
+      "url": "https://huggingface.co/PramaLLC/BEN2/blob/main/model.safetensors",
+      "verification": "opened-and-reviewed",
+      "decision": "Official BEN2 SafeTensors artifact provides a tensor-only alternative to pickle checkpoints; exact local bytes remain hash-pinned.",
+      "ordinal": 179
+    },
+    {
+      "id": "transparent-background-inspyrenet",
+      "category": "background-matting",
+      "url": "https://github.com/plemeri/transparent-background",
+      "verification": "opened-and-reviewed",
+      "decision": "InSPyReNet-based package documents .pth checkpoints and automatic checkpoint downloads; unsuitable for production runtime without safe conversion.",
+      "ordinal": 180
+    },
+    {
+      "id": "inspyrenet-getting-started",
+      "category": "background-matting",
+      "url": "https://github.com/plemeri/InSPyReNet/blob/main/docs/getting_started.md",
+      "verification": "opened-and-reviewed",
+      "decision": "Official InSPyReNet docs use .pth backbone checkpoints, supporting conversion-only status under the production model-format policy.",
+      "ordinal": 181
+    },
+    {
+      "id": "birefnet-hr-official-model",
+      "category": "background-matting",
+      "url": "https://huggingface.co/ZhengPeng7/BiRefNet_HR-matting/tree/main",
+      "verification": "opened-and-reviewed",
+      "decision": "Official BiRefNet HR matting model is MIT, ships SafeTensors plus custom Python code, and examples use trust_remote_code/from_pretrained; production must pin code and weights locally.",
+      "ordinal": 182
+    },
+    {
+      "id": "birefnet-hr-safetensors-mirror",
+      "category": "model-security",
+      "url": "https://huggingface.co/wu1g119/BiRefNet_HR-matting/blob/main/model.safetensors",
+      "verification": "opened-and-reviewed",
+      "decision": "Duplicate of official BiRefNet HR SafeTensors exposes the 444 MB model SHA-256 for artifact verification; original official revision remains preferred provenance.",
+      "ordinal": 183
     }
   ]
 }
