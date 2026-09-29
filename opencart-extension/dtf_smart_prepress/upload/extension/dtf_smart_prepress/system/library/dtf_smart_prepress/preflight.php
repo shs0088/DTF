@@ -169,6 +169,20 @@ final class Preflight {
         $inpaintMaskExpandedPercent = isset($m['inpaintMaskExpandedPercent']) ? max(0.0,(float)$m['inpaintMaskExpandedPercent']) : null;
         $unmaskedRegionPreserved = isset($m['unmaskedRegionPreserved']) ? (bool)$m['unmaskedRegionPreserved'] : null;
         $inpaintContextExpansionPx = isset($m['inpaintContextExpansionPx']) ? max(0,(int)$m['inpaintContextExpansionPx']) : null;
+        $aiModelLicenses = isset($m['aiModelLicenses']) && is_array($m['aiModelLicenses']) ? array_values($m['aiModelLicenses']) : [];
+        $aiUpscaleDetailPolicy = trim((string)($m['aiUpscaleDetailPolicy'] ?? 'unknown'));
+        $maskThresholdMethod = trim((string)($m['maskThresholdMethod'] ?? ''));
+        $maskThresholdSensitivity = isset($m['maskThresholdSensitivity']) ? max(0.0,min(1.0,(float)$m['maskThresholdSensitivity'])) : null;
+        $maskForegroundPolarity = trim((string)($m['maskForegroundPolarity'] ?? 'unknown'));
+        $guidedAlphaRefinementApplied = (bool)($m['guidedAlphaRefinementApplied'] ?? false);
+        $guidedAlphaGuide = trim((string)($m['guidedAlphaGuide'] ?? ''));
+        $despillOrDecontaminateColor = trim((string)($m['despillOrDecontaminateColor'] ?? ''));
+        $opaqueSubjectDeltaE = isset($m['opaqueSubjectDeltaE']) ? max(0.0,(float)$m['opaqueSubjectDeltaE']) : null;
+        $opaqueSubjectDeltaEThreshold = isset($m['opaqueSubjectDeltaEThreshold']) ? max(0.0,(float)$m['opaqueSubjectDeltaEThreshold']) : null;
+        $restorationAlgorithm = trim((string)($m['restorationAlgorithm'] ?? ''));
+        $restorationPsfKnown = (bool)($m['restorationPsfKnown'] ?? false);
+        $restorationNoiseModelKnown = (bool)($m['restorationNoiseModelKnown'] ?? false);
+        $denoiseStage = trim((string)($m['denoiseStage'] ?? 'unknown'));
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -231,6 +245,38 @@ final class Preflight {
         }
         $deviceRasterComplete = $deviceRasterDpiX !== null && $deviceRasterDpiY !== null && $deviceBitsPerColor !== null && $deviceColorOrder !== '' && $deviceColorSpace !== '' && $deviceNumColors !== null;
         $maskDimensionMismatch = $sourceImageWidthPx !== null && $sourceImageHeightPx !== null && $maskWidthPx !== null && $maskHeightPx !== null && ($maskWidthPx !== $sourceImageWidthPx || $maskHeightPx !== $sourceImageHeightPx);
+        $licenseBlocked = false;
+        $licenseUnverified = false;
+        foreach ($aiModelLicenses as $licenseItem) {
+            if (!is_array($licenseItem)) { $licenseUnverified = true; continue; }
+            if (array_key_exists('commercialUseAllowed',$licenseItem)) {
+                if ($licenseItem['commercialUseAllowed'] === false) { $licenseBlocked = true; }
+            } else { $licenseUnverified = true; }
+        }
+        if ($licenseBlocked) {
+            $errors[] = ['code'=>'AI_MODEL_LICENSE_NOT_COMMERCIAL','severity'=>'critical'];
+        }
+        if ($licenseUnverified) {
+            $warnings[] = ['code'=>'AI_MODEL_LICENSE_UNVERIFIED','severity'=>'warning'];
+        }
+        if ($aiUpscaleUsed && $aiUpscaleDetailPolicy === 'creative-add') {
+            $warnings[] = ['code'=>'GENERATIVE_UPSCALE_SYNTHETIC_DETAIL','severity'=>'warning'];
+        }
+        if ($edgeClass !== 'hard-edge' && $maskThresholdMethod !== '') {
+            $warnings[] = ['code'=>'SOFT_ALPHA_BINARIZATION_RISK','severity'=>'warning','thresholdMethod'=>$maskThresholdMethod];
+        }
+        if ($edgeDecontaminationApplied && $opaqueSubjectDeltaE !== null && $opaqueSubjectDeltaEThreshold !== null && $opaqueSubjectDeltaE > $opaqueSubjectDeltaEThreshold) {
+            $warnings[] = ['code'=>'DESPILL_CHANGED_OPAQUE_SUBJECT_COLOR','severity'=>'warning','deltaE'=>$opaqueSubjectDeltaE,'threshold'=>$opaqueSubjectDeltaEThreshold];
+        }
+        if (in_array($restorationAlgorithm,['lucy-richardson','blind-deconvolution','wiener-deconvolution'],true) && !$restorationPsfKnown) {
+            $warnings[] = ['code'=>'DECONVOLUTION_WITHOUT_PSF_EVIDENCE','severity'=>'warning'];
+        }
+        if ($restorationAlgorithm === 'adaptive-wiener' && !$restorationNoiseModelKnown) {
+            $warnings[] = ['code'=>'WIENER_NOISE_MODEL_UNVERIFIED','severity'=>'warning'];
+        }
+        if ($denoiseStage === 'post-enhancement') {
+            $warnings[] = ['code'=>'DENOISE_AFTER_ENHANCEMENT_RISK','severity'=>'warning'];
+        }
         if ($processingScope === 'image-pre-rip' && $deviceHandoffRequired) {
             $warnings[] = ['code'=>'DEVICE_RASTER_CHECK_DEFERRED_TO_RIP','severity'=>'info'];
         }
@@ -326,6 +372,37 @@ final class Preflight {
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
             ],
+            'aiModelLicenseReport' => [
+                'models'=>$aiModelLicenses,
+                'commercialUseBlocked'=>$licenseBlocked,
+                'licenseUnverified'=>$licenseUnverified,
+                'commercialPipelineRequiresExplicitLicenseEvidence'=>true
+            ],
+            'deterministicImageRefinementReport' => [
+                'maskThresholdMethod'=>$maskThresholdMethod !== '' ? $maskThresholdMethod : null,
+                'maskThresholdSensitivity'=>$maskThresholdSensitivity,
+                'maskForegroundPolarity'=>$maskForegroundPolarity,
+                'guidedAlphaRefinementApplied'=>$guidedAlphaRefinementApplied,
+                'guidedAlphaGuide'=>$guidedAlphaGuide !== '' ? $guidedAlphaGuide : null,
+                'guidedFilteringCanRefineAlphaWithoutReplacingSemantics'=>true,
+                'softAlphaShouldNotBeBinarizedByDefault'=>true
+            ],
+            'edgeColorPreservationReport' => [
+                'decontaminateColor'=>$despillOrDecontaminateColor !== '' ? $despillOrDecontaminateColor : null,
+                'opaqueSubjectDeltaE'=>$opaqueSubjectDeltaE,
+                'opaqueSubjectDeltaEThreshold'=>$opaqueSubjectDeltaEThreshold,
+                'opaqueSubjectColorMustBeProtected'=>true,
+                'despillMustBeBoundaryScoped'=>true
+            ],
+            'restorationAlgorithmEvidenceReport' => [
+                'algorithm'=>$restorationAlgorithm !== '' ? $restorationAlgorithm : null,
+                'psfKnown'=>$restorationPsfKnown,
+                'noiseModelKnown'=>$restorationNoiseModelKnown,
+                'denoiseStage'=>$denoiseStage,
+                'deconvolutionRequiresPsfEvidence'=>true,
+                'adaptiveWienerRequiresNoiseEvidence'=>true,
+                'denoisePreferBeforeSharpenOrCreativePostEffects'=>true
+            ],
             'imageOnlyRipBoundaryReport' => [
                 'scope'=>$processingScope,
                 'validatesImagePreparationOnly'=>$processingScope === 'image-pre-rip',
@@ -382,7 +459,8 @@ final class Preflight {
                 'model'=>$aiUpscaleModel !== '' ? $aiUpscaleModel : null,
                 'scale'=>$aiUpscaleScale,
                 'alphaPreserved'=>$aiUpscaleAlphaPreserved,
-                'syntheticDetailPossible'=>$aiUpscaleUsed,
+                'detailPolicy'=>$aiUpscaleDetailPolicy,
+                'syntheticDetailPossible'=>$aiUpscaleUsed && in_array($aiUpscaleDetailPolicy,['restore-plausible','creative-add','unknown'],true),
                 'sourceComparisonRequired'=>$aiUpscaleUsed,
                 'textAndLogoRegionsNeedExactQa'=>$aiUpscaleUsed && $containsTextOrLogo,
                 'outputRequiresRepreflight'=>$aiUpscaleUsed
@@ -655,7 +733,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'1.2.0-research',
+                'contractVersion'=>'1.3.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
