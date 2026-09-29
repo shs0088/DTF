@@ -130,6 +130,45 @@ final class Preflight {
         $deviceLinkProfile = trim((string)($m['deviceLinkProfile'] ?? ''));
         $softProofEnabled = (bool)($m['softProofEnabled'] ?? false);
         $rawTechCheckAvailable = (bool)($m['rawTechCheckAvailable'] ?? false);
+        $processingScope = trim((string)($m['processingScope'] ?? 'image-pre-rip'));
+        $ripOwnsPrintExecution = (bool)($m['ripOwnsPrintExecution'] ?? true);
+        $sourceImageWidthPx = isset($m['sourceImageWidthPx']) ? max(1,(int)$m['sourceImageWidthPx']) : null;
+        $sourceImageHeightPx = isset($m['sourceImageHeightPx']) ? max(1,(int)$m['sourceImageHeightPx']) : null;
+        $backgroundRemovalProvider = trim((string)($m['backgroundRemovalProvider'] ?? ''));
+        $backgroundRemovalModel = trim((string)($m['backgroundRemovalModel'] ?? ''));
+        $rawSegmentationMaskAvailable = (bool)($m['rawSegmentationMaskAvailable'] ?? false);
+        $mattingApplied = (bool)($m['mattingApplied'] ?? false);
+        $foregroundColorReconstruction = (bool)($m['foregroundColorReconstruction'] ?? false);
+        $edgeDecontaminationApplied = (bool)($m['edgeDecontaminationApplied'] ?? false);
+        $backgroundRemovalUncertainty = isset($m['backgroundRemovalUncertainty']) ? max(0.0,min(1.0,(float)$m['backgroundRemovalUncertainty'])) : null;
+        $originalAlphaPresentBeforeAi = (bool)($m['originalAlphaPresentBeforeAi'] ?? false);
+        $originalAlphaAction = trim((string)($m['originalAlphaAction'] ?? 'preserve'));
+        $maskSource = trim((string)($m['maskSource'] ?? ''));
+        $maskPolarity = trim((string)($m['maskPolarity'] ?? 'unknown'));
+        $maskWidthPx = isset($m['maskWidthPx']) ? max(1,(int)$m['maskWidthPx']) : null;
+        $maskHeightPx = isset($m['maskHeightPx']) ? max(1,(int)$m['maskHeightPx']) : null;
+        $maskQualityPredictedIou = isset($m['maskQualityPredictedIou']) ? max(0.0,min(1.0,(float)$m['maskQualityPredictedIou'])) : null;
+        $maskStabilityScore = isset($m['maskStabilityScore']) ? max(0.0,min(1.0,(float)$m['maskStabilityScore'])) : null;
+        $aiEditUsed = (bool)($m['aiEditUsed'] ?? false);
+        $aiProvider = trim((string)($m['aiProvider'] ?? ''));
+        $aiModelName = trim((string)($m['aiModelName'] ?? ''));
+        $aiEditType = trim((string)($m['aiEditType'] ?? ''));
+        $aiReferenceCount = isset($m['aiReferenceCount']) ? max(0,(int)$m['aiReferenceCount']) : 0;
+        $aiSeedRecorded = array_key_exists('aiSeed',$m);
+        $aiSeed = $aiSeedRecorded ? (string)$m['aiSeed'] : null;
+        $outsideMaskChanged = isset($m['outsideMaskChanged']) ? (bool)$m['outsideMaskChanged'] : null;
+        $generatedPixelFraction = isset($m['generatedPixelFraction']) ? max(0.0,min(1.0,(float)$m['generatedPixelFraction'])) : null;
+        $containsTextOrLogo = (bool)($m['containsTextOrLogo'] ?? false);
+        $textLogoIntegrityVerified = (bool)($m['textLogoIntegrityVerified'] ?? false);
+        $aiUpscaleUsed = (bool)($m['aiUpscaleUsed'] ?? false);
+        $aiUpscaleModel = trim((string)($m['aiUpscaleModel'] ?? ''));
+        $aiUpscaleScale = isset($m['aiUpscaleScale']) ? max(1.0,(float)$m['aiUpscaleScale']) : null;
+        $aiUpscaleAlphaPreserved = isset($m['aiUpscaleAlphaPreserved']) ? (bool)$m['aiUpscaleAlphaPreserved'] : null;
+        $inpaintUsed = (bool)($m['inpaintUsed'] ?? false);
+        $inpaintMaskHasGray = isset($m['inpaintMaskHasGray']) ? (bool)$m['inpaintMaskHasGray'] : null;
+        $inpaintMaskExpandedPercent = isset($m['inpaintMaskExpandedPercent']) ? max(0.0,(float)$m['inpaintMaskExpandedPercent']) : null;
+        $unmaskedRegionPreserved = isset($m['unmaskedRegionPreserved']) ? (bool)$m['unmaskedRegionPreserved'] : null;
+        $inpaintContextExpansionPx = isset($m['inpaintContextExpansionPx']) ? max(0,(int)$m['inpaintContextExpansionPx']) : null;
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -191,6 +230,40 @@ final class Preflight {
             $warnings[] = ['code'=>'EXPORT_ASPECT_OR_SCALE_MISMATCH','severity'=>'warning'];
         }
         $deviceRasterComplete = $deviceRasterDpiX !== null && $deviceRasterDpiY !== null && $deviceBitsPerColor !== null && $deviceColorOrder !== '' && $deviceColorSpace !== '' && $deviceNumColors !== null;
+        $maskDimensionMismatch = $sourceImageWidthPx !== null && $sourceImageHeightPx !== null && $maskWidthPx !== null && $maskHeightPx !== null && ($maskWidthPx !== $sourceImageWidthPx || $maskHeightPx !== $sourceImageHeightPx);
+        if ($processingScope === 'image-pre-rip' && $deviceHandoffRequired) {
+            $warnings[] = ['code'=>'DEVICE_RASTER_CHECK_DEFERRED_TO_RIP','severity'=>'info'];
+        }
+        if ($rawSegmentationMaskAvailable && $edgeClass !== 'hard-edge' && !$mattingApplied) {
+            $warnings[] = ['code'=>'SEGMENTATION_MASK_NOT_FINAL_ALPHA','severity'=>'warning'];
+        }
+        if ($edgeClass !== 'hard-edge' && $mattingApplied && !$foregroundColorReconstruction) {
+            $warnings[] = ['code'=>'SOFT_EDGE_FOREGROUND_COLOR_NOT_RECONSTRUCTED','severity'=>'warning'];
+        }
+        if ($originalAlphaPresentBeforeAi && in_array($originalAlphaAction,['discard','replace'],true)) {
+            $warnings[] = ['code'=>'ORIGINAL_ALPHA_CHANGED_BY_AI_TOOL','severity'=>'warning','action'=>$originalAlphaAction];
+        }
+        if (($aiEditUsed || $inpaintUsed) && $maskSource !== '' && $maskPolarity === 'unknown') {
+            $warnings[] = ['code'=>'AI_MASK_POLARITY_UNVERIFIED','severity'=>'warning'];
+        }
+        if ($maskDimensionMismatch) {
+            $warnings[] = ['code'=>'AI_MASK_DIMENSION_MISMATCH','severity'=>'warning','source'=>[$sourceImageWidthPx,$sourceImageHeightPx],'mask'=>[$maskWidthPx,$maskHeightPx]];
+        }
+        if ($aiEditUsed) {
+            $warnings[] = ['code'=>'GENERATIVE_EDIT_REQUIRES_REPREFLIGHT','severity'=>'warning'];
+        }
+        if ($aiEditUsed && $outsideMaskChanged === true) {
+            $warnings[] = ['code'=>'AI_EDIT_CHANGED_OUTSIDE_MASK','severity'=>'warning'];
+        }
+        if (($aiEditUsed || $aiUpscaleUsed) && $containsTextOrLogo && !$textLogoIntegrityVerified) {
+            $warnings[] = ['code'=>'AI_TEXT_LOGO_INTEGRITY_UNVERIFIED','severity'=>'warning'];
+        }
+        if ($aiUpscaleUsed && $hasAlpha && $aiUpscaleAlphaPreserved === false) {
+            $warnings[] = ['code'=>'AI_UPSCALE_ALPHA_NOT_PRESERVED','severity'=>'warning'];
+        }
+        if ($inpaintUsed && $unmaskedRegionPreserved === false) {
+            $warnings[] = ['code'=>'INPAINT_CHANGED_UNMASKED_REGION','severity'=>'warning'];
+        }
         if ($deviceHandoffRequired && !$deviceRasterComplete) {
             $warnings[] = ['code'=>'RASTER_HANDOFF_METADATA_INCOMPLETE','severity'=>'warning'];
         }
@@ -252,6 +325,76 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'imageOnlyRipBoundaryReport' => [
+                'scope'=>$processingScope,
+                'validatesImagePreparationOnly'=>$processingScope === 'image-pre-rip',
+                'ripOwnsPrintExecution'=>$ripOwnsPrintExecution,
+                'deviceRasterizationDeferredToRip'=>$processingScope === 'image-pre-rip',
+                'whiteSeparationDeferredToRip'=>$processingScope === 'image-pre-rip',
+                'screeningDeferredToRip'=>$processingScope === 'image-pre-rip',
+                'printerInkLimitsDeferredToRip'=>$processingScope === 'image-pre-rip',
+                'requiredMasterEvidence'=>['pixels','alpha','effectivePpi','physicalSize','colorProfile','edgeQa','provenance']
+            ],
+            'backgroundRemovalIntegrityReport' => [
+                'provider'=>$backgroundRemovalProvider !== '' ? $backgroundRemovalProvider : null,
+                'model'=>$backgroundRemovalModel !== '' ? $backgroundRemovalModel : null,
+                'rawSegmentationMaskAvailable'=>$rawSegmentationMaskAvailable,
+                'mattingApplied'=>$mattingApplied,
+                'foregroundColorReconstruction'=>$foregroundColorReconstruction,
+                'edgeDecontaminationApplied'=>$edgeDecontaminationApplied,
+                'uncertaintyScore'=>$backgroundRemovalUncertainty,
+                'segmentationMaskMaySubstituteSoftAlpha'=>false,
+                'foregroundColorAndAlphaAreSeparateOutputs'=>true,
+                'multiBackgroundRecompositionRequired'=>true
+            ],
+            'aiMaskSemanticsReport' => [
+                'source'=>$maskSource !== '' ? $maskSource : null,
+                'polarity'=>$maskPolarity,
+                'widthPx'=>$maskWidthPx,
+                'heightPx'=>$maskHeightPx,
+                'matchesSourceDimensions'=>($sourceImageWidthPx === null || $sourceImageHeightPx === null || $maskWidthPx === null || $maskHeightPx === null) ? null : !$maskDimensionMismatch,
+                'predictedIou'=>$maskQualityPredictedIou,
+                'stabilityScore'=>$maskStabilityScore,
+                'originalAlphaPresentBeforeAi'=>$originalAlphaPresentBeforeAi,
+                'originalAlphaAction'=>$originalAlphaAction,
+                'maskPolarityMustBeExplicit'=>true,
+                'automaticMaskQualityIsEvidenceNotAcceptance'=>true
+            ],
+            'aiImageEditIntegrityReport' => [
+                'used'=>$aiEditUsed,
+                'provider'=>$aiProvider !== '' ? $aiProvider : null,
+                'model'=>$aiModelName !== '' ? $aiModelName : null,
+                'editType'=>$aiEditType !== '' ? $aiEditType : null,
+                'referenceCount'=>$aiReferenceCount,
+                'seedRecorded'=>$aiSeedRecorded,
+                'seed'=>$aiSeed,
+                'outsideMaskChanged'=>$outsideMaskChanged,
+                'generatedPixelFraction'=>$generatedPixelFraction,
+                'containsTextOrLogo'=>$containsTextOrLogo,
+                'textLogoIntegrityVerified'=>$textLogoIntegrityVerified,
+                'requiresSourceComparison'=>$aiEditUsed,
+                'requiresFullRepreflight'=>$aiEditUsed,
+                'mayReplaceMasterWithoutQa'=>false
+            ],
+            'aiUpscaleIntegrityReport' => [
+                'used'=>$aiUpscaleUsed,
+                'model'=>$aiUpscaleModel !== '' ? $aiUpscaleModel : null,
+                'scale'=>$aiUpscaleScale,
+                'alphaPreserved'=>$aiUpscaleAlphaPreserved,
+                'syntheticDetailPossible'=>$aiUpscaleUsed,
+                'sourceComparisonRequired'=>$aiUpscaleUsed,
+                'textAndLogoRegionsNeedExactQa'=>$aiUpscaleUsed && $containsTextOrLogo,
+                'outputRequiresRepreflight'=>$aiUpscaleUsed
+            ],
+            'inpaintIntegrityReport' => [
+                'used'=>$inpaintUsed,
+                'maskHasGray'=>$inpaintMaskHasGray,
+                'maskExpandedPercent'=>$inpaintMaskExpandedPercent,
+                'contextExpansionPx'=>$inpaintContextExpansionPx,
+                'unmaskedRegionPreserved'=>$unmaskedRegionPreserved,
+                'maskExpansionIsProviderSpecific'=>true,
+                'outsideMaskPixelDiffMustBeChecked'=>$inpaintUsed
             ],
             'deviceRasterContractReport' => [
                 'required'=>$deviceHandoffRequired,
@@ -512,7 +655,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'1.1.0-research',
+                'contractVersion'=>'1.2.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
