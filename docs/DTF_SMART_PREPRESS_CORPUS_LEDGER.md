@@ -1777,3 +1777,23 @@ Key transfer: white-underbase generation should expose alpha threshold, choke, d
 Implementation implication: retain separate AlphaContaminationPolicy, WhiteUnderbasePolicy, MorphologyRecipe and HalftoneCalibration evidence. Do not promote vendor defaults such as 2–3 px choke or a single alpha threshold to universal acceptance limits; normalize morphology to physical units and verify post-operation survivability of text, thin strokes and isolated islands.
 
 GitHub ledger: 1103 / 10,000. Research continuity: 1130 / 10,000.
+
+
+## Verified Batch 066 — 8 materially distinct pages — multilingual white-channel calibration, alpha semantics, dithering and compositing
+
+1104. https://dtftransferstudio.com/es/borde-blanco-impresion-dtf-guia-choke/
+1105. https://pdfpress.app/ja/blog/dtf-gang-sheet-file-setup
+1106. https://goldendtf.com/learn/white-underbase-explained/
+1107. https://nestsheet.com/blog/reading-your-rips-white-channel-preview
+1108. https://imagemagick.org/compose/
+1109. https://docs.gimp.org/3.2/fr/gimp-filter-dither.html
+1110. https://docs.gimp.org/fr/gimp-filter-color-to-alpha.html
+1111. https://docs.gimp.org/de/plug-in-threshold-alpha.html
+
+All eight pages above were individually opened/read and were absent after canonical-URL comparison against the 1103-entry ledger. Search-result snippets were not counted. Localized mirrors of already represented material were rejected; this batch keeps only materially distinct content/pages.
+
+Key transfer: white choke must be calibrated against physical press registration and minimum surviving feature width, not accepted from a global pixel preset. Fine strokes can lose their entire underbase when erosion exceeds half their local width, so white-mask generation needs component/stroke survivability checks and an adaptive ceiling. Japanese DTF preparation guidance reinforces that clean alpha is upstream input to RIP-generated white and that final-size effective resolution matters more than metadata alone. RIP white-channel preview should be treated as an inspectable production artifact: compare color composite, alpha, generated white plane and expected registration before handoff. ImageMagick's Porter-Duff documentation reinforces continuous alpha semantics at antialiased boundaries and explicit channel-copy/composition behavior. GIMP's French dithering documentation confirms color and alpha quantization are separable controls and offers Floyd-Steinberg/Bayer choices; its Color-to-Alpha thresholds show why background-color removal can unintentionally make subject colors semi-transparent unless opacity/transparency thresholds are bounded. The German Alpha Threshold page is a direct warning that thresholding destroys intermediate alpha by definition, so it is allowed only for artwork classes explicitly requiring binary transparency, never as universal cleanup.
+
+Implementation implication: add/retain WhiteChokeCalibrationEvidence, WhiteMaskSurvivabilityReport, RipWhitePreviewAudit, AlphaAssociationAndComposePolicy, and AlphaQuantizationPolicy. A white-mask operation should report local minimum width before/after morphology, deleted connected components, lost underbase area, and whether any intentional soft-alpha class was binarized. Do not bake vendor-specific 1–4 px recommendations into acceptance rules.
+
+GitHub ledger: 1111 / 10,000. Research continuity: 1138 / 10,000.
