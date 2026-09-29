@@ -8590,3 +8590,16 @@ Corpus: GitHub explicit 1094 / 10,000; research continuity 1121 / 10,000.
 Verified 9 new pages. Key findings: keep alpha cleanup separate from white-underbase generation; express choke in physical units derived from effective PPI; preserve intentional soft alpha; record morphology kernel geometry; calibrate halftone min/max tone from physical output; and rerun edge preflight after resizing.
 
 Corpus: 1103 / 10,000 verified ledger pages; research continuity 1130 / 10,000.
+
+
+## Batch 066 — multilingual white-channel calibration, alpha semantics and dithering
+
+Eight new canonical pages were individually opened/read and deduplicated. The strongest engineering conclusion is that choke is a calibrated device/media compensation constrained by artwork survivability, not a universal pixel constant. The prepress engine should compute physical choke from the calibrated target and effective output resolution, then cap/adapt it where local stroke width or connected-component survival would otherwise remove required white support.
+
+The RIP white preview is promoted from a convenience thumbnail to QA evidence: audit source alpha, generated white plane, color composite and expected registration together. This separates dirty-alpha halos, underbase geometry errors and directional mechanical registration faults instead of treating every white edge as the same defect.
+
+ImageMagick reinforces continuous alpha and explicit Porter-Duff/channel-copy semantics. GIMP documentation adds two important safeguards: dithering may quantize alpha independently from RGB, and Color-to-Alpha can partially erase foreground colors that resemble the selected background. Alpha thresholding explicitly converts soft transparency to binary transparency, so it is prohibited for intentional soft edges/fades unless the artwork policy explicitly calls for binary alpha.
+
+Research-contract direction: WhiteChokeCalibrationEvidence + WhiteMaskSurvivabilityReport + RipWhitePreviewAudit + AlphaAssociationAndComposePolicy + AlphaQuantizationPolicy. Required evidence includes physical choke target, effective PPI, local pre/post morphology width, removed components, lost white area, alpha quantization method and intentional-soft-alpha preservation.
+
+Corpus: 1111 / 10,000 verified ledger pages; research continuity 1138 / 10,000. No merge, deployment, Oracle execution or protected-storefront modification was performed.
