@@ -8671,3 +8671,14 @@ Decode semantics become first-class provenance. Orientation handling, alpha-pres
 Contract direction: EdgeIntegrityDiagnostic, DecodeSemanticsEvidence, ColorTransformRoundTripReport. Transform acceptance continues to require feature survival, alpha integrity and color constraints in addition to global quality metrics.
 
 Corpus: 1166 / 10,000 verified ledger pages; research continuity 1193 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 073 — conservative versus generative restoration
+
+Nine new materially distinct MATLAB/GitHub sources were opened/read and deduplicated. Restoration now has an explicit architectural split. ConservativeRestoration includes Wiener/regularized deconvolution, boundary tapering, NLM, anisotropic diffusion, local-Laplacian filtering and controlled resampling; its parameters should be tied to observable degradation and its acceptance to source fidelity, feature survival and artifact maps. GenerativeRestoration includes prior-driven models such as GFPGAN/CodeFormer; these may improve perceptual facial appearance while changing source detail and therefore require semantic ROI gating, provenance and fidelity controls.
+
+CodeFormer's quality/fidelity tradeoff is especially important for DTF: perceptual attractiveness is not equivalent to print-master correctness. Text, logos, signatures, line art and brand marks must be protected from face/generative restoration by default. Portrait enhancement should produce a reviewable derivative, never silently overwrite the immutable master.
+
+New contract direction: RestorationAssumptionEvidence, RestorationBoundaryArtifactReport, GenerativeFidelityReport and ProtectedSemanticRegionMask. Record PSF/noise/regularization assumptions for classical deconvolution; record model/revision/license and semantic region for AI restoration; run edge/text/color/alpha comparisons after either family.
+
+Corpus: 1175 / 10,000 verified ledger pages; research continuity 1202 / 10,000. No merge, deployment, Oracle execution or storefront modification.
