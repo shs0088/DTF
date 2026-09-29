@@ -2506,3 +2506,29 @@ Optimization is Pareto constrained: minimize the demand proxy only after hard al
 Raster/vector routing expands with Potrace/AutoTrace/VTracer-style candidates and rasterization-back QA. Vectorization is eligible only for flat/line/logo-like regions and must survive topology, boundary displacement, colour and alpha comparisons against the source.
 
 GitHub ledger: 1426 / 10,000. Research continuity: 1453 / 10,000.
+
+
+## Verified Batch 088 — 10 pages — morphology, resampling, matting and halftone printability
+
+1427. https://docs.opencv.org/4.13.0/d9/d61/tutorial_py_morphological_ops.html
+1428. https://experienceleague.adobe.com/ja/docs/dynamic-media-developer-resources/image-serving-api/image-serving-api/http-protocol-reference/command-reference/r-is-http-resmode
+1429. https://engee.com/helpcenter/stable/ru/julia/juliaimages/examples/image_morphology/image_morphology.html
+1430. https://support.clip-studio.com/es-es/faq/articles/20190038
+1431. https://www.adobe.com/br/products/photoshop/halftone-effects.html
+1432. https://www.alphaxiv.org/ko/abs/2403.15789
+1433. https://www.alphaxiv.org/ko/abs/2012.07810
+1434. https://habr.com/en/articles/350918/
+1435. https://bvdart.nl/en/lab/dithering
+1436. https://imageonline.io/dithering/
+
+10 new materially distinct pages were opened/read and deduplicated. Search snippets and localized mirrors were excluded.
+
+DAPR-Morphology: kernel shape, size and connectivity are physical-scale decisions; topology, stroke and connected-component invariants gate alpha/white-mask cleanup. Morphological gradient is a boundary-risk diagnostic.
+
+DAPR-Resample: bilinear, bicubic and Lanczos-derived sharpening expose quality versus aliasing/ringing tradeoffs. Compare candidates by region at final size; reject new moire, ringing or boundary displacement.
+
+DAPR-Matte: semantic/reference guidance can localize subjects while high-resolution refinement focuses on uncertain detail. Alpha and foreground reconstruction remain separate and model output remains candidate evidence.
+
+DAPR-Screen: distinguish preview moire from real screen interference. Compare diffusion/ordered families at final physical size for tone conservation, periodic energy, minimum dot/gap and text/edge survival.
+
+GitHub ledger: 1436 / 10,000. Research continuity: 1463 / 10,000.
