@@ -46,7 +46,7 @@ const MODEL_PROVIDERS = new Set([
   "birefnet",
   "birefnet-hr-matting",
   "inspyrenet",
-  "ben",
+  "ben2-onnx",
   "real-esrgan",
   "swinir",
   "restormer",
@@ -142,8 +142,8 @@ export function planLocalPipeline(input: {
   let maskCount = 0;
   if (routing.backgroundPresent) {
     const maskProviders = difficultBoundary
-      ? ["birefnet-hr-matting", "ben", "birefnet", "inspyrenet"]
-      : ["birefnet", "inspyrenet", "ben", "birefnet-hr-matting"];
+      ? ["birefnet-hr-matting", "ben2-onnx", "birefnet", "inspyrenet"]
+      : ["birefnet", "ben2-onnx", "birefnet-hr-matting"];
 
     for (const providerId of maskProviders) {
       if (
