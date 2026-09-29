@@ -60,6 +60,12 @@ final class Preflight {
         $alphaConnectivityError = isset($m['alphaConnectivityError']) ? max(0.0, (float)$m['alphaConnectivityError']) : null;
         $transparentPaddingMm = isset($m['transparentPaddingMm']) ? max(0.0, (float)$m['transparentPaddingMm']) : null;
         $requestedSpreadMm = isset($m['requestedSpreadMm']) ? max(0.0, (float)$m['requestedSpreadMm']) : 0.0;
+        $sourceBitDepth = isset($m['sourceBitDepth']) ? max(1, (int)$m['sourceBitDepth']) : null;
+        $targetBitDepth = isset($m['targetBitDepth']) ? max(1, (int)$m['targetBitDepth']) : null;
+        $layerDither = (bool)($m['layerDither'] ?? false);
+        $textDither = (bool)($m['textDither'] ?? false);
+        $maskDither = (bool)($m['maskDither'] ?? false);
+        $alphaSelectionPreservesPartial = (bool)($m['alphaSelectionPreservesPartial'] ?? true);
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -120,6 +126,9 @@ final class Preflight {
         if ($exportScaleMismatch) {
             $warnings[] = ['code'=>'EXPORT_ASPECT_OR_SCALE_MISMATCH','severity'=>'warning'];
         }
+        if ($sourceBitDepth !== null && $targetBitDepth !== null && $targetBitDepth < $sourceBitDepth && $maskDither) {
+            $warnings[] = ['code'=>'ALPHA_MASK_DITHER_ON_PRECISION_REDUCTION','severity'=>'warning'];
+        }
         if ($transparentPaddingMm !== null && $requestedSpreadMm > $transparentPaddingMm) {
             $warnings[] = ['code'=>'UNDERBASE_SPREAD_CLIPPED_BY_CANVAS','severity'=>'warning','requestedSpreadMm'=>$requestedSpreadMm,'transparentPaddingMm'=>$transparentPaddingMm];
         }
@@ -148,6 +157,17 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'precisionConversionReport' => [
+                'sourceBitDepth'=>$sourceBitDepth,
+                'targetBitDepth'=>$targetBitDepth,
+                'precisionReduction'=>$sourceBitDepth !== null && $targetBitDepth !== null ? $targetBitDepth < $sourceBitDepth : null,
+                'layerDither'=>$layerDither,
+                'textDither'=>$textDither,
+                'maskOrAlphaDither'=>$maskDither,
+                'alphaSelectionPreservesPartial'=>$alphaSelectionPreservesPartial,
+                'maskDitherRequiresExplicitIntent'=>true,
+                'textDitherDefaultAllowed'=>false
             ],
             'alphaMattingQualityReport' => [
                 'sad'=>$alphaSad,
@@ -270,7 +290,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'0.6.0-research',
+                'contractVersion'=>'0.7.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
