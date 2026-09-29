@@ -1,4 +1,9 @@
-export type ProviderStatus = "safe-candidate" | "review-license" | "commercial-api" | "local-core";
+export type ProviderStatus =
+  | "safe-candidate"
+  | "conversion-only"
+  | "review-license"
+  | "commercial-api"
+  | "local-core";
 export type DeploymentMode = "local" | "external-api" | "reference-only";
 
 export interface ProviderDescriptor {
@@ -224,11 +229,11 @@ export const PROVIDER_CATALOG: ProviderDescriptor[] = [
   {
     id: "inspyrenet",
     role: "segmentation",
-    status: "safe-candidate",
-    deploymentModes: ["local"],
-    licenseNote: "Official InSPyReNet code and official Hugging Face model repository are MIT; selected local checkpoint remains hash-pinned.",
+    status: "conversion-only",
+    deploymentModes: ["reference-only"],
+    licenseNote: "Official InSPyReNet code is MIT, but the common local inference path uses PyTorch .pth checkpoints; production runtime blocks pickle/TorchScript model formats.",
     autoEnable: false,
-    note: "High-resolution salient/dichotomous segmentation candidate; useful as a competing mask proposal, not an alpha authority by itself.",
+    note: "Benchmark/conversion candidate only until an approved local deployment artifact is produced and validated.",
   },
   {
     id: "ben",
