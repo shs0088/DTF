@@ -2062,3 +2062,32 @@ Critical safety/fidelity rule: low-confidence OCR is evidence of ambiguity, not 
 Implementation direction: add TextRegionProfile, OCRConsensusReport, TextReconstructionEvidence and GlyphRenderRoundTripReport. Run multiple OCR recognizers where valuable, compare character-level consensus, preserve Arabic diacritics and connected shaping, rasterize reconstructed text at final print size, then compare baseline, bounding geometry, stroke widths, glyph topology, color and edge alignment against the source. Synthetic-data generation can train robustness against blur, perspective, noise, compression and low resolution without treating synthetic labels as proof for a customer's ambiguous source text.
 
 GitHub ledger: 1198 / 10,000. Research continuity: 1225 / 10,000.
+
+
+## Verified Batch 076 — 13 materially distinct pages — advanced gap review: text-aware restoration and script routing
+
+1199. https://github.com/OpenVeraTeam/TiGeSR
+1200. https://github.com/toyotainfotech/stisr-tcdm
+1201. https://github.com/SijieLiu518/SGENet
+1202. https://github.com/mingcv/TADiSR
+1203. https://github.com/FudanVI/FudanOCR
+1204. https://github.com/Phimanu/TextSR/blob/main/README.md
+1205. https://github.com/Yuanssr/StyleSRN
+1206. https://github.com/Lenubolim/TextDiff/blob/main/README_EN.md
+1207. https://github.com/MINGC0816/CFASR
+1208. https://github.com/yfaqh/Awesome-Scene-Text-Image-Super-Resolution
+1209. https://github.com/Abd-alrhman1/multilingual-ocr-toolkit
+1210. https://github.com/Bhashini-IITJ/IndicPhotoOCR
+1211. https://github.com/ankanbhunia/AttenScriptNetPR
+
+Thirteen new pages/repositories were individually opened/read and absent from the ledger. Search-result snippets, duplicate README aliases, forks and related repositories not explicitly opened were not counted.
+
+This batch follows a full requirements gap review across image classification, alpha/matting/edge repair, vectorization, OCR/reconstruction, denoise/deblur/sharpen, resampling/upscale, color, halftone/white-mask, mockup-safe preparation, RIP input contracts, Adobe/Autodesk/MATLAB references, open source, AI and security/async concerns. The largest under-covered gap was text-specific restoration before OCR/reconstruction.
+
+Text-specific SR is materially different from generic SR. TiGeSR explicitly restores glyph structure first and then conditions full-image enhancement on the restored glyph prior. TADiSR jointly reconstructs the image and full-image text mask and targets long, vertical, bilingual and irregular text. SGENet uses semantic guidance; StyleSRN adds text-style embedding; TextDiff uses mask-guided residual diffusion; CFASR uses dual-domain processing; FudanOCR collects stroke-aware/text-focused segmentation, Chinese recognition and text-SR methods. These sources support a dedicated TEXT_RESTORATION route before final OCR when text is small/degraded.
+
+Script identification is also upstream routing evidence. IndicPhotoOCR separates detection, script identification and recognition across many Indic scripts. AttenScriptNet uses local/global features for script identification under low-quality scene conditions. A practical Arabic/Latin toolkit demonstrates per-region routing rather than one OCR language for an entire mixed image. For print reconstruction, Arabic normalization that removes diacritics or folds letter variants must remain disabled: search normalization and visual glyph reconstruction are separate products.
+
+Implementation direction: extend ImageNatureProfile with per-text-region script probabilities, orientation, style/stroke evidence and degradation severity. Add TextRestorationRoute with NONE, CLASSICAL, TEXT_SR, GLYPH_GUIDED_SR and REVIEW. Evaluate candidate restoration by character error/recognizer consensus plus glyph topology, stroke continuity, baseline geometry and source fidelity. Diffusion/text-prior models may propose a candidate but cannot silently decide ambiguous characters. Preserve original pixels and reconstruction provenance.
+
+GitHub ledger: 1211 / 10,000. Research continuity: 1238 / 10,000.
