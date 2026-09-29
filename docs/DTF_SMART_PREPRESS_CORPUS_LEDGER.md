@@ -1923,3 +1923,19 @@ Key transfer — background removal and alpha: French GIMP Color-to-Alpha explic
 Security/OSS note: wrappers that use remote model loading/trust_remote_code or URL image input create a separate supply-chain/SSRF boundary. If adopted, pin model revisions/hashes, default to no arbitrary remote code, restrict URL fetching, validate decoded image content, and separate model-weight licensing from wrapper-code licensing.
 
 GitHub ledger: 1155 / 10,000. Research continuity: 1182 / 10,000.
+
+
+## Verified Batch 071 — 4 materially distinct pages — Adobe edge cleanup, Autodesk alpha semantics, MATLAB quality metrics
+
+1156. https://helpx.adobe.com/photoshop/desktop/make-selections/refine-modify-selections/decrease-fringe-on-selection.html
+1157. https://www.mathworks.com/help/images/image-quality-metrics.html
+1158. https://www.mathworks.com/help/images/ref/brisquemodel.html
+1159. https://help.autodesk.com/cloudhelp/2018/ENU/3DSMax-Reference/files/GUID-E49782BE-6486-4B9D-929A-7A02535F1829.htm
+
+Four new materially distinct pages were individually opened/read and deduplicated. An Adobe localized mirror of an already-counted fringe page was rejected, as were MATLAB deblurring/image-quality overview and CADlink/Caldera pages already represented in the corpus. Search snippets were not counted.
+
+Scope remains IMAGE PREPARATION ONLY. Adobe Defringe provides a concrete edge-color repair model: replace a configurable-width fringe at the selection boundary rather than globally recoloring the foreground. Autodesk's premultiplied-alpha documentation formalizes fractional edge coverage and explains why background/environment RGB can contaminate antialiased edge pixels; alpha association must therefore be explicit before compositing/filtering/resampling and any unpremultiply operation must handle alpha≈0 safely. MATLAB quality-metric documentation establishes a multi-metric QA architecture: SSIM/MS-SSIM are reference-based structural comparisons with local maps; BRISQUE/NIQE/PIQE are no-reference families with different assumptions. BRISQUE specifically depends on a learned distortion/quality distribution, so its score cannot be a universal printability gate.
+
+Implementation implication: add EdgeFringeRepairEvidence and AlphaAssociationEvidence, plus a QualityMetricEnsembleReport that records metric type, reference availability, model/training provenance and local failure maps. Acceptance remains feature-aware: text/stroke survival, alpha integrity, edge halos, color change and effective-resolution checks can veto an apparently improved global IQA score.
+
+GitHub ledger: 1159 / 10,000. Research continuity: 1186 / 10,000.
