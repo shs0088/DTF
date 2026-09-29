@@ -8484,3 +8484,18 @@ Corpus: GitHub explicit 960 / 10,000; research continuity 987 / 10,000.
 Implementation: contract 0.7.0-research adds PrecisionConversionReport and an explicit ALPHA_MASK_DITHER_ON_PRECISION_REDUCTION warning plus regression coverage. No deployment, merge, Oracle or storefront change.
 
 Corpus: GitHub explicit 966 / 10,000; research continuity 993 / 10,000.
+
+
+## Batch 060 — multilingual resize, restoration and output-color integrity
+
+- Resampling damage is multi-axis: blocking, ringing, aliasing/moire and blur must be measured separately. Filter choice alone is not proof of a safe result.
+- Diffusion-based reconstruction is appropriate for diffusive/static blur classes, not motion blur. Unknown blur mechanism never authorizes automatic deconvolution.
+- Denoising assumptions can fail when noise variance changes with signal/luminosity; evidence should retain the noise model rather than only a global sigma.
+- Output color profile, rendering intent and profile embedding are export-handoff facts. Display/soft-proof settings cannot substitute for the actual output transform.
+- Distance transforms plus connected components/stats provide a practical basis for minimum-stroke, component survival and topology checks after choke/resampling.
+- Authoring precision, channel encoding/gamma, image ICC profile and soft-proof profile are independent pieces of provenance.
+- Indexed conversion and dithering can synthesize apparent colors and perturb fine/alpha structures; indexed/mockup derivatives cannot become print masters without re-preflight.
+
+Implementation: contract 0.8.0-research adds ResamplingArtifactReport, BlurMechanismReport and OutputColorHandoffReport with regression coverage. No deployment, merge, Oracle or storefront change.
+
+Corpus: GitHub explicit 975 / 10,000; research continuity 1002 / 10,000.
