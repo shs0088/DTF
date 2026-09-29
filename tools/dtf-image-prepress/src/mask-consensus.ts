@@ -6,6 +6,8 @@ export interface AlphaMaskReading {
 }
 
 export interface MaskConsensusPolicy {
+  id: string;
+  sourceCorpusSha256: string;
   maximumPairwiseAlphaMad: number;
   minimumForegroundIou: number;
 }
@@ -21,9 +23,20 @@ export interface MaskConsensusResult {
   status: "pass" | "review";
   agreements: PairwiseMaskAgreement[];
   reasons: string[];
+  calibrationId?: string;
 }
 
 const round = (value: number) => Math.round(value * 10000) / 10000;
+
+function validPolicy(policy: MaskConsensusPolicy): boolean {
+  return (
+    /^[a-f0-9]{64}$/i.test(policy.sourceCorpusSha256) &&
+    policy.maximumPairwiseAlphaMad >= 0 &&
+    policy.maximumPairwiseAlphaMad <= 1 &&
+    policy.minimumForegroundIou >= 0 &&
+    policy.minimumForegroundIou <= 1
+  );
+}
 
 export function compareAlphaMasks(
   left: AlphaMaskReading,
@@ -62,10 +75,7 @@ export function compareAlphaMasks(
 
 export function evaluateMaskConsensus(
   masks: AlphaMaskReading[],
-  policy: MaskConsensusPolicy = {
-    maximumPairwiseAlphaMad: 0.08,
-    minimumForegroundIou: 0.9,
-  },
+  policy?: MaskConsensusPolicy,
 ): MaskConsensusResult {
   const reasons: string[] = [];
   const agreements: PairwiseMaskAgreement[] = [];
@@ -75,23 +85,45 @@ export function evaluateMaskConsensus(
       status: "review",
       agreements,
       reasons: ["Only one local mask proposal is available; cross-model uncertainty cannot be measured."],
+      calibrationId: policy?.id,
     };
   }
 
   for (let i = 0; i < masks.length; i++) {
     for (let j = i + 1; j < masks.length; j++) {
-      const agreement = compareAlphaMasks(masks[i], masks[j]);
-      agreements.push(agreement);
-      if (agreement.alphaMad > policy.maximumPairwiseAlphaMad) {
-        reasons.push(
-          `${agreement.leftProviderId} vs ${agreement.rightProviderId}: alpha MAD ${agreement.alphaMad} exceeds ${policy.maximumPairwiseAlphaMad}.`,
-        );
-      }
-      if (agreement.foregroundIou < policy.minimumForegroundIou) {
-        reasons.push(
-          `${agreement.leftProviderId} vs ${agreement.rightProviderId}: foreground IoU ${agreement.foregroundIou} is below ${policy.minimumForegroundIou}.`,
-        );
-      }
+      agreements.push(compareAlphaMasks(masks[i], masks[j]));
+    }
+  }
+
+  if (!policy) {
+    return {
+      status: "review",
+      agreements,
+      reasons: [
+        "No fingerprinted local mask-consensus calibration is installed; pairwise metrics are informational only.",
+      ],
+    };
+  }
+
+  if (!validPolicy(policy)) {
+    return {
+      status: "review",
+      agreements,
+      reasons: ["Mask-consensus calibration is invalid or lacks a valid corpus SHA-256."],
+      calibrationId: policy.id,
+    };
+  }
+
+  for (const agreement of agreements) {
+    if (agreement.alphaMad > policy.maximumPairwiseAlphaMad) {
+      reasons.push(
+        `${agreement.leftProviderId} vs ${agreement.rightProviderId}: alpha MAD ${agreement.alphaMad} exceeds calibrated ${policy.maximumPairwiseAlphaMad}.`,
+      );
+    }
+    if (agreement.foregroundIou < policy.minimumForegroundIou) {
+      reasons.push(
+        `${agreement.leftProviderId} vs ${agreement.rightProviderId}: foreground IoU ${agreement.foregroundIou} is below calibrated ${policy.minimumForegroundIou}.`,
+      );
     }
   }
 
@@ -99,5 +131,6 @@ export function evaluateMaskConsensus(
     status: reasons.length === 0 ? "pass" : "review",
     agreements,
     reasons,
+    calibrationId: policy.id,
   };
 }
