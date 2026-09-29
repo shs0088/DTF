@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 183,
-  "remaining": 9817,
+  "verifiedCount": 196,
+  "remaining": 9804,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -1469,6 +1469,110 @@
       "verification": "opened-and-reviewed",
       "decision": "Duplicate of official BiRefNet HR SafeTensors exposes the 444 MB model SHA-256 for artifact verification; original official revision remains preferred provenance.",
       "ordinal": 183
+    },
+    {
+      "id": "onnxruntime-graph-optimizations",
+      "category": "model-optimization",
+      "url": "https://onnxruntime.ai/docs/performance/model-optimizations/graph-optimizations.html",
+      "verification": "opened-and-reviewed",
+      "decision": "ORT graph optimizations can be saved offline but may be execution-provider/hardware specific; optimized artifacts require target-specific validation.",
+      "ordinal": 184
+    },
+    {
+      "id": "onnxruntime-model-optimizations",
+      "category": "model-optimization",
+      "url": "https://onnxruntime.ai/docs/performance/model-optimizations/",
+      "verification": "opened-and-reviewed",
+      "decision": "ORT documents quantization, mixed precision and graph/ORT-format optimization as optional performance variants.",
+      "ordinal": 185
+    },
+    {
+      "id": "onnxruntime-ort-format-optimization",
+      "category": "model-optimization",
+      "url": "https://onnxruntime.ai/docs/performance/model-optimizations/ort-format-model-runtime-optimization.html",
+      "verification": "opened-and-reviewed",
+      "decision": "ORT-format runtime optimization behavior differs by runtime build/version; production variants must be pinned and validated.",
+      "ordinal": 186
+    },
+    {
+      "id": "onnxruntime-quantization",
+      "category": "model-optimization",
+      "url": "https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html",
+      "verification": "opened-and-reviewed",
+      "decision": "ONNX quantization uses QOperator or QDQ representations and can change numerical behavior; quantized variants remain benchmark-gated.",
+      "ordinal": 187
+    },
+    {
+      "id": "ncnn-pnnx-conversion-2026",
+      "category": "model-conversion",
+      "url": "https://github.com/Tencent/ncnn/wiki/use-ncnn-with-pytorch-or-onnx",
+      "verification": "opened-and-reviewed",
+      "decision": "Current ncnn guidance recommends pnnx for model conversion; converted deployment artifacts require independent QA and pinning.",
+      "ordinal": 188
+    },
+    {
+      "id": "tessdata-best-repo",
+      "category": "ocr",
+      "url": "https://github.com/tesseract-ocr/tessdata_best",
+      "verification": "opened-and-reviewed",
+      "decision": "tessdata_best provides accuracy-focused LSTM language models including Arabic; local traineddata remains a pinned model asset.",
+      "ordinal": 189
+    },
+    {
+      "id": "tessdata-best-arabic",
+      "category": "ocr",
+      "url": "https://github.com/tesseract-ocr/tessdata_best/blob/main/ara.traineddata",
+      "verification": "opened-and-reviewed",
+      "decision": "Arabic tessdata_best model exists as a distinct local traineddata artifact for secondary OCR cross-checking.",
+      "ordinal": 190
+    },
+    {
+      "id": "tesseract-data-files",
+      "category": "ocr",
+      "url": "https://github.com/tesseract-ocr/tessdoc/blob/main/Data-Files.md",
+      "verification": "opened-and-reviewed",
+      "decision": "Tesseract documentation maps ara to Arabic traineddata and distinguishes model repositories/engines.",
+      "ordinal": 191
+    },
+    {
+      "id": "realesrgan-tile-process",
+      "category": "upscale-restoration",
+      "url": "https://github.com/xinntao/Real-ESRGAN/blob/master/realesrgan/utils.py",
+      "verification": "opened-and-reviewed",
+      "decision": "Official Real-ESRGAN tile processing uses tile padding to reduce border artifacts; tile size/padding remain performance variants subject to seam QA.",
+      "ordinal": 192
+    },
+    {
+      "id": "pymatting-foreground-docs",
+      "category": "background-matting",
+      "url": "https://pymatting.github.io/foreground.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Official foreground estimation API accepts image plus alpha matte and reconstructs foreground RGB.",
+      "ordinal": 193
+    },
+    {
+      "id": "pymatting-alpha-docs",
+      "category": "background-matting",
+      "url": "https://pymatting.github.io/alpha.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Official alpha estimation API treats trimap unknown regions separately; alpha estimation and foreground estimation are distinct stages.",
+      "ordinal": 194
+    },
+    {
+      "id": "pymatting-examples",
+      "category": "background-matting",
+      "url": "https://pymatting.github.io/examples.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Official example shows reconstructed foreground reduces color bleeding versus naive image-alpha composition.",
+      "ordinal": 195
+    },
+    {
+      "id": "pymatting-overview",
+      "category": "background-matting",
+      "url": "https://pymatting.github.io/",
+      "verification": "opened-and-reviewed",
+      "decision": "PyMatting explains alpha matting as ill-posed and foreground estimation as necessary to avoid halo artifacts.",
+      "ordinal": 196
     }
   ]
 }
