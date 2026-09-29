@@ -1604,3 +1604,25 @@ All nine pages were individually opened/read and absent from the canonical ledge
 982. https://docs.opencv.ac.cn/4.13.0/d4/d40/group__alphamat.html
 
 All seven pages were individually opened/read and absent from the canonical ledger. Search deliberately rotated Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian and Turkish. Previously counted DTF RIP/adaptive-choke/PyMatting pages and simple language mirrors were opened for cross-checking but not recounted. Key transfer: trimap matting estimates continuous opacity in unknown regions; edge-adaptive/deformable receptive fields improve boundary attention; intentional vintage/distressed artwork may require multi-zone tonal white underbase rather than binary white; RIP owns screen shape/angle/lineature and very light tones/minimum dots have physical printability limits; white density/registration and ICC/ink-limit faults must be diagnosed separately; repeated RGB-CMYK conversion should be avoided; choke must have a single owner to prevent double choking. GitHub ledger: 982 / 10,000. Research continuity: 1009 / 10,000.
+
+
+## Verified Batch 062 — 16 materially distinct multilingual pages — alpha-domain filtering, print color calibration, edge-aware refinement and inkjet halftone
+
+983. https://habr.com/ru/articles/468067/
+984. https://habr.com/ru/articles/1066746/
+985. https://habr.com/ru/articles/541510/
+986. https://habr.com/ru/articles/243285/
+987. https://dergipark.org.tr/tr/pub/politeknik/article/367250
+988. https://www.jstage.jst.go.jp/article/photogrst/72/2/72_2_78/_article/-char/ja
+989. https://www.jstage.jst.go.jp/article/nig/48/2/48_2_117/_article/-char/ja
+990. https://www.jstage.jst.go.jp/article/nig/51/2/51_078/_article/-char/ja
+991. https://journal.bit.edu.cn/zr/article/id/20100214
+992. https://journal.bit.edu.cn/zr/article/id/20110918
+993. https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE09301385
+994. https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE11860326
+995. https://learn.microsoft.com/en-us/windows/win32/direct2d/color-management
+996. https://learn.microsoft.com/en-us/windows/win32/wic/-wic-codec-native-pixel-formats
+997. https://www.scielo.br/j/rbeb/a/DhtktBFJN4qQCvwtLsd6QYn/
+998. https://dergipark.org.tr/tr/pub/okufbed/article/1064594
+
+All sixteen pages were individually opened/read and were absent after normalized canonical comparison (host/path normalization, ignored presentation-language/query variants). Search deliberately rotated Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian and Turkish; inaccessible pages and simple translations/mirrors were not counted. Previously counted Microsoft premultiplied-alpha and bitmap-source pages were reopened but excluded from the count. Key transfer: filtering/interpolation of transparent artwork needs explicit straight-vs-premultiplied alpha ownership and a linear-light processing contract; wrong alpha association can create colored or black edge halos. Print color workflows require explicit image state and device/process-specific profile evidence because generic ICC profiles may only approximate a real press. Inkjet output quality couples resolution conversion, color conversion, total-ink limiting, gradation and halftoning; dot-placement/halftone parameters require process calibration and banding/streak QA. Boundary preservation benefits from coarse global segmentation followed by local refinement, and interpolation can route differently along edges, across edges and in smooth regions. Local/adaptive thresholding and morphology should use physically/resolution-aware parameters rather than fixed pixel constants. GitHub ledger: 998 / 10,000. Research continuity: 1025 / 10,000.
