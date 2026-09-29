@@ -8763,3 +8763,14 @@ The first custom subalgorithm is reliability-weighted alpha fusion. Hard foregro
 This design is motivated by complementary failure modes in local-affinity, non-local/sampling and guided approaches and by measured robustness changes under blur/noise. The same synthesis principle will be extended to resize/upscale, denoise/deblur, vectorization, OCR/text restoration, sharpening, color and halftone preparation.
 
 Corpus: 1237 / 10,000 verified ledger pages; research continuity 1264 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 081 — multilingual DAPR expansion: matting, SR, text masks, screening
+
+Twenty new public academic/open-source/reference pages were opened/read and deduplicated. Sources span Chinese/Hong Kong, Korean, Indian, Japanese, Arabic and European work. Existing PyMatting/GCA/Alpha-Free/FudanOCR/LittleCMS evidence was reused without count inflation. Work described as unreleased but not publicly inspectable is excluded from verified evidence.
+
+DAPR now gains three explicit subalgorithms. DAPR-SR separates pixel-fidelity restoration from semantic/perceptual candidates; frequency/degradation measurements gate expert eligibility and protected text/logo/alpha regions prevent generative replacement. DAPR-TextMask compares multiple global/local binarizers using background nonuniformity, local contrast and stroke scale, with Arabic dot/diacritic/component survival and OCR consensus as hard evidence. DAPR-Screen compares diffusion/ordered/blue-noise families using tonal and spectral measurements plus minimum printable feature and edge/text survival, and is generated only at final physical size.
+
+Matting continues as coarse semantic localization plus local alpha/foreground reconstruction, but deterministic uncertain-band fusion and post-QA remain authoritative. Color management remains ICC/Delta-E based with LittleCMS reference behavior. Across all subalgorithms, AI is a candidate processor only, never administration, routing authority, acceptance authority or Ready-to-Print master selector.
+
+Corpus: 1257 / 10,000 verified ledger pages; research continuity 1284 / 10,000. No merge, deployment, Oracle execution or storefront modification.
