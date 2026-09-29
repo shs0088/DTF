@@ -2112,3 +2112,24 @@ Deterministic routing evidence can be built from reproducible measurements: hist
 Implementation direction: replace any AI-controlled ImageNatureProfile decision with MeasuredImageProfile + VersionedRuleEngine. AI classifiers may optionally add advisory evidence but cannot be required for orchestration. Every rule records input measurements, thresholds, rule version, selected route and reason. AI matting/upscale/restoration/vector proposals are treated as candidate transforms; deterministic post-QA decides whether a candidate satisfies alpha, geometry, text, color, edge, resolution and topology constraints. If evidence is insufficient or conflicting, route to conservative processing/review rather than asking AI to decide.
 
 GitHub ledger: 1218 / 10,000. Research continuity: 1245 / 10,000.
+
+
+## Verified Batch 078 — 7 materially distinct pages — deterministic repairability and topology-aware routing
+
+1219. https://scikit-image.org/docs/stable/api/skimage.filters.html
+1220. https://scikit-image.org/docs/stable/api/skimage.morphology.html
+1221. https://scikit-image.org/docs/stable/api/skimage.segmentation.html
+1222. https://scikit-image.org/docs/stable/auto_examples/filters/plot_thresholding_guide.html
+1223. https://scikit-image.org/docs/stable/auto_examples/filters/plot_rank_filters.html
+1224. https://scikit-image.org/docs/stable/auto_examples/applications/plot_morphology.html
+1225. https://scikit-image.org/docs/stable/auto_examples/edges/plot_convex_hull.html
+
+Seven new pages were individually opened/read and absent from the ledger. Already represented measure/restoration/transform/metrics/color/exposure/entropy/unsharp/rank-mean/watershed/regionprops/skeleton/contour pages were rejected by deduplication.
+
+This batch continues the three-day requirement review under the corrected architecture: orchestration is deterministic and AI is optional processing only. The missing abstraction is repairability, not merely defect detection. A defect record must include type, spatial region, severity, confidence, physical-scale impact and whether a candidate correction can preserve semantic/structural evidence.
+
+scikit-image thresholding guidance reinforces algorithm selection by histogram/local illumination behavior rather than one global threshold. Rank/local filters provide neighborhood statistics useful for local contrast/noise evidence. Morphology and convex-hull operations expose topology-changing behavior that must be measured, not blindly applied. Segmentation APIs reinforce explicit boundaries/labels rather than treating every cleanup as a whole-image operation.
+
+Implementation direction: add RepairabilityProfile and DeterministicTreatmentPlan. For each region record defect class, measurements, permitted operation families, forbidden operations, maximum geometry/alpha/color change and revalidation tests. For text/line art, skeleton/connected-component/stroke-width topology from prior sources becomes a preservation gate. For soft alpha/photo regions, binary morphology/threshold operations are forbidden unless the rule explicitly establishes binary artwork. Every candidate transform is compared to pre-transform evidence and can be rolled back independently.
+
+GitHub ledger: 1225 / 10,000. Research continuity: 1252 / 10,000.
