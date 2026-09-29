@@ -8443,3 +8443,16 @@ Batch 048 adds eight materially relevant pages. GitHub ledger: 885 explicit page
 Implementation commits in the isolated OpenCart extension add MattingDecision, foreground-color-estimation routing, BRISQUE diagnostic-only semantics, PSF confidence, deconvolution candidacy, boundary preservation and J-invariant calibration fields. No deployment or storefront/core modification was performed.
 
 Corpus after Batch 049: GitHub ledger 889 explicit; research continuity 898 / 10,000.
+
+
+## Batch 057 — RIP handoff and directional edge integrity
+
+- Ghostscript confirms that ICC source/destination handling, rendering intent and black-point compensation can be object-dependent for images, vectors and text. DTF Smart Prepress therefore records RIP object-class profiles rather than assuming one file-wide transform.
+- Separation devices can emit component/spot outputs and apply the active screening/halftone. Preview halftone remains a proof derivative and must never substitute the RIP screen; prepress must not double-screen artwork already intended for RIP screening.
+- Output intent, proof profile, device-link profile and post-render profile are separate color-management roles and should remain explicit in provenance.
+- OpenCV gradient structure tensors provide local orientation plus coherency. These measurements are useful as directional preservation evidence for line art/text before and after resampling, denoise, sharpening or choke, but are diagnostic and must not directly alter the master.
+- Reopened OpenCV watershed/distance-transform and ImageMagick morphology/dither references were deduplicated; localized mirrors were excluded where no materially new operation was added.
+
+Implementation: research contract advanced to 0.5.0-research with DirectionalEdgeIntegrityReport and RipHandoffReport. No deployment, merge, Oracle or storefront change.
+
+Corpus: GitHub explicit 954 / 10,000; research continuity 981 / 10,000.
