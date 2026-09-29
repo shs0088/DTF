@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildPaddleOcrLocalSpec,
   buildRealEsrganNcnnSpec,
   buildResvgSpec,
   buildTesseractTsvSpec,
   buildVTracerSpec,
+  parsePaddleOcrNormalizedJson,
   parseTesseractTsv,
 } from "../src/local-tool-adapters";
 import { assertLocalProcessSpec } from "../src/local-process-runner";
@@ -55,6 +57,37 @@ describe("local tool adapters", () => {
     expect(result.text).toBe("اطبع حلمك");
     expect(result.confidence).toBeCloseTo(0.93, 4);
     expect(result.words).toHaveLength(2);
+  });
+
+  test("builds PaddleOCR only with explicit local model directories", () => {
+    const spec = buildPaddleOcrLocalSpec({
+      pythonExecutablePath: "/opt/dtf/python/bin/python3",
+      wrapperScriptPath: "/opt/dtf/adapters/paddleocr_local.py",
+      sourcePath: "/work/source.png",
+      outputJsonPath: "/work/paddle.json",
+      detectionModelDirectory: "/opt/dtf/models/ppocr-det",
+      recognitionModelDirectory: "/opt/dtf/models/ppocr-arabic-rec",
+      device: "cpu",
+    });
+    expect(spec.args).toContain("--det-model-dir");
+    expect(spec.args).toContain("/opt/dtf/models/ppocr-det");
+    expect(spec.args).toContain("--rec-model-dir");
+    expect(() => assertLocalProcessSpec(spec)).not.toThrow();
+
+    const parsed = parsePaddleOcrNormalizedJson(
+      JSON.stringify({
+        engine: "paddleocr",
+        input: "/work/source.png",
+        pages: [{
+          texts: ["اطبع", "حلمك"],
+          scores: [0.98, 0.96],
+          boxes: [[1,2,3,4], [5,6,7,8]],
+          polys: [],
+          detection_scores: [0.95, 0.94],
+        }],
+      }),
+    );
+    expect(parsed.pages[0].texts.join(" ")).toBe("اطبع حلمك");
   });
 
   test("builds only known local Real-ESRGAN NCNN models", () => {
