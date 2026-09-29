@@ -20,7 +20,28 @@ export function buildProcessingPlan(signals: RoutingSignals): ProcessingPlan {
   }
 
   if (signals.backgroundPresent) {
-    stages.push("foreground-segmentation", "alpha-matting", "foreground-color-decontamination");
+    const riskyBoundary =
+      signals.foregroundSharesBackgroundColor ||
+      signals.lowContrastBoundary ||
+      signals.intentionalGlowOrShadow;
+
+    stages.push("foreground-segmentation");
+    if (riskyBoundary) {
+      stages.push("conservative-trimap", "alpha-matting", "foreground-color-decontamination");
+      forbiddenStages.push("color-key-background-removal", "hard-alpha-threshold");
+      requiresHumanReview = true;
+      reasons.push(
+        "Foreground/background similarity or intentional soft effects require conservative matting; aggressive thresholding could erase real artwork.",
+      );
+    } else {
+      stages.push("alpha-matting", "foreground-color-decontamination");
+    }
+
+    if (signals.intentionalGlowOrShadow) {
+      stages.push("preserve-intentional-semi-transparency");
+      reasons.push("Glow/shadow is treated as intentional artwork unless QA proves otherwise.");
+    }
+
     reasons.push("Background removal requires a matte plus foreground color reconstruction, not a binary mask only.");
   }
 
@@ -51,5 +72,11 @@ export function buildProcessingPlan(signals: RoutingSignals): ProcessingPlan {
     "deterministic-preflight",
   );
 
-  return { kind: signals.kind, stages, forbiddenStages, requiresHumanReview, reasons };
+  return {
+    kind: signals.kind,
+    stages,
+    forbiddenStages: [...new Set(forbiddenStages)],
+    requiresHumanReview,
+    reasons,
+  };
 }
