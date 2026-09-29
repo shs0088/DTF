@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 103,
-  "remaining": 9897,
+  "verifiedCount": 117,
+  "remaining": 9883,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -829,6 +829,118 @@
       "verification": "opened-and-reviewed",
       "decision": "Matting-specific BiRefNet weights expose boundary/matting metrics and require separate model provenance review.",
       "ordinal": 103
+    },
+    {
+      "id": "sharp-stats",
+      "category": "source-diagnostics",
+      "url": "https://sharp.pixelplumbing.com/api-input/",
+      "verification": "opened-and-reviewed",
+      "decision": "Sharp exposes entropy, Laplacian-based sharpness and dominant color locally for source diagnostics.",
+      "ordinal": 104
+    },
+    {
+      "id": "imagemagick-histogram-api",
+      "category": "source-diagnostics",
+      "url": "https://www.imagemagick.org/include/api/histogram.php",
+      "verification": "opened-and-reviewed",
+      "decision": "Unique color counts and histograms support flat-art versus photo diagnostics.",
+      "ordinal": 105
+    },
+    {
+      "id": "imagemagick-identify",
+      "category": "source-diagnostics",
+      "url": "https://imagemagick.org/identify/",
+      "verification": "opened-and-reviewed",
+      "decision": "Identify exposes unique colors, texture features, moments, orientation, depth and profiles.",
+      "ordinal": 106
+    },
+    {
+      "id": "skimage-shannon-entropy",
+      "category": "source-diagnostics",
+      "url": "https://scikit-image.org/docs/stable/api/skimage.measure.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Shannon entropy and blur-effect metrics support local diagnostic features.",
+      "ordinal": 107
+    },
+    {
+      "id": "skimage-rank-entropy",
+      "category": "source-diagnostics",
+      "url": "https://scikit-image.org/docs/stable/api/skimage.filters.rank.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Local entropy estimates neighborhood complexity and texture.",
+      "ordinal": 108
+    },
+    {
+      "id": "opencv-sobel",
+      "category": "source-diagnostics",
+      "url": "https://github.com/opencv/opencv/blob/5.x/doc/tutorials/imgproc/imgtrans/sobel_derivatives/sobel_derivatives.markdown",
+      "verification": "opened-and-reviewed",
+      "decision": "Gradient derivatives provide deterministic edge-density features.",
+      "ordinal": 109
+    },
+    {
+      "id": "libvips-function-list",
+      "category": "source-diagnostics",
+      "url": "https://github.com/libvips/libvips/blob/master/doc/function-list.md",
+      "verification": "opened-and-reviewed",
+      "decision": "libvips exposes histogram entropy and ICC transforms useful for local diagnostics/prepress.",
+      "ordinal": 110
+    },
+    {
+      "id": "libvips-hist-entropy",
+      "category": "source-diagnostics",
+      "url": "https://www.libvips.org/API/8.17/method.Image.hist_entropy.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Histogram entropy formula reference.",
+      "ordinal": 111
+    },
+    {
+      "id": "opencv-brisque",
+      "category": "quality-metric",
+      "url": "https://docs.opencv.org/4.12.0/d8/d99/classcv_1_1quality_1_1QualityBRISQUE.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Local no-reference BRISQUE quality metric; model assets can be preinstalled.",
+      "ordinal": 112
+    },
+    {
+      "id": "skimage-blur-effect",
+      "category": "quality-metric",
+      "url": "https://scikit-image.org/docs/0.25.x/auto_examples/filters/plot_blur_effect.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Local no-reference blur effect metric outputs 0..1 and requires consistent settings for comparison.",
+      "ordinal": 113
+    },
+    {
+      "id": "matlab-piqe",
+      "category": "quality-reference",
+      "url": "https://www.mathworks.com/help/images/ref/piqe.html",
+      "verification": "opened-and-reviewed",
+      "decision": "PIQE reference separates activity, blocking artifacts and noise; used for research, not runtime dependency.",
+      "ordinal": 114
+    },
+    {
+      "id": "jpeg-blockiness-plos",
+      "category": "quality-metric",
+      "url": "https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0165664",
+      "verification": "opened-and-reviewed",
+      "decision": "No-reference JPEG blockiness research supports explicit compression-artifact diagnosis.",
+      "ordinal": 115
+    },
+    {
+      "id": "opencv-license-change",
+      "category": "licensing",
+      "url": "https://github.com/opencv/opencv/blob/4.x/doc/LICENSE_CHANGE_NOTICE.txt",
+      "verification": "opened-and-reviewed",
+      "decision": "OpenCV 4.5-pre onward changed project licensing to Apache-2.0.",
+      "ordinal": 116
+    },
+    {
+      "id": "scikit-image-license",
+      "category": "licensing",
+      "url": "https://github.com/scikit-image/scikit-image/blob/main/pyproject.toml",
+      "verification": "opened-and-reviewed",
+      "decision": "scikit-image identifies its project license as BSD.",
+      "ordinal": 117
     }
   ]
 }
