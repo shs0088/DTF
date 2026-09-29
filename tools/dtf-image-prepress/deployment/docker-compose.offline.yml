@@ -1,0 +1,30 @@
+services:
+  dtf-image-prepress:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.runtime
+    restart: unless-stopped
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8788"
+      NODE_ENV: "production"
+    ports:
+      - "127.0.0.1:8788:8788"
+    networks:
+      - dtf-prepress-internal
+    volumes:
+      - ./models:/opt/dtf/models:ro
+      - ./profiles:/opt/dtf/profiles:ro
+      - ./work:/var/lib/dtf-prepress
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=512m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+
+networks:
+  dtf-prepress-internal:
+    internal: true
