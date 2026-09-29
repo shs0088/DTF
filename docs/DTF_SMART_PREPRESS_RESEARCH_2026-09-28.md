@@ -8682,3 +8682,14 @@ CodeFormer's quality/fidelity tradeoff is especially important for DTF: perceptu
 New contract direction: RestorationAssumptionEvidence, RestorationBoundaryArtifactReport, GenerativeFidelityReport and ProtectedSemanticRegionMask. Record PSF/noise/regularization assumptions for classical deconvolution; record model/revision/license and semantic region for AI restoration; run edge/text/color/alpha comparisons after either family.
 
 Corpus: 1175 / 10,000 verified ledger pages; research continuity 1202 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 074 — ImageNatureProfile and treatment routing
+
+Seven new multilingual sources were opened/read and deduplicated. The prepress classifier should not force an image into one exclusive label. Use independent evidence heads for content nature (photo/illustration/flat graphic/line-art), semantic regions (text/logo/face), alpha/transparency nature, degradation types and technical quality, each with calibrated confidence.
+
+Photo-vs-illustration can be inferred from pixels without trusting filename/metadata. Logo detection benefits from region-level proposals, explicit background/no-logo examples and a confidence rejection threshold. Robustness testing should inject realistic illumination, perspective, blur, noise, compression and shadow perturbations. Blur/noise classification is upstream of restoration because different degradations imply different algorithms and assumptions. Perceptual IQA such as NIMA is supporting evidence only, never a substitute for source fidelity, alpha integrity, text/stroke survival or final-size printability.
+
+Contract direction: ImageNatureProfile plus ProcessingRoutePolicy. Low confidence, contradictory heads or out-of-distribution evidence must downgrade to conservative/no-destructive processing or human review rather than aggressive AI restoration/vectorization. This profile will ultimately choose among vectorization, soft matting, conservative resampling, artifact-specific denoise/deblur, restorative AI upscale, generative derivative, or no enhancement.
+
+Corpus: 1182 / 10,000 verified ledger pages; research continuity 1209 / 10,000. No merge, deployment, Oracle execution or storefront modification.
