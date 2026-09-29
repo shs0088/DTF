@@ -49,8 +49,12 @@ export async function createDeterministicCandidate(
     allowUpscale: false,
   });
 
+  const candidateFacts = await inspectRaster(outputPath);
   const provenance: CandidateProvenance = {
     sourceSha256: await sha256File(request.sourcePath),
+    sourceFacts: analysis.facts,
+    candidateSha256: await sha256File(outputPath),
+    candidateFacts,
     createdAt: new Date().toISOString(),
     operations: [
       { name: "preserve-original", version: "v1" },
