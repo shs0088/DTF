@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 86,
-  "remaining": 9914,
+  "verifiedCount": 103,
+  "remaining": 9897,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -693,6 +693,142 @@
       "verification": "opened-and-reviewed",
       "decision": "Scene/VFX color-management reference; not required for core DTF ICC path.",
       "ordinal": 86
+    },
+    {
+      "id": "printfactory-dtf-white-control",
+      "category": "dtf-rip",
+      "url": "https://support.printfactory.cloud/portal/en/kb/articles/direct-t",
+      "verification": "opened-and-reviewed",
+      "decision": "White generation and choke are device/media profile concerns; no universal choke should be baked into artwork.",
+      "ordinal": 87
+    },
+    {
+      "id": "printfactory-white-generation",
+      "category": "dtf-rip",
+      "url": "https://support.printfactory.cloud/portal/en/kb/articles/white-generation",
+      "verification": "opened-and-reviewed",
+      "decision": "Transparency mode copies alpha to white channel; shape/density and choke/spread are RIP operations.",
+      "ordinal": 88
+    },
+    {
+      "id": "printfactory-dtf-essentials",
+      "category": "dtf-rip",
+      "url": "https://support.printfactory.cloud/portal/en/kb/articles/dtf-printing-essentials-for-printfactory-users",
+      "verification": "opened-and-reviewed",
+      "decision": "DTF white layer is a production/RIP concern and media profiles matter.",
+      "ordinal": 89
+    },
+    {
+      "id": "printfactory-dtg-separation",
+      "category": "dtf-rip",
+      "url": "https://support.printfactory.cloud/portal/en/kb/articles/dtg-separation",
+      "verification": "opened-and-reviewed",
+      "decision": "Content-aware choke can protect thin white-only text and lines.",
+      "ordinal": 90
+    },
+    {
+      "id": "flexi-dtf-choke-2026",
+      "category": "dtf-rip",
+      "url": "https://support.thinksai.com/hc/en-us/articles/53699556203412-Flexi-Complete-Release-Notes-build-5148-9-18-2026",
+      "verification": "opened-and-reviewed",
+      "decision": "Recent Flexi DTF behavior chokes white only under color, supporting content-aware white protection.",
+      "ordinal": 91
+    },
+    {
+      "id": "matting-sad-mse-grad-conn",
+      "category": "matting-metric",
+      "url": "https://www.mdpi.com/2076-3417/13/15/8616",
+      "verification": "opened-and-reviewed",
+      "decision": "SAD, MSE, Gradient and Connectivity are established alpha-matting benchmark metrics.",
+      "ordinal": 92
+    },
+    {
+      "id": "disentangled-image-matting",
+      "category": "matting-research",
+      "url": "https://openaccess.thecvf.com/content_ICCV_2019/html/Cai_Disentangled_Image_Matting_ICCV_2019_paper.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Separating trimap adaptation from alpha estimation supports conservative two-stage matting logic.",
+      "ordinal": 93
+    },
+    {
+      "id": "closed-form-matting-pubmed",
+      "category": "matting-research",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/18084055/",
+      "verification": "opened-and-reviewed",
+      "decision": "Matting is ill-posed and jointly concerns foreground/background colors plus alpha, supporting foreground reconstruction.",
+      "ordinal": 94
+    },
+    {
+      "id": "guided-filter-pubmed",
+      "category": "edge-refinement",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/23599054/",
+      "verification": "opened-and-reviewed",
+      "decision": "Guided filter is edge-preserving and applicable to matting/feathering and joint upsampling.",
+      "ordinal": 95
+    },
+    {
+      "id": "paddleocr-v5-multilingual",
+      "category": "ocr",
+      "url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/docs/version3.x/algorithm/PP-OCRv5/PP-OCRv5_multi_languages.en.md",
+      "verification": "opened-and-reviewed",
+      "decision": "PP-OCRv5 documents Arabic recognition and broad multilingual support; suitable as a local QA engine.",
+      "ordinal": 96
+    },
+    {
+      "id": "paddleocr-v5-docs",
+      "category": "ocr",
+      "url": "https://www.paddleocr.ai/v3.3.0/en/version3.x/algorithm/PP-OCRv5/PP-OCRv5_multi_languages.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Official PaddleOCR documentation confirms Arabic language model support.",
+      "ordinal": 97
+    },
+    {
+      "id": "tesseract-manual-license",
+      "category": "ocr",
+      "url": "https://github.com/tesseract-ocr/tesseract/blob/main/doc/tesseract.1.asc",
+      "verification": "opened-and-reviewed",
+      "decision": "Tesseract is Apache-2.0 and can serve as a local secondary OCR cross-check.",
+      "ordinal": 98
+    },
+    {
+      "id": "easyocr-readme",
+      "category": "ocr",
+      "url": "https://github.com/JaidedAI/EasyOCR/blob/master/README.md",
+      "verification": "opened-and-reviewed",
+      "decision": "EasyOCR documents Arabic script among 80+ supported languages and uses Apache-2.0 code licensing.",
+      "ordinal": 99
+    },
+    {
+      "id": "cadlink-white-ink-only",
+      "category": "dtf-rip",
+      "url": "https://help.cadlink.com/website/digital_factory/it/bonus_documentation/white_ink_only_print_modes.htm",
+      "verification": "opened-and-reviewed",
+      "decision": "Transparent regions should remain without white; underbase density can follow color/luminance curves.",
+      "ordinal": 100
+    },
+    {
+      "id": "cadlink-queue-white-choke",
+      "category": "dtf-rip",
+      "url": "https://help.cadlink.com/website/digital_factory/en/production/menus/queue_menu_output.htm",
+      "verification": "opened-and-reviewed",
+      "decision": "White choke is calibrated/test-chart driven in the target print mode.",
+      "ordinal": 101
+    },
+    {
+      "id": "dtfstation-white-choke-wizard",
+      "category": "dtf-rip",
+      "url": "https://dtfstation.com/knowledge-base/setting-the-white-choke-amount-with-the-digital-factory-queue-wizard/",
+      "verification": "opened-and-reviewed",
+      "decision": "Operational evidence that choke should be calibrated per print mode rather than hard-coded in artwork.",
+      "ordinal": 102
+    },
+    {
+      "id": "birefnet-matting-weights",
+      "category": "background-matting",
+      "url": "https://huggingface.co/frankjoshua/BiRefNet-matting",
+      "verification": "opened-and-reviewed",
+      "decision": "Matting-specific BiRefNet weights expose boundary/matting metrics and require separate model provenance review.",
+      "ordinal": 103
     }
   ]
 }
