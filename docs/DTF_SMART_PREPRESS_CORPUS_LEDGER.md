@@ -2159,3 +2159,27 @@ Inpainting comparison: biharmonic inpainting reconstructs masked defects from su
 Selection architecture: AlgorithmComparisonMatrix -> EligibilityRules -> CandidateSet -> HardConstraintFilter -> ParetoRanking -> DeterministicTreatmentPlan. Hard constraints include glyph/text correctness, connected-component/topology survival, alpha integrity, maximum boundary displacement, color/profile constraints and final-size physical resolution. Soft metrics such as SSIM/PSNR/no-reference quality are used only after hard constraints pass; improvement in one metric cannot compensate for a destroyed glyph or logo boundary.
 
 GitHub ledger: 1231 / 10,000. Research continuity: 1258 / 10,000.
+
+
+## Verified Batch 080 — 6 materially distinct pages — evidence for a custom DTF adaptive algorithm
+
+1232. https://research.cuhk.edu.hk/en/publications/guided-image-filtering-4/
+1233. https://ietresearch.onlinelibrary.wiley.com/doi/10.1049/trit.2020.0079
+1234. https://ietresearch.onlinelibrary.wiley.com/doi/10.1049/iet-ipr.2017.0470
+1235. https://www.alphamatting.com/eval_25.php
+1236. https://ieeexplore.ieee.org/abstract/document/8839770
+1237. https://ietresearch.onlinelibrary.wiley.com/doi/full/10.1049/ipr2.13012
+
+Six new pages were individually opened/read and absent from the ledger. Search snippets and duplicate guided-filter/IEEE mirrors were not counted.
+
+Custom algorithm direction: DTF Adaptive Prepress Router (DAPR). This is not an AI administrator. It is a deterministic, region-aware orchestration and candidate-evaluation algorithm synthesized from the comparative evidence in the corpus.
+
+DAPR stages: (1) immutable decode/provenance; (2) MeasuredImageProfile; (3) region decomposition into text/logo/line-art/photo/soft-alpha/unknown evidence classes using deterministic measurements and optional advisory detectors; (4) RepairabilityProfile with per-region risk budgets; (5) EligibilityRules for candidate operation families; (6) candidate transforms; (7) HardConstraintFilter; (8) Pareto comparison among survivors; (9) compositing with alpha-association discipline; (10) final-size physical preflight and immutable prepared master.
+
+Risk-budget principle: text/logo/line-art have near-zero tolerance for semantic/topology changes; soft-alpha regions have strict opacity/edge and foreground-RGB constraints; photographic texture can permit larger high-frequency changes but protected faces/text/color-critical regions remain constrained. Operations are region-specific rather than global whenever masks/evidence are reliable.
+
+New comparative evidence strengthens the hybrid design. Guided filtering uses a local linear guidance model, supports linear-time edge-aware filtering and generally avoids bilateral gradient reversal, but its performance depends on reliable guidance. Edge-filter comparisons show noise-type-dependent winners and halo/gradient-reversal tradeoffs, so filter choice must be degradation-specific. Classical matting families differ by local affinity, non-local affinity, sampling and propagation; robustness studies show rankings change under blur/noise. Therefore DAPR can generate complementary alpha candidates (for example local-affinity and non-local/sampling families), then choose/blend only in uncertain boundary bands according to deterministic alpha-gradient, reconstruction, edge and stability evidence rather than selecting one global matting method.
+
+Proposed DAPR alpha fusion: establish hard foreground/background where evidence is strong; define uncertain band; generate eligible matte candidates; compute per-pixel/patch reliability from reconstruction residual, local color-model fit, gradient alignment, candidate disagreement and perturbation stability; select or weighted-fuse only where reliability is adequate; run foreground-RGB decontamination separately; reject if multi-background composite tests reveal fringe/halo or if topology/stroke gates fail. AI matte may be one candidate but never controls fusion or acceptance.
+
+GitHub ledger: 1237 / 10,000. Research continuity: 1264 / 10,000.
