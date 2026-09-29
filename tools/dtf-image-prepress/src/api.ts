@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { chmod, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { extname, join } from "node:path";
 import { analyzeSource } from "./engine";
@@ -87,8 +87,10 @@ export async function createApiHandler(request: Request): Promise<Response> {
       const extension = extname(file.name).replace(/[^.a-zA-Z0-9]/g, "").slice(0, 12) || ".bin";
 
       workDir = await mkdtemp(join(tmpdir(), "dtf-prepress-"));
+      await chmod(workDir, 0o700);
       const sourcePath = join(workDir, `source${extension}`);
       await Bun.write(sourcePath, file);
+      await chmod(sourcePath, 0o600);
 
       const result = await analyzeSource({
         sourcePath,
