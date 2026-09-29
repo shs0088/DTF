@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { extname, join } from "node:path";
 import { analyzeSource } from "./engine";
 import type { ArtworkKind } from "./contracts";
+import { getResearchLedgerStatus } from "./research-ledger";
 
 const ALLOWED_KINDS = new Set<ArtworkKind>([
   "photo",
@@ -47,6 +48,10 @@ function artworkKind(form: FormData): ArtworkKind {
 
 export async function createApiHandler(request: Request): Promise<Response> {
   const url = new URL(request.url);
+
+  if (request.method === "GET" && url.pathname === "/research/status") {
+    return json(getResearchLedgerStatus());
+  }
 
   if (request.method === "GET" && url.pathname === "/health") {
     return json({
