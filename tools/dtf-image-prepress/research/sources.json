@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 139,
-  "remaining": 9861,
+  "verifiedCount": 149,
+  "remaining": 9851,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -1117,6 +1117,86 @@
       "verification": "opened-and-reviewed",
       "decision": "Black point compensation depends on source/destination profiles and rendering intent; output proofing requires target profile context.",
       "ordinal": 139
+    },
+    {
+      "id": "imagemagick-security-policy",
+      "category": "input-security",
+      "url": "https://imagemagick.org/security-policy/",
+      "verification": "opened-and-reviewed",
+      "decision": "Untrusted image processing needs explicit resource/coder/delegate limits and sandboxing; open defaults are inappropriate for public uploads.",
+      "ordinal": 140
+    },
+    {
+      "id": "libvips-opening-files",
+      "category": "input-security",
+      "url": "https://www.libvips.org/API/current/how-it-opens-files.html",
+      "verification": "opened-and-reviewed",
+      "decision": "libvips header-first and sequential-access behavior informs bounded local decode and temporary-storage planning.",
+      "ordinal": 141
+    },
+    {
+      "id": "libvips-operation-flags",
+      "category": "input-security",
+      "url": "https://www.libvips.org/API/8.16/VipsOperation.html",
+      "verification": "opened-and-reviewed",
+      "decision": "libvips marks sequential and untrusted operations, supporting conservative decode/runtime policy.",
+      "ordinal": 142
+    },
+    {
+      "id": "sharp-security",
+      "category": "input-security",
+      "url": "https://sharp.pixelplumbing.com/security/",
+      "verification": "opened-and-reviewed",
+      "decision": "Sharp treats all input as untrusted, recommends warning-level decode rejection and OS resource isolation.",
+      "ordinal": 143
+    },
+    {
+      "id": "sharp-035-security-line",
+      "category": "input-security",
+      "url": "https://sharp.pixelplumbing.com/changelog/v0.35.0/",
+      "verification": "opened-and-reviewed",
+      "decision": "Sharp 0.35 adds current decoder/channel safety improvements and newer libvips; runtime dependency upgraded accordingly.",
+      "ordinal": 144
+    },
+    {
+      "id": "sharp-utility-resource-controls",
+      "category": "input-security",
+      "url": "https://sharp.pixelplumbing.com/api-utility/",
+      "verification": "opened-and-reviewed",
+      "decision": "Sharp cache/concurrency controls support bounded local resource usage.",
+      "ordinal": 145
+    },
+    {
+      "id": "svg-integration-security",
+      "category": "input-security",
+      "url": "https://www.w3.org/TR/svg-integration/",
+      "verification": "opened-and-reviewed",
+      "decision": "SVG can contain scripts and external resource references; secure image processing disables these capabilities.",
+      "ordinal": 146
+    },
+    {
+      "id": "svg2-secure-static",
+      "category": "input-security",
+      "url": "https://www.w3.org/TR/SVG/conform.html",
+      "verification": "opened-and-reviewed",
+      "decision": "SVG secure-static processing disables animation/external resource loading, supporting a future restricted SVG inspector.",
+      "ordinal": 147
+    },
+    {
+      "id": "svg-media-security",
+      "category": "input-security",
+      "url": "https://www.w3.org/TR/SVG/mimereg.html",
+      "verification": "opened-and-reviewed",
+      "decision": "SVG media type explicitly permits external resources and scripting, so uploaded SVG must be treated as active/untrusted input.",
+      "ordinal": 148
+    },
+    {
+      "id": "littlecms-217-tutorial",
+      "category": "color-management",
+      "url": "https://www.littlecms.com/LittleCMS2.17%20tutorial.pdf",
+      "verification": "opened-and-reviewed",
+      "decision": "Local ICC transforms, rendering intents and black-point compensation reference for future soft proofing.",
+      "ordinal": 149
     }
   ]
 }
