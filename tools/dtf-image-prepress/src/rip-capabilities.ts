@@ -35,8 +35,8 @@ export const RIP_CAPABILITY_PROFILES: Record<string, RipCapabilityProfile> = {
     lowAlphaToleranceControl: true,
     chokeUnits: ["px"],
     sourceIds: [
-      "cadlink-layer-tab-current",
-      "cadlink-queue-choke-current",
+      "cadlink-layer-tab",
+      "cadlink-queue-white-choke",
     ],
     note:
       "Supports adaptive white density, valid-pixel tolerance and queue/print-mode choke calibration.",
@@ -51,8 +51,8 @@ export const RIP_CAPABILITY_PROFILES: Record<string, RipCapabilityProfile> = {
     lowAlphaToleranceControl: true,
     chokeUnits: ["mm"],
     sourceIds: [
-      "caldera-white-underlay-current",
-      "caldera-underbase-dtf-dtg-current",
+      "caldera-white-underlay",
+      "caldera-dtf-underbase",
       "caldera-dtf-color-best-practices",
     ],
     note:
@@ -67,7 +67,7 @@ export const RIP_CAPABILITY_PROFILES: Record<string, RipCapabilityProfile> = {
     protectWhiteOnlyContent: true,
     lowAlphaToleranceControl: false,
     chokeUnits: ["px"],
-    sourceIds: ["flexi-2026-color-only-choke"],
+    sourceIds: ["flexi-dtf-choke-2026"],
     note:
       "2026 release notes document choking white only under color while leaving white-only artwork unchanged.",
   },
