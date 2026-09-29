@@ -1,0 +1,17 @@
+FROM oven/bun:1.4.2
+
+WORKDIR /app
+
+COPY package.json ./
+RUN bun install --production
+
+COPY src ./src
+COPY research ./research
+
+ENV HOST=0.0.0.0
+ENV PORT=8788
+ENV NODE_ENV=production
+
+USER bun
+
+CMD ["bun", "src/server.ts"]
