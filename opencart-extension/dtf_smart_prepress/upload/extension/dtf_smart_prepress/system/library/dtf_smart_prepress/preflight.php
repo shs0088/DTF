@@ -47,6 +47,13 @@ final class Preflight {
         $exportHeightPx = isset($m['exportHeightPx']) ? max(0, (int)$m['exportHeightPx']) : null;
         $exportHasTransparency = isset($m['exportHasTransparency']) ? (bool)$m['exportHasTransparency'] : null;
         $exportFormat = strtolower(trim((string)($m['exportFormat'] ?? '')));
+        $edgeOrientationDeg = isset($m['edgeOrientationDeg']) ? (float)$m['edgeOrientationDeg'] : null;
+        $edgeCoherency = isset($m['edgeCoherency']) ? max(0.0, min(1.0, (float)$m['edgeCoherency'])) : null;
+        $ripImageProfile = trim((string)($m['ripImageProfile'] ?? ''));
+        $ripVectorProfile = trim((string)($m['ripVectorProfile'] ?? ''));
+        $ripTextProfile = trim((string)($m['ripTextProfile'] ?? ''));
+        $spotSeparationExpected = (bool)($m['spotSeparationExpected'] ?? false);
+        $ripHalftoneMode = trim((string)($m['ripHalftoneMode'] ?? ''));
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -132,6 +139,23 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'directionalEdgeIntegrityReport' => [
+                'orientationDeg'=>$edgeOrientationDeg,
+                'coherency'=>$edgeCoherency,
+                'orientationEvidenceAvailable'=>$edgeOrientationDeg !== null && $edgeCoherency !== null,
+                'useForDirectionalPreservationQa'=>true,
+                'mayDirectlyModifyMaster'=>false
+            ],
+            'ripHandoffReport' => [
+                'imageProfile'=>$ripImageProfile !== '' ? $ripImageProfile : null,
+                'vectorProfile'=>$ripVectorProfile !== '' ? $ripVectorProfile : null,
+                'textProfile'=>$ripTextProfile !== '' ? $ripTextProfile : null,
+                'objectDependentColorManagementPossible'=>true,
+                'spotSeparationExpected'=>$spotSeparationExpected,
+                'halftoneMode'=>$ripHalftoneMode !== '' ? $ripHalftoneMode : null,
+                'previewHalftoneMaySubstituteRipScreen'=>false,
+                'prepressMustNotDuplicateRipScreening'=>true
             ],
             'authoringExportIntegrityReport' => [
                 'authoringApp'=>$authoringApp !== '' ? $authoringApp : null,
@@ -223,7 +247,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'0.4.0-research',
+                'contractVersion'=>'0.5.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
