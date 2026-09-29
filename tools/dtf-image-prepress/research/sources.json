@@ -1,0 +1,562 @@
+{
+  "schemaVersion": "dtf-research-ledger-v1",
+  "goal": 10000,
+  "verifiedCount": 69,
+  "remaining": 9931,
+  "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
+  "updatedAt": "2026-09-29",
+  "sources": [
+    {
+      "id": "real-esrgan",
+      "category": "upscale-restoration",
+      "url": "https://github.com/xinntao/Real-ESRGAN",
+      "verification": "opened-and-reviewed",
+      "decision": "Blind super-resolution candidate; code/license/provider benchmark reference.",
+      "ordinal": 1
+    },
+    {
+      "id": "swinir",
+      "category": "upscale-restoration",
+      "url": "https://github.com/JingyunLiang/SwinIR",
+      "verification": "opened-and-reviewed",
+      "decision": "Transformer restoration/SR candidate; benchmark against raster artwork.",
+      "ordinal": 2
+    },
+    {
+      "id": "restormer",
+      "category": "upscale-restoration",
+      "url": "https://github.com/swz30/Restormer",
+      "verification": "opened-and-reviewed",
+      "decision": "Deblur/denoise/restoration candidate; only route when diagnosis warrants it.",
+      "ordinal": 3
+    },
+    {
+      "id": "dat",
+      "category": "upscale-restoration",
+      "url": "https://github.com/zhengchen1999/DAT",
+      "verification": "opened-and-reviewed",
+      "decision": "Alternative transformer SR candidate for benchmark competition.",
+      "ordinal": 4
+    },
+    {
+      "id": "nafnet",
+      "category": "upscale-restoration",
+      "url": "https://github.com/megvii-research/NAFNet",
+      "verification": "opened-and-reviewed",
+      "decision": "Nonlinear-activation-free restoration reference for blur/noise workloads.",
+      "ordinal": 5
+    },
+    {
+      "id": "codeformer",
+      "category": "face-restoration",
+      "url": "https://github.com/sczhou/CodeFormer",
+      "verification": "opened-and-reviewed",
+      "decision": "Face-specific restoration reference; never apply globally to artwork.",
+      "ordinal": 6
+    },
+    {
+      "id": "gfpgan",
+      "category": "face-restoration",
+      "url": "https://github.com/TencentARC/GFPGAN",
+      "verification": "opened-and-reviewed",
+      "decision": "Face restoration candidate; local-region use only.",
+      "ordinal": 7
+    },
+    {
+      "id": "waifu2x-ncnn-vulkan",
+      "category": "upscale-restoration",
+      "url": "https://github.com/nihui/waifu2x-ncnn-vulkan",
+      "verification": "opened-and-reviewed",
+      "decision": "Illustration/anime/line-art-oriented local candidate.",
+      "ordinal": 8
+    },
+    {
+      "id": "upscayl",
+      "category": "upscale-reference",
+      "url": "https://github.com/upscayl/upscayl",
+      "verification": "opened-and-reviewed",
+      "decision": "Reference app around Real-ESRGAN/Vulkan; AGPL architecture review required before embedding.",
+      "ordinal": 9
+    },
+    {
+      "id": "tigesr",
+      "category": "text-restoration",
+      "url": "https://github.com/OpenVeraTeam/TiGeSR",
+      "verification": "opened-and-reviewed",
+      "decision": "Text-first scene text SR confirms text must be restored/protected before general enhancement.",
+      "ordinal": 10
+    },
+    {
+      "id": "birefnet",
+      "category": "background-matting",
+      "url": "https://github.com/ZhengPeng7/BiRefNet",
+      "verification": "opened-and-reviewed",
+      "decision": "High-resolution segmentation/matting candidate; commercial model/license verification required.",
+      "ordinal": 11
+    },
+    {
+      "id": "inspyrenet",
+      "category": "background-matting",
+      "url": "https://github.com/plemeri/InSPyReNet",
+      "verification": "opened-and-reviewed",
+      "decision": "Salient-object/background-removal candidate for benchmark comparison.",
+      "ordinal": 12
+    },
+    {
+      "id": "pymatting",
+      "category": "background-matting",
+      "url": "https://github.com/pymatting/pymatting",
+      "verification": "opened-and-reviewed",
+      "decision": "Alpha matting and foreground reconstruction; helps prevent halo/color bleeding.",
+      "ordinal": 13
+    },
+    {
+      "id": "background-matting-v2",
+      "category": "background-matting",
+      "url": "https://github.com/PeterL1n/BackgroundMattingV2",
+      "verification": "opened-and-reviewed",
+      "decision": "High-resolution matting with background-reference workflow.",
+      "ordinal": 14
+    },
+    {
+      "id": "modnet",
+      "category": "background-matting",
+      "url": "https://github.com/ZHKKKe/MODNet",
+      "verification": "opened-and-reviewed",
+      "decision": "Real-time portrait matting reference; not universal artwork segmentation.",
+      "ordinal": 15
+    },
+    {
+      "id": "robust-video-matting",
+      "category": "background-matting",
+      "url": "https://github.com/PeterL1n/RobustVideoMatting",
+      "verification": "opened-and-reviewed",
+      "decision": "Temporal matting reference for future video/animated asset support.",
+      "ordinal": 16
+    },
+    {
+      "id": "u2net",
+      "category": "segmentation",
+      "url": "https://github.com/xuebinqin/U-2-Net",
+      "verification": "opened-and-reviewed",
+      "decision": "Salient-object segmentation reference used by several background-removal stacks.",
+      "ordinal": 17
+    },
+    {
+      "id": "rembg",
+      "category": "segmentation",
+      "url": "https://github.com/danielgatis/rembg",
+      "verification": "opened-and-reviewed",
+      "decision": "Local model orchestrator; model-weight licenses tracked independently.",
+      "ordinal": 18
+    },
+    {
+      "id": "sam2",
+      "category": "segmentation",
+      "url": "https://github.com/facebookresearch/sam2",
+      "verification": "opened-and-reviewed",
+      "decision": "Prompt-assisted segmentation candidate; not final alpha authority.",
+      "ordinal": 19
+    },
+    {
+      "id": "segment-anything",
+      "category": "segmentation",
+      "url": "https://github.com/facebookresearch/segment-anything",
+      "verification": "opened-and-reviewed",
+      "decision": "Interactive/general segmentation reference for difficult subjects.",
+      "ordinal": 20
+    },
+    {
+      "id": "opencv-guided-filter",
+      "category": "edge-refinement",
+      "url": "https://docs.opencv.org/5.0/extra_modules/ximgproc_filters.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Deterministic edge-aware refinement reference.",
+      "ordinal": 21
+    },
+    {
+      "id": "opencv-imgproc",
+      "category": "edge-refinement",
+      "url": "https://docs.opencv.org/4.x/d7/da8/tutorial_table_of_content_imgproc.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Morphology, contours, connected components and geometric QA primitives.",
+      "ordinal": 22
+    },
+    {
+      "id": "scikit-image-metrics",
+      "category": "quality-metric",
+      "url": "https://scikit-image.org/docs/stable/api/skimage.metrics.html",
+      "verification": "opened-and-reviewed",
+      "decision": "SSIM/PSNR and related objective metrics.",
+      "ordinal": 23
+    },
+    {
+      "id": "scikit-image-color",
+      "category": "color-management",
+      "url": "https://scikit-image.org/docs/stable/api/skimage.color.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Lab conversion and DeltaE color-difference metrics.",
+      "ordinal": 24
+    },
+    {
+      "id": "lpips",
+      "category": "quality-metric",
+      "url": "https://github.com/richzhang/PerceptualSimilarity",
+      "verification": "opened-and-reviewed",
+      "decision": "Perceptual similarity metric; supplementary only, never overrides hard gates.",
+      "ordinal": 25
+    },
+    {
+      "id": "littlecms",
+      "category": "color-management",
+      "url": "https://littlecms.com/color-engine/",
+      "verification": "opened-and-reviewed",
+      "decision": "Local ICC V2/V4 transform engine candidate.",
+      "ordinal": 26
+    },
+    {
+      "id": "littlecms-github",
+      "category": "color-management",
+      "url": "https://github.com/mm2/Little-CMS",
+      "verification": "opened-and-reviewed",
+      "decision": "Source/license reference for local ICC integration.",
+      "ordinal": 27
+    },
+    {
+      "id": "icc-profile-registry",
+      "category": "color-management",
+      "url": "https://registry.color.org/profile-registry/",
+      "verification": "opened-and-reviewed",
+      "decision": "Registered printing-condition profiles; suitability must be evaluated per workflow.",
+      "ordinal": 28
+    },
+    {
+      "id": "icc-profile-info",
+      "category": "color-management",
+      "url": "https://www.color.org/info_profiles/",
+      "verification": "opened-and-reviewed",
+      "decision": "ICC profile concepts and profile-selection background.",
+      "ordinal": 29
+    },
+    {
+      "id": "iccmax",
+      "category": "color-management",
+      "url": "https://www.color.org/iccmax/",
+      "verification": "opened-and-reviewed",
+      "decision": "Extended ICC color-management architecture reference.",
+      "ordinal": 30
+    },
+    {
+      "id": "sharp-output",
+      "category": "raster-core",
+      "url": "https://sharp.pixelplumbing.com/api-output/",
+      "verification": "opened-and-reviewed",
+      "decision": "Raster export/metadata behavior.",
+      "ordinal": 31
+    },
+    {
+      "id": "sharp-resize",
+      "category": "raster-core",
+      "url": "https://sharp.pixelplumbing.com/api-resize/",
+      "verification": "opened-and-reviewed",
+      "decision": "Resize kernels and enlargement controls.",
+      "ordinal": 32
+    },
+    {
+      "id": "sharp-colour",
+      "category": "color-management",
+      "url": "https://sharp.pixelplumbing.com/api-colour/",
+      "verification": "opened-and-reviewed",
+      "decision": "Pipeline/output colourspace conversion behavior.",
+      "ordinal": 33
+    },
+    {
+      "id": "sharp-constructor",
+      "category": "raster-core",
+      "url": "https://sharp.pixelplumbing.com/api-constructor/",
+      "verification": "opened-and-reviewed",
+      "decision": "Raw input and premultiplied-alpha handling reference.",
+      "ordinal": 34
+    },
+    {
+      "id": "libvips",
+      "category": "raster-core",
+      "url": "https://github.com/libvips/libvips",
+      "verification": "opened-and-reviewed",
+      "decision": "High-performance raster processing core reference.",
+      "ordinal": 35
+    },
+    {
+      "id": "libvips-premultiply",
+      "category": "alpha-compositing",
+      "url": "https://www.libvips.org/API/8.17/method.Image.premultiply.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Explicit alpha premultiplication reference.",
+      "ordinal": 36
+    },
+    {
+      "id": "vtracer",
+      "category": "vectorization",
+      "url": "https://github.com/visioncortex/vtracer",
+      "verification": "opened-and-reviewed",
+      "decision": "Raster-to-vector candidate for logos/line art.",
+      "ordinal": 37
+    },
+    {
+      "id": "resvg",
+      "category": "vector-rasterizer",
+      "url": "https://github.com/linebender/resvg",
+      "verification": "opened-and-reviewed",
+      "decision": "Deterministic SVG rasterizer for vector-vs-source QA.",
+      "ordinal": 38
+    },
+    {
+      "id": "potrace",
+      "category": "vectorization",
+      "url": "https://potrace.sourceforge.net/",
+      "verification": "opened-and-reviewed",
+      "decision": "Classic bitmap tracing reference for binary/monochrome artwork.",
+      "ordinal": 39
+    },
+    {
+      "id": "imagetracerjs",
+      "category": "vectorization",
+      "url": "https://github.com/jankovicsandras/imagetracerjs",
+      "verification": "opened-and-reviewed",
+      "decision": "Browser/JS raster-to-vector reference.",
+      "ordinal": 40
+    },
+    {
+      "id": "autotrace",
+      "category": "vectorization",
+      "url": "https://github.com/autotrace/autotrace",
+      "verification": "opened-and-reviewed",
+      "decision": "Open-source bitmap-to-vector reference.",
+      "ordinal": 41
+    },
+    {
+      "id": "paddleocr",
+      "category": "ocr",
+      "url": "https://github.com/PaddlePaddle/PaddleOCR",
+      "verification": "opened-and-reviewed",
+      "decision": "Primary OCR candidate family.",
+      "ordinal": 42
+    },
+    {
+      "id": "paddleocr-license",
+      "category": "licensing",
+      "url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/LICENSE",
+      "verification": "opened-and-reviewed",
+      "decision": "Apache-2.0 code license evidence.",
+      "ordinal": 43
+    },
+    {
+      "id": "paddleocr-arabic-readme",
+      "category": "ocr",
+      "url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/readme/README_ar.md",
+      "verification": "opened-and-reviewed",
+      "decision": "Arabic project/documentation reference.",
+      "ordinal": 44
+    },
+    {
+      "id": "paddleocr-arabic-config",
+      "category": "ocr",
+      "url": "https://github.com/PaddlePaddle/PaddleOCR/blob/main/configs/rec/PP-OCRv5/multi_language/arabic_PP-OCRv5_mobile_rec.yaml",
+      "verification": "opened-and-reviewed",
+      "decision": "Arabic recognition model configuration evidence.",
+      "ordinal": 45
+    },
+    {
+      "id": "tesseract",
+      "category": "ocr",
+      "url": "https://github.com/tesseract-ocr/tesseract",
+      "verification": "opened-and-reviewed",
+      "decision": "Alternative OCR baseline/reference for comparison.",
+      "ordinal": 46
+    },
+    {
+      "id": "easyocr",
+      "category": "ocr",
+      "url": "https://github.com/JaidedAI/EasyOCR",
+      "verification": "opened-and-reviewed",
+      "decision": "Alternative multilingual OCR benchmark candidate.",
+      "ordinal": 47
+    },
+    {
+      "id": "adobe-photoshop-api",
+      "category": "commercial-api",
+      "url": "https://developer.adobe.com/firefly-services/docs/photoshop/",
+      "verification": "opened-and-reviewed",
+      "decision": "Photoshop API v2 overview for optional cloud workflows.",
+      "ordinal": 48
+    },
+    {
+      "id": "adobe-remove-background",
+      "category": "commercial-api",
+      "url": "https://developer.adobe.com/firefly-services/docs/photoshop/guides/remove-background/",
+      "verification": "opened-and-reviewed",
+      "decision": "Optional cloud background-removal candidate; output still passes local QA.",
+      "ordinal": 49
+    },
+    {
+      "id": "adobe-smart-object-v2",
+      "category": "mockup",
+      "url": "https://developer.adobe.com/firefly-services/docs/photoshop/guides/photoshop-v2/v1-to-v2/convenience-apis/smart-object-replace",
+      "verification": "opened-and-reviewed",
+      "decision": "High-fidelity PSD Smart Object replacement path.",
+      "ordinal": 50
+    },
+    {
+      "id": "adobe-image-trace",
+      "category": "vectorization",
+      "url": "https://developer.adobe.com/firefly-services/docs/illustrator/guides/image-trace/",
+      "verification": "opened-and-reviewed",
+      "decision": "Optional commercial raster-to-SVG candidate.",
+      "ordinal": 51
+    },
+    {
+      "id": "psd-tools",
+      "category": "mockup",
+      "url": "https://github.com/psd-tools/psd-tools",
+      "verification": "opened-and-reviewed",
+      "decision": "PSD parsing/compositing reference; Smart Object editing limitations inform architecture.",
+      "ordinal": 52
+    },
+    {
+      "id": "cloudinary-background-removal",
+      "category": "commercial-api",
+      "url": "https://cloudinary.com/documentation/background_removal",
+      "verification": "opened-and-reviewed",
+      "decision": "Derived transformation workflow and fine-edge background removal.",
+      "ordinal": 53
+    },
+    {
+      "id": "cloudinary-refiners",
+      "category": "commercial-api",
+      "url": "https://cloudinary.com/documentation/transformation_refiners",
+      "verification": "opened-and-reviewed",
+      "decision": "Manual restore/remove mask refinement reference.",
+      "ordinal": 54
+    },
+    {
+      "id": "stability-api",
+      "category": "commercial-api",
+      "url": "https://platform.stability.ai/docs/api-reference",
+      "verification": "opened-and-reviewed",
+      "decision": "Optional cloud remove-background/upscale candidate family.",
+      "ordinal": 55
+    },
+    {
+      "id": "cadlink-layer-tab",
+      "category": "dtf-rip",
+      "url": "https://help.cadlink.com/website/digital_factory/en/production/menus/layer_tab.htm",
+      "verification": "opened-and-reviewed",
+      "decision": "Adaptive white underbase, opacity, valid-pixel tolerance and choke behavior.",
+      "ordinal": 56
+    },
+    {
+      "id": "caldera-white-underlay",
+      "category": "dtf-rip",
+      "url": "https://helpdesk.caldera.com/hc/en-us/articles/15207936811921--How-to-create-a-white-underlay-in-DTF",
+      "verification": "opened-and-reviewed",
+      "decision": "DTF white-underlay generation reference.",
+      "ordinal": 57
+    },
+    {
+      "id": "caldera-dtf-underbase",
+      "category": "dtf-rip",
+      "url": "https://helpdesk.caldera.com/hc/en-us/articles/25408381491217-How-to-create-a-white-underbase-for-DTF-and-DTG-applications",
+      "verification": "opened-and-reviewed",
+      "decision": "Transparency/gradient-aware underbase workflow.",
+      "ordinal": 58
+    },
+    {
+      "id": "caldera-direct-to-film",
+      "category": "dtf-rip",
+      "url": "https://www.caldera.com/solutions/dtf-software-caldera-direct-to-film/",
+      "verification": "opened-and-reviewed",
+      "decision": "RIP-level smart white generation reference.",
+      "ordinal": 59
+    },
+    {
+      "id": "printful-file-prep",
+      "category": "dtf-practice",
+      "url": "https://help.printful.com/hc/en-us/articles/50264019148177-How-should-I-prepare-my-print-file-for-the-best-results",
+      "verification": "opened-and-reviewed",
+      "decision": "Production-service guidance on transparency/fades; used as conservative-profile evidence.",
+      "ordinal": 60
+    },
+    {
+      "id": "epson-garment-data",
+      "category": "dtf-practice",
+      "url": "https://files.support.epson.com/docid/cpd5/cpd54917/source/pro_graphics/source/printing_computer/reference/creating_and_transmitting_data.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Garment artwork data/color preparation reference.",
+      "ordinal": 61
+    },
+    {
+      "id": "brother-gt3-cookbook",
+      "category": "dtf-practice",
+      "url": "https://gtowner.brother-usa.com/GarmentPrinters/Owner/GT3SeriesCookbook.aspx?Page=d-ex1.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Garment-print raster/resampling/anti-aliasing reference.",
+      "ordinal": 62
+    },
+    {
+      "id": "matlab-image-processing",
+      "category": "reference-algorithms",
+      "url": "https://www.mathworks.com/help/images/",
+      "verification": "opened-and-reviewed",
+      "decision": "Reference algorithms for enhancement, morphology, segmentation and restoration.",
+      "ordinal": 63
+    },
+    {
+      "id": "matlab-deblurring",
+      "category": "reference-algorithms",
+      "url": "https://www.mathworks.com/help/images/image-deblurring.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Deblur is separate from sharpening/SR; recovered details can include artifacts.",
+      "ordinal": 64
+    },
+    {
+      "id": "matlab-deconvlucy",
+      "category": "reference-algorithms",
+      "url": "https://www.mathworks.com/help/images/ref/deconvlucy.html",
+      "verification": "opened-and-reviewed",
+      "decision": "PSF-based Lucy-Richardson deconvolution reference.",
+      "ordinal": 65
+    },
+    {
+      "id": "krita-profiling",
+      "category": "color-management",
+      "url": "https://docs.krita.org/en/general_concepts/colors/profiling_and_callibration.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Display/profile/calibration background.",
+      "ordinal": 66
+    },
+    {
+      "id": "krita-color-managed-workflow",
+      "category": "color-management",
+      "url": "https://docs.krita.org/en/general_concepts/colors/color_managed_workflow.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Color-managed editing workflow reference.",
+      "ordinal": 67
+    },
+    {
+      "id": "adobe-smart-objects",
+      "category": "mockup",
+      "url": "https://developer.adobe.com/firefly-services/docs/photoshop/guides/smart-objects-and-the-api/",
+      "verification": "opened-and-reviewed",
+      "decision": "Legacy/current Smart Object behavior reference; V2 migration source preferred for limits.",
+      "ordinal": 68
+    },
+    {
+      "id": "icc-profile-registration",
+      "category": "color-management",
+      "url": "https://registry.color.org/profile-registry/profile-registration",
+      "verification": "opened-and-reviewed",
+      "decision": "Profile registry provenance/distribution requirements.",
+      "ordinal": 69
+    }
+  ]
+}
