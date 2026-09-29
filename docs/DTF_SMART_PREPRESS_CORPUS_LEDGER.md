@@ -2343,3 +2343,34 @@ DAPR-Noise: estimate noise type/severity spatially and create a local noise map 
 Parameter-selection rule: deterministic search/calibration may optimize soft losses only inside a feasible set defined by hard invariants. No learned IQA, restoration model or aesthetic score may change routing, thresholds or acceptance authority.
 
 GitHub ledger: 1329 / 10,000. Research continuity: 1356 / 10,000.
+
+
+## Verified Batch 084 — 15 pages — hybrid text, alpha/foreground and resampling
+
+1330. https://ojs.aaai.org/index.php/AAAI/article/view/32893
+1331. https://www.sciencedirect.com/science/article/pii/S1051200425006736
+1332. https://openaccess.thecvf.com/content/CVPR2026/html/Luo_Restore_Text_First_Enhance_Image_Later_Two-Stage_Scene_Text_Image_CVPR_2026_paper.html
+1333. https://www.sciencedirect.com/science/article/pii/S0952197625013478
+1334. https://github.com/pkang2017/image-matting
+1335. https://signalprocessingsociety.org/publications-resources/ieee-transactions-image-processing/2026/09/glyphtsr-text-rich-scene-image
+1336. https://www.sciencedirect.com/science/article/pii/S0165168425004785
+1337. https://www.sciencedirect.com/science/article/pii/S0950705125017241
+1338. https://github.com/AdityaKudupudi11/ImageRestoration
+1339. https://github.com/pymatting/foreground-estimation-evaluation/blob/main/README.md
+1340. https://github.com/Kirstihly/Edge-Directed_Interpolation
+1341. https://www.sciencedirect.com/science/article/pii/S002002551730004X
+1342. https://github.com/HomeOfVapourSynthEvolution/VapourSynth-EEDI2
+1343. https://arxiv.org/abs/1901.11365
+1344. https://github.com/ShakedDunsky/FBA-Matting
+
+15 new pages were opened/read and deduplicated.
+
+DAPR-TextSR: split glyph interior, uncertain edge band and context; combine glyph/skeleton evidence with spatial-frequency restoration, but uncertain strokes cannot be resolved by generative priors alone.
+
+DAPR-Matte/Foreground: alpha estimation and foreground RGB reconstruction are separate optimizations. Compare alpha candidates first, then compare foreground estimators in the fractional-alpha band using reconstruction residual, SAD/MSE/gradient and multi-background fringe tests. FBA-style joint F/B/alpha prediction is an additional learned candidate, not authority.
+
+DAPR-ParameterCalibrator: J-invariant self-supervised loss may propose denoiser parameters when its noise-independence assumptions are plausible. Proposed parameters still must pass DTF text/edge/alpha/color invariants.
+
+DAPR-Resample: classify smooth versus directional-edge versus text/flat-art regions. Smooth regions use low-ringing conventional candidates; directional edges add NEDI/iNEDI/EEDI-style candidates; text/flat art also compare vector/pixel-art routes. Select only after final-size boundary, ringing, topology and color tests.
+
+GitHub ledger: 1344 / 10,000. Research continuity: 1371 / 10,000.
