@@ -8651,3 +8651,12 @@ Restoration routing is defect-specific. Deblur requires evidence about blur/PSF/
 RIP boundary remains image-only: re-reading current Caldera/CADlink material confirms that transparency can directly drive generated white and partial opacity can influence underbase density. Therefore exported alpha is production data. RipInputAlphaSemanticsReport should validate alpha range/polarity, intentional soft transparency, near-zero contamination, fully transparent RGB, boundary continuity and optional white-preview derivation before handing the immutable prepared master to an external RIP. No printer administration/control is included.
 
 Corpus: 1143 / 10,000 verified ledger pages; research continuity 1170 / 10,000. No merge, deployment, Oracle execution or protected-storefront modification was performed.
+
+
+## Batch 071 — Adobe/Autodesk/MATLAB reference layer
+
+Four new canonical pages were opened/read after multilingual and duplicate filtering. Adobe Defringe reinforces boundary-local foreground-color repair rather than global recoloring. Autodesk formalizes premultiplied vs nonpremultiplied alpha and fractional edge coverage, strengthening the rule that alpha association is metadata with mathematical consequences, not an implementation detail. MATLAB quality documentation establishes that QA should be an ensemble: reference-based SSIM/MS-SSIM and local maps when the original is available; no-reference BRISQUE/NIQE/PIQE only as complementary evidence. BRISQUE's trained distribution makes it unsuitable as a universal acceptance threshold.
+
+Architecture direction: commercial tools are reference behaviors, not dependencies. Adobe informs edge/matting UX and repair semantics; Autodesk informs compositing/alpha mathematics; MATLAB supplies deterministic algorithm and measurement references. Open-source implementations are benchmarked against these behaviors, while AI tools are evaluated for provenance, mask/alpha fidelity, hallucinated detail and reproducibility. RIP documentation remains input-contract research only.
+
+Corpus: 1159 / 10,000 verified ledger pages; research continuity 1186 / 10,000. No merge, deployment, Oracle execution or storefront modification.
