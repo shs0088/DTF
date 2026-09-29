@@ -6,7 +6,8 @@
   "scripts": {
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "cli": "bun src/cli.ts"
+    "cli": "bun src/cli.ts",
+    "serve": "bun src/server.ts"
   },
   "dependencies": {
     "sharp": "^0.34.3"
