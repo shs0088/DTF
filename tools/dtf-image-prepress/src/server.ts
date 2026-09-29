@@ -6,6 +6,10 @@ const hostname = process.env.HOST ?? "127.0.0.1";
 Bun.serve({
   hostname,
   port,
+  // 100 MB image limit plus multipart/form-data overhead.
+  maxRequestBodySize: 101 * 1024 * 1024,
+  idleTimeout: 30,
+  development: false,
   fetch: createApiHandler,
 });
 
