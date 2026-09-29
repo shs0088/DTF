@@ -2290,3 +2290,56 @@ DAPR-Deblur: broaden solver pool to Wiener/unsupervised Wiener, Richardson-Lucy,
 Arabic visual-text rule strengthened: OCR linguistic/LLM correction is advisory only. Visual reconstruction requires source geometry plus OCR consensus and preserves diacritics/offsets; lossless normalization is the default.
 
 GitHub ledger: 1294 / 10,000. Research continuity: 1321 / 10,000.
+
+
+## Verified Batch 083 — 35 materially distinct pages — DAPR self-evaluation, blur/noise diagnosis and parameter selection
+
+1295. https://github.com/ocampor/image-quality
+1296. https://github.com/andrewekhalel/sewar
+1297. https://github.com/chaofengc/IQA-PyTorch
+1298. https://github.com/photosynthesis-team/piq
+1299. https://github.com/utlive/niqe
+1300. https://github.com/utlive/brisque
+1301. https://github.com/utlive/blindimagequality
+1302. https://github.com/utlive/BIQI
+1303. https://github.com/utlive/DIIVINE
+1304. https://github.com/utlive/BLIINDS2
+1305. https://github.com/utlive/CORNIA
+1306. https://github.com/utlive/SSEQ
+1307. https://github.com/utlive/GM-LOG
+1308. https://github.com/utlive/FRIQUEE
+1309. https://github.com/0xC0000054/BlurDetection2
+1310. https://github.com/WillBrennan/BlurDetection
+1311. https://github.com/dengyueyun666/Defocus_Blur_Detection
+1312. https://github.com/lyuwenyu/Defocus_Blur_Detection
+1313. https://github.com/avinashkz/Blur-Detection
+1314. https://github.com/JalalSaffar/Blur-Detection
+1315. https://github.com/fled/blur_detection
+1316. https://github.com/yunlong10/Awesome-Image-Deblurring
+1317. https://github.com/yunlong10/Awesome-Image-Denoising
+1318. https://github.com/wenbihan/reproducible-image-denoising-state-of-the-art
+1319. https://github.com/cszn/KAIR
+1320. https://github.com/cszn/DPIR
+1321. https://github.com/cszn/FFDNet
+1322. https://github.com/cszn/DnCNN
+1323. https://github.com/cszn/IRCNN
+1324. https://github.com/NVlabs/noise2noise
+1325. https://github.com/juglab/n2v
+1326. https://github.com/Guanghan/ROSE
+1327. https://github.com/murufeng/awesome_image_quality_assessment
+1328. https://github.com/zwx8981/LIQE
+1329. https://github.com/zwx8981/CLIP-IQA
+
+35 new pages were individually opened/read and absent from the ledger. Candidate mirrors/duplicate forks and sources not needed for distinct evidence were not counted.
+
+DAPR-QA Ensemble: image-quality metrics are classified by evidence role rather than averaged blindly: full-reference structural/fidelity (PSNR/SSIM/MS-SSIM/FSIM/GMSD/VIF and related), perceptual learned metrics, and no-reference naturalness/distortion metrics (NIQE/BRISQUE/BIQI/DIIVINE/BLIINDS/CORNIA/SSEQ/GM-LOG/FRIQUEE and modern learned IQA). Natural-image aesthetic/naturalness models cannot approve a print master. Hard DTF invariants always precede soft quality ranking.
+
+New invariant ledger per transform: glyph/text topology and OCR consensus; connected-component graph; protected edge coordinates/Hausdorff displacement; alpha integral, soft-band width and foreground-RGB edge statistics; color/profile patches and Delta-E; frequency signatures; final-size effective PPI and minimum feature widths. A candidate that violates a hard invariant is rejected even if NIQE, LPIPS, SSIM or another aggregate score improves.
+
+DAPR-BlurMap: replace single variance-of-Laplacian decisions with a multievidence map combining Laplacian/Tenengrad/Sobel/Canny-type local edge response, FFT/high-frequency loss, multiscale sharpness and directional anisotropy. Directionality helps distinguish motion-like blur from isotropic defocus; local blur maps prevent unnecessary whole-image deconvolution. Pixel-wise defocus research is advisory evidence, not routing authority.
+
+DAPR-Noise: estimate noise type/severity spatially and create a local noise map plus protected-detail mask. Candidate families include classical local/nonlocal/wavelet/TV methods, explicit noise-level-map denoisers such as FFDNet, plug-and-play/deep-prior restoration such as DPIR/IRCNN, supervised residual denoisers such as DnCNN, and self/noisy-supervised strategies such as Noise2Noise/Noise2Void where their assumptions fit. Calibrate eligible candidates; reject texture/text/alpha loss; permit region-specific strength rather than one global denoise level.
+
+Parameter-selection rule: deterministic search/calibration may optimize soft losses only inside a feasible set defined by hard invariants. No learned IQA, restoration model or aesthetic score may change routing, thresholds or acceptance authority.
+
+GitHub ledger: 1329 / 10,000. Research continuity: 1356 / 10,000.
