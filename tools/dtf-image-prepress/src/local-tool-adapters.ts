@@ -372,3 +372,72 @@ export function parseBen2OnnxLocalReport(value: string): Ben2OnnxLocalReport {
   }
   return parsed;
 }
+
+
+export function buildPyMattingForegroundSpec(input: {
+  pythonExecutablePath: string;
+  wrapperScriptPath: string;
+  sourcePath: string;
+  alphaMaskPath: string;
+  outputRgbaPath: string;
+  outputJsonPath: string;
+  regularization?: number;
+}): LocalProcessSpec {
+  requireAbsoluteFile(input.wrapperScriptPath, "PyMatting wrapper");
+  requireAbsoluteFile(input.sourcePath, "PyMatting source");
+  requireAbsoluteFile(input.alphaMaskPath, "PyMatting alpha mask");
+  requireAbsoluteFile(input.outputRgbaPath, "PyMatting RGBA output");
+  requireAbsoluteFile(input.outputJsonPath, "PyMatting report output");
+  const regularization = input.regularization ?? 1e-5;
+  if (!Number.isFinite(regularization) || regularization <= 0) {
+    throw new Error("PyMatting regularization must be positive and finite.");
+  }
+
+  return baseSpec({
+    id: "pymatting-foreground-local",
+    executablePath: input.pythonExecutablePath,
+    args: [
+      input.wrapperScriptPath,
+      "--input",
+      input.sourcePath,
+      "--alpha",
+      input.alphaMaskPath,
+      "--output-rgba",
+      input.outputRgbaPath,
+      "--output-json",
+      input.outputJsonPath,
+      "--regularization",
+      String(regularization),
+    ],
+    cwd: dirname(input.outputRgbaPath),
+    timeoutMs: 300_000,
+  });
+}
+
+export interface PyMattingForegroundReport {
+  engine: "pymatting-foreground-ml";
+  input: string;
+  alpha: string;
+  output_rgba: string;
+  size: [number, number];
+  regularization: number;
+  semi_transparent_ratio: number;
+  alpha_preserved: boolean;
+  foreground_rgb_reconstructed: boolean;
+  output_alpha_mode: "straight-unassociated";
+}
+
+export function parsePyMattingForegroundReport(value: string): PyMattingForegroundReport {
+  const parsed = JSON.parse(value) as PyMattingForegroundReport;
+  if (parsed.engine !== "pymatting-foreground-ml") {
+    throw new Error("Invalid PyMatting foreground report.");
+  }
+  if (
+    parsed.alpha_preserved !== true ||
+    parsed.foreground_rgb_reconstructed !== true ||
+    parsed.output_alpha_mode !== "straight-unassociated"
+  ) {
+    throw new Error("PyMatting report violates foreground/alpha preservation contract.");
+  }
+  return parsed;
+}
