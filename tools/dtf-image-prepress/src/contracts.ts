@@ -110,6 +110,8 @@ export interface RoutingSignals {
   facesDetected?: boolean;
   blurScore?: number;
   jpegArtifactScore?: number;
+  requiresDeblurCandidate?: boolean;
+  requiresArtifactReductionCandidate?: boolean;
   foregroundSharesBackgroundColor?: boolean;
   lowContrastBoundary?: boolean;
   intentionalGlowOrShadow?: boolean;
