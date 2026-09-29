@@ -1986,3 +1986,26 @@ Key transfer — AI/browser execution. A Russian ONNX Runtime Web tutorial demon
 Implementation implication: add MattingMetricSuite(SAD,MSE,gradient,connectivity), ReferenceGuidedBatchMattingEvidence, AnisotropicDenoiseEvidence, DitherKernelProvenance and LocalAIExecutionEvidence. Add a translucent-object recomposition test over multiple synthetic backgrounds to expose environment-color contamination that a single checkerboard preview can hide.
 
 GitHub ledger: 1172 / 10,000. Research continuity: 1199 / 10,000.
+
+
+## Verified Batch 073 — 9 materially distinct pages — conservative restoration vs generative restoration
+
+1167. https://www.mathworks.com/help/images/ref/deconvwnr.html
+1168. https://www.mathworks.com/help/images/ref/deconvreg.html
+1169. https://www.mathworks.com/help/images/ref/edgetaper.html
+1170. https://www.mathworks.com/help/images/ref/imresize.html
+1171. https://www.mathworks.com/help/images/ref/imnlmfilt.html
+1172. https://www.mathworks.com/help/images/ref/imdiffusefilt.html
+1173. https://www.mathworks.com/help/images/ref/locallapfilt.html
+1174. https://github.com/TencentARC/GFPGAN
+1175. https://github.com/sczhou/CodeFormer
+
+Nine new pages/repositories were individually opened/read and absent from the ledger. Already represented Lucy-Richardson, imsharpen, guided filtering, Real-ESRGAN, SwinIR, NAFNet and BasicSR sources were rejected. README aliases inside the same repository were not counted separately.
+
+Scope remains IMAGE PREPARATION ONLY. MATLAB Wiener and regularized deconvolution expose restoration assumptions explicitly: blur/PSF and noise/noise-power or regularization estimates materially control the result. edgetaper is a pre-deconvolution boundary treatment intended to reduce ringing from sharp image-boundary discontinuities. imresize reinforces antialias-aware geometric resampling and explicit interpolation choice. Non-local means, anisotropic diffusion and local-Laplacian filtering provide different conservative enhancement families whose detail preservation must be evaluated by artifact class rather than collapsed into one generic 'enhance' command.
+
+GFPGAN and CodeFormer are face-restoration systems, not neutral general-purpose upscalers. Their restoration priors can reconstruct/generate plausible facial detail; this is useful for a portrait-specific optional derivative but unsafe as an automatic operation over typography, logos, signatures, line art or product graphics. CodeFormer explicitly exposes a fidelity-versus-quality control, demonstrating that perceptual quality and source fidelity are distinct objectives.
+
+Implementation implication: split restoration into ConservativeRestoration and GenerativeRestoration classes. Conservative restoration requires algorithm assumptions/evidence (PSF/noise/regularization, boundary handling) and source-vs-output metrics. Generative restoration requires semantic ROI classification, model/revision/license provenance, protected-region masks for text/logos, hallucination/fidelity checks and explicit user/policy permission. Never replace the immutable print master with a face-restored derivative automatically.
+
+GitHub ledger: 1175 / 10,000. Research continuity: 1202 / 10,000.
