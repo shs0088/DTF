@@ -8821,3 +8821,23 @@ Corpus: 1426 / 10,000 verified ledger pages; research continuity 1453 / 10,000. 
 Ten new verified pages were added. Morphology kernel geometry is now treated as a physical-scale decision and every alpha/underbase cleanup candidate must preserve topology, strokes and connected components. Resampling compares bilinear, bicubic and Lanczos-derived candidates by region and rejects new aliasing, moire, ringing or boundary displacement. Matting remains coarse-to-fine with alpha and foreground RGB reconstruction separated. Screening QA distinguishes preview moire from true interference and checks frequency/angle compatibility, dot integrity, tone conservation and minimum physical dot/gap size.
 
 Corpus: 1436 / 10,000 verified ledger pages; research continuity 1463 / 10,000.
+
+
+## Batch 089 — alpha audit and edge decontamination
+
+Four verified pages were added to the ledger. Alpha is audited before destructive thresholding, with transparent/semi-transparent/opaque populations retained as evidence. Foreground RGB contamination is separated from alpha opacity so semi-transparent edge color can be decontaminated without automatically destroying useful transparency. Hard threshold/rebuild remains a candidate only for genuinely hard-edged artwork and must preserve thin strokes, holes and glyph topology.
+
+Corpus: 1440 / 10,000 verified ledger pages; research continuity 1467 / 10,000.
+
+
+## Batch 090 — deterministic background estimation, matte QA and screen controls
+
+Eight verified pages were added after opening/reading the pages and excluding snippet-only evidence and localized mirror inflation. This batch strengthens the cheap-first background route: border sampling, color-distance/tolerance and background reachability can generate a fast candidate for near-uniform backgrounds, while ambiguous boundaries are escalated to semantic/matting refinement. White foreground preservation and boundary confidence are explicit constraints.
+
+Matting QA now requires multi-background compositing beyond checkerboard inspection. White, black, gray and saturated/custom backgrounds expose foreground-RGB contamination and alpha halos that can remain hidden on a single preview. Feather/smoothing is classified as a post-process candidate, not a replacement for fractional-alpha matting.
+
+Screening synthesis now separates error-diffusion and ordered families from their presentation controls. Floyd-Steinberg/Atkinson redistribute quantization error; Bayer introduces ordered periodic structure; cell size, angle, tone curve and pre-smoothing are independent variables. Decorative misregistration from risograph-style tools is explicitly forbidden in the DTF print master. Final-size physical dot/gap, periodic energy, tone conservation, and text/edge survival remain hard gates.
+
+Browser-local processing via Canvas/WebGL/WebGPU is retained as a privacy/performance implementation option, but neither local execution nor an AI label is evidence of print readiness; measured QA remains authoritative.
+
+Corpus: 1448 / 10,000 verified ledger pages; research continuity 1475 / 10,000. No merge, deployment, Oracle execution or storefront modification.
