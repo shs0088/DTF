@@ -80,6 +80,22 @@ final class Preflight {
         $creativeHalftoneMinDotMm = isset($m['creativeHalftoneMinDotMm']) ? max(0.0,(float)$m['creativeHalftoneMinDotMm']) : null;
         $chokeSource = trim((string)($m['chokeSource'] ?? 'prepress'));
         $ripChokeEnabled = (bool)($m['ripChokeEnabled'] ?? false);
+        $alphaStorageMode = trim((string)($m['alphaStorageMode'] ?? 'unknown'));
+        $filteringWorkingTransfer = trim((string)($m['filteringWorkingTransfer'] ?? 'unknown'));
+        $premultiplyBeforeFiltering = (bool)($m['premultiplyBeforeFiltering'] ?? false);
+        $transparentRgbPolicy = trim((string)($m['transparentRgbPolicy'] ?? 'preserve'));
+        $sourceImageState = trim((string)($m['sourceImageState'] ?? 'unknown'));
+        $iccProfileClass = trim((string)($m['iccProfileClass'] ?? 'unknown'));
+        $dotGainPercent = isset($m['dotGainPercent']) ? max(0.0,(float)$m['dotGainPercent']) : null;
+        $measuredWhitePoint = trim((string)($m['measuredWhitePoint'] ?? ''));
+        $totalInkLimitPercent = isset($m['totalInkLimitPercent']) ? max(0.0,(float)$m['totalInkLimitPercent']) : null;
+        $halftoneAlgorithm = trim((string)($m['halftoneAlgorithm'] ?? ''));
+        $dotPlacementCalibrated = (bool)($m['dotPlacementCalibrated'] ?? false);
+        $bandingRiskScore = isset($m['bandingRiskScore']) ? max(0.0,(float)$m['bandingRiskScore']) : null;
+        $coarseSegmentationUsed = (bool)($m['coarseSegmentationUsed'] ?? false);
+        $localBoundaryRefinement = (bool)($m['localBoundaryRefinement'] ?? false);
+        $boundaryRefinementBandPx = isset($m['boundaryRefinementBandPx']) ? max(0,(int)$m['boundaryRefinementBandPx']) : null;
+        $orientationAwareInterpolation = (bool)($m['orientationAwareInterpolation'] ?? false);
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -143,6 +159,18 @@ final class Preflight {
         if ($chokeSource === 'prepress' && $ripChokeEnabled) {
             $warnings[] = ['code'=>'DOUBLE_CHOKE_RISK','severity'=>'critical'];
         }
+        if ($hasAlpha && $resamplingFilter !== '' && $alphaStorageMode === 'straight' && !$premultiplyBeforeFiltering) {
+            $warnings[] = ['code'=>'ALPHA_FILTERING_HALO_RISK','severity'=>'warning'];
+        }
+        if ($hasAlpha && $resamplingFilter !== '' && $filteringWorkingTransfer !== 'linear') {
+            $warnings[] = ['code'=>'NONLINEAR_RESAMPLING_COMPOSITE_RISK','severity'=>'warning','workingTransfer'=>$filteringWorkingTransfer];
+        }
+        if ($targetProfile !== '' && $iccProfileClass === 'generic') {
+            $warnings[] = ['code'=>'GENERIC_OUTPUT_PROFILE_NEEDS_DEVICE_PROOF','severity'=>'warning'];
+        }
+        if ($halftoneAlgorithm !== '' && !$dotPlacementCalibrated) {
+            $warnings[] = ['code'=>'HALFTONE_PROCESS_NOT_CALIBRATED','severity'=>'warning'];
+        }
         if ($sourceBitDepth !== null && $targetBitDepth !== null && $targetBitDepth < $sourceBitDepth && $maskDither) {
             $warnings[] = ['code'=>'ALPHA_MASK_DITHER_ON_PRECISION_REDUCTION','severity'=>'warning'];
         }
@@ -174,6 +202,41 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'alphaFilteringIntegrityReport' => [
+                'storageMode'=>$alphaStorageMode,
+                'workingTransfer'=>$filteringWorkingTransfer,
+                'premultiplyBeforeFiltering'=>$premultiplyBeforeFiltering,
+                'transparentRgbPolicy'=>$transparentRgbPolicy,
+                'linearPremultipliedFilteringReady'=>!$hasAlpha || ((in_array($alphaStorageMode,['premultiplied','associated'],true) || $premultiplyBeforeFiltering) && $filteringWorkingTransfer === 'linear'),
+                'wrongAssociationMayCreateHalo'=>true,
+                'zeroAlphaUnpremultiplyGuardRequired'=>true,
+                'multiBackgroundRecompositionQaRequired'=>true
+            ],
+            'deviceProfileCalibrationReport' => [
+                'profileClass'=>$iccProfileClass,
+                'sourceImageState'=>$sourceImageState,
+                'dotGainPercent'=>$dotGainPercent,
+                'measuredWhitePoint'=>$measuredWhitePoint !== '' ? $measuredWhitePoint : null,
+                'deviceSpecificMeasurementRecommended'=>true,
+                'genericProfileMayOnlyApproximateOutput'=>true
+            ],
+            'inkjetProcessReport' => [
+                'totalInkLimitPercent'=>$totalInkLimitPercent,
+                'halftoneAlgorithm'=>$halftoneAlgorithm !== '' ? $halftoneAlgorithm : null,
+                'dotPlacementCalibrated'=>$dotPlacementCalibrated,
+                'bandingRiskScore'=>$bandingRiskScore,
+                'parameterCalibrationRequired'=>true,
+                'singlePassBandingAndStreakQaRequired'=>true,
+                'processSimulationPreferred'=>true
+            ],
+            'boundaryRefinementReport' => [
+                'coarseSegmentationUsed'=>$coarseSegmentationUsed,
+                'localBoundaryRefinement'=>$localBoundaryRefinement,
+                'refinementBandPx'=>$boundaryRefinementBandPx,
+                'orientationAwareInterpolation'=>$orientationAwareInterpolation,
+                'globalThenLocalRefinementSupported'=>true,
+                'smallObjectAndBoundaryPreservationRequired'=>true
             ],
             'underbaseIntentReport' => [
                 'intent'=>$underbaseIntent,
@@ -347,7 +410,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'0.9.0-research',
+                'contractVersion'=>'1.0.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
