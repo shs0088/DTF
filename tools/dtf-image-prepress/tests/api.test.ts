@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { createApiHandler } from "../src/api";
 
 describe("standalone API boundary", () => {
-  test("health endpoint confirms no OpenCart coupling", async () => {
+  test("health endpoint confirms no OpenCart coupling and local-only execution", async () => {
     const response = await createApiHandler(new Request("http://localhost/health"));
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -11,7 +11,10 @@ describe("standalone API boundary", () => {
     expect(body.adminUiIncluded).toBe(false);
     expect(body.executionPolicy.externalNetworkAllowed).toBe(false);
     expect(body.executionPolicy.imageDataMayLeaveSite).toBe(false);
-    test("providers endpoint exposes only local runtime providers", async () => {
+    expect(body.executionPolicy.metadataMayLeaveSite).toBe(false);
+  });
+
+  test("providers endpoint exposes only local runtime providers", async () => {
     const response = await createApiHandler(new Request("http://localhost/v1/providers"));
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -23,8 +26,6 @@ describe("standalone API boundary", () => {
       expect(provider.status).not.toBe("commercial-api");
     }
   });
-});
-
 
   test("analyze endpoint rejects missing file without touching image engine", async () => {
     const form = new FormData();
