@@ -11,6 +11,12 @@ describe("local model adapter and variant QA", () => {
     expect(assertLocalModelPath("/opt/dtf/models/model.onnx")).toBe(
       "/opt/dtf/models/model.onnx",
     );
+    expect(() => assertLocalModelPath("models/model.onnx")).toThrow(
+      "absolute local filesystem path",
+    );
+    expect(() => assertLocalModelPath("file:///opt/dtf/models/model.onnx")).toThrow(
+      "Remote model URLs are forbidden",
+    );
   });
 
   test("requires provenance for INT8/quantized variants", () => {
