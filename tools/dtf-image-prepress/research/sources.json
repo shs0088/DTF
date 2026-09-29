@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 164,
-  "remaining": 9836,
+  "verifiedCount": 168,
+  "remaining": 9832,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -1317,6 +1317,38 @@
       "verification": "opened-and-reviewed",
       "decision": "ONNX Runtime custom operators can execute native code; runtime model/provider bundles must remain trusted and pinned.",
       "ordinal": 164
+    },
+    {
+      "id": "libvips-unpremultiply-current",
+      "category": "alpha-compositing",
+      "url": "https://www.libvips.org/API/8.17/method.Image.unpremultiply.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Unpremultiplication restores straight RGB and explicitly zeros RGB where alpha is zero.",
+      "ordinal": 165
+    },
+    {
+      "id": "imagemagick-alpha-options",
+      "category": "alpha-compositing",
+      "url": "https://imagemagick.org/command-line-options/",
+      "verification": "opened-and-reviewed",
+      "decision": "ImageMagick documents that fully transparent pixels can still retain RGB data, supporting non-destructive hidden-RGB diagnostics.",
+      "ordinal": 166
+    },
+    {
+      "id": "imagemagick-resize-halo",
+      "category": "alpha-compositing",
+      "url": "https://usage.imagemagick.org/bugs/resize_halo/",
+      "verification": "opened-and-reviewed",
+      "decision": "Historical resize-halo examples show why alpha-aware filtering/premultiplication and edge inspection matter.",
+      "ordinal": 167
+    },
+    {
+      "id": "libvips-colour-alpha-pass-through",
+      "category": "color-management",
+      "url": "https://www.libvips.org/API/current/libvips-colour.html",
+      "verification": "opened-and-reviewed",
+      "decision": "libvips color operations process color bands while passing alpha bands through, supporting alpha-excluded color transforms.",
+      "ordinal": 168
     }
   ]
 }
