@@ -2598,3 +2598,24 @@ DAPR-Sharpen applies unsharp-mask candidates only at final resolution and uses t
 DAPR-Color separates color management from color correction. ICC transforms provide a reproducible device/output interpretation; they do not repair a source image with incorrect tonal/color balance. Exactly one color-management authority is allowed at output to avoid double conversion.
 
 GitHub ledger: 1456 / 10,000. Research continuity: 1491 / 10,000.
+
+
+## Verified Batch 093 — 5 pages — DTF screen limits, classical resampling, selective matting and hybrid segmentation/matting
+
+1457. https://dtf.pro/es/guias/semitonos-dtf-degradados-tramas
+1458. https://invistools.com/pt/image-upscaler/
+1459. https://palmatextil.es/aplicacion-semitonos-dtf-online/
+1460. https://real-esrgan.org/pt
+1461. https://imgbgremover.com/how-it-works/
+
+Five new materially distinct pages were opened/read individually and deduplicated against the branch ledger. The Italian Invistools dithering page was excluded as a localized mirror of the already-counted French page, the French alphaXiv high-resolution matting page was excluded because that exact canonical URL was already counted, and one ViTMatte candidate failed to open and was excluded. Search-result snippets were not counted.
+
+DAPR-Screen adds a physical light-tone/isolated-dot risk gate. Vendor guidance reports that very low coverage and transparency fades can resolve into isolated visible color/white dots on dark garments; treat vendor percentages and minimum-dot values as calibration priors only, never universal constants. Screen acceptance remains tied to final physical size, minimum reproducible feature, tone conservation and white-underbase behavior.
+
+DAPR-Resample keeps classical Lanczos/bicubic candidates explicitly non-generative: they can interpolate and sharpen but cannot recover absent source detail. Compare them with learned SR only after protected text/logo/edge invariants; generative SR must pass observation consistency and hallucination gates.
+
+DAPR-Matte adopts selective high-resolution refinement: coarse localization can run at lower resolution while only uncertain/high-detail boundary regions receive expensive refinement. A hybrid segmentation-to-trimap-to-matting architecture is a strong implementation pattern, but guided filtering/feathering remains post-processing evidence rather than a substitute for true fractional-alpha estimation.
+
+Browser-local DTF halftone tools reinforce separating image-side preparation from RIP authority: pattern, angle, cell size, transparency/color removal and export can be previewed client-side, but the final printer-specific screening/white behavior remains RIP-dependent.
+
+GitHub ledger: 1461 / 10,000. Research continuity: 1496 / 10,000.
