@@ -2091,3 +2091,24 @@ Script identification is also upstream routing evidence. IndicPhotoOCR separates
 Implementation direction: extend ImageNatureProfile with per-text-region script probabilities, orientation, style/stroke evidence and degradation severity. Add TextRestorationRoute with NONE, CLASSICAL, TEXT_SR, GLYPH_GUIDED_SR and REVIEW. Evaluate candidate restoration by character error/recognizer consensus plus glyph topology, stroke continuity, baseline geometry and source fidelity. Diffusion/text-prior models may propose a candidate but cannot silently decide ambiguous characters. Preserve original pixels and reconstruction provenance.
 
 GitHub ledger: 1211 / 10,000. Research continuity: 1238 / 10,000.
+
+
+## Verified Batch 077 — 7 materially distinct pages — deterministic orchestration and measurable image routing
+
+1212. https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html
+1213. https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html
+1214. https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html
+1215. https://docs.opencv.org/4.x/d4/d70/tutorial_hough_circle.html
+1216. https://docs.opencv.org/4.x/d9/db0/tutorial_hough_lines.html
+1217. https://docs.opencv.org/4.x/d1/db7/tutorial_py_histogram_begins.html
+1218. https://docs.opencv.org/4.x/d6/dc7/group__imgproc__hist.html
+
+Seven new OpenCV reference/tutorial pages were individually opened/read and absent from the ledger. Duplicate URLs in the candidate set were counted once. Search snippets and already represented edge/filter/color-space pages were not recounted.
+
+Architecture correction from the full three-day requirement review: PREPRESS ORCHESTRATION AND ADMIN DECISION LOGIC MUST NOT DEPEND ON AI. AI is an optional processing implementation behind deterministic contracts, never the authority that chooses the route, accepts/rejects the result, publishes the master, or changes thresholds. Printing/device administration remains outside scope; RIP remains relevant only as an image-input contract.
+
+Deterministic routing evidence can be built from reproducible measurements: histogram/color statistics and entropy proxies; threshold response; edge density; connected components, contours, bounding boxes, areas/perimeters and shape descriptors; line/circle structure; alpha distribution; effective PPI; blur/noise estimates; text/OCR confidence; bit depth/profile/dimensions. Morphology, thresholding, contour analysis and Hough geometry provide classical non-AI signals for flat-art/line-art/logo/text-like structure and cleanup risk.
+
+Implementation direction: replace any AI-controlled ImageNatureProfile decision with MeasuredImageProfile + VersionedRuleEngine. AI classifiers may optionally add advisory evidence but cannot be required for orchestration. Every rule records input measurements, thresholds, rule version, selected route and reason. AI matting/upscale/restoration/vector proposals are treated as candidate transforms; deterministic post-QA decides whether a candidate satisfies alpha, geometry, text, color, edge, resolution and topology constraints. If evidence is insufficient or conflicting, route to conservative processing/review rather than asking AI to decide.
+
+GitHub ledger: 1218 / 10,000. Research continuity: 1245 / 10,000.
