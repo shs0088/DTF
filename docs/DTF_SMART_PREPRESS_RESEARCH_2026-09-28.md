@@ -8739,3 +8739,14 @@ Threshold selection is conditioned by image/local illumination statistics; rank 
 New contracts: RepairabilityProfile and DeterministicTreatmentPlan. Each region records defect measurements, permitted and forbidden operation families, maximum geometry/alpha/color change, required post-tests and rollback behavior. Candidate transforms, whether classical or AI-backed, remain subordinate to the same deterministic post-QA and can be rejected independently.
 
 Corpus: 1225 / 10,000 verified ledger pages; research continuity 1252 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 079 — comparative algorithm synthesis rather than catalogue-only research
+
+Six new restoration/calibration pages were opened/read and deduplicated, while previously counted ImageMagick/skimage sources were reused as evidence without inflating the corpus. A permanent research method is added: competing algorithms for the same purpose are compared under a common DTF-oriented matrix, then converted into eligibility rules, hybrid candidates and deterministic acceptance logic.
+
+For denoise, eligible NLM/Wavelet/TV-style candidates can be parameter-calibrated using J-Invariance/Noise2Self evidence when its independent-noise assumptions are reasonable. Candidate selection remains constrained by text/stroke, alpha, edge, topology and color preservation. For resize, Lanczos sharpness/ringing tradeoffs are compared against Mitchell/Robidoux compromise and non-ringing but blurrier kernels, with transfer-function domain included in the decision. For segmentation, marker quality, boundary strength, region statistics and noise determine whether watershed, random walker, morphological active contours or oversegmentation families are eligible. For inpainting, deterministic biharmonic filling is restricted to explicit damaged masks and cannot reconstruct unknown semantic text/logo truth.
+
+Architecture: AlgorithmComparisonMatrix -> EligibilityRules -> CandidateSet -> HardConstraintFilter -> ParetoRanking -> DeterministicTreatmentPlan. Hard failures cannot be averaged away by PSNR/SSIM or perceptual scores. AI implementations may enter CandidateSet but have no administrative authority and face identical deterministic gates.
+
+Corpus: 1231 / 10,000 verified ledger pages; research continuity 1258 / 10,000. No merge, deployment, Oracle execution or storefront modification.
