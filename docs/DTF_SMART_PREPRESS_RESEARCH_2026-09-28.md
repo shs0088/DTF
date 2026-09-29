@@ -8814,3 +8814,10 @@ Twenty new verified pages were added. A new image-side economy objective was int
 Economy candidates are Pareto-constrained by fidelity: transparent RGB/fringe cleanup, perceptually constrained palette simplification, selective chroma/density compression and eligible flat-art vector simplification. Palette/file-size reduction alone is not treated as ink saving. Any candidate that violates text, topology, alpha, edge or perceptual colour limits is rejected; if no safe reduction exists, the fidelity-first master is retained.
 
 Corpus: 1426 / 10,000 verified ledger pages; research continuity 1453 / 10,000. No printing/RIP execution, merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 088 — morphology, resampling, matting and screening
+
+Ten new verified pages were added. Morphology kernel geometry is now treated as a physical-scale decision and every alpha/underbase cleanup candidate must preserve topology, strokes and connected components. Resampling compares bilinear, bicubic and Lanczos-derived candidates by region and rejects new aliasing, moire, ringing or boundary displacement. Matting remains coarse-to-fine with alpha and foreground RGB reconstruction separated. Screening QA distinguishes preview moire from true interference and checks frequency/angle compatibility, dot integrity, tone conservation and minimum physical dot/gap size.
+
+Corpus: 1436 / 10,000 verified ledger pages; research continuity 1463 / 10,000.
