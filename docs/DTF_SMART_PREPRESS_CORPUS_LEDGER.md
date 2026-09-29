@@ -1850,3 +1850,42 @@ Key transfer: preserve an immutable source and express corrective operations as 
 Implementation implication: add NonDestructiveRecipeEvidence, MultiscaleDetailIntegrityReport, AlphaCurveSafetyReport and TransferFunctionDomainEvidence. Store operation order, parameters, affected mask/region, source hash and output hash; permit rollback and re-preflight after any destructive flatten/export. For multiscale cleanup, measure edge/text energy before/after and prevent global smoothing from being accepted merely because noise metrics improve.
 
 GitHub ledger: 1126 / 10,000. Research continuity: 1153 / 10,000.
+
+
+## Verified Batch 070 — 17 materially distinct pages — Adobe/Autodesk/MATLAB references, open-source code, AI image tools, multilingual implementations, RIP input-image semantics
+
+1127. https://helpx.adobe.com/au/photoshop/desktop/make-selections/refine-modify-selections/fringe-pixels-around-a-selection.html
+1128. https://www.mathworks.com/help/images/image-deblurring.html
+1129. https://www.mathworks.com/help/images/deep-learning.html
+1130. https://github.com/megvii-research/NAFNet
+1131. https://github.com/JingyunLiang/SwinIR
+1132. https://github.com/danielgatis/rembg/blob/main/README.md?plain=1
+1133. https://developer.adobe.com/photoshop/api/remove-background/
+1134. https://helpx.adobe.com/photoshop/desktop/make-selections/refine-modify-selections/use-selections-for-generative-editing.html
+1135. https://www.mathworks.com/help/images/ref/ssim.html
+1136. https://www.mathworks.com/help/images/image-quality.html
+1137. https://www.mathworks.com/help/images/ref/brisque.html
+1138. https://www.mathworks.com/help/images/ref/imguidedfilter.html
+1139. https://learnopencv.com/image-matting-with-state-of-the-art-method-f-b-alpha-matting/
+1140. https://zenn.dev/tkpurine/articles/alpha-matting-explained
+1141. https://habr.com/ru/articles/353890/
+1142. https://zenn.dev/akamarucorp/articles/c8ff3c7635becd
+1143. https://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/threshold/threshold.html
+
+All seventeen pages above were individually opened/read and were absent after canonical-URL comparison against the 1126-entry ledger. Search snippets were not counted. Already-counted libvips, Caldera, CADlink and other pages discovered again during this pass were explicitly rejected. Simple localized mirrors were not counted as new material; the Chinese, Japanese and Russian entries retained here are materially distinct tutorials/implementations rather than translations of previously counted pages.
+
+Scope remains IMAGE PREPARATION ONLY. RIP sources are read only to understand how an external RIP interprets the prepared image; no printer administration/control is in implementation scope.
+
+Key transfer — reference applications and algorithms: Adobe documents fringe as partially transparent anti-aliased boundary pixels retaining source-background color; Color Decontaminate/Defringe therefore support a separate edge-RGB correction stage rather than alpha erosion alone. Adobe's Remove Background API explicitly distinguishes soft versus binary masks, reinforcing that mask semantics must be requested/recorded. Selection-bounded generative edits reinforce strict edit masks plus outside-mask diff checks. Autodesk's premultiplied-alpha model remains the compositing reference: filtering/resampling operations that mix neighboring pixels must know alpha association. MATLAB deblurring formalizes g=Hf+n and warns that recovered features can be artifacts; deconvolution is therefore evidence-gated by blur/PSF/noise assumptions. MATLAB deep-learning image processing adds learned denoise/image-to-image candidates but does not remove the need for source comparison.
+
+Key transfer — open source: NAFNet provides separate denoise/deblur/SR inference paths; SwinIR separates classical/real-world SR, denoise and JPEG-artifact restoration; rembg exposes model-specific behavior and distinguishes soft alpha, decontamination, classical alpha matting and ViTMatte refinement. A binary post-process destroys partial transparency and is mutually inappropriate with edge decontamination. Model-code license and model-weight license must be tracked separately.
+
+Key transfer — quality: SSIM measures local luminance/contrast/structure against a reference; PSNR/MSE alone are insufficient for perceptual/feature preservation. BRISQUE/NIQE/PIQE are no-reference signals with training/statistical assumptions and cannot be universal print-acceptance scores. DTF Smart Prepress should combine global metrics with ROI metrics for text, edges, alpha boundary, gradients and logos. Guided filtering is a deterministic edge-preserving refinement candidate for masks/alpha, but must be evaluated for halo and thin-feature survival.
+
+Key transfer — multilingual implementations: the Chinese OpenCV threshold tutorial reinforces problem-dependent threshold selection rather than one universal threshold. The Japanese alpha-matting material explicitly distinguishes binary cutout from continuous alpha for hair/fine edges; the Japanese browser BFS implementation is a useful lightweight fallback only for uniform backgrounds, with soft boundary generation after flood fill. The Russian OpenCVSharp tutorial demonstrates an older edge/fill/noise-clean/binarize/blur pipeline, useful as a deterministic baseline but not a replacement for soft matting on complex boundaries. F/B/Alpha matting jointly models foreground color, background color and alpha, supporting edge-RGB reconstruction/decontamination rather than mask-only thinking.
+
+RIP input-image finding (from already-counted current Caldera/CADlink pages re-read, not added to count): external RIPs can derive white underbase from transparency and may map partial opacity adaptively into white density. Therefore the exported alpha is production semantics, not merely a display convenience. Add a RipInputAlphaSemanticsReport that checks intentional soft alpha, stray near-zero alpha, alpha polarity/range, fully transparent RGB contamination, boundary continuity and whether an optional white-preview simulation derived from alpha matches the expected prepared-image intent. This is still image preparation only.
+
+Implementation direction: build a method-selection matrix rather than declaring one program globally best. Adobe = practical selection/matting/decontamination and production editing reference; Autodesk = alpha association/compositing reference; MATLAB = deterministic mathematical/reference algorithms and quality metrics; open-source implementations = inspectable/testable production candidates; AI editors/models = optional specialized processors whose output requires provenance and re-preflight. Candidate processing should be routed by artwork class and detected defect, never by one universal enhancement chain.
+
+GitHub ledger: 1143 / 10,000. Research continuity: 1170 / 10,000.
