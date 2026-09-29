@@ -8717,3 +8717,14 @@ Text processing now has three upstream decisions: text-region detection, per-reg
 Contract direction: TextRegionProfile gains script-probability vector, orientation, style/stroke descriptors and degradation severity. TextRestorationRoute chooses NONE, CLASSICAL, TEXT_SR, GLYPH_GUIDED_SR or REVIEW. Acceptance combines OCR/character consensus with glyph topology, stroke continuity, baseline geometry, edge/color fidelity and uncertainty. Generative/diffusion text restoration remains proposal evidence when characters are ambiguous, never authority to silently rewrite customer artwork.
 
 Corpus: 1211 / 10,000 verified ledger pages; research continuity 1238 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 077 — architecture correction: deterministic administration, AI only as an optional processor
+
+The prior three-day requirements were reviewed as one system. The architectural boundary is now explicit: administration/orchestration does not depend on AI. A reproducible MeasuredImageProfile feeds a VersionedRuleEngine. Measurements include file/decode properties, histogram/color statistics, alpha distribution, effective PPI, edge density, contours/connected components, geometry/shape evidence, stroke widths, blur/noise estimates and text/OCR confidence. Classical OpenCV thresholding, morphology, contour/shape analysis, histogram measurement and Hough geometry add deterministic evidence for routing and QA.
+
+AI remains useful only behind a transform interface: background/matting candidate, restoration/upscale candidate, text-restoration candidate or vectorization candidate. It cannot select itself, alter acceptance thresholds, approve publishing or choose the Ready-to-Print Master. The same deterministic post-transform QA applies to AI and non-AI candidates. Insufficient/conflicting evidence means conservative processing or review, not an AI decision.
+
+The research corpus remains useful: Adobe/AI/open-source findings define candidate algorithms and their failure modes; MATLAB/OpenCV/color/alpha/vector/OCR/RIP-input research defines measurable contracts and acceptance tests. Printer/device/pass/weave/head/oven/ink administration remains excluded; external RIP performs printing.
+
+Corpus: 1218 / 10,000 verified ledger pages; research continuity 1245 / 10,000. No merge, deployment, Oracle execution or storefront modification.
