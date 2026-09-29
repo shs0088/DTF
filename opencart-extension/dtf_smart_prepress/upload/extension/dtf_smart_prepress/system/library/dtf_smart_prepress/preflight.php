@@ -66,6 +66,14 @@ final class Preflight {
         $textDither = (bool)($m['textDither'] ?? false);
         $maskDither = (bool)($m['maskDither'] ?? false);
         $alphaSelectionPreservesPartial = (bool)($m['alphaSelectionPreservesPartial'] ?? true);
+        $resizeBlockingScore = isset($m['resizeBlockingScore']) ? max(0.0,(float)$m['resizeBlockingScore']) : null;
+        $resizeRingingScore = isset($m['resizeRingingScore']) ? max(0.0,(float)$m['resizeRingingScore']) : null;
+        $resizeAliasingScore = isset($m['resizeAliasingScore']) ? max(0.0,(float)$m['resizeAliasingScore']) : null;
+        $resizeBlurScore = isset($m['resizeBlurScore']) ? max(0.0,(float)$m['resizeBlurScore']) : null;
+        $resamplingFilter = trim((string)($m['resamplingFilter'] ?? ''));
+        $blurMechanism = trim((string)($m['blurMechanism'] ?? 'unknown'));
+        $outputRenderingIntent = trim((string)($m['outputRenderingIntent'] ?? ''));
+        $outputProfileEmbedded = isset($m['outputProfileEmbedded']) ? (bool)$m['outputProfileEmbedded'] : null;
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -157,6 +165,27 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'resamplingArtifactReport' => [
+                'filter'=>$resamplingFilter !== '' ? $resamplingFilter : null,
+                'blocking'=>$resizeBlockingScore,
+                'ringing'=>$resizeRingingScore,
+                'aliasingOrMoire'=>$resizeAliasingScore,
+                'blur'=>$resizeBlurScore,
+                'artifactFamiliesMustBeMeasuredSeparately'=>true,
+                'previewMayAcceptMaster'=>false
+            ],
+            'blurMechanismReport' => [
+                'mechanism'=>$blurMechanism,
+                'diffusionDeblurEligible'=>in_array($blurMechanism,['lens-diffusion','demosaic-diffusion','static-defocus'],true),
+                'motionBlurIsDiffusion'=>false,
+                'unknownMechanismAllowsAutoDeblur'=>false
+            ],
+            'outputColorHandoffReport' => [
+                'profile'=>$targetProfile !== '' ? $targetProfile : null,
+                'renderingIntent'=>$outputRenderingIntent !== '' ? $outputRenderingIntent : null,
+                'profileEmbedded'=>$outputProfileEmbedded,
+                'displayProofMaySubstituteExportTransform'=>false
             ],
             'precisionConversionReport' => [
                 'sourceBitDepth'=>$sourceBitDepth,
@@ -290,7 +319,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'0.7.0-research',
+                'contractVersion'=>'0.8.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
