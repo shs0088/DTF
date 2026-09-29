@@ -2532,3 +2532,21 @@ DAPR-Matte: semantic/reference guidance can localize subjects while high-resolut
 DAPR-Screen: distinguish preview moire from real screen interference. Compare diffusion/ordered families at final physical size for tone conservation, periodic energy, minimum dot/gap and text/edge survival.
 
 GitHub ledger: 1436 / 10,000. Research continuity: 1463 / 10,000.
+
+
+## Verified Batch 089 — 4 pages — alpha audit, edge decontamination and DTF halftone limits
+
+1437. https://aisencorporation.com/background/
+1438. https://bytetools.bytevancer.com/image-alpha-channel-extractor
+1439. https://dtfprints.co.za/dtf-edge-cleaner/
+1440. https://imageonline.io/alpha-channel-extractor/
+
+Four new materially distinct pages were opened/read and deduplicated against the branch ledger. Four other opened candidates were already present and were not counted; one failed open was excluded.
+
+DAPR-AlphaAudit: measure transparent, semi-transparent and opaque populations and retain the grayscale alpha histogram/mask as QA evidence before any thresholding. A binary threshold is eligible only when the artwork semantics require a hard edge; soft hair, smoke, glass, shadows and antialiasing are not globally binarized.
+
+DAPR-Decontaminate: foreground RGB contamination is treated separately from alpha opacity. Icon/logo cleanup may decontaminate semi-transparent edge RGB while preserving existing transparency; acceptance requires multi-background compositing and boundary-displacement checks.
+
+DAPR-Edge: threshold/rebuild is a candidate for genuinely hard-edged DTF artwork, not a universal cure. The router must compare the hard-edge candidate against preserved/matted alpha and reject jaggedness, lost thin strokes, holes or changed glyph topology.
+
+GitHub ledger: 1440 / 10,000. Research continuity: 1467 / 10,000.
