@@ -91,6 +91,9 @@ export interface RoutingSignals {
   facesDetected?: boolean;
   blurScore?: number;
   jpegArtifactScore?: number;
+  foregroundSharesBackgroundColor?: boolean;
+  lowContrastBoundary?: boolean;
+  intentionalGlowOrShadow?: boolean;
 }
 
 export interface ProcessingPlan {
