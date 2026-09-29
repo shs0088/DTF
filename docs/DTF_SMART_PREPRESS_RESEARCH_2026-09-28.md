@@ -8636,3 +8636,18 @@ First, corrections should be represented as reversible recipes/masks over an imm
 Research-contract direction: NonDestructiveRecipeEvidence, MultiscaleDetailIntegrityReport, AlphaCurveSafetyReport and TransferFunctionDomainEvidence. Acceptance should combine noise/detail metrics with feature survival and edge integrity; a lower noise score alone is insufficient if fine typography or artwork texture was removed.
 
 Corpus: 1126 / 10,000 verified ledger pages; research continuity 1153 / 10,000. No merge, deployment, Oracle execution or protected-storefront modification was performed.
+
+
+## Batch 070 — professional references + open-source + AI image tools + multilingual implementations
+
+Seventeen new materially distinct pages were opened/read and canonical-deduplicated. The research deliberately combined Adobe, Autodesk/MATLAB reference behavior, inspectable open-source implementations, AI editing/background-removal systems, Chinese/Japanese/Russian implementation material, and RIP documentation only where it constrains the input image.
+
+Architecture conclusion: do not choose one globally 'best' image program. Use a reference stack. Adobe is especially valuable for production selection/matting, fringe diagnosis, edge RGB decontamination and constrained generative edits. Autodesk is a strong reference for straight/premultiplied-alpha semantics and compositing. MATLAB is a reference for deterministic restoration/segmentation/morphology/quality mathematics, including explicit PSF/noise assumptions and objective metrics. Open-source projects such as NAFNet, SwinIR, rembg/libvips/OpenCV provide inspectable candidates that can be benchmarked and integrated where licensing permits. AI editors/models are specialized optional processors, not authoritative masters: retain source/model/version/license/mask provenance and re-preflight every output.
+
+The matting model is strengthened from 'predict alpha' to 'reason about F, B and alpha'. Edge RGB reconstruction/decontamination is independent from alpha geometry. A good mask with contaminated foreground RGB can still halo; a clean foreground RGB estimate with a bad alpha can still jag. The system should therefore measure both alpha-boundary integrity and boundary-color contamination on multiple diagnostic backgrounds.
+
+Restoration routing is defect-specific. Deblur requires evidence about blur/PSF/noise and must detect ringing/hallucinated detail. Denoise must preserve edge/text energy. SR must distinguish classical interpolation/restoration from real-world/generative detail synthesis. Global SSIM/PSNR/BRISQUE/NIQE/PIQE are evidence signals, not acceptance authorities; combine them with ROI/feature survival and alpha/color checks.
+
+RIP boundary remains image-only: re-reading current Caldera/CADlink material confirms that transparency can directly drive generated white and partial opacity can influence underbase density. Therefore exported alpha is production data. RipInputAlphaSemanticsReport should validate alpha range/polarity, intentional soft transparency, near-zero contamination, fully transparent RGB, boundary continuity and optional white-preview derivation before handing the immutable prepared master to an external RIP. No printer administration/control is included.
+
+Corpus: 1143 / 10,000 verified ledger pages; research continuity 1170 / 10,000. No merge, deployment, Oracle execution or protected-storefront modification was performed.
