@@ -42,6 +42,12 @@ export interface ImageFacts {
   embeddedDpi?: number | null;
   colorSpace?: string | null;
   hasIccProfile?: boolean;
+  iccSha256?: string | null;
+  pixelDepth?: string | null;
+  bitsPerSample?: number | null;
+  orientation?: number | null;
+  pages?: number;
+  pageHeight?: number | null;
   alpha: AlphaMetrics;
 }
 
