@@ -1655,3 +1655,41 @@ All nineteen pages/files above were individually opened/read and were absent fro
 Engineering synthesis update: (1) white-underbase generation must be treated as a physical-size morphology problem, not a fixed-pixel effect: choke/contract should be stored in mm (or converted from device DPI), and a post-choke survivability test must flag strokes, text and halftone islands that disappear; (2) the white mask should derive from alpha/spot intent, with explicit threshold, density/amount and optional screening, and should be previewed as its own channel before export; (3) device handoff needs a DeviceRasterContract carrying raster resolution, color space/channel count/order, bits per color, white/spot-channel mapping, screening/dither mode, pass/weave assumptions and profile/rendering intent. OpenPrinting ESC/P/PCL code shows that color planes, bit planes, dither LUT/state, dot buffers and weave/interleave are real driver concerns, not abstract image metadata; Gutenprint likewise exposes multi-channel ESC/P2 device behavior. (4) alpha-safe resampling is now a hard rule: libvips explicitly warns that resize does not premultiply alpha, while its thumbnail pipeline wraps resizing with premultiplication and color-management logic. The prepress pipeline should therefore premultiply before interpolation and unpremultiply afterward, while preserving a clean straight-alpha master. (5) ICC transforms must remain explicit and auditable: LittleCMS exposes input/output/proof profiles, rendering/proofing intents, gamut checking, black-point compensation and device-link transforms; Ghostscript maps ICC spaces to destination device profiles before possible alpha/halftoning. Do not silently reinterpret untagged RGB or collapse profile state. (6) RIP guidance is inconsistent on universal choke/white-density numbers, so numeric presets must be printer/media/profile-specific starting points, never global acceptance criteria. Fine typography and high-LPI halftones are especially vulnerable because choke can erase their white support. (7) white-ink circulation and physical printer configuration matter to stable density, so image QA should distinguish artwork defects from device/process faults such as registration, nozzle/banding, ink spread and white-settling behavior.
 
 GitHub ledger: 1017 / 10,000. Research continuity: 1044 / 10,000.
+
+
+## Verified Batch 063 — 26 materially distinct pages — open-source device code, drawing/prepress applications and RIP internals
+
+1018. https://openprinting.github.io/cups/doc/api-raster.html
+1019. https://openprinting.github.io/cups/doc/spec-raster.html
+1020. https://openprinting.github.io/cups/doc/api-filter.html
+1021. https://openprinting.github.io/cups/drivers.html
+1022. https://gimp-print.sourceforge.io/reference-html/book1.html
+1023. https://github.com/aosm/gutenprint/blob/master/gutenprint/doc/developer/escp2.xml
+1024. https://www.littlecms.com/color-engine/
+1025. https://github.com/AcademySoftwareFoundation/OpenColorIO/blob/main/include/OpenColorIO/OpenColorTransforms.h
+1026. https://docs.krita.org/en/user_manual/soft_proofing.html
+1027. https://wiki.inkscape.org/wiki/Color_Management_Planning
+1028. https://helpx.adobe.com/mena_ar/illustrator/using/printing-color-separations.html
+1029. https://www.mpm.co.jp/ctp/dialibre.html
+1030. https://www.printfab.com/de/
+1031. https://www.caldera.com/es/how-calderarip-makes-print-production-more-efficient/
+1032. https://www.intel.com/content/www/us/en/docs/ipp/developer-guide-reference/2026-0/alphapremul.html
+1033. https://cyan.graphics/
+1034. https://docs.krita.org/ja/general_concepts/file_formats/file_exr.html
+1035. https://openprinting.github.io/projects/01-cups-filters
+1036. https://openprinting.github.io/cups/doc/spec-design.html
+1037. https://helpx.adobe.com/mena_ar/acrobat/using/transparency-flattening-acrobat-pro.html
+1038. https://helpx.adobe.com/mena_ar/illustrator/using/printing-color-management.html
+1039. https://ar.micolorprint.com/detailed-breakdown-of-digital-inkjet-process-part-1-image-processing%EF%BD%9Cpart-2-rip-software%EF%BD%9Cpart-3-driver-board-%EF%BD%9Cpart-4-printhead-workflow-interpolation-principle/
+1040. https://helpdesk.caldera.com/hc/en-us/articles/27582146296081-How-to-manage-extra-or-spot-channels-in-FileMan
+1041. https://helpdesk.caldera.com/hc/en-us/articles/4408124350225-Page-Setup-Spot-Inks-Linearization
+1042. https://helpdesk.caldera.com/hc/en-us/articles/39817023150481--Caldera-Direct-to-Film-RIP-V2-0-Changelog
+1043. https://help.fiery.com/cws/FieryXF/9.0_cws_7.2/en-us/GUID-64C5ACD0-35F4-4A1F-9E50-87FFB7E83DE5.html
+
+All twenty-six pages/files above were individually opened/read and remained absent after re-synchronizing against the concurrent 1017-entry ledger. Search deliberately rotated Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian, Turkish and other languages. The Chinese Krita LUT page was excluded because the same material had already been counted in Japanese (entry 945); the French Illustrator separations page was excluded in favor of the materially identical Arabic page above; previously counted code files from the concurrent device/RIP batch were also excluded.
+
+Key transfer: CUPS raster handoff is a device contract carrying hardware resolution, bits-per-color/pixel, color order/space, number of colors, separations, row layout and rendering intent—not merely a rendered bitmap. CUPS filters/backends and modern Printer Applications form a distinct conversion/status layer between application data and the device. Gutenprint/ESC-P2 documentation exposes unit systems, per-color raster commands, weaving/interleave and device-specific command sequences, reinforcing that printer-plane order and head geometry must never be inferred from source-file channel order. LittleCMS/OCIO/Krita/Scribus/Inkscape sources reinforce the separation of display view, soft proof, proof profile, production profile, rendering intent, gamut diagnostic and DeviceLink/production transform. Krita EXR documentation adds a missing-profile hazard: EXR can carry floating scene-referred data without internal color-space metadata, so import assumptions must be explicit. Adobe transparency-flattening guidance shows that vector/raster stitching, spot colors, overprints, thin text/strokes and chosen rasterization resolution can all change during flattening; flattened derivatives therefore require new preflight rather than inheriting master approval. Illustrator separations clarify host-based versus In-RIP separation ownership. Caldera confirms that spot-channel polarity may need inversion and that alpha can be copied into a spot/white channel; alpha and spot semantics must remain distinct and the immutable master alpha must not be destroyed. Caldera special-ink linearization shows white/varnish/metallic channels require their own curve and maximum limit. Current Caldera DTF behavior also validates white-spot blending, ICC/linearization validation and robust PNG transparency handling as production concerns. The Arabic inkjet-device reference explicitly connects RIP pixels to PRN dot-level data, printhead channel order, variable-dot bit states, encoder timing and nozzle interleave; mismatched odd/even channel/head configuration can produce registration artifacts even when artwork pixels are correct. Fiery XF further reinforces explicit overprint modeling and non-linear dot-gain simulation for spot/process mixtures.
+
+Implementation transfer: Smart Prepress research contract 1.1.0 adds DeviceRasterContractReport, PrinterPlaneAndWeaveReport, RipSpotWhiteHandoffReport and ProductionProofTransformReport, with guards for incomplete raster metadata, unverified plane ordering, missing required white channel, unknown spot polarity and changed physical-size/DPI metadata.
+
+GitHub ledger: 1043 / 10,000. Research continuity: 1070 / 10,000.
