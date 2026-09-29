@@ -6,7 +6,7 @@ const installed = [
   { providerId: "paddleocr-ppocrv5-arabic", modelFormat: "onnx", verified: true },
   { providerId: "tesseract-ocr-arabic", verified: true },
   { providerId: "birefnet-hr-matting", modelFormat: "onnx", verified: true },
-  { providerId: "ben", modelFormat: "onnx", verified: true },
+  { providerId: "ben2-onnx", modelFormat: "onnx", verified: true },
   { providerId: "pymatting", verified: true },
   { providerId: "opencv-guided-filter", verified: true },
   { providerId: "vtracer", verified: true },
