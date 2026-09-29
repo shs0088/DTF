@@ -49,11 +49,14 @@ export const SUPPORTED_RASTER_FORMATS = new Set([
   "jpg",
   "jpeg",
   "webp",
+  "avif",
+  "gif",
   "tif",
   "tiff",
 ]);
 
-export const SUPPORTED_VECTOR_OR_DOCUMENT_FORMATS = new Set(["svg", "pdf"]);
+// V1 does not claim SVG/PDF support until dedicated, tested inspectors exist.
+export const DEFERRED_SOURCE_FORMATS = new Set(["svg", "pdf"]);
 
 export function normalizeFormat(value: string): string {
   return value.toLowerCase().replace(/^\./, "");
