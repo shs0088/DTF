@@ -1552,3 +1552,15 @@ Batch 056 counting notes:
 954. https://docs.opencv.org/5.0/tutorials/imgproc/anisotropic_image_segmentation/anisotropic_image_segmentation.html
 
 All four pages were individually opened/read and absent from the canonical ledger. OpenCV watershed/distance-transform and ImageMagick morphology/quantization pages were also reopened in this pass but were already present and were not recounted. GIMP Portuguese localized pages were excluded as materially represented operations rather than counted as language mirrors. Key transfer: object-dependent ICC/rendering-intent/BPC must be represented at RIP handoff; spot/separation and RIP screening must remain distinct from preview halftoning; gradient-structure-tensor orientation/coherency can provide directional edge-preservation evidence. GitHub ledger: 954 / 10,000. Research continuity including previously verified unsynchronized pages: 981 / 10,000.
+
+
+## Verified Batch 058 — 6 materially distinct pages — alpha metrics, global matting, DTF underbase and compositing semantics
+
+955. https://alphamatting.com/eval_26.php
+956. https://jcst.ict.ac.cn/cn/article/doi/10.1007/s11390-022-1690-z
+957. https://ietresearch.onlinelibrary.wiley.com/doi/10.1049/ipr2.12829
+958. https://www.agoodprinter.com/pt/blog/how-to-fix-dull-colors-bleeding-white-ink-dtf-printing.html
+959. https://dtftransferstudio.com/de/weisser-rand-dtf-choke-einstellungen-guide/
+960. https://docs.krita.org/zh_CN/tutorials/clipping_masks_and_alpha_inheritance.html
+
+All six pages were individually opened/read and absent from the canonical ledger. Already represented OpenCV thresholding, skimage skeletonization/morphology, OpenCV edge-aware filters, and previously counted DTF RIP/choke pages were reopened for cross-checking but not recounted. Key transfer: alpha quality needs SAD/MSE plus gradient/connectivity rather than a single scalar; global context can improve high-resolution matting where uniform downsampling loses boundary information; compositing/inherited alpha semantics depend on layer/group structure and must not be confused with stored pixel alpha; DTF choke/registration/ink-limit defects need separate diagnosis; underbase spread can be constrained by canvas padding in RIP workflows. GitHub ledger: 960 / 10,000. Research continuity: 987 / 10,000.
