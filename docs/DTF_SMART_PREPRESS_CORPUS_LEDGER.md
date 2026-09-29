@@ -1525,3 +1525,20 @@ Batch 055 counting notes:
 - Engineering transfer: halftone strategy must distinguish intensity, independent color-channel, and alpha-only screening; alpha halftoning can intentionally texture semi-transparent boundaries and therefore must never be introduced accidentally by export. Edge diagnostics should record kernel family (Simple/Prewitt/Sobel), direction and radius because radius changes detected-line thickness; edge output can be applied directly to alpha, making it useful for boundary QA but dangerous as an implicit master edit. Gaussian high-pass sharpening is contrast enhancement, not detail recovery. Blur/restoration routing must distinguish Gaussian, directional motion and lens blur; sharpening/noise reduction should remain evidence-gated and non-destructive until export.
 - GitHub ledger represented count after this batch: 944 / 10,000.
 - Research-continuity count including previously verified but unsynchronized pages: 971 / 10,000.
+
+
+## Verified Batch 056 — 6 pages — Japanese/Turkish/Portuguese/Polish image-processing semantics
+
+945. https://docs.krita.org/ja/reference_manual/dockers/lut_management.html
+946. https://docs.krita.org/tr/reference_manual/filters/map.html
+947. https://docs.krita.org/pt_BR/reference_manual/filters/wavelet_decompose.html
+948. https://docs.gimp.org/3.0/pt_BR/gimp-filter-unsharp-mask.html
+949. https://docs.krita.org/pl/reference_manual/filters/other.html
+950. https://docs.gimp.org/3.0/en/gimp-filter-gaussian-blur.html
+
+Batch 056 counting notes:
+- All six pages above were individually opened/read successfully and their exact canonical URLs were absent from the ledger.
+- Localized soft-proof pages in Japanese/Portuguese/Italian/Polish and localized Gaussian Blur mirrors were opened during discovery but excluded as materially equivalent translations rather than counted repeatedly.
+- Engineering transfer: OCIO/display LUT state is viewing metadata, not master-pixel evidence; record input colorspace, display device, view, exposure and gamma separately. Palette reduction and dithering need explicit alpha policy (clip/index/dither) and colorspace policy (Lab/RGB). Wavelet decomposition enables scale-selective denoising and should preserve reconstruction provenance. Unsharp Mask should be applied at final resolution; radius/amount/threshold must be recorded, and sharpening luminance/value separately can reduce hue distortion. Fully transparent pixels may contain hidden RGB; zeroing them is destructive to edge-decontamination provenance and must never be automatic before compositing/export QA. Gaussian blur is not edge preserving and border/extent policy can create/remove edge pixels, so it is unsafe as a generic denoiser for DTF alpha boundaries.
+- GitHub ledger represented count after this batch: 950 / 10,000.
+- Research-continuity count including previously verified but unsynchronized pages: 977 / 10,000.
