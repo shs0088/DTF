@@ -2574,3 +2574,27 @@ DAPR-Screen: Floyd-Steinberg, Atkinson and ordered Bayer expose different error-
 Client-side/browser processing is useful for privacy and interactive preprocessing, but claimed AI quality is not trusted without measured output QA. WebGL/WebGPU/Canvas execution is an implementation option, not an acceptance signal.
 
 GitHub ledger: 1448 / 10,000. Research continuity: 1475 / 10,000.
+
+
+## Verified Batch 092 — 8 pages — morphology, deconvolution, sharpening, scaling and color-management authority
+
+1449. https://habr.com/ru/articles/955106/
+1450. https://habr.com/ru/companies/etmc_exponenta/articles/896826/
+1451. https://habr.com/ru/articles/175717/
+1452. https://habr.com/ru/articles/498156/
+1453. https://docs.gimp.org/3.0/de/gimp-filter-unsharp-mask.html
+1454. https://habr.com/ru/articles/910412/
+1455. https://habr.com/ru/companies/yandex/articles/254955/
+1456. https://helpx.adobe.com/es/acrobat/using/color-management.html
+
+Eight new materially distinct pages were opened/read individually and deduplicated against the branch ledger. The Portuguese Adobe imported-image page was excluded as a localized mirror of the already-counted canonical Adobe page, and the OpenCV 3.4 Canny page was excluded as a version duplicate of the already-counted OpenCV Canny tutorial. Search snippets were not counted.
+
+DAPR-Morphology now records border-policy sensitivity (constant, replicate/clamp, reflection) alongside kernel geometry because edge handling can change alpha/underbase boundaries. Opening/closing remain topology-changing candidates, not generic cleanup.
+
+DAPR-Deblur treats PSF uncertainty as first-class evidence. Blind deconvolution is eligible only with observation-consistency, ringing, protected-edge/glyph and multi-candidate stability checks; sharpening is not a substitute for blur inversion.
+
+DAPR-Sharpen applies unsharp-mask candidates only at final resolution and uses thresholding to protect smooth tonal regions. Radius and amount are bounded by ringing/halo and protected-boundary budgets.
+
+DAPR-Color separates color management from color correction. ICC transforms provide a reproducible device/output interpretation; they do not repair a source image with incorrect tonal/color balance. Exactly one color-management authority is allowed at output to avoid double conversion.
+
+GitHub ledger: 1456 / 10,000. Research continuity: 1491 / 10,000.
