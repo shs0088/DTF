@@ -238,11 +238,20 @@ export const PROVIDER_CATALOG: ProviderDescriptor[] = [
   {
     id: "ben",
     role: "background-matting",
+    status: "conversion-only",
+    deploymentModes: ["reference-only"],
+    licenseNote: "BEN code/model access is permissive, but the common cloned-repo inference path loads BEN_Base.pth; production runtime blocks pickle checkpoints.",
+    autoEnable: false,
+    note: "Legacy/research BEN path. Convert or use the separately published BEN2 ONNX deployment artifact instead.",
+  },
+  {
+    id: "ben2-onnx",
+    role: "background-matting",
     status: "safe-candidate",
     deploymentModes: ["local"],
-    licenseNote: "Official BEN repository is MIT and states the base model is free for commercial use; exact local weights remain provenance/hash pinned.",
+    licenseNote: "Official PramaLLC/BEN2 repository/model card is MIT and publishes an ONNX deployment artifact; exact local bytes remain SHA-256/provenance pinned.",
     autoEnable: false,
-    note: "Confidence-guided matting candidate with refinement focused on low-confidence pixels.",
+    note: "Local ONNX background/matting candidate. Benchmark against BiRefNet variants before default enablement.",
   },
   {
     id: "bria-rmbg-2",
