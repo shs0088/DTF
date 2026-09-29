@@ -74,6 +74,12 @@ final class Preflight {
         $blurMechanism = trim((string)($m['blurMechanism'] ?? 'unknown'));
         $outputRenderingIntent = trim((string)($m['outputRenderingIntent'] ?? ''));
         $outputProfileEmbedded = isset($m['outputProfileEmbedded']) ? (bool)$m['outputProfileEmbedded'] : null;
+        $underbaseIntent = trim((string)($m['underbaseIntent'] ?? 'binary-production'));
+        $underbaseOpacityZones = isset($m['underbaseOpacityZones']) && is_array($m['underbaseOpacityZones']) ? $m['underbaseOpacityZones'] : [];
+        $halftoneMinTonePercent = isset($m['halftoneMinTonePercent']) ? max(0.0,min(100.0,(float)$m['halftoneMinTonePercent'])) : null;
+        $creativeHalftoneMinDotMm = isset($m['creativeHalftoneMinDotMm']) ? max(0.0,(float)$m['creativeHalftoneMinDotMm']) : null;
+        $chokeSource = trim((string)($m['chokeSource'] ?? 'prepress'));
+        $ripChokeEnabled = (bool)($m['ripChokeEnabled'] ?? false);
 
         if ($ppi <= 0) {
             $errors[] = ['code'=>'INVALID_EFFECTIVE_PPI','severity'=>'critical'];
@@ -134,6 +140,9 @@ final class Preflight {
         if ($exportScaleMismatch) {
             $warnings[] = ['code'=>'EXPORT_ASPECT_OR_SCALE_MISMATCH','severity'=>'warning'];
         }
+        if ($chokeSource === 'prepress' && $ripChokeEnabled) {
+            $warnings[] = ['code'=>'DOUBLE_CHOKE_RISK','severity'=>'critical'];
+        }
         if ($sourceBitDepth !== null && $targetBitDepth !== null && $targetBitDepth < $sourceBitDepth && $maskDither) {
             $warnings[] = ['code'=>'ALPHA_MASK_DITHER_ON_PRECISION_REDUCTION','severity'=>'warning'];
         }
@@ -165,6 +174,25 @@ final class Preflight {
                 'alphaPolicy'=>$alphaPolicy,
                 'backgroundRemovalMode'=>$this->backgroundMode($edgeClass),
                 'destructiveAlphaAllowed'=>$edgeClass === 'hard-edge',
+            ],
+            'underbaseIntentReport' => [
+                'intent'=>$underbaseIntent,
+                'opacityZones'=>$underbaseOpacityZones,
+                'tonalUnderbaseAllowed'=>$underbaseIntent === 'intentional-tonal',
+                'binaryAlphaFlatteningAllowed'=>$underbaseIntent === 'binary-production',
+                'intentMustBePreserved'=>true
+            ],
+            'halftonePrintabilityReport' => [
+                'minimumTonePercent'=>$halftoneMinTonePercent,
+                'creativeMinimumDotMm'=>$creativeHalftoneMinDotMm,
+                'ripOwnsScreenGeometry'=>true,
+                'fileHalftoneMustNotBeRescreened'=>true
+            ],
+            'chokeOwnershipReport' => [
+                'source'=>$chokeSource,
+                'ripChokeEnabled'=>$ripChokeEnabled,
+                'singleOwnerRequired'=>true,
+                'doubleChokeDetected'=>$chokeSource === 'prepress' && $ripChokeEnabled
             ],
             'resamplingArtifactReport' => [
                 'filter'=>$resamplingFilter !== '' ? $resamplingFilter : null,
@@ -319,7 +347,7 @@ final class Preflight {
             ],
             'provenance' => [
                 'engine'=>'dtf-smart-prepress',
-                'contractVersion'=>'0.8.0-research',
+                'contractVersion'=>'0.9.0-research',
                 'sourceImmutable'=>true,
                 'mockupMayReplaceMaster'=>false
             ]
