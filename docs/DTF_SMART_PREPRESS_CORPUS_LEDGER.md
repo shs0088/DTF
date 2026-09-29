@@ -2550,3 +2550,27 @@ DAPR-Decontaminate: foreground RGB contamination is treated separately from alph
 DAPR-Edge: threshold/rebuild is a candidate for genuinely hard-edged DTF artwork, not a universal cure. The router must compare the hard-edge candidate against preserved/matted alpha and reject jaggedness, lost thin strokes, holes or changed glyph topology.
 
 GitHub ledger: 1440 / 10,000. Research continuity: 1467 / 10,000.
+
+
+## Verified Batch 090 — 8 pages — background estimation, multi-background QA, matting and screening controls
+
+1441. https://whitebackgroundremover.com/ar/
+1442. https://invistools.com/fr/image-dithering/
+1443. https://www.aiarty.com/kr/ai-image-matting/
+1444. https://velvetmade.app/duo-halftone
+1445. https://instantgradient.com/tools/image-dithering
+1446. https://free-bgremover.com/ar/
+1447. https://rmbg.ai/ar
+1448. https://imagefader.com/en/fade-image-edges/
+
+Eight new materially distinct pages were opened/read individually. Search-result snippets were not counted. Localized mirrors of the same canonical page were not counted separately.
+
+DAPR-BackgroundEstimate: edge/border sampling plus color-distance/tolerance is a cheap deterministic candidate for near-uniform backgrounds, but it must protect white foreground objects and hand uncertain boundaries to semantic/matting refinement. Background reachability and multi-background preview become explicit QA evidence rather than assuming all near-white pixels are background.
+
+DAPR-Matte QA: complex hair/fur/glass edges require fractional alpha refinement; edge smoothing/feathering is not treated as a substitute for matting. Review on white, black, gray and saturated/custom backgrounds is promoted to a hard halo/contamination diagnostic.
+
+DAPR-Screen: Floyd-Steinberg, Atkinson and ordered Bayer expose different error-distribution/periodicity behavior. Screen controls such as cell size, angle, tone curve, pre-smoothing and deliberate misregistration are separated. For DTF, deliberate decorative misregistration is never inherited into the print master; physical dot/gap, periodic energy, tone conservation and edge/text survival remain acceptance gates.
+
+Client-side/browser processing is useful for privacy and interactive preprocessing, but claimed AI quality is not trusted without measured output QA. WebGL/WebGPU/Canvas execution is an implementation option, not an acceptance signal.
+
+GitHub ledger: 1448 / 10,000. Research continuity: 1475 / 10,000.
