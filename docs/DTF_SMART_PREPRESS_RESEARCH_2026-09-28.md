@@ -8785,3 +8785,14 @@ New/expanded modules: DAPR-Alias detects moire/aliasing before SR and compares s
 Recent all-in-one restoration research is used as negative/positive architectural evidence: heterogeneous degradations create task interference and motivate degradation-aware routing. DAPR therefore keeps routing deterministic and specialist/hybrid, while learned models remain candidates only. Arabic text reconstruction keeps linguistic correction separate from visual glyph truth.
 
 Corpus: 1294 / 10,000 verified ledger pages; research continuity 1321 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 083 — self-evaluating DAPR: QA ensemble, BlurMap and NoiseMap
+
+Thirty-five new verified pages were added across image-quality assessment, blur diagnosis and denoising/restoration. DAPR now records a transform-local invariant ledger before processing and uses it as the primary acceptance authority: text/glyph topology, connected components, protected edge geometry, alpha/foreground-RGB edge behavior, color/profile evidence, frequency signatures, effective PPI and minimum physical feature size.
+
+DAPR-QA separates full-reference fidelity metrics, perceptual metrics and no-reference naturalness/distortion metrics. These metrics rank only candidates that already satisfy hard DTF invariants; no aesthetic/naturalness score can approve a print master or compensate for a damaged glyph/edge/alpha region.
+
+DAPR-BlurMap fuses local edge response, multiscale sharpness, frequency loss and directional anisotropy to localize blur and distinguish motion-like versus defocus-like evidence before PSF/solver selection. DAPR-Noise builds spatial noise-type/severity maps and compares classical, noise-map-conditioned, plug-and-play, supervised and self/noisy-supervised candidates while protecting text, texture and alpha detail.
+
+Corpus: 1329 / 10,000 verified ledger pages; research continuity 1356 / 10,000. No merge, deployment, Oracle execution or storefront modification.
