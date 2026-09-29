@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { runPreflight, textPreservationRatio } from "../src/preflight";
-import { DEFAULT_RIP_PROFILE } from "../src/rules";
+import {
+  BINARY_EDGE_DTF_PROFILE,
+  CONTINUOUS_ALPHA_PROFILE,
+  DEFAULT_RIP_PROFILE,
+} from "../src/rules";
 
 const baseFacts = {
   format: "png",
@@ -68,6 +72,51 @@ describe("standalone DTF image prepress", () => {
         topologyAfter: { connectedComponents: 7, holes: 2 },
       },
     });
+    expect(result.decision).toBe("rejected");
+  });
+
+  test("RIP-adaptive profile preserves small semi-transparent regions", () => {
+    const result = runPreflight({
+      facts: baseFacts,
+      intent: { widthIn: 16, heightIn: 18 },
+      profile: DEFAULT_RIP_PROFILE,
+    });
+    expect(result.checks.find((x) => x.code === "semi-transparency")?.status).toBe("pass");
+    expect(result.checks.find((x) => x.code === "white-underbase")?.status).toBe("pass");
+  });
+
+  test("binary-edge profile requires a separate reviewed hardening candidate", () => {
+    const result = runPreflight({
+      facts: baseFacts,
+      intent: { widthIn: 16, heightIn: 18 },
+      profile: BINARY_EDGE_DTF_PROFILE,
+    });
+    const check = result.checks.find((x) => x.code === "semi-transparency");
+    expect(check?.status).toBe("warn");
+    expect(check?.message).toContain("separate edge-hardening candidate");
+    expect(result.decision).toBe("review");
+  });
+
+  test("continuous-alpha profile can retain a larger soft region with review threshold", () => {
+    const result = runPreflight({
+      facts: {
+        ...baseFacts,
+        alpha: { ...baseFacts.alpha, semiTransparentRatio: 0.05 },
+      },
+      intent: { widthIn: 16, heightIn: 18 },
+      profile: CONTINUOUS_ALPHA_PROFILE,
+    });
+    expect(result.checks.find((x) => x.code === "semi-transparency")?.status).toBe("pass");
+  });
+
+  test("high alpha fringe score rejects a candidate", () => {
+    const result = runPreflight({
+      facts: baseFacts,
+      intent: { widthIn: 16, heightIn: 18 },
+      profile: DEFAULT_RIP_PROFILE,
+      evidence: { alphaFringeScore: 0.08 },
+    });
+    expect(result.checks.find((x) => x.code === "alpha-fringe")?.status).toBe("fail");
     expect(result.decision).toBe("rejected");
   });
 });
