@@ -8704,3 +8704,16 @@ For Arabic and other complex scripts, reconstruction must operate on verified Un
 New contracts: TextRegionProfile, OCRConsensusReport, TextReconstructionEvidence and GlyphRenderRoundTripReport. A reconstructed region is rasterized at final physical size and compared for baseline, geometry, stroke width, glyph topology, color and edge placement. Low-confidence or conflicting OCR cannot silently modify a print master; it remains review-required evidence.
 
 Corpus: 1198 / 10,000 verified ledger pages; research continuity 1225 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 076 — full requirement gap review: text-aware restoration and script routing
+
+A cross-domain gap review was performed against all user-requested research axes. The most important remaining weakness was text-specific restoration before OCR and reconstruction. Thirteen new sources were opened/read and deduplicated.
+
+Generic image SR is insufficient for degraded typography. Modern STISR systems use glyph/stroke masks, recognizer/semantic priors, text style, segmentation decoders or text-conditioned diffusion. TiGeSR's restore-text-first strategy is especially aligned with DTF: recover candidate glyph structure before enhancing surrounding pixels, then validate rather than trusting an aesthetically plausible generic upscale. TADiSR demonstrates joint full-image SR plus text-mask prediction for long, vertical, bilingual and irregular text. FudanOCR provides a useful family reference spanning text segmentation, stroke-aware SR and Chinese recognition.
+
+Text processing now has three upstream decisions: text-region detection, per-region script identification, then recognizer/restoration routing. Mixed Arabic/Latin artwork must not be forced through a single language configuration. Arabic search normalization is explicitly separated from visual reconstruction; diacritics, letter variants, bidi order, ligatures and joining forms are preserved for the print asset.
+
+Contract direction: TextRegionProfile gains script-probability vector, orientation, style/stroke descriptors and degradation severity. TextRestorationRoute chooses NONE, CLASSICAL, TEXT_SR, GLYPH_GUIDED_SR or REVIEW. Acceptance combines OCR/character consensus with glyph topology, stroke continuity, baseline geometry, edge/color fidelity and uncertainty. Generative/diffusion text restoration remains proposal evidence when characters are ambiguous, never authority to silently rewrite customer artwork.
+
+Corpus: 1211 / 10,000 verified ledger pages; research continuity 1238 / 10,000. No merge, deployment, Oracle execution or storefront modification.
