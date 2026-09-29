@@ -140,26 +140,56 @@ export function runPreflight(input: PreflightInput): PreflightResult {
     checks.push({ code: "upscale-limit", status: "pass", message: "No enlargement is required." });
   }
 
-  if (facts.alpha.semiTransparentRatio > 0) {
-    const excessive = facts.alpha.semiTransparentRatio >= profile.semiTransparencyReviewThreshold;
-    checks.push({
-      code: "semi-transparency",
-      status: !profile.allowSemiTransparency ? "fail" : excessive ? "warn" : "pass",
-      message: !profile.allowSemiTransparency
-        ? "Semi-transparent pixels are not allowed by this RIP profile."
-        : excessive
-          ? `Semi-transparency ratio ${round(facts.alpha.semiTransparentRatio * 100)}% requires print review.`
-          : "Semi-transparency is within the profile review threshold.",
-    });
+  const semiRatio = facts.alpha.semiTransparentRatio;
+  if (semiRatio > 0) {
+    const excessive = semiRatio >= profile.semiTransparencyReviewThreshold;
+    if (profile.alphaHandlingMode === "binary-edge") {
+      checks.push({
+        code: "semi-transparency",
+        status: "warn",
+        message:
+          "This RIP profile expects binary print edges. Create a separate edge-hardening candidate and compare it against the original; never overwrite soft effects silently.",
+      });
+    } else if (!profile.allowSemiTransparency) {
+      checks.push({
+        code: "semi-transparency",
+        status: "fail",
+        message: "Semi-transparent pixels are not allowed by this RIP profile.",
+      });
+    } else if (profile.alphaHandlingMode === "rip-adaptive") {
+      checks.push({
+        code: "semi-transparency",
+        status: excessive ? "warn" : "pass",
+        message: excessive
+          ? `Semi-transparency ratio ${round(semiRatio * 100)}% requires RIP-specific print review because white underbase may follow opacity.`
+          : "Semi-transparency is retained for RIP-adaptive alpha handling.",
+      });
+    } else {
+      checks.push({
+        code: "semi-transparency",
+        status: excessive ? "warn" : "pass",
+        message: excessive
+          ? `Semi-transparency ratio ${round(semiRatio * 100)}% exceeds the continuous-alpha review threshold.`
+          : "Continuous alpha is preserved by this profile.",
+      });
+    }
   } else {
     checks.push({ code: "semi-transparency", status: "pass", message: "No semi-transparent pixels detected." });
   }
+
+  checks.push({
+    code: "white-underbase",
+    status: profile.bakeWhiteUnderbase ? "fail" : "pass",
+    message: profile.bakeWhiteUnderbase
+      ? "Master artwork must not bake a white underbase."
+      : `White underbase remains a derived ${profile.underbaseStrategy} operation, not part of the master artwork.`,
+  });
 
   if (facts.colorSpace && facts.colorSpace.toLowerCase() !== profile.preferredColorSpace) {
     checks.push({
       code: "color-space",
       status: "warn",
-      message: `Source color space is ${facts.colorSpace}; derived candidates should be normalized to sRGB while preserving the original source.`,
+      message: `Source color space is ${facts.colorSpace}; derived candidates should be normalized to sRGB while preserving the original source and its profile metadata.`,
     });
   } else {
     checks.push({ code: "color-space", status: "pass", message: "Color space is compatible with the profile." });
@@ -196,6 +226,14 @@ export function runPreflight(input: PreflightInput): PreflightResult {
       code: "edge-displacement",
       status: evidence.edgeDisplacementPx <= 1 ? "pass" : evidence.edgeDisplacementPx <= 2 ? "warn" : "fail",
       message: `Measured edge displacement = ${round(evidence.edgeDisplacementPx)} px.`,
+    });
+  }
+
+  if (evidence?.alphaFringeScore != null) {
+    checks.push({
+      code: "alpha-fringe",
+      status: evidence.alphaFringeScore <= 0.02 ? "pass" : evidence.alphaFringeScore <= 0.05 ? "warn" : "fail",
+      message: `Measured alpha fringe score = ${round(evidence.alphaFringeScore)}.`,
     });
   }
 
