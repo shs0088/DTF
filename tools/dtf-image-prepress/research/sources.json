@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 168,
-  "remaining": 9832,
+  "verifiedCount": 175,
+  "remaining": 9825,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -1349,6 +1349,62 @@
       "verification": "opened-and-reviewed",
       "decision": "libvips color operations process color bands while passing alpha bands through, supporting alpha-excluded color transforms.",
       "ordinal": 168
+    },
+    {
+      "id": "caldera-dtf-color-best-practices",
+      "category": "dtf-rip",
+      "url": "https://helpdesk.caldera.com/hc/en-us/articles/29224655665553--Best-Practices-and-Tips-for-Color-Management-in-DTF-Printing",
+      "verification": "opened-and-reviewed",
+      "decision": "Caldera recommends metric-aware choke and Smart Choke to protect fine white text/details; ICC remains printer/media specific.",
+      "ordinal": 169
+    },
+    {
+      "id": "cadlink-layer-tab-chinese",
+      "category": "dtf-rip-multilingual",
+      "url": "https://help.cadlink.com/website/digital_factory/zh-cn/production/menus/layer_tab.htm",
+      "verification": "opened-and-reviewed",
+      "decision": "Chinese CADlink documentation corroborates white-underbase/choke/semitransparency controls in the RIP.",
+      "ordinal": 170
+    },
+    {
+      "id": "cadlink-layer-tab-french",
+      "category": "dtf-rip-multilingual",
+      "url": "https://help.cadlink.com/website/digital_factory/fr/production/menus/layer_tab.htm",
+      "verification": "opened-and-reviewed",
+      "decision": "French CADlink documentation corroborates the same local RIP white/color controls.",
+      "ordinal": 171
+    },
+    {
+      "id": "dtf-specks-portuguese",
+      "category": "dtf-practice-multilingual",
+      "url": "https://deltaecoreflowrip.com/pt/pontos-brancos-dtf/",
+      "verification": "opened-and-reviewed",
+      "decision": "Portuguese DTF guidance identifies near-transparent stray pixels as a source of white specks; used as supporting evidence, not a universal cutoff.",
+      "ordinal": 172
+    },
+    {
+      "id": "dtf-file-prep-spanish",
+      "category": "dtf-practice-multilingual",
+      "url": "https://mussoltex.com/preparar-archivo-dtf-perfecto/",
+      "verification": "opened-and-reviewed",
+      "decision": "Spanish prepress guidance reinforces real transparency and effective print-size DPI; vendor minimum-detail numbers are not adopted as universal rules.",
+      "ordinal": 173
+    },
+    {
+      "id": "dtf-halo-spanish",
+      "category": "dtf-practice-multilingual",
+      "url": "https://dtftransferstudio.com/es/halo-blanco-bordes-sucios-impresion-dtf/",
+      "verification": "opened-and-reviewed",
+      "decision": "Spanish troubleshooting distinguishes dirty-alpha halo from machine/RIP causes; supports multi-stage diagnosis rather than one choke fix.",
+      "ordinal": 174
+    },
+    {
+      "id": "dtf-white-portuguese",
+      "category": "dtf-practice-multilingual",
+      "url": "https://www.agoodprinter.com/pt/blog/how-to-fix-dull-colors-bleeding-white-ink-dtf-printing.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Portuguese vendor guidance links white bleed to RIP choke and ICC calibration; numerical settings remain vendor-specific and are not hard-coded.",
+      "ordinal": 175
     }
   ]
 }
