@@ -24,7 +24,7 @@ export function isRuntimeProviderAllowed(
     policy.externalNetworkAllowed === false &&
     provider.deploymentModes.includes("local") &&
     !provider.deploymentModes.includes("external-api") &&
-    provider.status !== "commercial-api"
+    (provider.status === "local-core" || provider.status === "safe-candidate")
   );
 }
 
