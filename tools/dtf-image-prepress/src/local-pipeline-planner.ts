@@ -133,10 +133,11 @@ export function planLocalPipeline(input: {
     }
   }
 
-  const difficultBoundary =
+  const difficultBoundary = Boolean(
     routing.foregroundSharesBackgroundColor ||
-    routing.lowContrastBoundary ||
-    routing.intentionalGlowOrShadow;
+      routing.lowContrastBoundary ||
+      routing.intentionalGlowOrShadow,
+  );
 
   let maskCount = 0;
   if (routing.backgroundPresent) {
