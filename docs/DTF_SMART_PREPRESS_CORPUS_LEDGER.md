@@ -1814,3 +1814,19 @@ Key transfer: global Threshold is destructive to antialiasing because it maps a 
 Image-preparation pipeline direction: decode/orient/profile -> classify artwork -> background removal/segmentation -> soft-alpha matting -> foreground RGB reconstruction/edge decontamination -> deterministic alpha cleanup -> restoration/denoise if evidence supports it -> resize/upscale with alpha-safe resampling -> selective sharpening -> color/profile normalization -> transparency/edge/feature QA -> final-size effective-PPI and printability checks -> export immutable prepared master -> external RIP. White-mask/halftone research is retained only when it is an image-file preparation requirement; no printer administration/control is in scope.
 
 GitHub ledger: 1114 / 10,000. Research continuity: 1141 / 10,000.
+
+
+## Verified Batch 068 — 6 materially distinct pages — image-only DTF preparation
+
+1115. https://pixelcleaner.net/
+1116. https://dtfwiz.com/fix/white-background-dtf
+1117. https://www.dtfx.co.uk/free-dtf-artwork-checker/
+1118. https://www.majordtf.com/
+1119. https://arnoldprints.com/pages/dtf-prep-studio
+1120. https://halftoneapp.com/
+
+All six pages above were individually opened and read successfully and were absent after canonical-URL comparison against the 1114-entry ledger. Pages that failed explicit open or returned no readable body were not counted. Search-result snippets, existing pages, and localized mirrors were not counted.
+
+Scope remains IMAGE PREPARATION ONLY. Key findings: measure unwanted low-alpha contamination separately from intentional soft alpha and foreground RGB fringe; semantic background removal must be distinguished from global color knockout; effective PPI is calculated from real pixel dimensions at final physical size rather than trusted from DPI metadata alone; thin-line analysis should work in physical units and report risk before any optional protection derivative; image-level halftone preparation should retain LPI, angle, tone controls, minimum-dot size, antialias policy and zone masks. Any resize after binary-edge cleanup or halftone generation invalidates that derivative and requires regeneration and re-preflight.
+
+GitHub ledger: 1120 / 10,000. Research continuity: 1147 / 10,000.
