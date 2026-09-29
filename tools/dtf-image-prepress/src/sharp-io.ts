@@ -1,21 +1,30 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { stat } from "node:fs/promises";
 import sharp from "sharp";
 import type { AlphaMetrics, ImageFacts } from "./contracts";
 
 const clampRatio = (value: number) => Math.max(0, Math.min(1, value));
+const ORIENTATION_SWAPS_AXES = new Set([5, 6, 7, 8]);
 
 export async function sha256File(path: string): Promise<string> {
-  const data = await readFile(path);
-  return createHash("sha256").update(data).digest("hex");
+  const data = await Bun.file(path).arrayBuffer();
+  return createHash("sha256").update(Buffer.from(data)).digest("hex");
+}
+
+function sha256Buffer(value?: Buffer): string | null {
+  if (!value || value.byteLength === 0) return null;
+  return createHash("sha256").update(value).digest("hex");
 }
 
 export async function inspectRaster(path: string): Promise<ImageFacts> {
   const image = sharp(path, { failOn: "warning" });
   const metadata = await image.metadata();
+
   const { data, info } = await image
+    .clone()
+    .autoOrient()
     .ensureAlpha()
-    .raw()
+    .raw({ depth: "uchar" })
     .toBuffer({ resolveWithObject: true });
 
   let transparent = 0;
@@ -29,6 +38,7 @@ export async function inspectRaster(path: string): Promise<ImageFacts> {
     else if (a === 255) opaque++;
     else semi++;
   }
+
   const total = Math.max(1, transparent + semi + opaque);
   const alpha: AlphaMetrics = {
     hasAlpha: metadata.hasAlpha ?? false,
@@ -37,15 +47,26 @@ export async function inspectRaster(path: string): Promise<ImageFacts> {
     opaqueRatio: clampRatio(opaque / total),
   };
 
-  const density = metadata.density ?? null;
+  const orientation = metadata.orientation ?? null;
+  const storedWidth = metadata.width ?? 0;
+  const storedHeight = metadata.height ?? 0;
+  const swapAxes = orientation != null && ORIENTATION_SWAPS_AXES.has(orientation);
+  const fileStat = await stat(path);
+
   return {
     format: metadata.format ?? "unknown",
-    byteSize: (await readFile(path)).byteLength,
-    pixelWidth: metadata.width ?? 0,
-    pixelHeight: metadata.height ?? 0,
-    embeddedDpi: density,
+    byteSize: fileStat.size,
+    pixelWidth: swapAxes ? storedHeight : storedWidth,
+    pixelHeight: swapAxes ? storedWidth : storedHeight,
+    embeddedDpi: metadata.density ?? null,
     colorSpace: metadata.space ?? null,
     hasIccProfile: Boolean(metadata.icc),
+    iccSha256: sha256Buffer(metadata.icc),
+    pixelDepth: metadata.depth ?? null,
+    bitsPerSample: metadata.bitsPerSample ?? null,
+    orientation,
+    pages: metadata.pages ?? 1,
+    pageHeight: metadata.pageHeight ?? null,
     alpha,
   };
 }
@@ -65,8 +86,10 @@ export async function writeSafeRgbaCandidate(
   const targetWidth = Math.round(options.widthIn * options.targetDpi);
   const targetHeight = Math.round(options.heightIn * options.targetDpi);
   const metadata = await sharp(sourcePath).metadata();
-  const sourceWidth = metadata.width ?? 0;
-  const sourceHeight = metadata.height ?? 0;
+  const orientation = metadata.orientation ?? null;
+  const swapAxes = orientation != null && ORIENTATION_SWAPS_AXES.has(orientation);
+  const sourceWidth = swapAxes ? (metadata.height ?? 0) : (metadata.width ?? 0);
+  const sourceHeight = swapAxes ? (metadata.width ?? 0) : (metadata.height ?? 0);
   const enlarging = targetWidth > sourceWidth || targetHeight > sourceHeight;
 
   if (enlarging && !options.allowUpscale) {
@@ -74,8 +97,9 @@ export async function writeSafeRgbaCandidate(
   }
 
   await sharp(sourcePath, { failOn: "warning" })
+    .autoOrient()
     .ensureAlpha()
-    .toColourspace("srgb")
+    .pipelineColourspace("rgb16")
     .resize({
       width: targetWidth,
       height: targetHeight,
@@ -83,8 +107,10 @@ export async function writeSafeRgbaCandidate(
       withoutEnlargement: !options.allowUpscale,
       kernel: sharp.kernel.lanczos3,
     })
+    .toColourspace("srgb")
+    .withIccProfile("srgb")
     .png({ compressionLevel: 9, adaptiveFiltering: true })
-    .withMetadata({ density: options.targetDpi })
+    .withMetadata({ orientation: 1, density: options.targetDpi })
     .toFile(outputPath);
 
   return { targetWidth, targetHeight, outputPath };
@@ -96,6 +122,7 @@ export async function writePreviewOnBackground(
   background: { r: number; g: number; b: number },
 ) {
   await sharp(sourcePath)
+    .autoOrient()
     .ensureAlpha()
     .flatten({ background })
     .png({ compressionLevel: 9 })
