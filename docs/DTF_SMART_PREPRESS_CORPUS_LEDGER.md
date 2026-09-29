@@ -1889,3 +1889,37 @@ RIP input-image finding (from already-counted current Caldera/CADlink pages re-r
 Implementation direction: build a method-selection matrix rather than declaring one program globally best. Adobe = practical selection/matting/decontamination and production editing reference; Autodesk = alpha association/compositing reference; MATLAB = deterministic mathematical/reference algorithms and quality metrics; open-source implementations = inspectable/testable production candidates; AI editors/models = optional specialized processors whose output requires provenance and re-preflight. Candidate processing should be routed by artwork class and detected defect, never by one universal enhancement chain.
 
 GitHub ledger: 1143 / 10,000. Research continuity: 1170 / 10,000.
+
+
+## Verified Batch 071 — 12 materially distinct pages — morphology, segmentation, sharpening safety, OSS AI wrappers, multilingual methods
+
+1144. https://www.mathworks.com/help/images/ref/imopen.html
+1145. https://www.mathworks.com/help/images/ref/bwareaopen.html
+1146. https://www.mathworks.com/help/images/ref/imdilate.html
+1147. https://github.com/cszn/SCUNet
+1148. https://docs.gimp.org/3.0/fr/gimp-filter-color-to-alpha.html
+1149. https://docs.gimp.org/3.0/es/plug-in-nl-filter.html
+1150. https://docs.opencv.org/4.12.0/d2/dbd/tutorial_distance_transform.html
+1151. https://docs.gimp.org/3.0/ja/gimp-filter-unsharp-mask.html
+1152. https://github.com/GhostwrittenStudios/comfyui-ghostwritten-BiRefNet
+1153. https://github.com/shemayon/Background-Removal-Tool-Using-BirefNet
+1154. https://github.com/azmi-khalid/sifara-background-remover/blob/master/README.md
+1155. https://www.mathworks.com/help/images/
+
+All twelve pages were individually opened/read and absent after ledger comparison. Real-ESRGAN, MODNet and PyMatting were re-found but rejected because already counted. Localized GIMP mirrors that were materially the same as an already-counted page were rejected; the retained French Color-to-Alpha, Spanish NL filter and Japanese sharpening pages contribute distinct method coverage not previously represented by those canonical method pages in the ledger. Search snippets and duplicate OpenCV version mirrors were not counted.
+
+Scope remains IMAGE PREPARATION ONLY.
+
+Key transfer — morphology must be feature-aware and physical-size-aware. MATLAB imopen/bwareaopen/imdilate formalize distinct operations: opening removes structures according to a structuring element, area opening removes connected components below an area threshold, and dilation expands according to an explicit neighborhood. These are not interchangeable 'cleanup'. For DTF alpha/white-mask preparation, record operation type, connectivity, structuring-element shape/radius and convert pixel thresholds to physical units at final print size. Before/after connected-component counts and minimum stroke widths are mandatory to detect deletion/merging of intentional islands, punctuation and thin typography.
+
+Key transfer — deterministic segmentation: OpenCV distance transform + watershed provides a useful non-AI route for separating touching foreground components, but it depends on a meaningful binary seed/marker stage. It is a candidate for logos/flat artwork/object separation, not a universal soft-matting replacement. Its distance map is also useful as a geometry signal for choke/spread survivability and edge-distance QA.
+
+Key transfer — sharpening: the Japanese GIMP unsharp-mask documentation explicitly explains edge contrast amplification, final-resolution sharpening and halo/color artifacts under excessive sharpening. Therefore sharpening belongs after target-size resampling, should normally be edge/ROI selective, and requires overshoot/undershoot/halo detection. Avoid sharpening RGB chroma indiscriminately when a luminance/value-domain alternative preserves hue better.
+
+Key transfer — denoise: the Spanish NL-filter description uses local variance to reduce smoothing where image detail is high; SCUNet supplies a learned blind-denoising candidate for real-world noise. These reinforce a two-family benchmark: deterministic/local-statistical denoise versus learned blind restoration. Neither may be accepted solely because a global no-reference quality score improves; typography, texture and alpha-edge feature survival remain gates.
+
+Key transfer — background removal and alpha: French GIMP Color-to-Alpha explicitly maps color distance into both pixel color and alpha and warns that nonzero transparency threshold breaks exact recomposition against the original background. This is direct evidence that color knockout is not equivalent to semantic segmentation/matting and must carry a reconstruction-error check. Three BiRefNet wrappers show practical RGBA+mask pipelines, model variants, mask blur/offset controls and local GPU execution, but also demonstrate a common implementation shortcut: applying a segmentation mask directly as alpha. Smart Prepress must benchmark that shortcut against true soft matting/foreground estimation on hair, smoke, translucent artwork and antialiased text.
+
+Security/OSS note: wrappers that use remote model loading/trust_remote_code or URL image input create a separate supply-chain/SSRF boundary. If adopted, pin model revisions/hashes, default to no arbitrary remote code, restrict URL fetching, validate decoded image content, and separate model-weight licensing from wrapper-code licensing.
+
+GitHub ledger: 1155 / 10,000. Research continuity: 1182 / 10,000.
