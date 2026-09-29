@@ -1939,3 +1939,22 @@ Scope remains IMAGE PREPARATION ONLY. Adobe Defringe provides a concrete edge-co
 Implementation implication: add EdgeFringeRepairEvidence and AlphaAssociationEvidence, plus a QualityMetricEnsembleReport that records metric type, reference availability, model/training provenance and local failure maps. Acceptance remains feature-aware: text/stroke survival, alpha integrity, edge halos, color change and effective-resolution checks can veto an apparently improved global IQA score.
 
 GitHub ledger: 1159 / 10,000. Research continuity: 1186 / 10,000.
+
+
+## Verified Batch 072 — 7 materially distinct pages — edge diagnostics, filtering, decode semantics and color-space transforms
+
+1160. https://docs.opencv.org/4.x/d1/dc5/tutorial_background_subtraction.html
+1161. https://docs.opencv.org/4.x/d8/d6a/group__imgcodecs__flags.html
+1162. https://docs.opencv.org/4.x/d4/d13/tutorial_py_filtering.html
+1163. https://docs.opencv.org/4.x/d5/db5/tutorial_laplace_operator.html
+1164. https://docs.opencv.org/4.x/d5/d0f/tutorial_py_gradients.html
+1165. https://docs.opencv.org/4.x/da/d22/tutorial_py_canny.html
+1166. https://docs.opencv.org/4.x/df/d9d/tutorial_py_colorspaces.html
+
+Seven canonical pages were individually opened/read and then checked against the ledger. Histogram-equalization and imgproc-filter pages were rejected because older/versioned equivalents were already represented. Search snippets were not counted.
+
+Scope remains IMAGE PREPARATION ONLY. Edge operators (Sobel/Laplacian/Canny) are diagnostic geometry tools, not substitutes for segmentation or soft alpha matting. Use edge maps to quantify edge displacement, ringing/halo, stroke loss and excess sharpening before/after a candidate transformation. Filtering documentation reinforces that blur families have different edge/noise behavior; bilateral filtering is edge-preserving but computationally different from Gaussian/median filtering, so denoise selection should be artifact-class driven. Image-codec flags are part of provenance: decode orientation, unchanged/alpha behavior, bit depth and color handling can alter the pixel tensor before any prepress algorithm runs. Color-space transforms must be explicit; channel-range conventions differ by representation and numeric depth, so conversion provenance and round-trip error should be measured. Background subtraction is temporal scene modeling and is therefore NOT a general still-image background-removal method; it is retained as a negative architectural distinction to prevent misuse.
+
+Implementation implication: add EdgeIntegrityDiagnostic with Canny/Sobel/Laplacian maps and before/after edge-distance statistics; DecodeSemanticsEvidence for orientation/alpha/bit-depth decode policy; ColorTransformRoundTripReport for transform/domain/range/profile evidence. Do not auto-apply contrast enhancement or edge detection to the print master merely because it improves machine-visible structure.
+
+GitHub ledger: 1166 / 10,000. Research continuity: 1193 / 10,000.
