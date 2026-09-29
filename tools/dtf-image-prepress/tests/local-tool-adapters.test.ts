@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildBen2OnnxLocalSpec,
   buildPaddleOcrLocalSpec,
   buildRealEsrganNcnnSpec,
   buildResvgSpec,
   buildTesseractTsvSpec,
   buildVTracerSpec,
+  parseBen2OnnxLocalReport,
   parsePaddleOcrNormalizedJson,
   parseTesseractTsv,
 } from "../src/local-tool-adapters";
@@ -57,6 +59,48 @@ describe("local tool adapters", () => {
     expect(result.text).toBe("اطبع حلمك");
     expect(result.confidence).toBeCloseTo(0.93, 4);
     expect(result.words).toHaveLength(2);
+  });
+
+  test("builds BEN2 ONNX only from an explicit local model path", () => {
+    const spec = buildBen2OnnxLocalSpec({
+      pythonExecutablePath: "/opt/dtf/python/bin/python3",
+      wrapperScriptPath: "/opt/dtf/adapters/ben2_onnx_local.py",
+      modelPath: "/opt/dtf/models/ben2/BEN2_Base.onnx",
+      sourcePath: "/work/source.png",
+      outputMaskPath: "/work/ben2-mask.png",
+      outputJsonPath: "/work/ben2.json",
+      device: "cpu",
+    });
+    expect(spec.args).toContain("/opt/dtf/models/ben2/BEN2_Base.onnx");
+    expect(() => assertLocalProcessSpec(spec)).not.toThrow();
+
+    const parsed = parseBen2OnnxLocalReport(
+      JSON.stringify({
+        engine: "ben2-onnx",
+        model_path: "/opt/dtf/models/ben2/BEN2_Base.onnx",
+        input_path: "/work/source.png",
+        output_mask: "/work/ben2-mask.png",
+        input_name: "input",
+        declared_input_shape: [1, 3, 1024, 1024],
+        runtime_input_shape: [1, 3, 1024, 1024],
+        output_shape: [1, 1, 1024, 1024],
+        original_size: [4800, 5400],
+        preprocess: {
+          resize: [1024, 1024],
+          rgb: true,
+          scale: "uint8/255",
+          mean_std_normalization: false,
+        },
+        postprocess: {
+          min: 0,
+          max: 1,
+          normalization: "min-max",
+          resize_to_original: true,
+        },
+        providers: ["CPUExecutionProvider"],
+      }),
+    );
+    expect(parsed.preprocess.mean_std_normalization).toBe(false);
   });
 
   test("builds PaddleOCR only with explicit local model directories", () => {
