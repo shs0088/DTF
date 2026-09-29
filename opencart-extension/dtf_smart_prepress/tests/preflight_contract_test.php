@@ -26,6 +26,7 @@ $soft = $engine->analyze([
  'identitySimilarity'=>0.97,'textIntegrity'=>0.96,'editMaskLeakage'=>0.03,
  'alphaSad'=>3.2,'alphaMse'=>0.004,'alphaGradientError'=>1.1,'alphaConnectivityError'=>0.7,
  'transparentPaddingMm'=>0.20,'requestedSpreadMm'=>0.30,
+ 'sourceBitDepth'=>16,'targetBitDepth'=>8,'layerDither'=>true,'textDither'=>false,'maskDither'=>true,
  'authoringApp'=>'canva','canvasWidthPx'=>4000,'canvasHeightPx'=>5000,
  'exportWidthPx'=>2000,'exportHeightPx'=>2400,'exportFormat'=>'png','exportHasTransparency'=>false
 ]);
@@ -41,6 +42,10 @@ assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRendere
 assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
 assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
 assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
+assert($soft['precisionConversionReport']['precisionReduction']===true);
+assert($soft['precisionConversionReport']['maskDitherRequiresExplicitIntent']===true);
+assert($soft['precisionConversionReport']['textDitherDefaultAllowed']===false);
+assert(in_array('ALPHA_MASK_DITHER_ON_PRECISION_REDUCTION', array_column($soft['warnings'],'code'), true));
 assert($soft['alphaMattingQualityReport']['multiMetricRequired']===true);
 assert($soft['alphaMattingQualityReport']['singleMetricMayAcceptMaster']===false);
 assert($soft['underbaseCanvasSafetyReport']['spreadFitsCanvas']===false);
