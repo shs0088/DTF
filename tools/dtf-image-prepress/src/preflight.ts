@@ -5,9 +5,9 @@ import type {
   TopologySnapshot,
 } from "./contracts";
 import {
+  DEFERRED_SOURCE_FORMATS,
   MAX_SOURCE_BYTES,
   SUPPORTED_RASTER_FORMATS,
-  SUPPORTED_VECTOR_OR_DOCUMENT_FORMATS,
   normalizeFormat,
 } from "./rules";
 
@@ -69,15 +69,32 @@ export function runPreflight(input: PreflightInput): PreflightResult {
   const facts = input.facts;
   const profile = input.profile;
   const format = normalizeFormat(facts.format);
-  const supported =
-    SUPPORTED_RASTER_FORMATS.has(format) ||
-    SUPPORTED_VECTOR_OR_DOCUMENT_FORMATS.has(format);
+  const supported = SUPPORTED_RASTER_FORMATS.has(format);
+  const deferred = DEFERRED_SOURCE_FORMATS.has(format);
 
   checks.push({
     code: "format",
-    status: supported ? "pass" : "fail",
-    message: supported ? `Supported source format: ${format}.` : `Unsupported source format: ${format}.`,
+    status: supported ? "pass" : deferred ? "warn" : "fail",
+    message: supported
+      ? `Supported raster source format: ${format}.`
+      : deferred
+        ? `${format} requires a dedicated inspector and cannot be approved by the raster V1 path.`
+        : `Unsupported source format: ${format}.`,
   });
+
+  if ((facts.pages ?? 1) > 1) {
+    checks.push({
+      code: "multi-page",
+      status: "fail",
+      message: `Source contains ${facts.pages} pages/frames; a print master must resolve to one explicit artwork frame.`,
+    });
+  } else {
+    checks.push({
+      code: "multi-page",
+      status: "pass",
+      message: "Source resolves to one artwork frame.",
+    });
+  }
 
   checks.push({
     code: "byte-size",
