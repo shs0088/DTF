@@ -1,8 +1,8 @@
 {
   "schemaVersion": "dtf-research-ledger-v1",
   "goal": 10000,
-  "verifiedCount": 149,
-  "remaining": 9851,
+  "verifiedCount": 164,
+  "remaining": 9836,
   "countingRule": "Count only unique URLs that were actually opened/reviewed or are primary official project/documentation pages directly inspected during this research. Search-result counts are never counted.",
   "updatedAt": "2026-09-29",
   "sources": [
@@ -1197,6 +1197,126 @@
       "verification": "opened-and-reviewed",
       "decision": "Local ICC transforms, rendering intents and black-point compensation reference for future soft proofing.",
       "ordinal": 149
+    },
+    {
+      "id": "bun-serve-body-limit",
+      "category": "input-security",
+      "url": "https://bun.com/reference/bun/Serve/BaseServeOptions/maxRequestBodySize",
+      "verification": "opened-and-reviewed",
+      "decision": "Bun exposes maxRequestBodySize, now used to stop oversized multipart bodies before application parsing.",
+      "ordinal": 150
+    },
+    {
+      "id": "bun-serve-options",
+      "category": "input-security",
+      "url": "https://bun.com/reference/bun/Serve/HostnamePortServeOptions",
+      "verification": "opened-and-reviewed",
+      "decision": "Bun server options document body-size and idle-timeout controls used by the local API.",
+      "ordinal": 151
+    },
+    {
+      "id": "paddleocr-current-ocr-pipeline",
+      "category": "ocr",
+      "url": "https://www.paddleocr.ai/main/en/version3.x/pipeline_usage/OCR.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Current OCR pipeline supports explicit local detection/recognition model directories and documents result fields.",
+      "ordinal": 152
+    },
+    {
+      "id": "paddleocr-341-ocr-pipeline",
+      "category": "ocr",
+      "url": "https://www.paddleocr.ai/v3.4.1/version3.x/pipeline_usage/OCR.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Current 3.4.1 result schema includes rec_texts, rec_scores, rec_polys and rec_boxes.",
+      "ordinal": 153
+    },
+    {
+      "id": "paddleocr-cpp-local",
+      "category": "ocr",
+      "url": "https://www.paddleocr.ai/latest/en/version3.x/inference_deployment/local_inference/cpp/OCR.html",
+      "verification": "opened-and-reviewed",
+      "decision": "C++ local OCR deployment requires explicit local text detection and recognition model directories.",
+      "ordinal": 154
+    },
+    {
+      "id": "paddleocr-quick-start",
+      "category": "ocr",
+      "url": "https://www.paddleocr.ai/main/en/quick_start.html",
+      "verification": "opened-and-reviewed",
+      "decision": "PaddleOCR result json API and local prediction result fields verified for wrapper normalization.",
+      "ordinal": 155
+    },
+    {
+      "id": "paddleocr-faq-isolated",
+      "category": "ocr",
+      "url": "https://www.paddleocr.ai/main/en/FAQ.html",
+      "verification": "opened-and-reviewed",
+      "decision": "Official FAQ describes local model path configuration for isolated network environments.",
+      "ordinal": 156
+    },
+    {
+      "id": "pytorch-torch-load-security",
+      "category": "model-security",
+      "url": "https://docs.pytorch.org/docs/stable/generated/torch.load.html",
+      "verification": "opened-and-reviewed",
+      "decision": "torch.load warns against untrusted data and uses an unpickler; production runtime blocks pickle checkpoints.",
+      "ordinal": 157
+    },
+    {
+      "id": "pytorch-security-models",
+      "category": "model-security",
+      "url": "https://github.com/pytorch/pytorch/blob/main/SECURITY.md",
+      "verification": "opened-and-reviewed",
+      "decision": "PyTorch advises treating models as programs, sandboxing untrusted models, and preferring safer serialization such as SafeTensors.",
+      "ordinal": 158
+    },
+    {
+      "id": "safetensors-official",
+      "category": "model-security",
+      "url": "https://github.com/safetensors/safetensors",
+      "verification": "opened-and-reviewed",
+      "decision": "SafeTensors is a tensor-only format designed to avoid pickle code-execution behavior.",
+      "ordinal": 159
+    },
+    {
+      "id": "safetensors-security",
+      "category": "model-security",
+      "url": "https://github.com/safetensors/safetensors/security",
+      "verification": "opened-and-reviewed",
+      "decision": "SafeTensors security guidance recommends forcing safetensors and pinning revisions rather than silent fallback.",
+      "ordinal": 160
+    },
+    {
+      "id": "onnx-external-data-security",
+      "category": "model-security",
+      "url": "https://github.com/onnx/onnx/blob/main/docs/ExternalDataSecurity.md",
+      "verification": "opened-and-reviewed",
+      "decision": "ONNX documents path traversal, symlink and hardlink threats for external tensor data; local model bundles now enforce containment.",
+      "ordinal": 161
+    },
+    {
+      "id": "onnx-external-data-security-docs",
+      "category": "model-security",
+      "url": "https://onnx.ai/onnx/repo-docs/ExternalDataSecurity.html",
+      "verification": "opened-and-reviewed",
+      "decision": "ONNX external-data documentation provides defense-in-depth guidance for containment and secure file access.",
+      "ordinal": 162
+    },
+    {
+      "id": "onnxruntime-model-validation",
+      "category": "model-security",
+      "url": "https://onnxruntime.ai/docs/",
+      "verification": "opened-and-reviewed",
+      "decision": "ONNX Runtime warns that malicious models can consume excessive memory/compute and recommends safe-environment validation.",
+      "ordinal": 163
+    },
+    {
+      "id": "onnxruntime-custom-ops",
+      "category": "model-security",
+      "url": "https://onnxruntime.ai/docs/reference/operators/add-custom-op.html",
+      "verification": "opened-and-reviewed",
+      "decision": "ONNX Runtime custom operators can execute native code; runtime model/provider bundles must remain trusted and pinned.",
+      "ordinal": 164
     }
   ]
 }
