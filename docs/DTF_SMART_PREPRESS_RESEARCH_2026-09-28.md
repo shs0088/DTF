@@ -8614,3 +8614,14 @@ Batch 067 adds three distinct opened/read pages. Spanish GIMP Threshold document
 The target pipeline is now explicit: source decode/orientation/profile -> artwork classification -> segmentation -> soft-alpha matting -> foreground RGB reconstruction/decontamination -> alpha cleanup -> evidence-gated restoration/denoise -> alpha-safe resize/upscale -> selective sharpening -> color/profile normalization -> multi-background edge QA + feature survival + effective-PPI checks -> immutable prepared master -> external RIP. No printer-control feature is implied by prior device-level corpus material.
 
 Corpus: 1114 / 10,000 verified ledger pages; research continuity 1141 / 10,000. No merge, deployment, Oracle execution or protected-storefront modification.
+
+
+## Batch 068 — image preparation findings
+
+Six new canonical pages were opened, read, and deduplicated. Smart Prepress should measure three edge properties separately: unwanted low-alpha contamination, intentional soft alpha, and foreground RGB fringe in partially transparent pixels. Cleanup must depend on artwork class and edge intent rather than one universal threshold.
+
+Semantic background separation is distinct from global color knockout because knockout can remove legitimate same-colored artwork details. Effective resolution must use real pixel dimensions and final physical size. Thin-line and small-feature checks should use physical units and report threatened components before an optional protective derivative is made.
+
+Image-level halftone preparation should record LPI, angle, tone cutoffs, minimum-dot physical size, antialias policy, and diagnostic zones for removed, transition, and solid regions. Halftone generation belongs after final sizing because later resampling changes dot geometry and requires regeneration and re-preflight.
+
+Corpus: 1120 / 10,000 verified ledger pages; research continuity 1147 / 10,000. No merge or deployment was performed.
