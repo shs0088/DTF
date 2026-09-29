@@ -1797,3 +1797,20 @@ Key transfer: white choke must be calibrated against physical press registration
 Implementation implication: add/retain WhiteChokeCalibrationEvidence, WhiteMaskSurvivabilityReport, RipWhitePreviewAudit, AlphaAssociationAndComposePolicy, and AlphaQuantizationPolicy. A white-mask operation should report local minimum width before/after morphology, deleted connected components, lost underbase area, and whether any intentional soft-alpha class was binarized. Do not bake vendor-specific 1–4 px recommendations into acceptance rules.
 
 GitHub ledger: 1111 / 10,000. Research continuity: 1138 / 10,000.
+
+
+## Verified Batch 067 — 3 materially distinct pages — IMAGE PREPARATION ONLY scope correction
+
+1112. https://docs.gimp.org/3.0/es/gimp-tool-threshold.html
+1113. https://docs.gimp.org/3.0/es/gegl-local-threshold.html
+1114. https://docs.krita.org/en/reference_manual/filters.html
+
+Three new canonical pages were individually opened/read and were absent from the ledger. Other pages opened in this pass were rejected because they were already represented or were localized mirrors of already-counted documentation. Search snippets and failed fetches were not counted.
+
+SCOPE CORRECTION FROM USER: Smart Prepress research is IMAGE PREPARATION ONLY. Exclude printer administration, printhead/nozzle/encoder control, device maintenance, carriage/weave/pass execution, ink circulation, heater/oven operation, and other physical printer management. The prepared image/master is handed to an external RIP; Smart Prepress does not operate the printer. RIP material is relevant only when it reveals requirements imposed on the INPUT IMAGE (alpha semantics, dimensions/resolution, color/profile handoff, white/spot image representation, raster/halftone-safe preparation, supported file behavior). Existing device-level research remains historical corpus evidence but is outside implementation scope and must not drive printer-control features.
+
+Key transfer: global Threshold is destructive to antialiasing because it maps a continuous image/mask to binary values; use it only for artwork classes where binary structure is intended. Local Threshold uses neighborhood contrast and exposes an antialiasing target, making it a candidate for scanned line-art/text cleanup but not for photographic soft-alpha edges. Krita's filter architecture reinforces non-destructive image preparation: retain the original and apply reversible/filter-mask operations where possible so QA can compare source versus prepared master.
+
+Image-preparation pipeline direction: decode/orient/profile -> classify artwork -> background removal/segmentation -> soft-alpha matting -> foreground RGB reconstruction/edge decontamination -> deterministic alpha cleanup -> restoration/denoise if evidence supports it -> resize/upscale with alpha-safe resampling -> selective sharpening -> color/profile normalization -> transparency/edge/feature QA -> final-size effective-PPI and printability checks -> export immutable prepared master -> external RIP. White-mask/halftone research is retained only when it is an image-file preparation requirement; no printer administration/control is in scope.
+
+GitHub ledger: 1114 / 10,000. Research continuity: 1141 / 10,000.
