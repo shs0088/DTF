@@ -1564,3 +1564,15 @@ All four pages were individually opened/read and absent from the canonical ledge
 960. https://docs.krita.org/zh_CN/tutorials/clipping_masks_and_alpha_inheritance.html
 
 All six pages were individually opened/read and absent from the canonical ledger. Already represented OpenCV thresholding, skimage skeletonization/morphology, OpenCV edge-aware filters, and previously counted DTF RIP/choke pages were reopened for cross-checking but not recounted. Key transfer: alpha quality needs SAD/MSE plus gradient/connectivity rather than a single scalar; global context can improve high-resolution matting where uniform downsampling loses boundary information; compositing/inherited alpha semantics depend on layer/group structure and must not be confused with stored pixel alpha; DTF choke/registration/ink-limit defects need separate diagnosis; underbase spread can be constrained by canvas padding in RIP workflows. GitHub ledger: 960 / 10,000. Research continuity: 987 / 10,000.
+
+
+## Verified Batch 059 — 6 materially distinct multilingual pages — precision, alpha semantics, color thresholds
+
+961. https://docs.gimp.org/3.0/es/gimp-image-encoding.html
+962. https://docs.gimp.org/3.0/pt_BR/gimp-images-in.html
+963. https://docs.gimp.org/3.0/pt_BR/gimp-filter-color-exchange.html
+964. https://docs.gimp.org/3.0/pt_BR/gimp-tool-curves.html
+965. https://docs.gimp.org/3.0/pt_BR/gimp-layer-alpha-selection-replace.html
+966. https://docs.gimp.org/3.0/pt_BR/gimp-image-combining.html
+
+All six pages were individually opened/read and absent from the canonical ledger. Search also rotated through Chinese, Japanese, Korean, Russian, German, French, Italian, Turkish and Arabic material; simple localized mirrors of already represented operations were excluded rather than counted. Key transfer: precision reduction can independently dither layers/text/channels-and-masks, so alpha-mask dithering must be explicit; intermediate alpha values represent continuous opacity and alpha-to-selection preserves partial membership; color replacement thresholds can be channel-specific; curves can modify alpha directly and can be viewed in linear/non-linear/perceptual TRC contexts. GitHub ledger: 966 / 10,000. Research continuity: 993 / 10,000.
