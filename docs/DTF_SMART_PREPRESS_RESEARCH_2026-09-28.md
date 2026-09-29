@@ -8515,3 +8515,21 @@ Corpus: GitHub explicit 975 / 10,000; research continuity 1002 / 10,000.
 Implementation: contract 0.9.0-research adds UnderbaseIntentReport, HalftonePrintabilityReport and ChokeOwnershipReport plus DOUBLE_CHOKE_RISK regression coverage. No deployment, merge, Oracle or storefront change.
 
 Corpus: GitHub explicit 982 / 10,000; research continuity 1009 / 10,000.
+
+
+## Batch 062 — multilingual alpha-domain filtering, print calibration and edge-aware processing
+
+- Transparent-image filtering and interpolation must explicitly track alpha association. Straight-alpha RGB can contain arbitrary hidden color in transparent pixels; filtering before premultiplication can leak that color into visible edges. Premultiplied-alpha filtering avoids this class of halo, while incorrect double multiplication can create dark fringes.
+- Filtering/resampling should record the working transfer domain. Alpha association and compositing are safest when the intended linear-light stage is explicit rather than silently operating in gamma-encoded display values.
+- Unpremultiplication requires a zero/near-zero-alpha guard. Transparent RGB handling is therefore a declared policy, not an incidental implementation detail, and recomposition QA should test multiple backgrounds.
+- Color workflow provenance needs an image-state concept (scene/original/output referred) plus source/output profile roles. Generic/vendor ICC profiles can approximate but cannot prove a particular device/process; measured device profiles, dot gain and white-point evidence are stronger production inputs.
+- Printing standardization is end-to-end: capture/RGB conditions, RGB-to-CMYK conversion, stabilized print process and proofing are separate controlled stages.
+- Inkjet print quality couples resolution conversion, color conversion, total ink limitation, gradation conversion and halftoning. Dispersed-dot methods such as error diffusion/ordered dithering need calibrated parameters and dot placement; single-pass systems require explicit banding/streak evaluation.
+- Boundary-safe segmentation benefits from a two-stage architecture: coarse/global object segmentation followed by local boundary refinement using local appearance/gradient evidence. This maps well to DTF background removal: semantic/coarse mask first, then uncertainty-band matting/refinement.
+- Edge-aware interpolation can choose different interpolation behavior along an edge, across an edge and in smooth regions. Smart Prepress should therefore retain directional-edge evidence during upscaling rather than applying one kernel uniformly when a higher-quality adaptive path is available.
+- Morphological erosion/dilation/opening remain useful for noise and component separation, but kernel geometry and size determine what disappears or fills. Parameters must be converted to physical/output-aware units for print decisions.
+- Local adaptive thresholding can outperform one global threshold when background statistics vary spatially; window size is itself a scale parameter and must not be hard-coded independently of effective resolution.
+
+Implementation: contract advanced to 1.0.0-research with AlphaFilteringIntegrityReport, DeviceProfileCalibrationReport, InkjetProcessReport and BoundaryRefinementReport. Added warnings ALPHA_FILTERING_HALO_RISK, NONLINEAR_RESAMPLING_COMPOSITE_RISK, GENERIC_OUTPUT_PROFILE_NEEDS_DEVICE_PROOF and HALFTONE_PROCESS_NOT_CALIBRATED, plus regression assertions. No deployment, merge, Oracle or storefront change.
+
+Corpus: GitHub explicit 998 / 10,000; research continuity 1025 / 10,000.
