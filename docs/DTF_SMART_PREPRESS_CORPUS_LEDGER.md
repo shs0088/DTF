@@ -2619,3 +2619,21 @@ DAPR-Matte adopts selective high-resolution refinement: coarse localization can 
 Browser-local DTF halftone tools reinforce separating image-side preparation from RIP authority: pattern, angle, cell size, transparency/color removal and export can be previewed client-side, but the final printer-specific screening/white behavior remains RIP-dependent.
 
 GitHub ledger: 1461 / 10,000. Research continuity: 1496 / 10,000.
+
+
+## Verified Batch 095 — 4 pages — DTF white-edge behavior, halftone/underbase coupling and calibration
+
+1462. https://www.dtf.com.tr/dtf-ile-dogru-baski-almanin-puf-noktalari/
+1463. https://aussiebotstudio.com/dtf-halftone/
+1464. https://www.agoodprinter.com/tr/blog/how-to-fix-dull-colors-bleeding-white-ink-dtf-printing.html
+1465. https://dtfprintinginsider.com/mastering-halftone-textures-dtf-printing/
+
+Four new materially distinct pages were individually opened/read and deduplicated against the branch ledger. Brandum, Aero Print and DTFWiz candidates were excluded because their canonical URLs were already present in the ledger. Search-result snippets were not counted.
+
+DAPR-White: choke is not a universal pixel constant. Semi-transparent gradient edges need transparency-aware white generation, while opaque silhouettes can use an inward underbase contraction. Registration/alignment faults must be diagnosed separately from artwork-edge faults.
+
+DAPR-Screen/Underbase: halftoned artwork and white support are coupled. The finished halftone must be checked for isolated-dot survival and underbase support at final physical size; image-side halftoning cannot assume every dot will retain usable white after choke.
+
+DAPR-Calibration: published choke/LPI/density values are treated only as priors. Device resolution, RIP behavior, registration, film/ink and final physical feature size determine the admissible range. One-variable-at-a-time test prints remain the strongest calibration evidence.
+
+GitHub ledger: 1465 / 10,000.
