@@ -2009,3 +2009,24 @@ GFPGAN and CodeFormer are face-restoration systems, not neutral general-purpose 
 Implementation implication: split restoration into ConservativeRestoration and GenerativeRestoration classes. Conservative restoration requires algorithm assumptions/evidence (PSF/noise/regularization, boundary handling) and source-vs-output metrics. Generative restoration requires semantic ROI classification, model/revision/license provenance, protected-region masks for text/logos, hallucination/fidelity checks and explicit user/policy permission. Never replace the immutable print master with a face-restored derivative automatically.
 
 GitHub ledger: 1175 / 10,000. Research continuity: 1202 / 10,000.
+
+
+## Verified Batch 074 — 7 materially distinct pages — image-type and degradation classification
+
+1176. https://www.sightengine.com/docs/illustration-photo-detection
+1177. https://arxiv.org/abs/1701.02620
+1178. https://arxiv.org/abs/1709.05424
+1179. https://developer.mozilla.org/zh-CN/docs/Web/Media/Guides/Formats/Image_types
+1180. https://www.ibm.com/it-it/think/topics/image-recognition
+1181. https://dergipark.org.tr/en/pub/jossc/article/1967204
+1182. https://rags.ru/documents/prod/gost-r_gosudarstvennyj-standart/21/gost_33676.html
+
+Seven new pages were individually opened/read and absent from the ledger. A blur-classification page and noise-recognition page whose explicit open failed were not counted. Search snippets and localized mirrors were not counted.
+
+Scope remains IMAGE PREPARATION ONLY. The routing classifier should be multi-label rather than a single mutually exclusive class. Content evidence can distinguish photo versus illustration from pixels alone, while logo recognition requires region proposals/background negatives and confidence thresholds. Separate heads should detect semantic regions such as logo/text/face, transparency class, and degradation types. Blur is not one defect: motion, defocus, Gaussian/haze-like degradation require different restoration assumptions. Noise likewise should be classified or estimated before selecting a denoiser.
+
+NIMA demonstrates no-reference perceptual quality prediction but does not replace fidelity or printability checks. Chinese MDN guidance reinforces that photographic versus icon/graphic content has different representation/compression characteristics. Turkish robustness material demonstrates augmentation across illumination, blur, perspective, noise, compression and shadows for robust classification; Russian robustness guidance treats different blur perturbations as separately parameterized effects. Therefore the classifier should be trained/tested under realistic degradations rather than pristine-only assets.
+
+Implementation direction: ImageNatureProfile = content_class probabilities + semantic_region masks + alpha_class + degradation vector + technical metrics + confidence/uncertainty. ProcessingRoutePolicy consumes this profile. Low-confidence or conflicting classifications select conservative/no-destructive processing or review rather than aggressive automatic AI editing. Add classifier calibration and out-of-distribution checks so an unknown artwork style does not receive a confident but unsafe treatment.
+
+GitHub ledger: 1182 / 10,000. Research continuity: 1209 / 10,000.
