@@ -31,6 +31,10 @@ $soft = $engine->analyze([
  'blurMechanism'=>'motion','outputRenderingIntent'=>'relative-colorimetric','outputProfileEmbedded'=>true,
  'underbaseIntent'=>'intentional-tonal','underbaseOpacityZones'=>[30,50,100],
  'halftoneMinTonePercent'=>15,'creativeHalftoneMinDotMm'=>0.3,'chokeSource'=>'prepress','ripChokeEnabled'=>true,
+ 'alphaStorageMode'=>'straight','filteringWorkingTransfer'=>'srgb-encoded','premultiplyBeforeFiltering'=>false,'transparentRgbPolicy'=>'preserve',
+ 'sourceImageState'=>'output-referred','iccProfileClass'=>'generic','dotGainPercent'=>18,'measuredWhitePoint'=>'D50',
+ 'totalInkLimitPercent'=>240,'halftoneAlgorithm'=>'error-diffusion','dotPlacementCalibrated'=>false,'bandingRiskScore'=>0.25,
+ 'coarseSegmentationUsed'=>true,'localBoundaryRefinement'=>true,'boundaryRefinementBandPx'=>8,'orientationAwareInterpolation'=>true,
  'authoringApp'=>'canva','canvasWidthPx'=>4000,'canvasHeightPx'=>5000,
  'exportWidthPx'=>2000,'exportHeightPx'=>2400,'exportFormat'=>'png','exportHasTransparency'=>false
 ]);
@@ -46,6 +50,16 @@ assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRendere
 assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
 assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
 assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
+assert($soft['alphaFilteringIntegrityReport']['linearPremultipliedFilteringReady']===false);
+assert($soft['alphaFilteringIntegrityReport']['zeroAlphaUnpremultiplyGuardRequired']===true);
+assert(in_array('ALPHA_FILTERING_HALO_RISK', array_column($soft['warnings'],'code'), true));
+assert(in_array('NONLINEAR_RESAMPLING_COMPOSITE_RISK', array_column($soft['warnings'],'code'), true));
+assert($soft['deviceProfileCalibrationReport']['genericProfileMayOnlyApproximateOutput']===true);
+assert(in_array('GENERIC_OUTPUT_PROFILE_NEEDS_DEVICE_PROOF', array_column($soft['warnings'],'code'), true));
+assert($soft['inkjetProcessReport']['parameterCalibrationRequired']===true);
+assert(in_array('HALFTONE_PROCESS_NOT_CALIBRATED', array_column($soft['warnings'],'code'), true));
+assert($soft['boundaryRefinementReport']['localBoundaryRefinement']===true);
+assert($soft['boundaryRefinementReport']['orientationAwareInterpolation']===true);
 assert($soft['underbaseIntentReport']['tonalUnderbaseAllowed']===true);
 assert($soft['underbaseIntentReport']['binaryAlphaFlatteningAllowed']===false);
 assert($soft['halftonePrintabilityReport']['ripOwnsScreenGeometry']===true);
