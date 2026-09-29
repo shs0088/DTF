@@ -1830,3 +1830,23 @@ All six pages above were individually opened and read successfully and were abse
 Scope remains IMAGE PREPARATION ONLY. Key findings: measure unwanted low-alpha contamination separately from intentional soft alpha and foreground RGB fringe; semantic background removal must be distinguished from global color knockout; effective PPI is calculated from real pixel dimensions at final physical size rather than trusted from DPI metadata alone; thin-line analysis should work in physical units and report risk before any optional protection derivative; image-level halftone preparation should retain LPI, angle, tone controls, minimum-dot size, antialias policy and zone masks. Any resize after binary-edge cleanup or halftone generation invalidates that derivative and requires regeneration and re-preflight.
 
 GitHub ledger: 1120 / 10,000. Research continuity: 1147 / 10,000.
+
+
+## Verified Batch 069 — 6 materially distinct pages — non-destructive image preparation, multiscale detail and color math
+
+1121. https://docs.krita.org/en/reference_manual/layers_and_masks/filter_masks.html
+1122. https://docs.krita.org/en/reference_manual/filters/adjust.html
+1123. https://docs.krita.org/en/general_concepts/colors/profiling_and_callibration.html
+1124. https://docs.gimp.org/3.0/en/plug-in-wavelet-decompose.html
+1125. https://docs.krita.org/en/general_concepts/colors/color_space_size.html
+1126. https://docs.krita.org/en/general_concepts/colors/linear_and_gamma.html
+
+All six pages above were individually opened/read and were absent after canonical and localized-mirror comparison against the 1120-entry ledger. English pages whose Korean/Japanese/Chinese localized equivalent was already counted were rejected rather than used to inflate the corpus. Search-result snippets and previously represented OpenCV/ImageMagick pages were not counted.
+
+Scope remains IMAGE PREPARATION ONLY; no printer administration or device-control implementation is implied.
+
+Key transfer: preserve an immutable source and express corrective operations as reversible recipes/masks wherever possible, enabling source-vs-prepared pixel and feature comparisons. Krita adjustment curves can target alpha as well as color/lightness, but alpha curves therefore require the same intentional-soft-alpha safeguards as morphology and thresholding. Wavelet decomposition separates fine-to-coarse detail scales plus a residual, suggesting scale-selective denoise/retouch/sharpen rather than one global blur/sharpen pass; edits at a detail scale should be checked for text/stroke loss and reconstruction error. Color-space size and profiling material reinforce keeping working-space/profile/bit-depth provenance explicit; wide-gamut working data is useful only when conversion/export behavior is controlled. Gamma-encoded and linear-light values are not interchangeable for image math: compositing, resampling and filtering policy must record the transfer-function domain, because doing numerical operations in the wrong domain can alter edge/color results.
+
+Implementation implication: add NonDestructiveRecipeEvidence, MultiscaleDetailIntegrityReport, AlphaCurveSafetyReport and TransferFunctionDomainEvidence. Store operation order, parameters, affected mask/region, source hash and output hash; permit rollback and re-preflight after any destructive flatten/export. For multiscale cleanup, measure edge/text energy before/after and prevent global smoothing from being accepted merely because noise metrics improve.
+
+GitHub ledger: 1126 / 10,000. Research continuity: 1153 / 10,000.
