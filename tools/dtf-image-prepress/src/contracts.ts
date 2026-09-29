@@ -31,6 +31,8 @@ export interface AlphaMetrics {
   transparentRatio: number;
   semiTransparentRatio: number;
   opaqueRatio: number;
+  nearTransparentRatio?: number;
+  histogram16?: number[];
 }
 
 export interface ImageFacts {
