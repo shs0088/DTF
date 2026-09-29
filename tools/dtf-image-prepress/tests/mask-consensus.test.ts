@@ -19,7 +19,8 @@ describe("local mask consensus", () => {
     ], calibrated);
     expect(result.status).toBe("pass");
     expect(result.calibrationId).toBe("mask-consensus-local-v1");
-    expect(["ben2-onnx", "birefnet"]).toContain(result.representativeProviderId);
+    expect(result.representativeProviderId).toBeDefined();
+    expect(["ben2-onnx", "birefnet"]).toContain(result.representativeProviderId!);
   });
 
   test("requires review when models disagree on foreground structure", () => {
