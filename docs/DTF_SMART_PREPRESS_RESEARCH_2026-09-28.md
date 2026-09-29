@@ -8625,3 +8625,14 @@ Semantic background separation is distinct from global color knockout because kn
 Image-level halftone preparation should record LPI, angle, tone cutoffs, minimum-dot physical size, antialias policy, and diagnostic zones for removed, transition, and solid regions. Halftone generation belongs after final sizing because later resampling changes dot geometry and requires regeneration and re-preflight.
 
 Corpus: 1120 / 10,000 verified ledger pages; research continuity 1147 / 10,000. No merge or deployment was performed.
+
+
+## Batch 069 — non-destructive preparation, multiscale detail and transfer-function safety
+
+Six new materially distinct pages were opened/read and deduplicated against both canonical URLs and already-counted localized mirrors. The image-only architecture is strengthened in four areas.
+
+First, corrections should be represented as reversible recipes/masks over an immutable source wherever possible. This makes before/after QA and rollback possible and prevents a sequence of small destructive edits from silently becoming the only surviving master. Second, alpha is itself an editable signal: curve operations can alter alpha just as they alter RGB/lightness, so alpha-curve edits require explicit protection for intentional soft transparency and subsequent edge QA. Third, wavelet decomposition provides a practical multiscale model: fine detail, progressively coarser scales, and residual tone/color can be inspected/modified separately. Denoising or blemish cleanup should therefore target the scale carrying the defect and verify reconstruction, text strokes and edge energy rather than globally blurring the image. Fourth, working color space, bit depth and transfer function are part of pixel semantics. Linear-light and gamma-encoded values must not be treated as interchangeable during filtering/compositing/resampling; record the domain used for each operation and the export conversion.
+
+Research-contract direction: NonDestructiveRecipeEvidence, MultiscaleDetailIntegrityReport, AlphaCurveSafetyReport and TransferFunctionDomainEvidence. Acceptance should combine noise/detail metrics with feature survival and edge integrity; a lower noise score alone is insufficient if fine typography or artwork texture was removed.
+
+Corpus: 1126 / 10,000 verified ledger pages; research continuity 1153 / 10,000. No merge, deployment, Oracle execution or protected-storefront modification was performed.
