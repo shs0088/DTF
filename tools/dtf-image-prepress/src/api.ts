@@ -5,6 +5,7 @@ import { analyzeSource } from "./engine";
 import type { ArtworkKind } from "./contracts";
 import { getResearchLedgerStatus } from "./research-ledger";
 import { getRuntimeProviders, LOCAL_ONLY_EXECUTION_POLICY } from "./execution-policy";
+import { MAX_SOURCE_BYTES } from "./rules";
 
 const ALLOWED_KINDS = new Set<ArtworkKind>([
   "photo",
@@ -79,6 +80,11 @@ export async function createApiHandler(request: Request): Promise<Response> {
       const file = form.get("file");
       if (!(file instanceof File) || file.size <= 0) {
         throw new ValidationError("A non-empty file field is required.");
+      }
+      if (file.size > MAX_SOURCE_BYTES) {
+        throw new ValidationError(
+          `Uploaded file exceeds the ${Math.round(MAX_SOURCE_BYTES / 1024 / 1024)} MB limit.`,
+        );
       }
 
       const widthIn = requiredPositiveNumber(form, "widthIn");
