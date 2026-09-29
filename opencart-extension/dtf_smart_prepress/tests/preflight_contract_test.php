@@ -29,6 +29,8 @@ $soft = $engine->analyze([
  'sourceBitDepth'=>16,'targetBitDepth'=>8,'layerDither'=>true,'textDither'=>false,'maskDither'=>true,
  'resamplingFilter'=>'lanczos','resizeBlockingScore'=>0.1,'resizeRingingScore'=>0.2,'resizeAliasingScore'=>0.15,'resizeBlurScore'=>0.1,
  'blurMechanism'=>'motion','outputRenderingIntent'=>'relative-colorimetric','outputProfileEmbedded'=>true,
+ 'underbaseIntent'=>'intentional-tonal','underbaseOpacityZones'=>[30,50,100],
+ 'halftoneMinTonePercent'=>15,'creativeHalftoneMinDotMm'=>0.3,'chokeSource'=>'prepress','ripChokeEnabled'=>true,
  'authoringApp'=>'canva','canvasWidthPx'=>4000,'canvasHeightPx'=>5000,
  'exportWidthPx'=>2000,'exportHeightPx'=>2400,'exportFormat'=>'png','exportHasTransparency'=>false
 ]);
@@ -44,6 +46,11 @@ assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRendere
 assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
 assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
 assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
+assert($soft['underbaseIntentReport']['tonalUnderbaseAllowed']===true);
+assert($soft['underbaseIntentReport']['binaryAlphaFlatteningAllowed']===false);
+assert($soft['halftonePrintabilityReport']['ripOwnsScreenGeometry']===true);
+assert($soft['chokeOwnershipReport']['doubleChokeDetected']===true);
+assert(in_array('DOUBLE_CHOKE_RISK', array_column($soft['warnings'],'code'), true));
 assert($soft['resamplingArtifactReport']['artifactFamiliesMustBeMeasuredSeparately']===true);
 assert($soft['blurMechanismReport']['motionBlurIsDiffusion']===false);
 assert($soft['blurMechanismReport']['diffusionDeblurEligible']===false);
