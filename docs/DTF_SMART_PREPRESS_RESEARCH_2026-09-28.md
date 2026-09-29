@@ -8774,3 +8774,14 @@ DAPR now gains three explicit subalgorithms. DAPR-SR separates pixel-fidelity re
 Matting continues as coarse semantic localization plus local alpha/foreground reconstruction, but deterministic uncertain-band fusion and post-QA remain authoritative. Color management remains ICC/Delta-E based with LittleCMS reference behavior. Across all subalgorithms, AI is a candidate processor only, never administration, routing authority, acceptance authority or Ready-to-Print master selector.
 
 Corpus: 1257 / 10,000 verified ledger pages; research continuity 1284 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 082 — DAPR artifact-aware hybrid expansion
+
+Thirty-seven new verified pages were added after strict deduplication of 42 candidates. This batch extends DAPR from generic restoration into artifact-aware specialist routing.
+
+New/expanded modules: DAPR-Alias detects moire/aliasing before SR and compares spatial/frequency/multiscale correction; DAPR-JPEG prefers coefficient/quantization-domain recovery when the original JPEG permits it before RGB learned restoration; DAPR-Fringe distinguishes lateral channel displacement from axial/purple fringe; DAPR-SR now routes PHOTO/ILLUSTRATION/TEXT/PIXEL-LOW-COLOR/MIXED and compares hqx/xBRZ/iNEDI/vectorization for flat graphics; DAPR-Alpha enforces coverage/foreground-RGB separation and premultiplied-alpha processing around pixel-mixing operations; DAPR-Color separates ICC transform from reference-chart calibration; DAPR-Vector becomes multi-engine self-verifying; DAPR-Screen expands to variable-coefficient, space-filling, blue-noise and AM/FM hybrid candidates; DAPR-Deblur expands solver families and makes PSF/noise/edge-taper evidence prerequisite.
+
+Recent all-in-one restoration research is used as negative/positive architectural evidence: heterogeneous degradations create task interference and motivate degradation-aware routing. DAPR therefore keeps routing deterministic and specialist/hybrid, while learned models remain candidates only. Arabic text reconstruction keeps linguistic correction separate from visual glyph truth.
+
+Corpus: 1294 / 10,000 verified ledger pages; research continuity 1321 / 10,000. No merge, deployment, Oracle execution or storefront modification.
