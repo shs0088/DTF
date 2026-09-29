@@ -8660,3 +8660,14 @@ Four new canonical pages were opened/read after multilingual and duplicate filte
 Architecture direction: commercial tools are reference behaviors, not dependencies. Adobe informs edge/matting UX and repair semantics; Autodesk informs compositing/alpha mathematics; MATLAB supplies deterministic algorithm and measurement references. Open-source implementations are benchmarked against these behaviors, while AI tools are evaluated for provenance, mask/alpha fidelity, hallucinated detail and reproducibility. RIP documentation remains input-contract research only.
 
 Corpus: 1159 / 10,000 verified ledger pages; research continuity 1186 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 072 — edge diagnostics, decode semantics and explicit color transforms
+
+Seven new OpenCV method/reference pages were individually read and deduplicated against version-equivalent pages already in the corpus. The important architectural distinction is diagnostic versus transformative processing. Sobel, Laplacian and Canny should primarily serve EdgeIntegrityDiagnostic: compare source and candidate edge geometry, locate ringing/halos, quantify edge displacement and detect lost thin strokes after denoise, resampling, AI restoration or sharpening. They are not alpha-matting algorithms.
+
+Decode semantics become first-class provenance. Orientation handling, alpha-preserving/unchanged decode, numeric depth and codec flags can alter pixels before the pipeline begins, so source hash alone is insufficient; record decoder/version/options and decoded tensor properties. Color conversion similarly requires explicit source/destination representation, channel ranges and round-trip error. Background subtraction was deliberately retained as a negative distinction: temporal scene-background models must not be mislabeled as still-image semantic background removal.
+
+Contract direction: EdgeIntegrityDiagnostic, DecodeSemanticsEvidence, ColorTransformRoundTripReport. Transform acceptance continues to require feature survival, alpha integrity and color constraints in addition to global quality metrics.
+
+Corpus: 1166 / 10,000 verified ledger pages; research continuity 1193 / 10,000. No merge, deployment, Oracle execution or storefront modification.
