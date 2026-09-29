@@ -8603,3 +8603,14 @@ ImageMagick reinforces continuous alpha and explicit Porter-Duff/channel-copy se
 Research-contract direction: WhiteChokeCalibrationEvidence + WhiteMaskSurvivabilityReport + RipWhitePreviewAudit + AlphaAssociationAndComposePolicy + AlphaQuantizationPolicy. Required evidence includes physical choke target, effective PPI, local pre/post morphology width, removed components, lost white area, alpha quantization method and intentional-soft-alpha preservation.
 
 Corpus: 1111 / 10,000 verified ledger pages; research continuity 1138 / 10,000. No merge, deployment, Oracle execution or protected-storefront modification was performed.
+
+
+## Scope correction + Batch 067 — image preparation only
+
+User clarified the architectural boundary: Smart Prepress prepares the image/master only. The external RIP owns printing. Printer administration and physical/device execution are out of scope. Future research therefore prioritizes pixel/image methods: segmentation and background removal; alpha matting; foreground reconstruction and edge decontamination; morphology on masks; denoise/restoration/deblur; alpha-safe resampling and super-resolution; selective sharpening; thresholding; image-level halftone/white representation only where required for a prepared input asset; color/profile normalization; quality metrics; printability limits; and mockup-safe preparation. RIP research is admissible only to discover constraints on the image handed to it.
+
+Batch 067 adds three distinct opened/read pages. Spanish GIMP Threshold documentation explicitly warns that binary threshold removes original antialiasing, supporting an artwork-class gate before thresholding. Local Threshold adds neighborhood-based contrast and configurable antialiasing, useful for scanned/text/line-art cleanup but inappropriate as a universal natural-edge matte operation. Krita reinforces non-destructive filter/filter-mask workflows so source pixels remain available for before/after QA.
+
+The target pipeline is now explicit: source decode/orientation/profile -> artwork classification -> segmentation -> soft-alpha matting -> foreground RGB reconstruction/decontamination -> alpha cleanup -> evidence-gated restoration/denoise -> alpha-safe resize/upscale -> selective sharpening -> color/profile normalization -> multi-background edge QA + feature survival + effective-PPI checks -> immutable prepared master -> external RIP. No printer-control feature is implied by prior device-level corpus material.
+
+Corpus: 1114 / 10,000 verified ledger pages; research continuity 1141 / 10,000. No merge, deployment, Oracle execution or protected-storefront modification.
