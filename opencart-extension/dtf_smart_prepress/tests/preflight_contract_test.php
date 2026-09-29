@@ -27,6 +27,8 @@ $soft = $engine->analyze([
  'alphaSad'=>3.2,'alphaMse'=>0.004,'alphaGradientError'=>1.1,'alphaConnectivityError'=>0.7,
  'transparentPaddingMm'=>0.20,'requestedSpreadMm'=>0.30,
  'sourceBitDepth'=>16,'targetBitDepth'=>8,'layerDither'=>true,'textDither'=>false,'maskDither'=>true,
+ 'resamplingFilter'=>'lanczos','resizeBlockingScore'=>0.1,'resizeRingingScore'=>0.2,'resizeAliasingScore'=>0.15,'resizeBlurScore'=>0.1,
+ 'blurMechanism'=>'motion','outputRenderingIntent'=>'relative-colorimetric','outputProfileEmbedded'=>true,
  'authoringApp'=>'canva','canvasWidthPx'=>4000,'canvasHeightPx'=>5000,
  'exportWidthPx'=>2000,'exportHeightPx'=>2400,'exportFormat'=>'png','exportHasTransparency'=>false
 ]);
@@ -42,6 +44,10 @@ assert($soft['physicalSamplingReport']['printMasterQualityMayBeJudgedFromRendere
 assert($soft['mapSemanticReport']['colorPolicy']==='raw-data');
 assert($soft['mapSemanticReport']['scalarMapGammaConversionAllowed']===false);
 assert($soft['mapSemanticReport']['cutoutRequiresBinaryIntent']===true);
+assert($soft['resamplingArtifactReport']['artifactFamiliesMustBeMeasuredSeparately']===true);
+assert($soft['blurMechanismReport']['motionBlurIsDiffusion']===false);
+assert($soft['blurMechanismReport']['diffusionDeblurEligible']===false);
+assert($soft['outputColorHandoffReport']['displayProofMaySubstituteExportTransform']===false);
 assert($soft['precisionConversionReport']['precisionReduction']===true);
 assert($soft['precisionConversionReport']['maskDitherRequiresExplicitIntent']===true);
 assert($soft['precisionConversionReport']['textDitherDefaultAllowed']===false);
