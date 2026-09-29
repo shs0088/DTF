@@ -8456,3 +8456,17 @@ Corpus after Batch 049: GitHub ledger 889 explicit; research continuity 898 / 10
 Implementation: research contract advanced to 0.5.0-research with DirectionalEdgeIntegrityReport and RipHandoffReport. No deployment, merge, Oracle or storefront change.
 
 Corpus: GitHub explicit 954 / 10,000; research continuity 981 / 10,000.
+
+
+## Batch 058 — alpha quality + underbase canvas safety
+
+- Matting acceptance is multi-dimensional: SAD/MSE measure alpha magnitude error while gradient/connectivity capture boundary and structural failure. Smart Prepress must not accept a matte from one scalar score.
+- High-resolution matting can lose useful boundary/global context under uniform downsampling. Preserve source-resolution boundary refinement and use compressed/global context only as guidance rather than replacing the full-resolution edge pass.
+- Layer compositing/inherited-alpha semantics can differ from stored per-pixel alpha. Exported raster alpha must therefore be inspected after authoring-app compositing.
+- DTF white halos require diagnosis across dirty alpha, underbase geometry, registration and ink/RIP behavior before choke changes.
+- Some RIP spread operations cannot extend beyond the source image bounds. Transparent padding is therefore a preflight resource: requested spread must fit available physical padding.
+- Choke can erase fine text/strokes; existing physical-stroke survival and topology gates remain mandatory.
+
+Implementation: contract 0.6.0-research adds AlphaMattingQualityReport and UnderbaseCanvasSafetyReport plus regression coverage. No deployment, merge, Oracle or storefront change.
+
+Corpus: GitHub explicit 960 / 10,000; research continuity 987 / 10,000.
