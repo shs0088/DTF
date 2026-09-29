@@ -8728,3 +8728,14 @@ AI remains useful only behind a transform interface: background/matting candidat
 The research corpus remains useful: Adobe/AI/open-source findings define candidate algorithms and their failure modes; MATLAB/OpenCV/color/alpha/vector/OCR/RIP-input research defines measurable contracts and acceptance tests. Printer/device/pass/weave/head/oven/ink administration remains excluded; external RIP performs printing.
 
 Corpus: 1218 / 10,000 verified ledger pages; research continuity 1245 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 078 — deterministic repairability before treatment
+
+Seven new scikit-image reference/example pages were opened/read and deduplicated as part of the continuing three-day requirements review. The architecture now separates defect detection from repairability assessment. A measured defect is not automatically a command to edit: the system first determines where it is, how severe it is, what structural/semantic evidence is at risk and which operation families are permitted for that region.
+
+Threshold selection is conditioned by image/local illumination statistics; rank filters expose local-neighborhood evidence; morphology/convex hull can materially change topology; segmentation establishes explicit regions/labels. Therefore binary cleanup operations are allowed only after deterministic evidence establishes binary/flat artwork. Soft-alpha/photo regions remain protected from such operations by default. Text/line-art regions reuse skeleton, connected-component and stroke-width evidence as hard preservation gates.
+
+New contracts: RepairabilityProfile and DeterministicTreatmentPlan. Each region records defect measurements, permitted and forbidden operation families, maximum geometry/alpha/color change, required post-tests and rollback behavior. Candidate transforms, whether classical or AI-backed, remain subordinate to the same deterministic post-QA and can be rejected independently.
+
+Corpus: 1225 / 10,000 verified ledger pages; research continuity 1252 / 10,000. No merge, deployment, Oracle execution or storefront modification.
