@@ -1591,3 +1591,16 @@ All six pages were individually opened/read and absent from the canonical ledger
 975. https://docs.gimp.org/3.0/ja/gimp-image-convert-indexed.html
 
 All nine pages were individually opened/read and absent from the canonical ledger. Research rotated across Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian, Turkish and additional languages. Simple localized mirrors and already-counted ImageMagick/OpenCV/GIMP pages were excluded. Key transfer: distinguish diffusive/static blur from motion blur before deconvolution; denoise strength must account for signal-dependent noise; output profile/intent and embedded profile belong to export handoff rather than display proof; distance transform and connected-component statistics support physical stroke/topology QA; authoring precision/gamma/profile and soft-proof profile are separate; indexed conversion/dithering can synthesize colors and alter fine structures. GitHub ledger: 975 / 10,000. Research continuity: 1002 / 10,000.
+
+
+## Verified Batch 061 — 7 materially distinct multilingual pages — matting, tonal underbase, halftone printability and color workflow
+
+976. https://dtfpedia.com/article/handling-multi-color-white-underbase-layering-for-dtf
+977. https://www.journal.shu.edu.cn/CN/10.12066/j.issn.1007-2861.2287
+978. https://www.dtf-king.de/fr/blog-category/Gestion-des-couleurs/
+979. https://dtf.pro/pt/guias/semitonos-dtf-degradados-tramas
+980. https://maquinariadeimpresion.com/gestion-color-dtf/
+981. https://printservicedtf.com/gestione-colore-e-pantone-nel-dtf-colori-fedeli/
+982. https://docs.opencv.ac.cn/4.13.0/d4/d40/group__alphamat.html
+
+All seven pages were individually opened/read and absent from the canonical ledger. Search deliberately rotated Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian and Turkish. Previously counted DTF RIP/adaptive-choke/PyMatting pages and simple language mirrors were opened for cross-checking but not recounted. Key transfer: trimap matting estimates continuous opacity in unknown regions; edge-adaptive/deformable receptive fields improve boundary attention; intentional vintage/distressed artwork may require multi-zone tonal white underbase rather than binary white; RIP owns screen shape/angle/lineature and very light tones/minimum dots have physical printability limits; white density/registration and ICC/ink-limit faults must be diagnosed separately; repeated RGB-CMYK conversion should be avoided; choke must have a single owner to prevent double choking. GitHub ledger: 982 / 10,000. Research continuity: 1009 / 10,000.
