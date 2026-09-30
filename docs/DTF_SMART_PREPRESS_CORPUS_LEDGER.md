@@ -2792,3 +2792,23 @@ Opened/read and deduplicated by canonical URL. PyMatting was excluded as already
 Key findings: combine region and boundary/connectivity matte metrics; keep segmentation distinct from fractional-alpha matting; record model-input resize/letterbox/crop provenance and invert masks back to final coordinates; use consistency checks for near-identical inputs when boundary masks vary unexpectedly.
 
 GitHub ledger: 1505 / 10,000.
+
+
+## Verified Batch 103 — 6 pages
+See `docs/DTF_SMART_PREPRESS_BATCH_103.md` for pages 1506–1511 and the per-page synthesis.
+
+## Verified Batch 104 — 6 pages
+See `docs/DTF_SMART_PREPRESS_BATCH_104.md` for pages 1512–1517 and the per-page synthesis.
+
+## Verified Batch 105 — 5 pages
+1518. https://www.mybay.it/content/26-la-tecnica-dtf-guida-tecnica-completa-alla-stampa-direct-to-film
+1519. https://dtf-blitz.de/pages/faq
+1520. https://optipix.art/noise-remover
+1521. https://pixlane.media/ar-sa/structure-texture/
+1522. https://ope.lightpublishing.cn/ara/article/doi/10.37188/OPE.20223003.0350/
+
+All five pages were opened/read. Search snippets were excluded. Localized mirrors were collapsed to one content identity; the LightPublishing translation is counted once by DOI identity. Bilateral-filter Japanese material already present in the ledger was excluded.
+
+Key findings: final-size physical feature survival is a stronger DTF gate than DPI metadata alone; visible artwork white and technical RIP underbase must remain separate; weak alpha can create unstable white support; denoising should route by noise class with removed-noise residual review; structure-texture decomposition must be treated separately from denoising; edge/connectivity/topology metrics complement PSNR/SSIM.
+
+GitHub ledger: 1522 / 10,000.
