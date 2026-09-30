@@ -8856,3 +8856,14 @@ RIP-facing white is treated as an output-channel contract. Named W1/W2/W3-style 
 Localized GIMP/OpenCV pages read in Japanese, Russian and Chinese reinforced several existing rules without inflating the corpus count: sharpen at final resolution; use threshold to avoid amplifying smooth/noisy regions; record blur border/clip policy; and treat erosion/dilation/opening/closing as topology-changing operations whose structuring element and physical scale must be bounded by minimum-stroke/hole/island protection.
 
 Verified corpus ledger: 1494 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 101 synthesis — white-channel QA, F/B/alpha matting, physical halftone scale and adaptive choke
+
+- Treat RIP-facing white as an inspectable output artifact. Keep alpha threshold, white amount/density, choke, white screening and coverage metrics separate. A faint alpha pixel receiving white can create a dusty halo even when the color composite looks acceptable.
+- Extend matte provenance from alpha-only to F/B/alpha where eligible. Coarse segmentation may generate a trimap, but dilation/confidence settings define the uncertain band and are part of reproducibility. Boundary-gradient/Laplacian evidence complements region error.
+- Screening is physical-scale dependent: store final size, output PPI, grid/cell spacing and LPI together. Any post-screen resize invalidates the intended screen. Evaluate white-support dot survival after choke and transferability.
+- Adaptive choke may use edge complexity, minimum feature width and design size, but vendor formulas are priors. Enforce a geometry-derived feature-survival ceiling and calibrate against the actual printer/RIP/film/ink/garment process.
+- Introduce explicit WhiteOwner and ChokeOwner. File-side white/choke and RIP-generated white/choke must not silently stack.
+
+Verified ledger after this batch: 1500 / 10,000.
