@@ -2712,3 +2712,26 @@ DAPR-Resample: classical enlargement synthesizes new samples from existing pixel
 DAPR-MatteModel: information-flow alpha matting reinforces the trimap model (foreground/background/unknown) and treats alpha as a grayscale opacity field for compositing onto new backgrounds. Segmentation and alpha estimation remain distinct operations.
 
 GitHub ledger: 1486 / 10,000.
+
+
+## Verified Batch 099 — 5 pages — alpha preservation, matte repair, morphology, halftone alpha punching and edge-aware training
+
+1487. https://www.batchpngtools.com/generate-png-alpha-mask
+1488. https://borisfx.com/videos/silhouette-difference-keying-cleanup-techniques/
+1489. https://github.com/cmw2004/Portrait-Matting-with-U-Net
+1490. https://pigmentalab.io/en/semitonos-dtf
+1491. https://python.armert.com.tr/50-goruntu-isleme/morfoloji/
+
+Five materially distinct pages were opened/read individually and deduplicated against the branch ledger. Search-result snippets were not counted. Localized mirrors were excluded. PrintPrep was opened unsuccessfully and therefore excluded.
+
+DAPR-AlphaQA: preserve and inspect the full fractional-alpha field rather than reducing it prematurely to binary transparency. Alpha extraction should expose transparent, translucent and opaque populations separately so QA can measure uncertain-edge width and detect accidental binarization.
+
+DAPR-MatteRepair: difference-key/matte-repair workflows and Blur-Unpremult reinforce that alpha cleanup and foreground-RGB recovery are distinct operations. Fine-detail restoration must operate with correct premultiplication semantics; otherwise blur/sharpen can manufacture dark or light fringes.
+
+DAPR-MatteModel: an open portrait-matting implementation combines U-Net/ResNet18/attention with gradient and Laplacian edge losses. This supports evaluating learned matte candidates not only by region overlap but also by boundary-gradient and Laplacian structure, while still requiring independent topology and multi-background compositing QA.
+
+DAPR-Screen: one DTF halftone workflow preserves RGB and punches the artwork alpha with a stochastic dot mask. This is a useful image-side soft-hand candidate, but its pixel spacing must be converted to physical dot/gap dimensions at final print size and checked against calibrated printer/RIP limits and white-support survival.
+
+DAPR-Morphology: erosion, dilation, opening and closing are topology-changing operations whose structuring element and scale must be explicit. Opening can suppress small foreground specks; closing can bridge gaps/fill small holes. For DTF, every morphology candidate must be bounded by protected minimum stroke/hole/island dimensions so cleanup cannot silently erase text, hair-like detail or intentional knockouts.
+
+GitHub ledger: 1491 / 10,000.
