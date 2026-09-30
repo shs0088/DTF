@@ -2754,3 +2754,27 @@ DAPR-WhiteChannel: RIP-facing white is a named output channel with its own seman
 DAPR-Sharpening/Morphology review: newly opened Japanese/Russian GIMP and Chinese OpenCV localized documentation reinforced final-resolution sharpening, threshold-gated edge enhancement, border-policy awareness and topology-changing morphology, but these were not counted because they are translations/localized mirrors of materially covered documentation.
 
 GitHub ledger: 1494 / 10,000.
+
+
+## Verified Batch 101 — 6 pages — white-channel QA, F/B/alpha matting, physical halftone scale and adaptive choke
+
+1495. https://nestsheet.com/white-underbase
+1496. https://learnopencv.com/image-matting-with-state-of-the-art-method-f-b-alpha-matting/
+1497. https://makehalftone.com/
+1498. https://dtfs.co/blog/how-to-create-underbase-for-dtf-printing.html
+1499. https://img.nouplo.com/halftone-generator/
+1500. https://dtfgangsheetapp.com/auto-spot-channels
+
+Six materially distinct pages were individually opened/read and deduplicated against the branch ledger. Search-result snippets were not counted. Kiwi Halftone was excluded because the opened page returned no readable body. Existing Caldera white-underbase pages, DTFWiz, Brandum and previously counted localized/versioned material were excluded.
+
+DAPR-WhiteQA: white generation must expose the actual RIP-facing channel, not only a composite preview. Alpha threshold, global white amount, choke, screening mode and coverage loss are separate controls/evidence. Semi-transparent edge pixels can create dusty halos by earning white and adhesive; thresholding is therefore a white-eligibility policy, not a substitute for alpha repair.
+
+DAPR-Matte: F/B/alpha matting reinforces jointly estimating foreground RGB, background RGB and opacity instead of treating alpha as the only unknown. Trimap generation from coarse segmentation is useful, but dilation width and confidence threshold directly shape the uncertain band and must be recorded. Gradient and Laplacian losses support boundary-structure QA beyond aggregate alpha error.
+
+DAPR-Screen: print PNG metadata does not determine physical screen density. Grid/cell spacing, LPI, output dimensions and final physical size must remain coupled; resizing after screening invalidates the intended density. White-channel screening must also be checked for dot/island survival after choke and transfer.
+
+DAPR-AdaptiveChoke: per-design choke can use edge complexity, minimum feature width and physical design size. The hard geometric constraint is that inward contraction approaching half the narrowest supported feature can erase it. Published formulas and ranges remain vendor evidence/calibration priors, not universal constants.
+
+DAPR-Authority: image-side underbase preparation and RIP-side underbase generation are alternative authorities. If the RIP is configured to generate white automatically, a pre-baked white layer can produce undesirable/double processing. Record WhiteOwner/ChokeOwner and fail or warn on conflicting authorities.
+
+GitHub ledger: 1500 / 10,000.
