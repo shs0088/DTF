@@ -2685,3 +2685,30 @@ DAPR-Screen: Floyd-Steinberg/Atkinson error diffusion and ordered Bayer are dist
 DAPR-Color: soft proofing is output-condition simulation, not master correction. ICC conversion authority must be singular; printer-driver color management must be disabled when the application owns the transform, and provider-specific instructions can require preserving source RGB rather than converting to the proof profile. Display calibration limits proof reliability.
 
 GitHub ledger: 1479 / 10,000.
+
+
+## Verified Batch 098 — 7 pages — adaptive DTF white, physical halftone floors, browser-local matting and resampling
+
+1480. https://dtfgangsheetapp.com/blog/white-channel-explained
+1481. https://halftoneapp.com/
+1482. https://adawix.com/image-tools/background-remover/
+1483. https://whisk-ai.io/ar/image-background-remover
+1484. https://hexadrive.jp/hexablog/program/28091/
+1485. https://docs.opencv.ac.cn/5.0/tutorials_contrib/alphamat/alphamat_tutorial.html
+1486. https://help.corel.com/paintshop-pro/v22/jp/official-help/Corel_PaintShop_Pro/resizing_images.html
+
+Seven materially distinct pages were individually opened/read and deduplicated against the branch ledger. Search-result snippets were not counted. Localized mirrors were excluded; the Arabic Adobe Remove Background documentation was read but not counted as a separate corpus page because it is localized documentation of an existing Adobe workflow. A Korean dithering candidate that failed to open was excluded.
+
+DAPR-White/AdaptiveChoke: white-underbase contraction must be artwork-aware and physical-scale aware. Edge complexity, minimum feature width, final design size and edge softness are separate inputs. A fixed global choke is unsafe on mixed gang sheets. Soft/feathered boundaries require transparency-aware white logic rather than the same binary contraction used for opaque logos/text. File-side and RIP-side choke are mutually exclusive authorities; applying both creates double-choke.
+
+DAPR-Registration: directional white bleed can be a mechanical/feed-registration fault rather than an artwork fault. File-side morphology must not keep increasing choke to hide directional printer misregistration.
+
+DAPR-Screen: halftone generation should carry target physical size, working/output DPI, LPI, screen angle and a minimum-dot size in millimetres. Published DTF minimum-dot values are calibration priors only. The QA gate is the actual physical dot/gap after screening and underbase contraction, including isolated-island survival and light-tone retention.
+
+DAPR-Matte/Privacy: browser-local inference is a useful privacy/latency architecture, but complex hair/fur and cluttered boundaries remain uncertain and require the same fractional-alpha, topology and multi-background QA. Services that automatically compress large uploads before inference create a provenance hazard; source dimensions, model-input dimensions and export dimensions must remain distinct.
+
+DAPR-Resample: classical enlargement synthesizes new samples from existing pixels; nearest, bilinear, bicubic and Lanczos differ in support and filtering behavior, not in recovering absent source truth. Lanczos is explicitly a windowed-sinc approximation with anti-aliasing implications during downsampling. Candidate acceptance must measure ringing, aliasing/moiré, boundary displacement and protected text/logo survival at final physical size.
+
+DAPR-MatteModel: information-flow alpha matting reinforces the trimap model (foreground/background/unknown) and treats alpha as a grayscale opacity field for compositing onto new backgrounds. Segmentation and alpha estimation remain distinct operations.
+
+GitHub ledger: 1486 / 10,000.
