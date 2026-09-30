@@ -2637,3 +2637,26 @@ DAPR-Screen/Underbase: halftoned artwork and white support are coupled. The fini
 DAPR-Calibration: published choke/LPI/density values are treated only as priors. Device resolution, RIP behavior, registration, film/ink and final physical feature size determine the admissible range. One-variable-at-a-time test prints remain the strongest calibration evidence.
 
 GitHub ledger: 1465 / 10,000.
+
+
+## Verified Batch 096 — 5 pages — alpha-edge preservation, local inference and preprocessing discipline
+
+1466. https://nano-banana.kr/remove-background/
+1467. https://yeha.ai/ja/ai-background-remover
+1468. https://www.atlascloud.ai/ar/ai-tools/free-ai-background-remover
+1469. https://ivybot.jp/ivybot-bg-remover/en/
+1470. https://phlearn.com/tutorial/clean-backgrounds-photoshop/
+
+Five materially distinct pages were individually opened/read and deduplicated against the branch ledger. The already-counted DTF.pro halftone guide, Printec DTF choke article, and VberAI glow-matting article were excluded. Adobe localized matte-removal mirrors were also excluded from counting. Search-result snippets were not counted.
+
+DAPR-Matte: source classes need routing rather than one universal remover. Korean/Japanese tools explicitly distinguish difficult hair/fur/semi-transparent boundaries and produce native alpha; preserve fractional alpha and internal holes, and reject binary-looking results when boundary evidence is genuinely soft.
+
+DAPR-Resolution: one Japanese service automatically resizes large uploads before inference. This is an important provenance hazard: model-input resize and final-output dimensions must be recorded separately. A returned full-size PNG is not proof that the matte was inferred at full source resolution; edge QA must be performed at final physical size.
+
+DAPR-LocalInference: browser-local models can download/cache weights and keep source pixels on-device. Local execution is useful for privacy and interactive latency, but does not grant print-readiness authority. The same alpha, topology, edge-contamination and physical-feature gates apply.
+
+DAPR-HumanRepair: server-side removers that expose erase/restore and edge-smoothing controls reinforce storing human corrections as explicit masks/operations rather than destructively baking them into the only master.
+
+DAPR-BackgroundCleanup: median-based background cleanup is useful when a studio backdrop contains localized dirt while important subject edges/shadows are protected by masks. It is not a foreground-matting substitute; filtering the wrong region can erase texture or alter intended soft boundaries.
+
+GitHub ledger: 1470 / 10,000.
