@@ -2778,3 +2778,17 @@ DAPR-AdaptiveChoke: per-design choke can use edge complexity, minimum feature wi
 DAPR-Authority: image-side underbase preparation and RIP-side underbase generation are alternative authorities. If the RIP is configured to generate white automatically, a pre-baked white layer can produce undesirable/double processing. Record WhiteOwner/ChokeOwner and fail or warn on conflicting authorities.
 
 GitHub ledger: 1500 / 10,000.
+
+
+## Verified Batch 102 — 5 pages
+1501. https://gongshangzheng.github.io/deep-image-matting-survey.html
+1502. https://qiita.com/cheng_pm8/items/fd7bf5ef448303f0e3f0
+1503. https://m0rtzz.github.io/paper-notes/AAAI2026/segmentation/segment_and_matte_anything_in_a_unified_model/
+1504. https://habr.com/ru/companies/sberdevices/articles/731794/
+1505. https://habr.com/ru/articles/821971/
+
+Opened/read and deduplicated by canonical URL. PyMatting was excluded as already counted; Habr article 742528 was excluded as an existing localized/path mirror. Search snippets were not counted.
+
+Key findings: combine region and boundary/connectivity matte metrics; keep segmentation distinct from fractional-alpha matting; record model-input resize/letterbox/crop provenance and invert masks back to final coordinates; use consistency checks for near-identical inputs when boundary masks vary unexpectedly.
+
+GitHub ledger: 1505 / 10,000.
