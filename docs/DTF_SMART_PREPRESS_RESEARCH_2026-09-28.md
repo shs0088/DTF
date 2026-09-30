@@ -8841,3 +8841,18 @@ Screening synthesis now separates error-diffusion and ordered families from thei
 Browser-local processing via Canvas/WebGL/WebGPU is retained as a privacy/performance implementation option, but neither local execution nor an AI label is evidence of print readiness; measured QA remains authoritative.
 
 Corpus: 1448 / 10,000 verified ledger pages; research continuity 1475 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 100 synthesis — multilingual edge/matting and RIP white-channel review
+
+This batch deliberately rotated through Spanish, Portuguese, Arabic, Japanese, Russian and Chinese sources. Only three materially distinct pages were added to the verified ledger; localized mirrors/translations and already-counted sources were excluded even when opened and read.
+
+Edge cleanup is now modeled as two coupled but separate fields: opacity geometry and foreground RGB. A plausible alpha matte can still produce a halo if antialiased/translucent edge RGB retains the previous background. DAPR therefore evaluates foreground-RGB decontamination only inside a bounded edge-connected band and composites candidates against multiple diagnostic backgrounds before acceptance.
+
+Background-removal routing is content-aware. Hard opaque artwork may use binary segmentation; hair/fur/smoke/glass/translucent fabric/soft shadows require fractional alpha. Trimap-style unknown regions are preserved until a matting stage resolves them, rather than being thresholded prematurely.
+
+RIP-facing white is treated as an output-channel contract. Named W1/W2/W3-style channels, coat count, hard/soft edge behavior, choke, TIFF compression and ICC handling belong to an OutputCondition/RIPProfile. Standard DTF and UV-DTF cannot safely share one baked white-channel recipe. File-side and RIP-side choke are mutually exclusive authorities unless an explicit audited transform is intended.
+
+Localized GIMP/OpenCV pages read in Japanese, Russian and Chinese reinforced several existing rules without inflating the corpus count: sharpen at final resolution; use threshold to avoid amplifying smooth/noisy regions; record blur border/clip policy; and treat erosion/dilation/opening/closing as topology-changing operations whose structuring element and physical scale must be bounded by minimum-stroke/hole/island protection.
+
+Verified corpus ledger: 1494 / 10,000. No merge, deployment, Oracle execution or storefront modification.
