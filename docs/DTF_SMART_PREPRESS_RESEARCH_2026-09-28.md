@@ -8867,3 +8867,15 @@ Verified corpus ledger: 1494 / 10,000. No merge, deployment, Oracle execution or
 - Introduce explicit WhiteOwner and ChokeOwner. File-side white/choke and RIP-generated white/choke must not silently stack.
 
 Verified ledger after this batch: 1500 / 10,000.
+
+
+## Batch 102 synthesis — multilingual matting boundaries, temporal stability and segmentation-resolution provenance
+
+Five materially distinct pages were verified after opening/reading and canonical-URL deduplication. PyMatting was excluded as already counted, and a Habr localized/path mirror sharing an existing article identifier was excluded.
+
+- Matting QA should combine region error with boundary-gradient/connectivity evidence; no single score can override topology, glyph, alpha and multi-background composite gates.
+- Segmentation and alpha matting remain different targets. Correct coarse localization does not prove correct fractional opacity or fine hair-like structures.
+- Stateful temporal matting can stabilize boundaries across adjacent frames. For near-identical batch artwork inputs, unexplained edge-mask instability should trigger review.
+- Model-input resize/letterbox/crop geometry is provenance. Record source, model-input, matte and export dimensions plus the inverse mapping, then evaluate the remapped mask at final physical size.
+
+Verified corpus ledger target after this batch: 1505 / 10,000. No merge, deployment, Oracle execution or storefront modification.
