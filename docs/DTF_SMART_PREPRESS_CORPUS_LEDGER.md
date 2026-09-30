@@ -2735,3 +2735,22 @@ DAPR-Screen: one DTF halftone workflow preserves RGB and punches the artwork alp
 DAPR-Morphology: erosion, dilation, opening and closing are topology-changing operations whose structuring element and scale must be explicit. Opening can suppress small foreground specks; closing can bridge gaps/fill small holes. For DTF, every morphology candidate must be bounded by protected minimum stroke/hole/island dimensions so cleanup cannot silently erase text, hair-like detail or intentional knockouts.
 
 GitHub ledger: 1491 / 10,000.
+
+
+## Verified Batch 100 — 3 pages — edge decontamination, alpha/trimap routing, RIP white-channel semantics
+
+1492. https://wutools.com/es/imagen/background-remover
+1493. https://pixelift.pl/pt/knowledge/background-removal-guide
+1494. https://dtfnestly.com/docs/white-ink-uv/
+
+Three materially distinct pages were opened/read individually and deduplicated against the branch ledger. Search-result snippets were not counted. Localized mirrors/translations of already-covered GIMP/OpenCV/rmbg material were explicitly excluded, as were pages already present in the ledger and one source that failed to open.
+
+DAPR-EdgeRGB: halo cleanup must distinguish alpha estimation from foreground-RGB decontamination. Anti-aliased, motion-blurred and translucent boundary pixels can contain the old background color even when the alpha geometry is plausible. Candidate cleanup therefore operates on a bounded edge-connected band and is validated by multi-background compositing rather than by checkerboard appearance alone.
+
+DAPR-Routing: binary segmentation is eligible only for hard opaque subjects. Hair, fur, smoke, glass, translucent fabric and soft shadows require fractional-alpha matting; trimap workflows preserve an explicit unknown region instead of forcing an early foreground/background decision.
+
+DAPR-WhiteChannel: RIP-facing white is a named output channel with its own semantics. DTF/UV workflows may differ in coat count, hard-vs-soft edge policy, choke and compression; those are OutputCondition/RIPProfile properties, not intrinsic artwork properties. File-side choke and RIP-side choke must never both be applied without an explicit double-transform warning.
+
+DAPR-Sharpening/Morphology review: newly opened Japanese/Russian GIMP and Chinese OpenCV localized documentation reinforced final-resolution sharpening, threshold-gated edge enhancement, border-policy awareness and topology-changing morphology, but these were not counted because they are translations/localized mirrors of materially covered documentation.
+
+GitHub ledger: 1494 / 10,000.
