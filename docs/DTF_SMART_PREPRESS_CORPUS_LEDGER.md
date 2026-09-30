@@ -2660,3 +2660,28 @@ DAPR-HumanRepair: server-side removers that expose erase/restore and edge-smooth
 DAPR-BackgroundCleanup: median-based background cleanup is useful when a studio backdrop contains localized dirt while important subject edges/shadows are protected by masks. It is not a foreground-matting substitute; filtering the wrong region can erase texture or alter intended soft boundaries.
 
 GitHub ledger: 1470 / 10,000.
+
+
+## Verified Batch 097 — 9 pages — multilingual alpha/matting, denoise, dithering and color-management QA
+
+1471. https://omnifile.co/ko/remove_background-yuv/
+1472. https://works.tools/fr/remove-background
+1473. https://www.gigapixel-ai.com/how-background-removal-algorithms-work-tracing-one-image-from-pixels-to-transparent-png/
+1474. https://newtil.com/image-dither
+1475. https://algorithm.joho.info/image-processing/bilateral-filter/
+1476. https://docside.fr/profils-icc-gestion-couleur-impression/
+1477. https://fineartfoto.es/impresion-fine-art-giclee/gestion-de-color-en-photoshop-y-lightroom/
+1478. https://www.photoshoplus.fr/gestion-profil-icc/
+1479. https://riazhub.com/image-denoiser-noise-reduction/
+
+Nine materially distinct pages were individually opened/read and deduplicated against the branch ledger. The Russian Engee morphology page was opened but excluded because it was already counted at 1429. ByteTools alpha extraction and imgbgremover were also detected as existing ledger entries and excluded. Failed opens and search-result snippets were not counted.
+
+DAPR-Matte/Alpha: preserve fractional alpha for hair, smoke, glass and antialiased edges; record straight-vs-premultiplied interpretation and foreground-RGB contamination separately from opacity. A coarse segmentation or interactive mask can seed an uncertain band, but true matting/foreground estimation remains necessary for soft boundaries.
+
+DAPR-Denoise: bilateral filtering combines spatial and intensity-distance weights, making it a useful edge-preserving candidate; median filtering is better suited to isolated impulse/speckle noise. Noise-family routing should precede filtering, and post-denoise sharpening is separately gated so it cannot recreate halos or invent edge texture.
+
+DAPR-Screen: Floyd-Steinberg/Atkinson error diffusion and ordered Bayer are distinct screening families. Error diffusion and ordered periodic screens must be evaluated at final physical size for tone conservation, periodic energy, minimum printable dot/gap, and protected text/edge survival rather than selected for screen appearance alone.
+
+DAPR-Color: soft proofing is output-condition simulation, not master correction. ICC conversion authority must be singular; printer-driver color management must be disabled when the application owns the transform, and provider-specific instructions can require preserving source RGB rather than converting to the proof profile. Display calibration limits proof reliability.
+
+GitHub ledger: 1479 / 10,000.
