@@ -8879,3 +8879,18 @@ Five materially distinct pages were verified after opening/reading and canonical
 - Model-input resize/letterbox/crop geometry is provenance. Record source, model-input, matte and export dimensions plus the inverse mapping, then evaluate the remapped mask at final physical size.
 
 Verified corpus ledger target after this batch: 1505 / 10,000. No merge, deployment, Oracle execution or storefront modification.
+
+
+## Batch 150 synthesis — final-size geometry, alpha/edge QA, white authority and halftone
+
+Six materially distinct pages were opened/read and added to research continuity, bringing the verified continuity count to **1747 / 10,000**. Localized mirrors and previously represented sources were excluded.
+
+Final physical size remains authoritative for effective PPI and minimum-feature survival. Upscaling cannot recreate original edge evidence, and a soft or contaminated alpha edge propagates into RIP white generation.
+
+Alpha geometry and foreground RGB are separate QA targets. Inspect alpha populations and edge zones, then validate edge RGB by compositing on multiple diagnostic garment backgrounds. Edge cleanup must record band depth, outer-only/internal-hole policy and border behavior because those choices can alter topology.
+
+White-underbase and choke ownership must be explicit. RIP-generated white is the default output authority unless a provider explicitly requires a supplied spot/white channel. Never silently apply file-side and RIP-side white/choke transforms together.
+
+Halftone is an output-condition artifact: preserve method, LPI/cell geometry, physical dot/gap floor, tone mapping and output condition. Conventional screens, stochastic/index patterns and error diffusion are not interchangeable, and all require post-choke dot/island survival checks.
+
+No merge, deployment, Oracle execution, storefront or production-code modification.
