@@ -8894,3 +8894,18 @@ White-underbase and choke ownership must be explicit. RIP-generated white is the
 Halftone is an output-condition artifact: preserve method, LPI/cell geometry, physical dot/gap floor, tone mapping and output condition. Conventional screens, stochastic/index patterns and error diffusion are not interchangeable, and all require post-choke dot/island survival checks.
 
 No merge, deployment, Oracle execution, storefront or production-code modification.
+
+
+## Batch 152 synthesis — white-channel authority, physical choke and edge decontamination
+
+Six materially distinct pages were opened/read and added to research continuity, bringing the verified continuity count to **1760 / 10,000**. Search snippets, localized mirrors and previously represented pages were excluded.
+
+White-channel representation is an interoperability contract: a named W1 spot channel, alpha transparency and a flattened visual white layer are not equivalent. Preserve explicit WhiteOwner/export semantics and avoid silent file-side plus RIP-side white generation.
+
+Choke is a physical-geometry operation. Compute it from final print size/effective geometry, not PNG DPI metadata alone, then re-run minimum-stroke, component, island and hole survival after underbase generation and contraction.
+
+Edge cleanup is decomposed into weak-alpha cleanup, foreground-RGB decontamination and controlled antialias reconstruction. These are separate transforms with separate provenance and QA. Fractional-alpha artwork must not be indiscriminately binarized.
+
+RIP calibration should use controlled test charts spanning choke ranges and representative fine text, solids and gradients. Vendor preset numbers remain calibration priors, not universal standards, and belong to an OutputConditionProfile tied to printer/ink/film/RIP evidence.
+
+No merge, deployment, Oracle execution, storefront or production-code modification.
