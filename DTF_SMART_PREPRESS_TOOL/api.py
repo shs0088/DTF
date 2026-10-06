@@ -14,6 +14,7 @@ from asset_registry import AssetRegistry
 from calibration_chart import generate_calibration_chart
 from calibration_results import build_profile_from_observations
 from acceptance import accept_candidate_as_new_master
+from prepress_package import create_prepress_package
 
 BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
@@ -23,12 +24,14 @@ UPLOAD_DIR=BASE_DIR/"runtime_uploads"; UPLOAD_DIR.mkdir(exist_ok=True)
 CANDIDATE_DIR=BASE_DIR/"runtime_candidates"; CANDIDATE_DIR.mkdir(exist_ok=True)
 CALIBRATION_DIR=BASE_DIR/"runtime_calibration"; CALIBRATION_DIR.mkdir(exist_ok=True)
 MASTER_DIR=BASE_DIR/"runtime_masters"; MASTER_DIR.mkdir(exist_ok=True)
+PACKAGE_DIR=BASE_DIR/"runtime_packages"; PACKAGE_DIR.mkdir(exist_ok=True)
 WEB_INDEX=BASE_DIR/"web"/"index.html"
 candidate_manager=CandidateManager(str(CANDIDATE_DIR),str(BASE_DIR/"runtime_assets.sqlite3"))
 asset_registry=AssetRegistry(str(BASE_DIR/"runtime_assets.sqlite3"))
 cleanup_runtime(str(UPLOAD_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(CANDIDATE_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(CALIBRATION_DIR),settings.runtime_ttl_seconds)
+cleanup_runtime(str(PACKAGE_DIR),settings.runtime_ttl_seconds)
 
 @app.middleware("http")
 async def api_key_guard(request:Request,call_next):
@@ -180,6 +183,26 @@ def master_file(name:str):
     p=(MASTER_DIR/name).resolve()
     if p.parent!=MASTER_DIR.resolve() or not p.is_file(): raise HTTPException(404,"master not found")
     return FileResponse(str(p),filename=p.name)
+
+@app.post("/packages/create")
+async def package_create(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
+                         choke_mm:float=Form(0.0),spread_mm:float=Form(0.0)):
+    target=UPLOAD_DIR/(uuid4().hex+Path(file.filename or ".bin").suffix.lower())
+    await _save_upload_limited(file,target)
+    out=PACKAGE_DIR/("prepress-"+uuid4().hex+".zip")
+    try:
+        result=create_prepress_package(str(target),str(out),width_in,height_in,choke_mm,spread_mm)
+        result["download_url"]=f"/packages/files/{out.name}"
+        return result
+    finally:
+        target.unlink(missing_ok=True)
+
+@app.get("/packages/files/{name}")
+def package_file(name:str):
+    if Path(name).name!=name: raise HTTPException(400,"invalid file name")
+    p=(PACKAGE_DIR/name).resolve()
+    if p.parent!=PACKAGE_DIR.resolve() or not p.is_file(): raise HTTPException(404,"package not found")
+    return FileResponse(str(p),filename=p.name,media_type="application/zip")
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
