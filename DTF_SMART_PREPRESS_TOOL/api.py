@@ -1,24 +1,32 @@
 from pathlib import Path
 from uuid import uuid4
+import json
 from fastapi import FastAPI,UploadFile,File,Form,HTTPException,Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse,JSONResponse,FileResponse
 from pipeline import inspect_master
 from jobs import PersistentJobQueue
 from profile_loader import load_output_profile,calibration_readiness
 from runtime_cleanup import cleanup_runtime
 from settings import load_settings
+from operations import create_candidate,SUPPORTED
+from candidate_manager import CandidateManager
+from asset_registry import AssetRegistry
 
 settings=load_settings()
-app=FastAPI(title="DTF Smart Prepress",version="0.5")
+app=FastAPI(title="DTF Smart Prepress",version="0.6")
 queue=PersistentJobQueue(max_workers=settings.max_workers,db_path="runtime_jobs.sqlite3")
 UPLOAD_DIR=Path("runtime_uploads"); UPLOAD_DIR.mkdir(exist_ok=True)
+CANDIDATE_DIR=Path("runtime_candidates"); CANDIDATE_DIR.mkdir(exist_ok=True)
+candidate_manager=CandidateManager(str(CANDIDATE_DIR),"runtime_assets.sqlite3")
+asset_registry=AssetRegistry("runtime_assets.sqlite3")
 cleanup_runtime(str(UPLOAD_DIR),settings.runtime_ttl_seconds)
+cleanup_runtime(str(CANDIDATE_DIR),settings.runtime_ttl_seconds)
 
 @app.middleware("http")
 async def api_key_guard(request:Request,call_next):
     if settings.api_key and request.url.path not in ("/","/health"):
         if request.headers.get("x-api-key")!=settings.api_key:
-            raise HTTPException(401,"invalid or missing X-API-Key")
+            return JSONResponse({"detail":"invalid or missing X-API-Key"},status_code=401)
     return await call_next(request)
 
 async def _save_upload_limited(file:UploadFile,target:Path)->int:
@@ -39,14 +47,15 @@ async def _save_upload_limited(file:UploadFile,target:Path)->int:
 
 @app.get("/health")
 def health():
-    return {"ok":True,"service":"DTF Smart Prepress","version":"0.5",
-            "auth_enabled":bool(settings.api_key),"max_workers":settings.max_workers}
+    return {"ok":True,"service":"DTF Smart Prepress","version":"0.6",
+            "auth_enabled":bool(settings.api_key),"max_workers":settings.max_workers,
+            "candidate_operations":sorted(SUPPORTED)}
 
 @app.get("/",response_class=HTMLResponse)
 def home():
     return """<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>DTF Smart Prepress</title>
 <style>body{font-family:system-ui;background:#111;color:#eee;max-width:980px;margin:30px auto;padding:20px}
-.card{background:#191919;padding:18px;border-radius:12px;margin-bottom:15px}input,button{margin:6px;padding:10px}
+.card{background:#191919;padding:18px;border-radius:12px;margin-bottom:15px}input,button,select{margin:6px;padding:10px}
 button{cursor:pointer}pre{white-space:pre-wrap;background:#090909;padding:16px;border-radius:8px;direction:ltr;text-align:left}
 small{color:#aaa}</style></head><body>
 <div class="card"><h1>DTF Smart Prepress</h1><p>محرك فحص مستقل — لا يغيّر الـReady-to-Print Master تلقائيًا.</p></div>
@@ -83,6 +92,42 @@ async def validate_profile(file:UploadFile=File(...)):
         return {"profile":profile,"readiness":calibration_readiness(profile)}
     finally:
         target.unlink(missing_ok=True)
+
+@app.post("/candidates/create")
+async def candidate_create(file:UploadFile=File(...),operation:str=Form(...),params_json:str=Form("{}")):
+    if operation not in SUPPORTED:
+        raise HTTPException(400,f"unsupported operation; choose one of {sorted(SUPPORTED)}")
+    try:
+        params=json.loads(params_json)
+        if not isinstance(params,dict): raise ValueError()
+    except Exception:
+        raise HTTPException(400,"params_json must be a JSON object")
+    target=UPLOAD_DIR/(uuid4().hex+Path(file.filename or ".bin").suffix.lower())
+    await _save_upload_limited(file,target)
+    try:
+        result=create_candidate(str(target),operation,params,candidate_manager)
+        name=Path(result["candidate"]["path"]).name
+        manifest=Path(result["manifest"]).name
+        result["download_url"]=f"/candidates/files/{name}"
+        result["manifest_url"]=f"/candidates/files/{manifest}"
+        return result
+    finally:
+        target.unlink(missing_ok=True)
+
+@app.get("/candidates/files/{name}")
+def candidate_file(name:str):
+    if Path(name).name!=name:
+        raise HTTPException(400,"invalid file name")
+    p=(CANDIDATE_DIR/name).resolve()
+    if p.parent!=CANDIDATE_DIR.resolve() or not p.is_file():
+        raise HTTPException(404,"candidate not found")
+    return FileResponse(str(p),filename=p.name)
+
+@app.get("/assets/lineage/{sha256}")
+def lineage(sha256:str):
+    if len(sha256)!=64 or any(c not in "0123456789abcdefABCDEF" for c in sha256):
+        raise HTTPException(400,"invalid sha256")
+    return {"assets":asset_registry.lineage(sha256.lower())}
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
