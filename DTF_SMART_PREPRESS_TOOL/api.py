@@ -19,6 +19,7 @@ from batch import analyze_batch
 from report_html import render_report_html
 from self_check import run_self_check
 from opencart_adapter import evaluate_order_item,ALLOWED_PRODUCT_TYPES
+from mockup_asset import inspect_mockup_asset
 
 BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
@@ -280,6 +281,17 @@ async def opencart_evaluate(file:UploadFile=File(...),order_item_id:str=Form(...
     finally:
         target.unlink(missing_ok=True)
         if prof_path: Path(prof_path).unlink(missing_ok=True)
+
+@app.post("/mockups/inspect")
+async def mockup_inspect(file:UploadFile=File(...)):
+    target=UPLOAD_DIR/(uuid4().hex+Path(file.filename or ".bin").suffix.lower())
+    await _save_upload_limited(file,target)
+    try:
+        result=inspect_mockup_asset(str(target))
+        result["original_filename"]=file.filename
+        return result
+    finally:
+        target.unlink(missing_ok=True)
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
