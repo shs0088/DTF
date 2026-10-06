@@ -1,0 +1,16 @@
+{
+  "profile_id": "printer-rip-mode-date",
+  "printer": null,
+  "ink_set": null,
+  "film_media": null,
+  "rip": null,
+  "print_mode": null,
+  "icc_revision": null,
+  "screening": null,
+  "min_stable_stroke_mm": null,
+  "min_stable_island_diameter_mm": null,
+  "min_stable_hole_diameter_mm": null,
+  "selected_choke_mm": null,
+  "selected_spread_mm": null,
+  "notes": "Enter measured observations only after printing the calibration chart through the exact production condition."
+}
