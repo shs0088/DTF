@@ -16,6 +16,7 @@ from calibration_results import build_profile_from_observations
 from acceptance import accept_candidate_as_new_master
 from prepress_package import create_prepress_package
 from batch import analyze_batch
+from report_html import render_report_html
 
 BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
@@ -26,6 +27,7 @@ CANDIDATE_DIR=BASE_DIR/"runtime_candidates"; CANDIDATE_DIR.mkdir(exist_ok=True)
 CALIBRATION_DIR=BASE_DIR/"runtime_calibration"; CALIBRATION_DIR.mkdir(exist_ok=True)
 MASTER_DIR=BASE_DIR/"runtime_masters"; MASTER_DIR.mkdir(exist_ok=True)
 PACKAGE_DIR=BASE_DIR/"runtime_packages"; PACKAGE_DIR.mkdir(exist_ok=True)
+REPORT_DIR=BASE_DIR/"runtime_reports"; REPORT_DIR.mkdir(exist_ok=True)
 WEB_INDEX=BASE_DIR/"web"/"index.html"
 candidate_manager=CandidateManager(str(CANDIDATE_DIR),str(BASE_DIR/"runtime_assets.sqlite3"))
 asset_registry=AssetRegistry(str(BASE_DIR/"runtime_assets.sqlite3"))
@@ -33,6 +35,7 @@ cleanup_runtime(str(UPLOAD_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(CANDIDATE_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(CALIBRATION_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(PACKAGE_DIR),settings.runtime_ttl_seconds)
+cleanup_runtime(str(REPORT_DIR),settings.runtime_ttl_seconds)
 
 @app.middleware("http")
 async def api_key_guard(request:Request,call_next):
@@ -224,6 +227,29 @@ async def batch_analyze(files:list[UploadFile]=File(...),width_in:float=Form(...
         return analyze_batch(saved,width_in,height_in,choke_mm,spread_mm)
     finally:
         for _,path in saved: Path(path).unlink(missing_ok=True)
+
+@app.post("/reports/create")
+async def report_create(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
+                        choke_mm:float=Form(0.0),spread_mm:float=Form(0.0),
+                        print_area_width_in:float|None=Form(None),print_area_height_in:float|None=Form(None)):
+    target=UPLOAD_DIR/(uuid4().hex+Path(file.filename or ".bin").suffix.lower())
+    await _save_upload_limited(file,target)
+    out=REPORT_DIR/("report-"+uuid4().hex+".html")
+    try:
+        report=inspect_master(str(target),width_in,height_in,choke_mm,spread_mm,
+                              print_area_width_in=print_area_width_in,print_area_height_in=print_area_height_in)
+        render_report_html(report,str(out))
+        return {"status":report.get("status"),"master_gate":report.get("master_gate"),
+                "download_url":f"/reports/files/{out.name}"}
+    finally:
+        target.unlink(missing_ok=True)
+
+@app.get("/reports/files/{name}")
+def report_file(name:str):
+    if Path(name).name!=name: raise HTTPException(400,"invalid file name")
+    p=(REPORT_DIR/name).resolve()
+    if p.parent!=REPORT_DIR.resolve() or not p.is_file(): raise HTTPException(404,"report not found")
+    return FileResponse(str(p),filename=p.name,media_type="text/html")
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
