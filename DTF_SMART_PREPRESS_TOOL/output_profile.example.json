@@ -1,0 +1,21 @@
+{
+  "profile_id": "pilot-not-calibrated",
+  "printer": null,
+  "ink_set": null,
+  "film_media": null,
+  "rip": null,
+  "print_mode": null,
+  "icc_revision": null,
+  "screening": null,
+  "white_policy": {
+    "source_mode": "generated",
+    "choke_mm": 0.0,
+    "spread_mm": 0.0,
+    "density": 1.0
+  },
+  "printability_thresholds": {
+    "min_stroke_mm": null,
+    "min_island_area_mm2": null
+  },
+  "note": "Populate from printed calibration. Null is safer than inventing universal DTF limits."
+}
