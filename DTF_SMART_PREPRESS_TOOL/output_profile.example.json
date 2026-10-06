@@ -7,11 +7,15 @@
   "print_mode": null,
   "icc_revision": null,
   "screening": null,
+  "min_effective_dpi": null,
+  "max_aspect_distortion_percent": 1.0,
   "white_policy": {
     "source_mode": "generated",
-    "choke_mm": 0.0,
-    "spread_mm": 0.0,
-    "density": 1.0
+    "gradient_policy": "continuous",
+    "choke_mm": null,
+    "spread_mm": null,
+    "density": 1.0,
+    "alpha_cutoff": null
   },
   "printability_thresholds": {
     "min_stroke_mm": null,
