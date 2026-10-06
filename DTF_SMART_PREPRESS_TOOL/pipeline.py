@@ -11,6 +11,7 @@ from provenance import asset_record
 from profile_loader import load_output_profile,calibration_readiness
 from acceptance import evaluate_master_gate
 from recommendations import build_recommendations
+from background_classifier import classify_background
 
 def _profile_values(profile_data:Dict[str,Any]|None,choke_mm:float,spread_mm:float,
                     min_stroke_mm:float|None,min_island_area_mm2:float|None)->dict:
@@ -54,6 +55,7 @@ def inspect_master(path:str,width_in:float,height_in:float,
       "edge_quality":analyze_edge_rgb(path),
       "color":inspect_color(path),
       "composite_qa":composite_stats(path),
+      "background_classification":classify_background(path),
       "source_asset":asset_record(path,"uploaded_master_candidate")
     })
 
