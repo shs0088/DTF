@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DTF Smart Prepress</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color-scheme:dark}
+body{margin:0;background:#0c0d0f;color:#f1f4f8}
+header{padding:18px 24px;border-bottom:1px solid #2a2f36;display:flex;gap:14px;align-items:center;justify-content:space-between}
+main{max-width:1120px;margin:auto;padding:22px}
+h1{font-size:22px;margin:0}.sub{color:#9ba6b2;font-size:13px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.tabs button,.btn{background:#151a20;color:#eaf2ff;border:1px solid #303945;border-radius:9px;padding:10px 14px;cursor:pointer}
+.tabs button.active,.btn.primary{border-color:#3b82f6;background:#132a4c}
+.panel{display:none}.panel.active{display:block}
+.card{background:#12161b;border:1px solid #262d36;border-radius:12px;padding:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+label{display:block;font-size:13px;color:#b5c0cc}
+input,select,textarea{width:100%;box-sizing:border-box;margin-top:5px;padding:10px;border-radius:8px;border:1px solid #343d48;background:#0c1015;color:#fff}
+textarea{min-height:130px;direction:ltr;text-align:left}
+pre{white-space:pre-wrap;word-break:break-word;background:#080a0d;border:1px solid #222831;border-radius:10px;padding:14px;direction:ltr;text-align:left;max-height:520px;overflow:auto}
+.good{color:#75e39b}.warn{color:#ffd166}.bad{color:#ff7b7b}
+a{color:#7db8ff}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row input[type=checkbox]{width:auto}
+</style>
+</head>
+<body>
+<header><div><h1>DTF Smart Prepress</h1><div class="sub">Research-driven, offline-first prepress engine</div></div>
+<div class="row"><input id="apiKey" type="password" placeholder="API Key" style="width:210px"><button class="btn" id="langBtn">EN</button></div></header>
+<main>
+<div class="tabs">
+<button data-tab="analyze" class="active">تحليل / Analyze</button>
+<button data-tab="candidate">معالجة / Candidate</button>
+<button data-tab="calibration">معايرة / Calibration</button>
+<button data-tab="profile">Profile</button>
+<button data-tab="master">Master</button>
+<button data-tab="jobs">Jobs</button>
+</div>
+
+<section id="analyze" class="panel active">
+<div class="card"><h3>تحليل ملف الطباعة</h3><form id="analyzeForm">
+<div class="grid">
+<label>Image<input type="file" name="file" required></label>
+<label>Print width (in)<input type="number" step="0.01" name="width_in" required></label>
+<label>Print height (in)<input type="number" step="0.01" name="height_in" required></label>
+<label>Choke (mm)<input type="number" step="0.01" name="choke_mm" value="0"></label>
+<label>Spread (mm)<input type="number" step="0.01" name="spread_mm" value="0"></label>
+<label>Min stroke (mm, optional)<input type="number" step="0.01" name="min_stroke_mm"></label>
+</div><p><button class="btn primary">Analyze</button></p></form></div>
+<pre id="analyzeOut">Ready.</pre>
+</section>
+
+<section id="candidate" class="panel">
+<div class="card"><h3>إنشاء Candidate بدون تعديل الأصل</h3><form id="candidateForm">
+<div class="grid">
+<label>Image<input type="file" name="file" required></label>
+<label>Operation<select name="operation">
+<option>background_border_key</option><option>edge_bleed</option><option>resize</option>
+<option>denoise</option><option>sharpen</option><option>deblur</option>
+<option>threshold</option><option>morphology</option><option>ai_background</option><option>ai_upscale_local</option>
+</select></label>
+</div>
+<label>Parameters JSON<textarea name="params_json">{}</textarea></label>
+<p class="sub">Examples: resize {"width_px":4800,"height_px":5400}; morphology {"morphology_operation":"erode","radius_mm":0.1,"effective_dpi":300}</p>
+<button class="btn primary">Create candidate</button></form></div>
+<div id="candidateLinks"></div><pre id="candidateOut">Ready.</pre>
+</section>
+
+<section id="calibration" class="panel">
+<div class="card"><h3>Calibration Chart</h3><form id="chartForm"><div class="grid">
+<label>DPI<input name="dpi" type="number" value="300"></label>
+<label>Width in<input name="width_in" type="number" step="0.01" value="8.27"></label>
+<label>Height in<input name="height_in" type="number" step="0.01" value="11.69"></label>
+</div><button class="btn primary">Generate chart</button></form></div>
+<div id="chartLinks"></div><pre id="chartOut">Ready.</pre>
+<div class="card"><h3>Build calibrated profile</h3><form id="calProfileForm">
+<div class="grid"><label>Base profile<input type="file" name="base_profile" required></label>
+<label>Observations JSON<input type="file" name="observations" required></label></div>
+<button class="btn primary">Build profile</button></form></div><div id="calProfileLinks"></div><pre id="calProfileOut">Ready.</pre>
+</section>
+
+<section id="profile" class="panel">
+<div class="card"><h3>Validate Output Profile</h3><form id="profileForm">
+<label>Profile JSON<input type="file" name="file" required></label><button class="btn primary">Validate</button>
+</form></div><pre id="profileOut">Ready.</pre>
+</section>
+
+<section id="master" class="panel">
+<div class="card"><h3>Explicit Master Acceptance</h3><form id="masterForm">
+<div class="grid">
+<label>Candidate filename<input name="candidate_name" required placeholder="resize-....png"></label>
+<label>Print width (in)<input name="width_in" type="number" step="0.01" required></label>
+<label>Print height (in)<input name="height_in" type="number" step="0.01" required></label>
+<label>Output profile (optional)<input name="output_profile" type="file"></label>
+</div>
+<div class="row"><input type="checkbox" name="require_calibrated_profile" value="true"><span>Require calibrated output profile</span></div>
+<p><button class="btn primary">Accept as new Master</button></p></form></div>
+<div id="masterLinks"></div><pre id="masterOut">Ready.</pre>
+</section>
+
+<section id="jobs" class="panel">
+<div class="card"><button class="btn primary" id="refreshJobs">Refresh jobs</button></div>
+<pre id="jobsOut">Ready.</pre>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const headers=()=>apiKey.value?{"X-API-Key":apiKey.value}:{};
+async function submitForm(form,url,out,links){
+ out.textContent="Working...";
+ let r=await fetch(url,{method:"POST",headers:headers(),body:new FormData(form)});
+ let t=await r.text(); let j; try{j=JSON.parse(t)}catch(e){out.textContent=t;return}
+ out.textContent=JSON.stringify(j,null,2);
+ if(links){links.innerHTML="";["download_url","manifest_url","png_url","manifest_url"].forEach(k=>{
+   if(j[k]&&!links.querySelector('[data-u="'+j[k]+'"]')){let a=document.createElement("a");a.dataset.u=j[k];a.href=j[k];a.textContent=k+" ";a.style.marginInlineEnd="12px";links.appendChild(a)}
+ })}
+ return j;
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));b.classList.add("active");$("#"+b.dataset.tab).classList.add("active")});
+analyzeForm.onsubmit=e=>{e.preventDefault();submitForm(analyzeForm,"/analyze",analyzeOut)};
+candidateForm.onsubmit=e=>{e.preventDefault();submitForm(candidateForm,"/candidates/create",candidateOut,candidateLinks)};
+chartForm.onsubmit=e=>{e.preventDefault();submitForm(chartForm,"/calibration/chart",chartOut,chartLinks)};
+calProfileForm.onsubmit=e=>{e.preventDefault();submitForm(calProfileForm,"/calibration/profile",calProfileOut,calProfileLinks)};
+profileForm.onsubmit=e=>{e.preventDefault();submitForm(profileForm,"/profiles/validate",profileOut)};
+masterForm.onsubmit=e=>{e.preventDefault();submitForm(masterForm,"/masters/accept",masterOut,masterLinks)};
+refreshJobs.onclick=async()=>{jobsOut.textContent="Loading...";let r=await fetch("/jobs",{headers:headers()});let t=await r.text();try{jobsOut.textContent=JSON.stringify(JSON.parse(t),null,2)}catch(e){jobsOut.textContent=t}};
+langBtn.onclick=()=>{let en=document.documentElement.lang==="en";document.documentElement.lang=en?"ar":"en";document.documentElement.dir=en?"rtl":"ltr";langBtn.textContent=en?"EN":"AR"};
+</script>
+</body></html>
