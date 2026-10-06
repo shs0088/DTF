@@ -14,6 +14,8 @@ from recommendations import build_recommendations
 from background_classifier import classify_background
 from feature_width import analyze_feature_width
 from alpha_quality import analyze_alpha_quality
+from print_area import evaluate_print_area
+from canvas_margin import evaluate_canvas_margin
 
 def _profile_values(profile_data:Dict[str,Any]|None,choke_mm:float,spread_mm:float,
                     min_stroke_mm:float|None,min_island_area_mm2:float|None)->dict:
@@ -35,7 +37,9 @@ def inspect_master(path:str,width_in:float,height_in:float,
                    choke_mm:float|None=0.0,spread_mm:float|None=0.0,
                    min_stroke_mm:float|None=None,min_island_area_mm2:float|None=None,
                    output_profile_path:str|None=None,
-                   require_calibrated_profile:bool=False)->Dict[str,Any]:
+                   require_calibrated_profile:bool=False,
+                   print_area_width_in:float|None=None,print_area_height_in:float|None=None,
+                   allow_print_rotation:bool=False,required_canvas_margin_mm:float=0.0)->Dict[str,Any]:
     security=validate_upload(path)
     if not security["ok"]: return {"status":"FAIL","security":security}
 
@@ -67,6 +71,16 @@ def inspect_master(path:str,width_in:float,height_in:float,
                                   pv["min_stroke_mm"],pv["min_island_area_mm2"],
                                   topo["component_area_px"]["min"])
     report["printability"]=pr
+    pa=evaluate_print_area(width_in,height_in,print_area_width_in,print_area_height_in,allow_print_rotation)
+    report["print_area"]=pa
+    cm=evaluate_canvas_margin(px,report["effective_dpi"]["minimum"],required_canvas_margin_mm)
+    report["canvas_margin"]=cm
+    if pa.get("findings"):
+        report["findings"].extend(pa["findings"])
+        if any(x["severity"]=="FAIL" for x in pa["findings"]): report["status"]="FAIL"
+    if cm.get("finding"):
+        report["findings"].append(cm["finding"])
+        if report["status"]=="PASS": report["status"]="WARN"
     if pr["findings"]:
         report["findings"].extend(pr["findings"])
         if any(x["severity"]=="FAIL" for x in pr["findings"]): report["status"]="FAIL"
