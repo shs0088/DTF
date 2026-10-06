@@ -1,0 +1,7 @@
+runtime_uploads/
+runtime_jobs.sqlite3*
+*.candidate.png
+*.preview.png
+*.manifest.json
+__pycache__/
+.venv/
