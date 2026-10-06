@@ -20,6 +20,7 @@ from report_html import render_report_html
 from self_check import run_self_check
 from opencart_adapter import evaluate_order_item,ALLOWED_PRODUCT_TYPES
 from mockup_asset import inspect_mockup_asset
+from mockup_placement import validate_print_area_placement
 
 BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
@@ -292,6 +293,18 @@ async def mockup_inspect(file:UploadFile=File(...)):
         return result
     finally:
         target.unlink(missing_ok=True)
+
+@app.post("/mockups/placement/validate")
+def mockup_placement_validate(print_area_id:str=Form(...),
+                               area_width_mm:float=Form(...),area_height_mm:float=Form(...),
+                               x_mm:float=Form(...),y_mm:float=Form(...),
+                               width_mm:float=Form(...),height_mm:float=Form(...),
+                               rotation_deg:float=Form(0.0),surface_id:str|None=Form(None)):
+    try:
+        return validate_print_area_placement(print_area_id,area_width_mm,area_height_mm,
+                                             x_mm,y_mm,width_mm,height_mm,rotation_deg,surface_id)
+    except ValueError as e:
+        raise HTTPException(422,str(e))
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
