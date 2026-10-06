@@ -39,6 +39,17 @@ class TestAPIHTTP(unittest.TestCase):
         self.assertEqual(d.status_code,200)
         self.assertGreater(len(d.content),0)
 
+    def test_batch_analyze(self):
+        files=[
+          ("files",("a.png",png_bytes(),"image/png")),
+          ("files",("b.png",png_bytes(),"image/png"))
+        ]
+        r=self.client.post("/batch/analyze",files=files,data={"width_in":"1","height_in":"1"})
+        self.assertEqual(r.status_code,200,r.text)
+        j=r.json()
+        self.assertEqual(j["count"],2)
+        self.assertEqual(sum(j["summary"].values()),2)
+
     def test_calibration_chart(self):
         r=self.client.post("/calibration/chart",data={"dpi":"100","width_in":"4","height_in":"6"})
         self.assertEqual(r.status_code,200,r.text)
