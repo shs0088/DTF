@@ -37,6 +37,7 @@ a{color:#7db8ff}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ro
 <button data-tab="report">Report</button>
 <button data-tab="package">Package</button>
 <button data-tab="batch">Batch</button>
+<button data-tab="matting">Matting QA</button>
 <button data-tab="mockup">Mockup</button>
 <button data-tab="selfcheck">Self Check</button>
 <button data-tab="jobs">Jobs</button>
@@ -145,6 +146,14 @@ a{color:#7db8ff}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ro
 <pre id="batchOut">Ready.</pre>
 </section>
 
+<section id="matting" class="panel">
+<div class="card"><h3>Alpha Matting Benchmark</h3><form id="mattingForm">
+<label>Ground-truth alpha/image<input type="file" name="reference" required></label>
+<label>Candidate mattes<input type="file" name="candidates" multiple required></label>
+<button class="btn primary">Benchmark candidates</button></form></div>
+<pre id="mattingOut">Ready.</pre>
+</section>
+
 <section id="mockup" class="panel">
 <div class="card"><h3>Mockup Asset Inspector</h3><form id="mockupForm">
 <label>2D / GLB / GLTF / OBJ file<input type="file" name="file" required></label>
@@ -204,6 +213,7 @@ masterForm.onsubmit=e=>{e.preventDefault();submitForm(masterForm,"/masters/accep
 reportForm.onsubmit=e=>{e.preventDefault();submitForm(reportForm,"/reports/create",reportOut,reportLinks)};
 packageForm.onsubmit=e=>{e.preventDefault();submitForm(packageForm,"/packages/create",packageOut,packageLinks)};
 batchForm.onsubmit=e=>{e.preventDefault();submitForm(batchForm,"/batch/analyze",batchOut)};
+mattingForm.onsubmit=e=>{e.preventDefault();submitForm(mattingForm,"/matting/benchmark",mattingOut)};
 mockupForm.onsubmit=e=>{e.preventDefault();submitForm(mockupForm,"/mockups/inspect",mockupOut)};
 placementForm.onsubmit=e=>{e.preventDefault();submitForm(placementForm,"/mockups/placement/validate",placementOut)};
 selfCheckBtn.onclick=async()=>{selfCheckOut.textContent="Checking...";let r=await fetch("/self-check",{headers:headers()});let t=await r.text();try{selfCheckOut.textContent=JSON.stringify(JSON.parse(t),null,2)}catch(e){selfCheckOut.textContent=t}};
