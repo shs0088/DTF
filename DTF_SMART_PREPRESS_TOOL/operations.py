@@ -9,10 +9,11 @@ from morphology import apply_alpha_morphology
 from matting import rembg_candidate
 from upscale_local_ai import realesrgan_ncnn_candidate
 from settings import load_settings
+from edge_aware_denoise import guided_denoise_derivative
 
 SUPPORTED={
   "background_border_key","edge_bleed","resize","denoise","sharpen","deblur",
-  "threshold","morphology","ai_background","ai_upscale_local"
+  "threshold","morphology","guided_denoise","ai_background","ai_upscale_local"
 }
 
 def create_candidate(source_path:str,operation:str,params:Dict[str,Any]|None=None,
@@ -38,6 +39,9 @@ def create_candidate(source_path:str,operation:str,params:Dict[str,Any]|None=Non
     elif operation=="sharpen":
         meta=sharpen_derivative(source_path,out,float(params.get("radius",1.0)),
                                 int(params.get("percent",100)),int(params.get("threshold",3))); alpha_changed=False
+    elif operation=="guided_denoise":
+        meta=guided_denoise_derivative(source_path,out,int(params.get("radius",4)),
+                                       float(params.get("epsilon",0.01))); alpha_changed=False
     elif operation=="deblur":
         meta=wiener_deblur_derivative(source_path,out,int(params.get("psf_size",7)),
                                       float(params.get("sigma",1.4)),float(params.get("balance",0.01))); alpha_changed=False
