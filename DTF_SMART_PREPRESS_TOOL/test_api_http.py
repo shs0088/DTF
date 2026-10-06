@@ -71,6 +71,14 @@ class TestAPIHTTP(unittest.TestCase):
         self.assertEqual(j["order_item_id"],"42")
         self.assertTrue(j["ready_to_print_eligible"])
 
+    def test_mockup_inspect_2d(self):
+        r=self.client.post("/mockups/inspect",
+            files={"file":("mockup.png",png_bytes(),"image/png")})
+        self.assertEqual(r.status_code,200,r.text)
+        j=r.json()
+        self.assertFalse(j["actual_3d"])
+        self.assertEqual(j["kind"],"2d_image")
+
     def test_calibration_chart(self):
         r=self.client.post("/calibration/chart",data={"dpi":"100","width_in":"4","height_in":"6"})
         self.assertEqual(r.status_code,200,r.text)
