@@ -4,7 +4,7 @@ from canvas_margin import evaluate_canvas_margin
 
 class TestPrintAreaMargin(unittest.TestCase):
     def test_overflow_and_rotation(self):
-        r=evaluate_print_area(12,16,14,14,True)
+        r=evaluate_print_area(12,10,10,12,True)
         self.assertTrue(r["fits_if_rotated"])
         x=evaluate_print_area(15,16,14,14,True)
         self.assertFalse(x["fits"])
