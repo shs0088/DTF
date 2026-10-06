@@ -18,6 +18,7 @@ from prepress_package import create_prepress_package
 from batch import analyze_batch
 from report_html import render_report_html
 from self_check import run_self_check
+from opencart_adapter import evaluate_order_item,ALLOWED_PRODUCT_TYPES
 
 BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
@@ -69,7 +70,7 @@ def self_check():
 def health():
     return {"ok":True,"service":"DTF Smart Prepress","version":"0.7",
             "auth_enabled":bool(settings.api_key),"max_workers":settings.max_workers,
-            "candidate_operations":sorted(SUPPORTED),"max_batch_files":settings.max_batch_files}
+            "candidate_operations":sorted(SUPPORTED),"max_batch_files":settings.max_batch_files,"opencart_product_types":sorted(ALLOWED_PRODUCT_TYPES)}
 
 @app.get("/",response_class=HTMLResponse)
 def home():
@@ -255,6 +256,30 @@ def report_file(name:str):
     p=(REPORT_DIR/name).resolve()
     if p.parent!=REPORT_DIR.resolve() or not p.is_file(): raise HTTPException(404,"report not found")
     return FileResponse(str(p),filename=p.name,media_type="text/html")
+
+@app.post("/integrations/opencart/evaluate")
+async def opencart_evaluate(file:UploadFile=File(...),order_item_id:str=Form(...),product_type:str=Form(...),
+                            print_width_in:float=Form(...),print_height_in:float=Form(...),
+                            print_area_width_in:float=Form(...),print_area_height_in:float=Form(...),
+                            master_selected:bool=Form(...),require_calibrated_profile:bool=Form(False),
+                            output_profile:UploadFile|None=File(None)):
+    if product_type not in ALLOWED_PRODUCT_TYPES:
+        # Still return structured contract findings after image parse, but fail fast on obvious abuse.
+        pass
+    target=UPLOAD_DIR/(uuid4().hex+Path(file.filename or ".bin").suffix.lower())
+    await _save_upload_limited(file,target)
+    prof_path=None
+    try:
+        if output_profile is not None:
+            p=UPLOAD_DIR/(uuid4().hex+"-profile.json")
+            await _save_upload_limited(output_profile,p); prof_path=str(p)
+        return evaluate_order_item(str(target),order_item_id,product_type,
+                                   print_width_in,print_height_in,
+                                   print_area_width_in,print_area_height_in,
+                                   master_selected,prof_path,require_calibrated_profile)
+    finally:
+        target.unlink(missing_ok=True)
+        if prof_path: Path(prof_path).unlink(missing_ok=True)
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
