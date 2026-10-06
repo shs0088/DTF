@@ -30,15 +30,15 @@ def _chamfer_distance(mask:np.ndarray)->np.ndarray:
     return d
 
 def _local_maxima(d:np.ndarray,mask:np.ndarray)->np.ndarray:
-    h,w=d.shape
     m=mask.copy()
     for dy in (-1,0,1):
         for dx in (-1,0,1):
             if dx==0 and dy==0: continue
-            shifted=np.full_like(d,-1)
-            ys=slice(max(0,dy),h+min(0,dy)); xs=slice(max(0,dx),w+min(0,dx))
-            ysrc=slice(max(0,-dy),h-min(0,dy)); xsrc=slice(max(0,-dx),w-min(0,dx))
-            shifted[ys,xs]=d[ysrc,xsrc]
+            shifted=np.roll(np.roll(d,dy,axis=0),dx,axis=1)
+            if dy>0: shifted[:dy,:]=-1
+            elif dy<0: shifted[dy:,:]=-1
+            if dx>0: shifted[:,:dx]=-1
+            elif dx<0: shifted[:,dx:]=-1
             m &= d>=shifted
     return m & (d>0)
 
