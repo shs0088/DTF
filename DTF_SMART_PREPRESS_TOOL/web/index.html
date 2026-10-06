@@ -35,6 +35,7 @@ a{color:#7db8ff}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ro
 <button data-tab="profile">Profile</button>
 <button data-tab="master">Master</button>
 <button data-tab="package">Package</button>
+<button data-tab="batch">Batch</button>
 <button data-tab="jobs">Jobs</button>
 </div>
 
@@ -115,6 +116,18 @@ a{color:#7db8ff}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ro
 <div id="packageLinks"></div><pre id="packageOut">Ready.</pre>
 </section>
 
+<section id="batch" class="panel">
+<div class="card"><h3>Batch Analysis</h3><form id="batchForm">
+<div class="grid">
+<label>Images<input type="file" name="files" multiple required></label>
+<label>Print width (in)<input type="number" step="0.01" name="width_in" required></label>
+<label>Print height (in)<input type="number" step="0.01" name="height_in" required></label>
+<label>Choke (mm)<input type="number" step="0.01" name="choke_mm" value="0"></label>
+<label>Spread (mm)<input type="number" step="0.01" name="spread_mm" value="0"></label>
+</div><button class="btn primary">Analyze batch</button></form></div>
+<pre id="batchOut">Ready.</pre>
+</section>
+
 <section id="jobs" class="panel">
 <div class="card"><button class="btn primary" id="refreshJobs">Refresh jobs</button></div>
 <pre id="jobsOut">Ready.</pre>
@@ -147,6 +160,7 @@ calProfileForm.onsubmit=e=>{e.preventDefault();submitForm(calProfileForm,"/calib
 profileForm.onsubmit=e=>{e.preventDefault();submitForm(profileForm,"/profiles/validate",profileOut)};
 masterForm.onsubmit=e=>{e.preventDefault();submitForm(masterForm,"/masters/accept",masterOut,masterLinks)};
 packageForm.onsubmit=e=>{e.preventDefault();submitForm(packageForm,"/packages/create",packageOut,packageLinks)};
+batchForm.onsubmit=e=>{e.preventDefault();submitForm(batchForm,"/batch/analyze",batchOut)};
 refreshJobs.onclick=async()=>{jobsOut.textContent="Loading...";let r=await fetch("/jobs",{headers:headers()});let t=await r.text();try{jobsOut.textContent=JSON.stringify(JSON.parse(t),null,2)}catch(e){jobsOut.textContent=t}};
 langBtn.onclick=()=>{let en=document.documentElement.lang==="en";document.documentElement.lang=en?"ar":"en";document.documentElement.dir=en?"rtl":"ltr";langBtn.textContent=en?"EN":"AR"};
 </script>
