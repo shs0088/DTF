@@ -2,6 +2,7 @@ from dataclasses import dataclass,asdict
 from typing import Dict,Any
 from PIL import Image,ImageFilter
 import numpy as np
+from white_gradient_qa import analyze_white_support
 
 MM_PER_INCH=25.4
 
@@ -47,8 +48,10 @@ def generate_white_preview(input_path:str,output_path:str,effective_dpi:float,
     if choke: mask=mask.filter(ImageFilter.MinFilter(_odd_size(choke)))
     if spread: mask=mask.filter(ImageFilter.MaxFilter(_odd_size(spread)))
     mask.save(output_path)
+    gradient_qa=analyze_white_support(input_path,output_path)
     visible=alpha>0
     border_touch=bool(visible[0,:].any() or visible[-1,:].any() or visible[:,0].any() or visible[:,-1].any())
     return {"output":output_path,"choke_px":choke,"spread_px":spread,"policy":asdict(policy),
             "spread_canvas_clip_risk":bool(spread>0 and border_touch),
+            "gradient_tail_qa":gradient_qa,
             "warning":"Diagnostic preview only; final RIP white must use a calibrated output profile."}
