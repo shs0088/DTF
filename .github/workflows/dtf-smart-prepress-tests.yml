@@ -23,7 +23,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: DTF_SMART_PREPRESS_TOOL/requirements.txt
+          cache-dependency-path: |
+          DTF_SMART_PREPRESS_TOOL/requirements.txt
+          DTF_SMART_PREPRESS_TOOL/requirements-dev.txt
       - run: python -m pip install --upgrade pip
-      - run: pip install -r requirements.txt
+      - run: pip install -r requirements-dev.txt
       - run: python -m unittest discover -v
