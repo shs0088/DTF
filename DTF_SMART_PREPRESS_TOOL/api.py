@@ -15,6 +15,7 @@ from calibration_chart import generate_calibration_chart
 from calibration_results import build_profile_from_observations
 from acceptance import accept_candidate_as_new_master
 from prepress_package import create_prepress_package
+from batch import analyze_batch
 
 BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
@@ -60,7 +61,7 @@ async def _save_upload_limited(file:UploadFile,target:Path)->int:
 def health():
     return {"ok":True,"service":"DTF Smart Prepress","version":"0.7",
             "auth_enabled":bool(settings.api_key),"max_workers":settings.max_workers,
-            "candidate_operations":sorted(SUPPORTED)}
+            "candidate_operations":sorted(SUPPORTED),"max_batch_files":settings.max_batch_files}
 
 @app.get("/",response_class=HTMLResponse)
 def home():
@@ -207,6 +208,22 @@ def package_file(name:str):
     p=(PACKAGE_DIR/name).resolve()
     if p.parent!=PACKAGE_DIR.resolve() or not p.is_file(): raise HTTPException(404,"package not found")
     return FileResponse(str(p),filename=p.name,media_type="application/zip")
+
+@app.post("/batch/analyze")
+async def batch_analyze(files:list[UploadFile]=File(...),width_in:float=Form(...),height_in:float=Form(...),
+                        choke_mm:float=Form(0.0),spread_mm:float=Form(0.0)):
+    if not files: raise HTTPException(400,"at least one file is required")
+    if len(files)>settings.max_batch_files:
+        raise HTTPException(413,f"batch exceeds configured file count limit ({settings.max_batch_files})")
+    saved=[]
+    try:
+        for file in files:
+            target=UPLOAD_DIR/(uuid4().hex+Path(file.filename or ".bin").suffix.lower())
+            await _save_upload_limited(file,target)
+            saved.append((file.filename or target.name,str(target)))
+        return analyze_batch(saved,width_in,height_in,choke_mm,spread_mm)
+    finally:
+        for _,path in saved: Path(path).unlink(missing_ok=True)
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
