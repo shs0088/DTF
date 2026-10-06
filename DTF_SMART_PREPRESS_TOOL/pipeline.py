@@ -10,6 +10,7 @@ from edge_quality import analyze_edge_rgb
 from provenance import asset_record
 from profile_loader import load_output_profile,calibration_readiness
 from acceptance import evaluate_master_gate
+from recommendations import build_recommendations
 
 def _profile_values(profile_data:Dict[str,Any]|None,choke_mm:float,spread_mm:float,
                     min_stroke_mm:float|None,min_island_area_mm2:float|None)->dict:
@@ -76,4 +77,5 @@ def inspect_master(path:str,width_in:float,height_in:float,
 
     report["master_gate"]=evaluate_master_gate(report,require_alpha=True,
                                                 require_calibrated_profile=require_calibrated_profile)
+    report["recommendations"]=build_recommendations(report)
     return report
