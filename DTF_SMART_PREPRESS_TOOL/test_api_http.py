@@ -50,6 +50,17 @@ class TestAPIHTTP(unittest.TestCase):
         self.assertEqual(j["count"],2)
         self.assertEqual(sum(j["summary"].values()),2)
 
+    def test_report_create(self):
+        r=self.client.post("/reports/create",
+            files={"file":("art.png",png_bytes(),"image/png")},
+            data={"width_in":"1","height_in":"1"})
+        self.assertEqual(r.status_code,200,r.text)
+        j=r.json()
+        self.assertIn("download_url",j)
+        d=self.client.get(j["download_url"])
+        self.assertEqual(d.status_code,200)
+        self.assertIn("DTF Smart Prepress Report",d.text)
+
     def test_calibration_chart(self):
         r=self.client.post("/calibration/chart",data={"dpi":"100","width_in":"4","height_in":"6"})
         self.assertEqual(r.status_code,200,r.text)
