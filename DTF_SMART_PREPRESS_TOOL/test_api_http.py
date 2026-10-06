@@ -88,6 +88,19 @@ class TestAPIHTTP(unittest.TestCase):
         self.assertTrue(j["fits_unrotated"])
         self.assertFalse(j["uv_mapping_used"])
 
+    def test_matting_benchmark(self):
+        ref=png_bytes()
+        r=self.client.post("/matting/benchmark",
+            files=[
+              ("reference",("ref.png",ref,"image/png")),
+              ("candidates",("c1.png",ref,"image/png")),
+              ("candidates",("c2.png",ref,"image/png"))
+            ])
+        self.assertEqual(r.status_code,200,r.text)
+        j=r.json()
+        self.assertEqual(j["count"],2)
+        self.assertIn("winner",j)
+
     def test_calibration_chart(self):
         r=self.client.post("/calibration/chart",data={"dpi":"100","width_in":"4","height_in":"6"})
         self.assertEqual(r.status_code,200,r.text)
