@@ -21,6 +21,7 @@ from self_check import run_self_check
 from opencart_adapter import evaluate_order_item,ALLOWED_PRODUCT_TYPES
 from mockup_asset import inspect_mockup_asset
 from mockup_placement import validate_print_area_placement
+from matting_benchmark import benchmark_candidates
 
 BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
@@ -305,6 +306,24 @@ def mockup_placement_validate(print_area_id:str=Form(...),
                                              x_mm,y_mm,width_mm,height_mm,rotation_deg,surface_id)
     except ValueError as e:
         raise HTTPException(422,str(e))
+
+@app.post("/matting/benchmark")
+async def matting_benchmark(reference:UploadFile=File(...),candidates:list[UploadFile]=File(...)):
+    if not candidates: raise HTTPException(400,"at least one candidate is required")
+    if len(candidates)>settings.max_batch_files:
+        raise HTTPException(413,f"candidate count exceeds configured limit ({settings.max_batch_files})")
+    ref=UPLOAD_DIR/(uuid4().hex+Path(reference.filename or ".png").suffix.lower())
+    await _save_upload_limited(reference,ref)
+    saved=[]
+    try:
+        for file in candidates:
+            p=UPLOAD_DIR/(uuid4().hex+Path(file.filename or ".png").suffix.lower())
+            await _save_upload_limited(file,p)
+            saved.append((file.filename or p.name,str(p)))
+        return benchmark_candidates(str(ref),saved)
+    finally:
+        ref.unlink(missing_ok=True)
+        for _,p in saved: Path(p).unlink(missing_ok=True)
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
