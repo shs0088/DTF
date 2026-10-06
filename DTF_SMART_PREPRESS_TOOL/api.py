@@ -23,7 +23,7 @@ from mockup_asset import inspect_mockup_asset
 from mockup_placement import validate_print_area_placement
 from matting_benchmark import benchmark_candidates
 from white_underbase import generate_white_preview
-from topology_guarded_white import topology_guarded_choke_preview
+from topology_guarded_white import topology_guarded_white_preview
 from image_analysis import analyze_pixels
 
 BASE_DIR=Path(__file__).resolve().parent
@@ -343,12 +343,10 @@ async def white_preview(file:UploadFile=File(...),width_in:float=Form(...),heigh
         dpi=min(xdpi,ydpi)
         if mode=="standard":
             result=generate_white_preview(str(target),str(out),dpi,choke_mm,spread_mm,density)
-        elif mode=="topology_guarded_choke":
-            if spread_mm!=0:
-                raise HTTPException(422,"topology_guarded_choke currently requires spread_mm=0")
-            result=topology_guarded_choke_preview(str(target),str(out),dpi,choke_mm)
+        elif mode in ("topology_guarded_white","topology_guarded_choke"):
+            result=topology_guarded_white_preview(str(target),str(out),dpi,choke_mm,spread_mm)
         else:
-            raise HTTPException(400,"mode must be standard or topology_guarded_choke")
+            raise HTTPException(400,"mode must be standard or topology_guarded_white")
         result["effective_dpi"]=round(dpi,3)
         result["download_url"]=f"/white/files/{out.name}"
         return result
