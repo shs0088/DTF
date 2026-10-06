@@ -37,6 +37,8 @@ a{color:#7db8ff}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ro
 <button data-tab="report">Report</button>
 <button data-tab="package">Package</button>
 <button data-tab="batch">Batch</button>
+<button data-tab="mockup">Mockup</button>
+<button data-tab="selfcheck">Self Check</button>
 <button data-tab="jobs">Jobs</button>
 </div>
 
@@ -143,6 +145,18 @@ a{color:#7db8ff}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ro
 <pre id="batchOut">Ready.</pre>
 </section>
 
+<section id="mockup" class="panel">
+<div class="card"><h3>Mockup Asset Inspector</h3><form id="mockupForm">
+<label>2D / GLB / GLTF / OBJ file<input type="file" name="file" required></label>
+<button class="btn primary">Inspect asset</button></form></div>
+<pre id="mockupOut">Ready.</pre>
+</section>
+
+<section id="selfcheck" class="panel">
+<div class="card"><button class="btn primary" id="selfCheckBtn">Run Self Check</button></div>
+<pre id="selfCheckOut">Ready.</pre>
+</section>
+
 <section id="jobs" class="panel">
 <div class="card"><button class="btn primary" id="refreshJobs">Refresh jobs</button></div>
 <pre id="jobsOut">Ready.</pre>
@@ -177,6 +191,8 @@ masterForm.onsubmit=e=>{e.preventDefault();submitForm(masterForm,"/masters/accep
 reportForm.onsubmit=e=>{e.preventDefault();submitForm(reportForm,"/reports/create",reportOut,reportLinks)};
 packageForm.onsubmit=e=>{e.preventDefault();submitForm(packageForm,"/packages/create",packageOut,packageLinks)};
 batchForm.onsubmit=e=>{e.preventDefault();submitForm(batchForm,"/batch/analyze",batchOut)};
+mockupForm.onsubmit=e=>{e.preventDefault();submitForm(mockupForm,"/mockups/inspect",mockupOut)};
+selfCheckBtn.onclick=async()=>{selfCheckOut.textContent="Checking...";let r=await fetch("/self-check",{headers:headers()});let t=await r.text();try{selfCheckOut.textContent=JSON.stringify(JSON.parse(t),null,2)}catch(e){selfCheckOut.textContent=t}};
 refreshJobs.onclick=async()=>{jobsOut.textContent="Loading...";let r=await fetch("/jobs",{headers:headers()});let t=await r.text();try{jobsOut.textContent=JSON.stringify(JSON.parse(t),null,2)}catch(e){jobsOut.textContent=t}};
 langBtn.onclick=()=>{let en=document.documentElement.lang==="en";document.documentElement.lang=en?"ar":"en";document.documentElement.dir=en?"rtl":"ltr";langBtn.textContent=en?"EN":"AR"};
 </script>
