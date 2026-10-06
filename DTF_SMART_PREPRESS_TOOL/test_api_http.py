@@ -79,6 +79,15 @@ class TestAPIHTTP(unittest.TestCase):
         self.assertFalse(j["actual_3d"])
         self.assertEqual(j["kind"],"2d_image")
 
+    def test_mockup_placement_validate(self):
+        r=self.client.post("/mockups/placement/validate",data={
+            "print_area_id":"front","area_width_mm":"300","area_height_mm":"400",
+            "x_mm":"50","y_mm":"60","width_mm":"200","height_mm":"250","rotation_deg":"0"})
+        self.assertEqual(r.status_code,200,r.text)
+        j=r.json()
+        self.assertTrue(j["fits_unrotated"])
+        self.assertFalse(j["uv_mapping_used"])
+
     def test_calibration_chart(self):
         r=self.client.post("/calibration/chart",data={"dpi":"100","width_in":"4","height_in":"6"})
         self.assertEqual(r.status_code,200,r.text)
