@@ -1,21 +1,44 @@
-# OpenCart integration contract (not deployed)
+# OpenCart integration contract — evaluation layer only
 
-The prepress service remains separate from the storefront.
+This contract is implemented inside DTF_SMART_PREPRESS_TOOL but is not deployed into OpenCart.
 
-## Rules
-1. OpenCart sends a copy/reference of the uploaded artwork to the prepress API.
-2. The authoritative Ready-to-Print Master is immutable unless the user explicitly accepts a generated derivative as a new master.
-3. Analysis never silently replaces the master.
-4. Mockup derivatives, white previews, threshold candidates, background-removal candidates and enhancement candidates are separate assets.
-5. Publishing may consume PASS/WARN/FAIL plus detailed findings, but output-profile thresholds must be configured from the actual printer/RIP/ink/film calibration.
-6. No API response may claim that embedded 300 DPI alone proves print readiness.
-7. A 3D mockup is only 3D when an actual supported 3D asset exists; 2D preview generation does not convert it into 3D.
+## Endpoint
 
-## Current API
-- GET /health
-- POST /analyze
-- POST /jobs/analyze
-- GET /jobs/{job_id}
-- DELETE /jobs/{job_id}
+POST /integrations/opencart/evaluate
 
-No OpenCart code is changed by this contract.
+Multipart fields:
+- file: artwork copy for this order item
+- order_item_id
+- product_type
+- print_width_in
+- print_height_in
+- print_area_width_in
+- print_area_height_in
+- master_selected
+- require_calibrated_profile (optional)
+- output_profile (optional JSON file)
+
+Configured product combinations:
+- T-Shirt
+- Mug
+- Cap
+- T-Shirt+Mug
+- T-Shirt+Cap
+- Mug+Cap
+- T-Shirt+Mug+Cap
+
+## Gate rules
+1. Ready-to-Print Master must be explicitly selected for the order item.
+2. Product type must be one of the configured combinations.
+3. Requested physical print size must fit the product print area.
+4. Image preflight Master Gate must be eligible.
+5. If require_calibrated_profile=true, the output profile must contain the printer/RIP/ink/film/mode calibration fields required by the service.
+6. The service returns an eligibility decision and detailed report only.
+
+## Protection boundary
+- This endpoint does not update OpenCart.
+- It does not change order status.
+- It does not replace the selected master.
+- It does not publish designs or products.
+- It does not deploy or merge storefront code.
+- Mockup derivatives remain separate from the Ready-to-Print Master.
