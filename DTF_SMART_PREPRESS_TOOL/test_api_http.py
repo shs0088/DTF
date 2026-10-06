@@ -101,6 +101,17 @@ class TestAPIHTTP(unittest.TestCase):
         self.assertEqual(j["count"],2)
         self.assertIn("winner",j)
 
+    def test_white_preview_standard(self):
+        r=self.client.post("/white/preview",
+            files={"file":("art.png",png_bytes(),"image/png")},
+            data={"width_in":"1","height_in":"1","choke_mm":"0","spread_mm":"0","mode":"standard"})
+        self.assertEqual(r.status_code,200,r.text)
+        j=r.json()
+        self.assertIn("download_url",j)
+        d=self.client.get(j["download_url"])
+        self.assertEqual(d.status_code,200)
+        self.assertGreater(len(d.content),0)
+
     def test_calibration_chart(self):
         r=self.client.post("/calibration/chart",data={"dpi":"100","width_in":"4","height_in":"6"})
         self.assertEqual(r.status_code,200,r.text)
