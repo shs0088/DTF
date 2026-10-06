@@ -69,11 +69,15 @@ def home():
 @app.post("/analyze")
 async def analyze_upload(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
                          choke_mm:float=Form(0.0),spread_mm:float=Form(0.0),
-                         min_stroke_mm:float|None=Form(None),min_island_area_mm2:float|None=Form(None)):
+                         min_stroke_mm:float|None=Form(None),min_island_area_mm2:float|None=Form(None),
+                         print_area_width_in:float|None=Form(None),print_area_height_in:float|None=Form(None),
+                         allow_print_rotation:bool=Form(False),required_canvas_margin_mm:float=Form(0.0)):
     target=UPLOAD_DIR/(uuid4().hex+Path(file.filename or ".bin").suffix.lower())
     await _save_upload_limited(file,target)
     try:
-        return inspect_master(str(target),width_in,height_in,choke_mm,spread_mm,min_stroke_mm,min_island_area_mm2)
+        return inspect_master(str(target),width_in,height_in,choke_mm,spread_mm,min_stroke_mm,min_island_area_mm2,
+                              print_area_width_in=print_area_width_in,print_area_height_in=print_area_height_in,
+                              allow_print_rotation=allow_print_rotation,required_canvas_margin_mm=required_canvas_margin_mm)
     finally:
         target.unlink(missing_ok=True)
 
