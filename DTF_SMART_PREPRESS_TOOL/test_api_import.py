@@ -5,7 +5,7 @@ class TestAPIImport(unittest.TestCase):
     def test_routes_exist(self):
         paths={r.path for r in api.app.routes}
         required={"/health","/analyze","/candidates/create","/profiles/validate",
-                  "/calibration/chart","/calibration/profile","/masters/accept","/packages/create","/batch/analyze","/jobs"}
+                  "/calibration/chart","/calibration/profile","/masters/accept","/packages/create","/reports/create","/batch/analyze","/jobs"}
         self.assertTrue(required.issubset(paths))
 
     def test_runtime_security_defaults(self):
