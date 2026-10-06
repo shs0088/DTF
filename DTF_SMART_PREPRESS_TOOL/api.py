@@ -11,16 +11,22 @@ from settings import load_settings
 from operations import create_candidate,SUPPORTED
 from candidate_manager import CandidateManager
 from asset_registry import AssetRegistry
+from calibration_chart import generate_calibration_chart
+from calibration_results import build_profile_from_observations
+from acceptance import accept_candidate_as_new_master
 
 settings=load_settings()
 app=FastAPI(title="DTF Smart Prepress",version="0.6")
 queue=PersistentJobQueue(max_workers=settings.max_workers,db_path="runtime_jobs.sqlite3")
 UPLOAD_DIR=Path("runtime_uploads"); UPLOAD_DIR.mkdir(exist_ok=True)
 CANDIDATE_DIR=Path("runtime_candidates"); CANDIDATE_DIR.mkdir(exist_ok=True)
+CALIBRATION_DIR=Path("runtime_calibration"); CALIBRATION_DIR.mkdir(exist_ok=True)
+MASTER_DIR=Path("runtime_masters"); MASTER_DIR.mkdir(exist_ok=True)
 candidate_manager=CandidateManager(str(CANDIDATE_DIR),"runtime_assets.sqlite3")
 asset_registry=AssetRegistry("runtime_assets.sqlite3")
 cleanup_runtime(str(UPLOAD_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(CANDIDATE_DIR),settings.runtime_ttl_seconds)
+cleanup_runtime(str(CALIBRATION_DIR),settings.runtime_ttl_seconds)
 
 @app.middleware("http")
 async def api_key_guard(request:Request,call_next):
@@ -128,6 +134,67 @@ def lineage(sha256:str):
     if len(sha256)!=64 or any(c not in "0123456789abcdefABCDEF" for c in sha256):
         raise HTTPException(400,"invalid sha256")
     return {"assets":asset_registry.lineage(sha256.lower())}
+
+@app.post("/calibration/chart")
+def calibration_chart(dpi:int=Form(300),width_in:float=Form(8.27),height_in:float=Form(11.69)):
+    if dpi<72 or dpi>1200: raise HTTPException(400,"dpi must be between 72 and 1200")
+    stem="calibration-"+uuid4().hex
+    png=CALIBRATION_DIR/(stem+".png"); manifest=CALIBRATION_DIR/(stem+".json")
+    result=generate_calibration_chart(str(png),str(manifest),dpi,width_in,height_in)
+    result["png_url"]=f"/calibration/files/{png.name}"
+    result["manifest_url"]=f"/calibration/files/{manifest.name}"
+    return result
+
+@app.post("/calibration/profile")
+async def calibration_profile(base_profile:UploadFile=File(...),observations:UploadFile=File(...)):
+    base=UPLOAD_DIR/(uuid4().hex+"-base.json"); obs=UPLOAD_DIR/(uuid4().hex+"-obs.json")
+    await _save_upload_limited(base_profile,base); await _save_upload_limited(observations,obs)
+    out=CALIBRATION_DIR/("profile-"+uuid4().hex+".json")
+    try:
+        profile=build_profile_from_observations(str(base),str(obs),str(out))
+        return {"profile":profile,"readiness":calibration_readiness(profile),
+                "download_url":f"/calibration/files/{out.name}"}
+    finally:
+        base.unlink(missing_ok=True); obs.unlink(missing_ok=True)
+
+@app.get("/calibration/files/{name}")
+def calibration_file(name:str):
+    if Path(name).name!=name: raise HTTPException(400,"invalid file name")
+    p=(CALIBRATION_DIR/name).resolve()
+    if p.parent!=CALIBRATION_DIR.resolve() or not p.is_file(): raise HTTPException(404,"calibration file not found")
+    return FileResponse(str(p),filename=p.name)
+
+@app.post("/masters/accept")
+async def master_accept(candidate_name:str=Form(...),width_in:float=Form(...),height_in:float=Form(...),
+                        require_calibrated_profile:bool=Form(False),output_profile:UploadFile|None=File(None)):
+    if Path(candidate_name).name!=candidate_name: raise HTTPException(400,"invalid candidate name")
+    candidate=(CANDIDATE_DIR/candidate_name).resolve()
+    if candidate.parent!=CANDIDATE_DIR.resolve() or not candidate.is_file():
+        raise HTTPException(404,"candidate not found")
+    prof_path=None
+    try:
+        if output_profile is not None:
+            p=UPLOAD_DIR/(uuid4().hex+"-profile.json")
+            await _save_upload_limited(output_profile,p); prof_path=str(p)
+        report=inspect_master(str(candidate),width_in,height_in,output_profile_path=prof_path,
+                              require_calibrated_profile=require_calibrated_profile)
+        dest=MASTER_DIR/("master-"+uuid4().hex+".png")
+        accepted=accept_candidate_as_new_master(str(candidate),str(dest),report,explicit_accept=True,
+                                                require_calibrated_profile=require_calibrated_profile)
+        asset_registry.register(str(dest),"ready_to_print_master",accepted["source_sha256"],
+                                "explicit_master_accept",{"require_calibrated_profile":require_calibrated_profile})
+        return {"accepted":accepted,"report":report,"download_url":f"/masters/files/{dest.name}"}
+    except (ValueError,PermissionError,FileExistsError) as e:
+        raise HTTPException(422,str(e))
+    finally:
+        if prof_path: Path(prof_path).unlink(missing_ok=True)
+
+@app.get("/masters/files/{name}")
+def master_file(name:str):
+    if Path(name).name!=name: raise HTTPException(400,"invalid file name")
+    p=(MASTER_DIR/name).resolve()
+    if p.parent!=MASTER_DIR.resolve() or not p.is_file(): raise HTTPException(404,"master not found")
+    return FileResponse(str(p),filename=p.name)
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
