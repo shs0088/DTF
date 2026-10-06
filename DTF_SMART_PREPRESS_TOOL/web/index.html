@@ -106,13 +106,19 @@ a{color:#7db8ff}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ro
 <script>
 const $=s=>document.querySelector(s);
 const headers=()=>apiKey.value?{"X-API-Key":apiKey.value}:{};
+async function authDownload(url,label){
+ let r=await fetch(url,{headers:headers()});
+ if(!r.ok){alert(await r.text());return}
+ let blob=await r.blob(), u=URL.createObjectURL(blob), a=document.createElement("a");
+ a.href=u;a.download=url.split("/").pop();document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);
+}
 async function submitForm(form,url,out,links){
  out.textContent="Working...";
  let r=await fetch(url,{method:"POST",headers:headers(),body:new FormData(form)});
  let t=await r.text(); let j; try{j=JSON.parse(t)}catch(e){out.textContent=t;return}
  out.textContent=JSON.stringify(j,null,2);
- if(links){links.innerHTML="";["download_url","manifest_url","png_url","manifest_url"].forEach(k=>{
-   if(j[k]&&!links.querySelector('[data-u="'+j[k]+'"]')){let a=document.createElement("a");a.dataset.u=j[k];a.href=j[k];a.textContent=k+" ";a.style.marginInlineEnd="12px";links.appendChild(a)}
+ if(links){links.innerHTML="";["download_url","manifest_url","png_url"].forEach(k=>{
+   if(j[k]&&!links.querySelector('[data-u="'+j[k]+'"]')){let b=document.createElement("button");b.className="btn";b.dataset.u=j[k];b.textContent=k;b.onclick=()=>authDownload(j[k],k);b.style.marginInlineEnd="8px";links.appendChild(b)}
  })}
  return j;
 }
