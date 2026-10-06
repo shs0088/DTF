@@ -15,15 +15,17 @@ from calibration_chart import generate_calibration_chart
 from calibration_results import build_profile_from_observations
 from acceptance import accept_candidate_as_new_master
 
+BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
-app=FastAPI(title="DTF Smart Prepress",version="0.6")
-queue=PersistentJobQueue(max_workers=settings.max_workers,db_path="runtime_jobs.sqlite3")
-UPLOAD_DIR=Path("runtime_uploads"); UPLOAD_DIR.mkdir(exist_ok=True)
-CANDIDATE_DIR=Path("runtime_candidates"); CANDIDATE_DIR.mkdir(exist_ok=True)
-CALIBRATION_DIR=Path("runtime_calibration"); CALIBRATION_DIR.mkdir(exist_ok=True)
-MASTER_DIR=Path("runtime_masters"); MASTER_DIR.mkdir(exist_ok=True)
-candidate_manager=CandidateManager(str(CANDIDATE_DIR),"runtime_assets.sqlite3")
-asset_registry=AssetRegistry("runtime_assets.sqlite3")
+app=FastAPI(title="DTF Smart Prepress",version="0.7")
+queue=PersistentJobQueue(max_workers=settings.max_workers,db_path=str(BASE_DIR/"runtime_jobs.sqlite3"))
+UPLOAD_DIR=BASE_DIR/"runtime_uploads"; UPLOAD_DIR.mkdir(exist_ok=True)
+CANDIDATE_DIR=BASE_DIR/"runtime_candidates"; CANDIDATE_DIR.mkdir(exist_ok=True)
+CALIBRATION_DIR=BASE_DIR/"runtime_calibration"; CALIBRATION_DIR.mkdir(exist_ok=True)
+MASTER_DIR=BASE_DIR/"runtime_masters"; MASTER_DIR.mkdir(exist_ok=True)
+WEB_INDEX=BASE_DIR/"web"/"index.html"
+candidate_manager=CandidateManager(str(CANDIDATE_DIR),str(BASE_DIR/"runtime_assets.sqlite3"))
+asset_registry=AssetRegistry(str(BASE_DIR/"runtime_assets.sqlite3"))
 cleanup_runtime(str(UPLOAD_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(CANDIDATE_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(CALIBRATION_DIR),settings.runtime_ttl_seconds)
@@ -53,30 +55,13 @@ async def _save_upload_limited(file:UploadFile,target:Path)->int:
 
 @app.get("/health")
 def health():
-    return {"ok":True,"service":"DTF Smart Prepress","version":"0.6",
+    return {"ok":True,"service":"DTF Smart Prepress","version":"0.7",
             "auth_enabled":bool(settings.api_key),"max_workers":settings.max_workers,
             "candidate_operations":sorted(SUPPORTED)}
 
 @app.get("/",response_class=HTMLResponse)
 def home():
-    return """<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>DTF Smart Prepress</title>
-<style>body{font-family:system-ui;background:#111;color:#eee;max-width:980px;margin:30px auto;padding:20px}
-.card{background:#191919;padding:18px;border-radius:12px;margin-bottom:15px}input,button,select{margin:6px;padding:10px}
-button{cursor:pointer}pre{white-space:pre-wrap;background:#090909;padding:16px;border-radius:8px;direction:ltr;text-align:left}
-small{color:#aaa}</style></head><body>
-<div class="card"><h1>DTF Smart Prepress</h1><p>محرك فحص مستقل — لا يغيّر الـReady-to-Print Master تلقائيًا.</p></div>
-<div class="card"><form id="f"><input type="file" name="file" required><br>
-<label>عرض الطباعة بالإنش <input type="number" step="0.01" name="width_in" required></label>
-<label>ارتفاع الطباعة بالإنش <input type="number" step="0.01" name="height_in" required></label><br>
-<label>Choke mm <input type="number" step="0.01" name="choke_mm" value="0"></label>
-<label>Spread mm <input type="number" step="0.01" name="spread_mm" value="0"></label><br>
-<label>API Key <input id="key" type="password" autocomplete="off"></label>
-<button>Analyze / تحليل</button></form><small>إذا لم يتم ضبط API key في الخادم اتركه فارغًا.</small></div>
-<pre id="out">Ready.</pre>
-<script>f.onsubmit=async(e)=>{e.preventDefault();out.textContent="Analyzing...";
-let h={};if(key.value)h["X-API-Key"]=key.value;
-let r=await fetch("/analyze",{method:"POST",headers:h,body:new FormData(f)});let t=await r.text();
-try{out.textContent=JSON.stringify(JSON.parse(t),null,2)}catch(_){out.textContent=t}}</script></body></html>"""
+    return HTMLResponse(WEB_INDEX.read_text(encoding="utf-8"))
 
 @app.post("/analyze")
 async def analyze_upload(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
