@@ -22,6 +22,9 @@ from opencart_adapter import evaluate_order_item,ALLOWED_PRODUCT_TYPES
 from mockup_asset import inspect_mockup_asset
 from mockup_placement import validate_print_area_placement
 from matting_benchmark import benchmark_candidates
+from white_underbase import generate_white_preview
+from topology_guarded_white import topology_guarded_choke_preview
+from image_analysis import analyze_pixels
 
 BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
@@ -33,6 +36,7 @@ CALIBRATION_DIR=BASE_DIR/"runtime_calibration"; CALIBRATION_DIR.mkdir(exist_ok=T
 MASTER_DIR=BASE_DIR/"runtime_masters"; MASTER_DIR.mkdir(exist_ok=True)
 PACKAGE_DIR=BASE_DIR/"runtime_packages"; PACKAGE_DIR.mkdir(exist_ok=True)
 REPORT_DIR=BASE_DIR/"runtime_reports"; REPORT_DIR.mkdir(exist_ok=True)
+WHITE_DIR=BASE_DIR/"runtime_white"; WHITE_DIR.mkdir(exist_ok=True)
 WEB_INDEX=BASE_DIR/"web"/"index.html"
 candidate_manager=CandidateManager(str(CANDIDATE_DIR),str(BASE_DIR/"runtime_assets.sqlite3"))
 asset_registry=AssetRegistry(str(BASE_DIR/"runtime_assets.sqlite3"))
@@ -41,6 +45,7 @@ cleanup_runtime(str(CANDIDATE_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(CALIBRATION_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(PACKAGE_DIR),settings.runtime_ttl_seconds)
 cleanup_runtime(str(REPORT_DIR),settings.runtime_ttl_seconds)
+cleanup_runtime(str(WHITE_DIR),settings.runtime_ttl_seconds)
 
 @app.middleware("http")
 async def api_key_guard(request:Request,call_next):
@@ -324,6 +329,38 @@ async def matting_benchmark(reference:UploadFile=File(...),candidates:list[Uploa
     finally:
         ref.unlink(missing_ok=True)
         for _,p in saved: Path(p).unlink(missing_ok=True)
+
+@app.post("/white/preview")
+async def white_preview(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
+                        choke_mm:float=Form(0.0),spread_mm:float=Form(0.0),
+                        mode:str=Form("standard"),density:float=Form(1.0)):
+    target=UPLOAD_DIR/(uuid4().hex+Path(file.filename or ".bin").suffix.lower())
+    await _save_upload_limited(file,target)
+    out=WHITE_DIR/("white-"+uuid4().hex+".png")
+    try:
+        px=analyze_pixels(str(target))
+        xdpi=px["width_px"]/width_in; ydpi=px["height_px"]/height_in
+        dpi=min(xdpi,ydpi)
+        if mode=="standard":
+            result=generate_white_preview(str(target),str(out),dpi,choke_mm,spread_mm,density)
+        elif mode=="topology_guarded_choke":
+            if spread_mm!=0:
+                raise HTTPException(422,"topology_guarded_choke currently requires spread_mm=0")
+            result=topology_guarded_choke_preview(str(target),str(out),dpi,choke_mm)
+        else:
+            raise HTTPException(400,"mode must be standard or topology_guarded_choke")
+        result["effective_dpi"]=round(dpi,3)
+        result["download_url"]=f"/white/files/{out.name}"
+        return result
+    finally:
+        target.unlink(missing_ok=True)
+
+@app.get("/white/files/{name}")
+def white_file(name:str):
+    if Path(name).name!=name: raise HTTPException(400,"invalid file name")
+    p=(WHITE_DIR/name).resolve()
+    if p.parent!=WHITE_DIR.resolve() or not p.is_file(): raise HTTPException(404,"white preview not found")
+    return FileResponse(str(p),filename=p.name,media_type="image/png")
 
 @app.post("/jobs/analyze")
 async def analyze_async(file:UploadFile=File(...),width_in:float=Form(...),height_in:float=Form(...),
