@@ -20,8 +20,13 @@ class PixelAnalysis:
 def _ratio(mask: np.ndarray) -> float:
     return float(mask.mean()) if mask.size else 0.0
 
+def _source_has_alpha(im: Image.Image) -> bool:
+    return ("A" in im.getbands()) or ("transparency" in im.info)
+
 def analyze_pixels(path: str, low_alpha_max: int = 24) -> Dict[str, Any]:
-    im=Image.open(path).convert("RGBA")
+    src=Image.open(path)
+    has_alpha=_source_has_alpha(src)
+    im=src.convert("RGBA")
     a=np.asarray(im, dtype=np.uint8)
     rgb=a[:,:,:3].astype(np.float32)
     alpha=a[:,:,3]
@@ -32,13 +37,12 @@ def analyze_pixels(path: str, low_alpha_max: int = 24) -> Dict[str, Any]:
     ys,xs=np.where(visible)
     bbox=None if len(xs)==0 else (int(xs.min()),int(ys.min()),int(xs.max()+1),int(ys.max()+1))
 
-    # Edge RGB diagnostics are intentionally descriptive, not destructive.
+    # Screening signals only: extreme RGB on semi-transparent edges can be legitimate artwork.
     lum=(0.2126*rgb[:,:,0]+0.7152*rgb[:,:,1]+0.0722*rgb[:,:,2])/255.0
     edge_count=max(int(semi.sum()),1)
     light=float(((semi)&(lum>0.92)).sum()/edge_count)
     dark=float(((semi)&(lum<0.08)).sum()/edge_count)
 
-    # Conservative horizontal/vertical minimum visible run proxy.
     runs=[]
     for m in (visible, visible.T):
         for row in m:
@@ -50,6 +54,6 @@ def analyze_pixels(path: str, low_alpha_max: int = 24) -> Dict[str, Any]:
     min_run=min(runs) if runs else None
 
     return asdict(PixelAnalysis(
-        im.width,im.height,True,_ratio(alpha==0),_ratio(semi),_ratio(low),
+        im.width,im.height,has_alpha,_ratio(alpha==0),_ratio(semi),_ratio(low),
         _ratio(opaque),bbox,light,dark,min_run
     ))
