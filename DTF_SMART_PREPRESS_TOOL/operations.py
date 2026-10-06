@@ -6,9 +6,13 @@ from image_ops import extend_hidden_rgb,resize_rgba_premultiplied_linear,denoise
 from deblur import wiener_deblur_derivative
 from thresholding import threshold_alpha_candidate
 from morphology import apply_alpha_morphology
+from matting import rembg_candidate
+from upscale_local_ai import realesrgan_ncnn_candidate
+from settings import load_settings
 
 SUPPORTED={
-  "background_border_key","edge_bleed","resize","denoise","sharpen","deblur","threshold","morphology"
+  "background_border_key","edge_bleed","resize","denoise","sharpen","deblur",
+  "threshold","morphology","ai_background","ai_upscale_local"
 }
 
 def create_candidate(source_path:str,operation:str,params:Dict[str,Any]|None=None,
@@ -17,6 +21,7 @@ def create_candidate(source_path:str,operation:str,params:Dict[str,Any]|None=Non
     if operation not in SUPPORTED: raise ValueError(f"unsupported operation: {operation}")
     m=manager or CandidateManager()
     out=m.path_for(operation)
+    settings=load_settings()
 
     if operation=="background_border_key":
         meta=border_connected_color_key(source_path,out,float(params.get("tolerance",24.0)),
@@ -39,10 +44,20 @@ def create_candidate(source_path:str,operation:str,params:Dict[str,Any]|None=Non
     elif operation=="threshold":
         meta=threshold_alpha_candidate(source_path,out,str(params.get("method","otsu")),
                                        params.get("threshold")); alpha_changed=True
-    else:
+    elif operation=="morphology":
         meta=apply_alpha_morphology(source_path,out,str(params["morphology_operation"]),
                                     float(params["radius_mm"]),float(params["effective_dpi"]),
                                     int(params.get("iterations",1))); alpha_changed=True
+    elif operation=="ai_background":
+        meta=rembg_candidate(source_path,out,str(params.get("model","u2net")),settings.rembg_model_dir)
+        alpha_changed=True
+    else:
+        if not settings.realesrgan_bin:
+            raise RuntimeError("DTF_REALESRGAN_BIN is not configured")
+        meta=realesrgan_ncnn_candidate(source_path,out,settings.realesrgan_bin,
+                                       str(params.get("model_name","realesrgan-x4plus")),
+                                       int(params.get("scale",4)),int(params.get("timeout_seconds",300)))
+        alpha_changed=True
 
     registered=m.register_candidate(source_path,out,operation,params,alpha_changed)
     return {"operation_result":meta,**registered}
