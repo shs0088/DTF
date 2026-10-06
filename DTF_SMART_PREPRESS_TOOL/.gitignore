@@ -4,6 +4,7 @@ runtime_calibration/
 runtime_masters/
 runtime_packages/
 runtime_reports/
+runtime_white/
 runtime_jobs.sqlite3*
 runtime_assets.sqlite3*
 *.candidate.png
