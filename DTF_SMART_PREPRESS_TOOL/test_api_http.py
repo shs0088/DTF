@@ -61,6 +61,16 @@ class TestAPIHTTP(unittest.TestCase):
         self.assertEqual(d.status_code,200)
         self.assertIn("DTF Smart Prepress Report",d.text)
 
+    def test_opencart_evaluate(self):
+        r=self.client.post("/integrations/opencart/evaluate",
+            files={"file":("art.png",png_bytes(),"image/png")},
+            data={"order_item_id":"42","product_type":"T-Shirt","print_width_in":"1","print_height_in":"1",
+                  "print_area_width_in":"2","print_area_height_in":"2","master_selected":"true"})
+        self.assertEqual(r.status_code,200,r.text)
+        j=r.json()
+        self.assertEqual(j["order_item_id"],"42")
+        self.assertTrue(j["ready_to_print_eligible"])
+
     def test_calibration_chart(self):
         r=self.client.post("/calibration/chart",data={"dpi":"100","width_in":"4","height_in":"6"})
         self.assertEqual(r.status_code,200,r.text)
