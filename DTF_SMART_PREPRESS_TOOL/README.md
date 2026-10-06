@@ -1,34 +1,69 @@
-# DTF Smart Prepress Tool — active build
+# DTF Smart Prepress Tool — active standalone build
 
-Research-driven prepress/preflight engine, intentionally isolated from the protected OpenCart storefront.
+Research-driven prepress/preflight engine. It is deliberately isolated from the protected OpenCart storefront.
 
-## Implemented
-- Real PNG/RGBA pixel inspection
-- Final-size effective DPI (embedded DPI is not treated as sufficient)
+## Current capabilities
+- Real PNG/JPEG/TIFF/WebP parsing and upload validation
+- Encoded-size + decoded-megapixel limits and decompression-bomb handling
+- Source alpha detection (JPEG is no longer falsely reported as alpha)
+- Embedded DPI recorded as metadata only
+- Effective DPI calculated from final physical size
+- Aspect-ratio distortion detection
 - Transparent / semi-transparent / low-alpha statistics
-- Content bounds and ghost-alpha risk inputs
-- Preliminary light/dark edge-RGB diagnostics
-- Minimum visible-run proxy for fine-feature risk
-- White source policy model
-- Choke/spread stored in physical units and converted after final size is known
-- Diagnostic white-underbase preview
-- Feature-loss warning from choke vs measured feature size
+- Content bounds, preliminary edge-RGB risk signals
+- Connected components and holes/counters topology analysis
+- Physical printability checks driven by output-profile thresholds
+- Multi-background composite QA statistics
+- ICC inspection and explicit profile conversion derivative
+- Border-connected color-key background-removal candidate
+- Optional rembg AI matte candidate backend
+- Trimap/unknown-region inspection
+- Known-background RGB unmatting/decontamination
+- Hidden-RGB edge bleed without changing alpha
+- Linear-light premultiplied-alpha resizing
+- Median denoise derivative
+- Unsharp-mask derivative
+- Wiener deblur derivative with explicit PSF
+- Alpha morphology: erode/dilate/open/close
+- Otsu/fixed threshold candidates
+- White-underbase diagnostic preview with continuous/binary gradient policy
+- Choke/spread in physical units only after final size is known
+- White topology-survival comparison and spread-canvas clipping risk
+- Ordered Bayer halftone diagnostic preview
+- Mockup-safe derivative that cannot overwrite Ready-to-Print Master
 - JSON PASS/WARN/FAIL report
-- CLI and unit tests
+- CLI, local web UI, FastAPI service, bounded in-memory async job queue
+- Windows launcher, Linux launcher and Dockerfile
+- GitHub Actions unit-test workflow
 
-## Run
+## Run on Windows
+Double-click `run_windows.bat`, then open:
+`http://127.0.0.1:8000`
+
+## Manual run
 ```
 python -m pip install -r requirements.txt
-python cli.py artwork.png --width-in 16 --height-in 18 --choke-mm 0.15 --white-preview white.png --report report.json
+python cli.py artwork.png --width-in 16 --height-in 18 --report report.json
+python -m uvicorn api:app --host 127.0.0.1 --port 8000
 python -m unittest discover -v
 ```
 
-## Important limits of this build
-- White preview is diagnostic, not RIP-authoritative output.
-- Light/dark edge metrics are screening signals, not proof of halo contamination.
-- Minimum-run is a conservative proxy; topology-aware connected-component/hole/skeleton analysis is the next stage.
-- No destructive background removal is automatically applied.
-- No universal DTF choke, DPI, halftone, or ICC values are hard-coded.
+For optional AI background-removal candidate support:
+```
+pip install -r requirements-ai.txt
+```
 
-## Protected-storefront rule
-This directory is standalone. No OpenCart/storefront file is modified, no deployment is performed, and no merge is performed during tool development.
+## Non-negotiable design rules
+- Embedded 300 DPI alone never proves DTF readiness.
+- No universal choke, spread, minimum stroke, halftone, ICC, or effective-DPI threshold is invented.
+- Printer/RIP/ink/film/mode thresholds belong to a calibrated Output Profile.
+- Analysis does not silently modify the Ready-to-Print Master.
+- Every destructive or appearance-changing operation creates a derivative candidate.
+- Soft alpha is preserved by default; binary thresholding must be explicit.
+- White preview and halftone preview are diagnostic, not authoritative RIP output.
+- Background removal, alpha quality, RGB edge contamination and topology are evaluated separately.
+- Mockup derivative is not the Ready-to-Print Master.
+- 2D assets are never labeled as 3D without an actual supported 3D asset.
+
+## Storefront protection
+No deployment or merge is performed from this build. OpenCart integration remains a separate later step after the engine is validated.
