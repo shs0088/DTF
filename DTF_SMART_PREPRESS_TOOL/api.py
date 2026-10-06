@@ -17,6 +17,7 @@ from acceptance import accept_candidate_as_new_master
 from prepress_package import create_prepress_package
 from batch import analyze_batch
 from report_html import render_report_html
+from self_check import run_self_check
 
 BASE_DIR=Path(__file__).resolve().parent
 settings=load_settings()
@@ -59,6 +60,10 @@ async def _save_upload_limited(file:UploadFile,target:Path)->int:
     except Exception:
         target.unlink(missing_ok=True)
         raise
+
+@app.get("/self-check")
+def self_check():
+    return run_self_check(str(BASE_DIR))
 
 @app.get("/health")
 def health():
