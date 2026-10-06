@@ -97,6 +97,26 @@ Optional local AI matting dependencies:
 
 Model files are not downloaded by the application at runtime. See `models/README.md`.
 
+
+## Added in the current build
+
+- bounded feature-width analysis using a scaled alpha mask when artwork is very large
+- bounded topology analysis with explicit analysis_scale
+- alpha-structure diagnostics and white gradient-tail support QA
+- product print-area compatibility and transparent canvas-margin checks
+- validated/fingerprinted Output Profiles
+- no-reference raster quality diagnostics (edge energy, noise/texture proxy, 8x8 block-boundary ratio)
+- bounded multi-file Batch Analysis
+- downloadable HTML preflight reports
+- local Self-Check for runtime directories, SQLite, packages and offline AI availability
+- read-only OpenCart order-item eligibility contract/API
+- structural Mockup Inspector:
+  - raster images stay 2D
+  - GLB/GLTF require validated mesh data before actual_3d=true
+  - OBJ requires vertices + faces
+  - animation capability is reported only when present in the 3D asset
+- DTF print-area placement metadata in millimeters; generic UV mapping is not used for print placement
+
 ## Non-negotiable rules
 1. Embedded 300 DPI alone never proves DTF readiness.
 2. No universal choke/spread/minimum-stroke/halftone/ICC/effective-DPI threshold is invented.
