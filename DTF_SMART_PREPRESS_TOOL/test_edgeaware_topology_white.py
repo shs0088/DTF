@@ -1,7 +1,7 @@
 import os,tempfile,unittest
 from PIL import Image,ImageDraw
 from edge_aware_denoise import guided_denoise_derivative
-from topology_guarded_white import topology_guarded_choke_preview
+from topology_guarded_white import topology_guarded_choke_preview,topology_guarded_white_preview
 
 class TestEdgeAwareTopologyWhite(unittest.TestCase):
     def test_guided_filter_preserves_alpha(self):
@@ -21,5 +21,16 @@ class TestEdgeAwareTopologyWhite(unittest.TestCase):
             r=topology_guarded_choke_preview(src,out,300,0.5)
             self.assertTrue(r["topology_preserved"])
             self.assertLessEqual(r["applied_choke_px"],r["requested_choke_px"])
+
+    def test_spread_guard_preserves_hole(self):
+        with tempfile.TemporaryDirectory() as d:
+            src=os.path.join(d,"ring.png"); out=os.path.join(d,"w.png")
+            im=Image.new("RGBA",(40,40),(0,0,0,0)); dr=ImageDraw.Draw(im)
+            dr.rectangle((5,5,34,34),fill=(0,0,0,255))
+            dr.rectangle((15,15,24,24),fill=(0,0,0,0))
+            im.save(src)
+            r=topology_guarded_white_preview(src,out,300,0.0,2.0)
+            self.assertTrue(r["topology_preserved"])
+            self.assertLessEqual(r["applied_spread_px"],r["requested_spread_px"])
 
 if __name__=="__main__": unittest.main()
