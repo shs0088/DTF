@@ -2812,3 +2812,16 @@ All five pages were opened/read. Search snippets were excluded. Localized mirror
 Key findings: final-size physical feature survival is a stronger DTF gate than DPI metadata alone; visible artwork white and technical RIP underbase must remain separate; weak alpha can create unstable white support; denoising should route by noise class with removed-noise residual review; structure-texture decomposition must be treated separately from denoising; edge/connectivity/topology metrics complement PSNR/SSIM.
 
 GitHub ledger: 1522 / 10,000.
+
+
+## Verified Batch 267 — 3 pages — differential alpha recovery, fade-tail screening QA, choke fault-domain routing
+
+2158. https://github.com/MarkoUnity/NanoAlpha
+2159. https://dtf.pro/es/guias/semitonos-dtf-degradados-tramas
+2160. https://www.printstep.com/white-in-dtf
+
+Three materially distinct pages were opened/read individually and canonical-URL searched against the repository. Search snippets and localized mirrors were excluded. Previously covered sources were not recounted.
+
+Key findings: add a perceptual border-connected background-removal fast path with explicit foreground-RGB decontamination; support optional two-background differential alpha recovery when aligned source plates exist; evaluate screened fade tails as physical dot/white/adhesive structures; diagnose halo defects by artwork-vs-RIP-vs-process domain; enforce decoded-pixel, upload, concurrency and rate limits for image-processing APIs.
+
+GitHub branch-backed verified corpus: 2160 / 10,000.
