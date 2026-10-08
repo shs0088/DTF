@@ -1,0 +1,1 @@
+Batch 297 PT originals: https://jonysarcanjo.medium.com/aprenda-a-detectar-bordas-usando-os-operadores-laplacian-e-sobel-4f5b8f7943a5 (turn12view5, Sobel and Laplacian); https://medium.com/@genilsonmedeiros/pr%C3%A9-processamento-de-imagens-com-python-parte-2-limiariza%C3%A7%C3%A3o-41daa4edb457 (turn13view2, thresholding).
