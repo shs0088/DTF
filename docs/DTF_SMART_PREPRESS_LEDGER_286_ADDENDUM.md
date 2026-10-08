@@ -7,3 +7,7 @@
 3. https://opencv-master.tistory.com/81
 
 4. Turkish OpenCV tutorial, ID 8bacfab1bb1b.
+5. Portuguese OpenCV tutorial, ID 14398894b46e.
+6. Arabic feature/segmentation article: ai.malawad.com/types-of-features-image-segmentation.
+7. Arabic morphology tutorial: ifhmsah.com/python-opencv-recognize.
+8. Japanese rembg example: qiita.com/kotai2003/items/2cddf1b3e17c728439b0.
