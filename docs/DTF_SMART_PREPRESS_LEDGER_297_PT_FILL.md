@@ -1,0 +1,1 @@
+Portuguese source opened/read: https://medium.com/@octaviofisica/entendendo-o-modo-de-preenchimento-de-pixels-em-transforma%C3%A7%C3%B5es-de-imagens-99ca5ed3d6b4 ; evidence turn13view3. Different fill modes (constant, reflect, wrap) can change edge pixels in resampled mockups.
