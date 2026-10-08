@@ -2825,3 +2825,20 @@ Three materially distinct pages were opened/read individually and canonical-URL 
 Key findings: add a perceptual border-connected background-removal fast path with explicit foreground-RGB decontamination; support optional two-background differential alpha recovery when aligned source plates exist; evaluate screened fade tails as physical dot/white/adhesive structures; diagnose halo defects by artwork-vs-RIP-vs-process domain; enforce decoded-pixel, upload, concurrency and rate limits for image-processing APIs.
 
 GitHub branch-backed verified corpus: 2160 / 10,000.
+
+
+## Batch 279 — 2026-10-08 — individually read, provisional (9 pages)
+
+**Audit warning:** These nine pages were opened/read and checked against this ledger's existing URL occurrences and accessible recent reports. Historic full semantic deduplication remains incomplete. Previous provisional upper bound 2,196; current provisional upper bound **2,205 / 10,000**, **NOT** a certified global verified count. Do not treat the earlier 2,160 branch-backed summary as a certified unique count either.
+
+- https://habr.com/ru/articles/565378/
+- https://habr.com/ru/articles/172651/
+- https://www.dostool.com/articles/cmqgt3sln002nqst7k9exobwj
+- https://www.cnblogs.com/bjxqmy/p/12309640.html
+- https://www.cnblogs.com/yjbjingcha/p/19010676
+- https://qiita.com/garmiy/items/ce2cf348e24ee744b334
+- https://qiita.com/ltzz/items/2160b5a73c206e14bde3
+- https://medium.com/@mucahitkurtulusakin/yapay-zeka-ile-bir-resmin-arka-plan%C4%B1n%C4%B1-silmek-python-f280114dc784
+- https://medium.com/@polescat2/penghilangan-noise-pada-foto-lama-menggunakan-median-filter-gaussian-filter-dan-non-local-means-7e4c9e1e6cef
+
+Detailed reading evidence, findings and caveats: research/Batch_279_2026-10-08.md. Do not count these a second time from the addendum.
