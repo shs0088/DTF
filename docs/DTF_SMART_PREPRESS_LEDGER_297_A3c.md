@@ -1,0 +1,1 @@
+Batch 297 ES original: https://es.stackoverflow.com/questions/186990/c%C3%B3mo-dibujar-un-rect%C3%A1ngulo-sobre-una-imagen-ya-cargada-con-pil (turn13view0, canvas coordinate and crop). Provisional cumulative count 2469; globally certified count not available pending historic semantic deduplication.
