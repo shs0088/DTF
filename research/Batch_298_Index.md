@@ -1,0 +1,3 @@
+# Batch 298 Index
+
+Date: 2026-10-09. Seventeen locally distinct opened technical pages. Provisional cumulative 2,486 / 10,000. Certified global cumulative unavailable until historical semantic deduplication. Source ledger A1 and A2a are committed; complete source ledger and full report are preserved in the run artifacts but not fully synchronized. Engineering synthesis is committed separately. Research-only: no merge, deployment, or storefront changes.
