@@ -1,0 +1,2 @@
+# DTF Smart Prepress Batch 308: Alpha-edge resampling
+The Japanese OPTPiX technical guide establishes that RGB extension into fully transparent pixels must cover the reconstruction kernel's footprint. A one-pixel bleed may handle bilinear enlargement, but Lanczos, bicubic or downscaling can require wider extension. This is for derived mockup textures, with alpha preserved. Inspect output on black, white and garment-colored backgrounds; never overwrite the approved Ready-to-Print Master.
