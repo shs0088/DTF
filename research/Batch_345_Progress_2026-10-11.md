@@ -1,0 +1,5 @@
+# DTF Smart Prepress — Batch 345 Progress (2026-10-11)
+
+16 individually opened/read, locally deduplicated technical sources spanning Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian, Turkish, and English. Previous provisional cumulative upper bound: 3,173; updated provisional upper bound: **3,189/10,000 (31.89%)**. **Not a globally certified unique-page count**; full historical semantic deduplication remains incomplete. No historical corrections in this batch.
+
+19 deterministic software/mathematical regression tests passed; no physical DTF printer calibration. Important findings: 1,500px browser preview caps cannot be used for a 16-inch 300-PPI print master; Alpha-only background removal retains contaminated edge RGB; resampling boundary conventions matter; morphology/thresholding can delete tiny artwork; RIP white ink density and choke require separate calibrated settings. No merge, deployment, protected storefront or Ready-to-Print Master modification.
