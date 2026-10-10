@@ -2885,3 +2885,5 @@ Previous provisional upper bound: 3130. New individually opened/read locally dis
 - https://scielo.br/j/ac/a/kJkG9DGjfmRnrxB3QkwW7hz
 
 - https://dergipark.org.tr/tr/pub/jist/article/1416788
+
+- https://zoroprint.com/guides/white-halo-dtf
