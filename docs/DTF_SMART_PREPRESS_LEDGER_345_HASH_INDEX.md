@@ -1,0 +1,22 @@
+# DTF Smart Prepress Batch 345 — Canonical URL SHA-256 Index
+
+16 individually opened/read locally distinct technical pages. Date 2026-10-11. Updated provisional corpus upper bound **3,189**, not globally certified. Full canonical URL mapping is in the Batch 345 local research package. Hashes are SHA-256 of canonical URL strings (https, strip www/tracking parameters and nonfile trailing slashes). Source order matches local manifest.
+
+1. AR 964ee5a5871b3f43e7c0e231101b558fc57b3744ae2f7cc8af4ff1e91b34ac44
+2. ZH 448d5bb725edda623e0b05a225767be510bf55adcb9a08a4c365070cd9b311c7
+3. JA e6811480ea4534d5d3c04a648da774e914149064493c37e008c7b78ac48fbc24
+4. JA d48a0689cc98f8f7866c83f2c1594f19d25f85e75e29bc5cdf1dbd7a73f86b3b
+5. KO d05d4b5d07433a8f3bb5e8202816d1fe159a7376ecc51b661d9c44ac95e0b842
+6. RU cc21fca3d07071bb2268ad7f8c2aca946e8bad5b30b4dc6cc3862fb48b6df5b4
+7. ES 47a53752e709fbdcd16516476f908490a0728cd23029914d036456cf33282e9d
+8. PT 83c53cee2305bf20783c2736dce045b012ae2509c3552a93333efef8f4ee0c54
+9. DE 9956bbc1728168b65eb7930b0297af95ce5b776ef8c35ba56f4487298a6affe7
+10. FR c484f6d50531f6ecb9f8cfc5d3878017436418c7c9ef6a5c5ab1a2e65dc3f05a
+11. IT e43ebcebe293e6592b83c57010a60443b817ab8e98d6a7cf24a8f8222a632720
+12. TR 1564b52c2c772905b408cb276ea04847e25ab35d3b9485d91c58a8b3c50312e2
+13. TR 915dfb3b6144b45170159ca8eec8929d15e0646d93909449cd2a897a5f8eda95
+14. EN 0cec50e906449d8b0d19d9cb6ea76c4815ad65986c403003c630f3f0599b9c7e
+15. EN b12a8d7fa776fe281a686989557c90960a9ca8204362190e74e0ce736175e14b
+16. EN 7f703b382b745f5536a936d76d8517a44cfd65f4bb569814252e0a57c4adc8f9
+
+No merge or deployment.
