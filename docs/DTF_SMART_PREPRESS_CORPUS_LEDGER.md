@@ -2874,3 +2874,8 @@ Detailed reading evidence, findings and caveats: research/Batch_279_2026-10-08.m
 ## Verified Batch 342 — 14 pages (provisional)
 
 Previous provisional upper bound: 3130. New individually opened/read locally distinct pages: 14. Updated provisional upper bound: 3144. Globally certified unique cumulative: not established pending historical semantic deduplication. Complete canonical URLs and SHA256 hashes are in the local Batch 342 manifest; repository synthesis: research/Batch_342_Engineering_Synthesis_2026-10-10.md. No deployment or merge.
+
+- https://aiinarabic.com/image-processing-using-opencv
+- https://cnblogs.com/PowerNiuSu/articles/22014507
+- https://yutaka-note.com/entry/opencv_01
+- https://mcrkgus.tistory.com/55
