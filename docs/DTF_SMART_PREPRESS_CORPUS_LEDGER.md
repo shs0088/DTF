@@ -2863,3 +2863,9 @@ Detailed reading evidence, findings and caveats: research/Batch_279_2026-10-08.m
 - https://impressiondtf.ch/fr/impression-dtf-conseils
 - https://zeromathai.com/ar/median-filter-ar/
 - https://wr.informatik.uni-hamburg.de/_media/teaching/sommersemester_2016/pir-16-tobias_klinke-report.pdf
+
+
+### Batch 337 source URLs — group 4C
+
+- https://pt.stackoverflow.com/questions/291634/problema-ao-criar-uma-imagem-com-fundo-transparente
+- https://pt.stackoverflow.com/questions/108875/redimensionar-e-gravar-png-com-fundo-transparente
