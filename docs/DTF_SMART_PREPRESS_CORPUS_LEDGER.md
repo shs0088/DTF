@@ -2855,3 +2855,11 @@ Detailed reading evidence, findings and caveats: research/Batch_279_2026-10-08.m
 - https://www.cnblogs.com/chhengzigogo/articles/23190111
 - https://www.cnblogs.com/sanyejun/p/14856576.html
 - https://qiita.com/kumanomi1000/items/210dbb6b1156e948127f
+
+
+### Batch 337 opened/read source URLs — group 3
+
+- https://dergipark.org.tr/en/pub/ij3dptdi/article/429492
+- https://impressiondtf.ch/fr/impression-dtf-conseils
+- https://zeromathai.com/ar/median-filter-ar/
+- https://wr.informatik.uni-hamburg.de/_media/teaching/sommersemester_2016/pir-16-tobias_klinke-report.pdf
