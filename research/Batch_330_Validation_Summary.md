@@ -1,0 +1,3 @@
+# Batch 330 — Validation Summary
+
+Eight synthetic tests passed. Binary OpenCV masks are not fractional alpha; morphology gradient is dilation minus erosion; a printed dilation subset condition is tautological; global white deletion loses legitimate details; changing PPI metadata leaves pixel dimensions unchanged. Require topology preservation, edge-color validation and printer-specific physical calibration. These are research recommendations, not production changes.
