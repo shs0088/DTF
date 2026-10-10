@@ -1,0 +1,1 @@
+Batch 330 source 12: Heidelberg image-matting research abstract, read individually. Canonical hash prefix 7eb12a9cccb72e0a. Full reference in local manifest.
