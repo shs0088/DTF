@@ -2869,3 +2869,8 @@ Detailed reading evidence, findings and caveats: research/Batch_279_2026-10-08.m
 
 - https://pt.stackoverflow.com/questions/291634/problema-ao-criar-uma-imagem-com-fundo-transparente
 - https://pt.stackoverflow.com/questions/108875/redimensionar-e-gravar-png-com-fundo-transparente
+
+
+## Verified Batch 342 — 14 pages (provisional)
+
+Previous provisional upper bound: 3130. New individually opened/read locally distinct pages: 14. Updated provisional upper bound: 3144. Globally certified unique cumulative: not established pending historical semantic deduplication. Complete canonical URLs and SHA256 hashes are in the local Batch 342 manifest; repository synthesis: research/Batch_342_Engineering_Synthesis_2026-10-10.md. No deployment or merge.
