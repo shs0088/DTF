@@ -1,0 +1,2 @@
+# Batch 326 engineering synthesis
+Alpha matte is not reconstructed foreground RGB. Near-zero alpha makes inverse foreground recovery unstable. Protect typography topology during erosion. Track straight/premultiplied alpha. Spot_1 TIFF and choke are RIP-specific, not universal. UNet gains are dataset-specific. Defringe can delete valid pale artwork. Eight synthetic regression tests passed; physical printer tests pending.
