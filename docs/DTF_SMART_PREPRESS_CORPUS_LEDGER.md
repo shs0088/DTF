@@ -2847,3 +2847,11 @@ Detailed reading evidence, findings and caveats: research/Batch_279_2026-10-08.m
 ## Batch 337 checkpoint — 2026-10-10
 
 17 individually opened/read and locally distinct technical pages; provisional cumulative upper bound 3,068 / 10,000. Full canonical URL records and SHA-256 hashes are in the Batch 337 local research package. Research branch checkpoint: docs/DTF_SMART_PREPRESS_LEDGER_337_CHECKPOINT.md. Complete historical semantic deduplication remains incomplete; no globally certified unique-page count is claimed. No merge or production changes.
+
+
+### Batch 337 opened/read source URLs — group 1
+
+- https://www.cnblogs.com/xrst/p/14023871.html
+- https://www.cnblogs.com/chhengzigogo/articles/23190111
+- https://www.cnblogs.com/sanyejun/p/14856576.html
+- https://qiita.com/kumanomi1000/items/210dbb6b1156e948127f
