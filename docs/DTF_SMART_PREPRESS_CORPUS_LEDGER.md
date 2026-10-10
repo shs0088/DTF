@@ -2879,3 +2879,5 @@ Previous provisional upper bound: 3130. New individually opened/read locally dis
 - https://cnblogs.com/PowerNiuSu/articles/22014507
 - https://yutaka-note.com/entry/opencv_01
 - https://mcrkgus.tistory.com/55
+
+- https://habr.com/ru/articles/98743
