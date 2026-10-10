@@ -2842,3 +2842,8 @@ GitHub branch-backed verified corpus: 2160 / 10,000.
 - https://medium.com/@polescat2/penghilangan-noise-pada-foto-lama-menggunakan-median-filter-gaussian-filter-dan-non-local-means-7e4c9e1e6cef
 
 Detailed reading evidence, findings and caveats: research/Batch_279_2026-10-08.md. Do not count these a second time from the addendum.
+
+
+## Batch 337 checkpoint — 2026-10-10
+
+17 individually opened/read and locally distinct technical pages; provisional cumulative upper bound 3,068 / 10,000. Full canonical URL records and SHA-256 hashes are in the Batch 337 local research package. Research branch checkpoint: docs/DTF_SMART_PREPRESS_LEDGER_337_CHECKPOINT.md. Complete historical semantic deduplication remains incomplete; no globally certified unique-page count is claimed. No merge or production changes.
