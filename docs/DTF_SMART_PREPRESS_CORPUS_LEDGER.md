@@ -2887,3 +2887,11 @@ Previous provisional upper bound: 3130. New individually opened/read locally dis
 - https://dergipark.org.tr/tr/pub/jist/article/1416788
 
 - https://zoroprint.com/guides/white-halo-dtf
+
+
+## Batch 355 provisional checkpoint (2026-10-11)
+
+- 20 individually opened/read and locally distinct technical pages in AR, ZH, JA, KO, RU, ES, PT, DE, FR, IT, TR and EN.
+- Provisional cumulative upper bound: **3,338 / 10,000** (previous 3,318); not a globally certified unique count pending historical semantic deduplication.
+- Full source records and engineering synthesis: `research/Batch_355_*_2026-10-11.md` and local Batch 355 research package.
+- 26 synthetic regression tests passed. No printer calibration, merge or deployment.
