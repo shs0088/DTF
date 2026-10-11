@@ -1,0 +1,3 @@
+# DTF Smart Prepress — Batch 368 Progress
+
+2026-10-12: 16 new individually opened/read and locally distinct pages; previous provisional 3,563, updated provisional **3,579 / 10,000 (35.79%)**, remaining provisional 6,421. Globally certified unique count unavailable. Searched Arabic, Chinese, Japanese, Korean, Russian, Spanish, Portuguese, German, French, Italian, Turkish, English; 11 contributed accepted sources. Central URL and recent-manifest checks passed. 30 deterministic synthetic tests passed. No physical DTF/RIP calibration, no merge/deployment/storefront/master changes. See Batch 368 canonical source index and engineering synthesis.
