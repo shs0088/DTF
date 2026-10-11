@@ -2904,3 +2904,16 @@ Previous provisional upper bound: 3130. New individually opened/read locally dis
 - Languages accepted: Arabic, Chinese, Japanese, Korean, Spanish, Portuguese, German, French, Italian, Turkish, English; Russian sources searched but already counted.
 - Full canonical source ledger and SHA-256 hashes preserved in Batch 357 local research package. Research branch progress: `research/Batch_357_Progress_2026-10-11.md`.
 - 28 synthetic regression tests passed; no physical printer calibration, deployment or merge.
+
+
+## Batch 358 — Provisional checkpoint (2026-10-11)
+
+- Previous provisional cumulative count: 3,376.
+- New individually opened/read, locally distinct pages: **17**.
+- Updated provisional cumulative upper bound: **3,393 / 10,000 (33.93%)**.
+- Provisional remaining: **6,607**.
+- Globally certified unique count: **not established**; historical semantic deduplication remains unfinished.
+- Accepted languages: Arabic 3, Chinese 1, Japanese 2, Portuguese 1, Spanish 2, French 1, German 1, Italian 2, Turkish 1, English 3.
+- 30 synthetic regression tests passed. No physical RIP or printer calibration.
+- See research/Batch_358_Progress_2026-10-11.md and research/Batch_358_Technical_Findings_2026-10-11.md. Full 17-source canonical URL/hash index preserved in local Batch 358 package; URL-index commits may be restricted by connector safety checks.
+- No merge, deployment or protected storefront changes.
