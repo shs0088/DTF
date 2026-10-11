@@ -2942,3 +2942,12 @@ Previous provisional 3426; updated provisional 3445. Globally certified unique c
 17. https://dergipark.org.tr/en/pub/ejosat/article/1009678
 18. https://dergipark.org.tr/en/pub/tdfd/article/364147
 19. https://jih.uobaghdad.edu.iq/index.php/j/article/view/97/version/94
+
+
+## Batch 367 provisional checkpoint (2026-10-12)
+
+- 24 new individually opened/read and locally distinct pages across all 12 requested languages.
+- Provisional cumulative upper bound: **3,563 / 10,000 (35.63%)**; remaining provisionally **6,437**.
+- Historical semantic deduplication is incomplete; globally certified unique count not established.
+- Full canonical URLs and SHA-256 index preserved in local Batch 367 package; see research/Batch_367_Engineering_Synthesis_2026-10-12.md.
+- 30 synthetic tests passed; no physical calibration, deployment, merge or protected storefront changes.
