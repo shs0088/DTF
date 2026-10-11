@@ -1,0 +1,18 @@
+# DTF Smart Prepress Batch 349 — Canonical URL Hash Index
+Date: 2026-10-11. Twelve individually opened, locally distinct original source pages.
+SHA-256 values below fingerprint canonical URL strings, **not page content**.
+
+01 AR 221cce98bc7cd1ff9a7ae4d871cf7caac6e41b6c5ee94cb8e77ca379b01025ac
+02 ZH a76ea786f37c9338fddf973d78769857b354b973698dcc41367de6745c3d5a21
+03 ZH 5fbc25bf8b6c8e7469c1da343dcef4f84063e5f2e3b52c50c799104ec69c3ea4
+04 JA 29b54dedb518fae51567db4c26321f6a21ce6b56695fa121259ec89247b7551f
+05 KO ca5978ee37dd7c64da16ca6b0849f4bbb3cb47e556392ef11cd8f4a76530ce0a
+06 RU a06e09d555637b09123cb3df61cd7cac86ed373b0e84d2bf2d6687df39af22fd
+07 ES 796429eb3e2a2380c92da546a3c896c5d3e271b695e5b1b65fc51912fbd0ea9b
+08 PT ecb9d885df2afabcbf46de52ceb058dcaf6afea989380aa6bf9fc4bfd226878d
+09 DE 1f30d1318e494b84ea812b3dca49a2e19729d2f42ff3c3b677e33246c145bd24
+10 FR e4aab09d6716ce71ccfe81a2a09cb9361dbd87cb9b4c987e386fe47d90f2388f
+11 IT 7abd455b81feaf5f78fcbb48e4447873bee52aed77d05c542173f8fdffc5522c
+12 TR f32de3dbf588cdf6cb496e6ab9657693f48e02075c916e405da0296d7960bcc0
+
+Previous provisional upper bound: 3231. New: 12. Updated provisional upper bound: 3243 (32.43%). Globally certified historical semantic unique count remains unknown. No deployment or merge.
