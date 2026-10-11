@@ -1,0 +1,3 @@
+# DTF Smart Prepress — Batch 368 Cumulative Checkpoint
+
+Date: 2026-10-12. Previous provisional upper bound 3,563. Added 16 individually opened/read, locally distinct technical pages. Updated provisional upper bound **3,579 / 10,000 (35.79%)**; provisional remaining 6,421. Historical semantic deduplication incomplete; globally certified unique count unavailable. All 16 canonical URLs are in research/Batch_368_Source_URLs_1_2026-10-12.md through Batch_368_Source_URLs_4_2026-10-12.md. Technical findings in Batch_368_Findings_A and B. Thirty synthetic tests passed. No merge, deployment, protected storefront or printing-master changes.
