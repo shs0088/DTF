@@ -2895,3 +2895,12 @@ Previous provisional upper bound: 3130. New individually opened/read locally dis
 - Provisional cumulative upper bound: **3,338 / 10,000** (previous 3,318); not a globally certified unique count pending historical semantic deduplication.
 - Full source records and engineering synthesis: `research/Batch_355_*_2026-10-11.md` and local Batch 355 research package.
 - 26 synthetic regression tests passed. No printer calibration, merge or deployment.
+
+
+## Batch 357 provisional checkpoint (2026-10-11)
+
+- 23 new individually opened/read and locally distinct technical pages; cumulative provisional upper bound **3,376 / 10,000** (33.76%).
+- Historical semantic deduplication incomplete; no globally certified unique-page count.
+- Languages accepted: Arabic, Chinese, Japanese, Korean, Spanish, Portuguese, German, French, Italian, Turkish, English; Russian sources searched but already counted.
+- Full canonical source ledger and SHA-256 hashes preserved in Batch 357 local research package. Research branch progress: `research/Batch_357_Progress_2026-10-11.md`.
+- 28 synthetic regression tests passed; no physical printer calibration, deployment or merge.
