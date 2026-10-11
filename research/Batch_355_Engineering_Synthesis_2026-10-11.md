@@ -1,0 +1,13 @@
+# DTF Smart Prepress — Batch 355 Engineering Synthesis (2026-10-11)
+
+**Progress:** 20 individually opened/read locally distinct technical webpages; provisional cumulative upper bound **3,338 / 10,000 (33.38%)**; globally certified unique count unknown pending historical semantic deduplication. Twelve language groups covered.
+
+1. **DTF choke calibration is print-mode-specific.** Reopened DTF Station's Digital Factory White Choke Wizard guide (previously counted; not a new source) documents printing choke charts, selecting values and saving print modes. Switching print modes can lose queue-level choke settings. Store choke, white density, RIP/printer/film/ink profile and calibration evidence together; invalidate settings on mode changes.
+2. **Morphological cleanup must protect topology.** Turkish multiscale background estimation, Portuguese hole-filling segmentation, Spanish shape interpolation and French structuring-element methods are task-specific. Preserve Arabic dots, diacritics, holes, disconnected elements, stroke width and connected-component count. Reconstruction cannot restore isolated details already erased from the marker.
+3. **Alpha and foreground RGB are separate.** German channel-mask and Italian translucent-object tutorials show why a hard binary mask is insufficient for semitransparency. Validate fractional Alpha and contaminated edge RGB separately on white, black and garment-colored backgrounds; retain original master.
+4. **Resampling does not create authentic detail.** Russian scaling/supersampling and Chinese edge-aware denoising sources support measuring geometric distortion, ringing, effective PPI and alpha fringing. Prefer transparency-safe premultiplied filtering; export PNG in straight-Alpha convention.
+5. **Halftoning is a RIP-calibrated production operation.** Floyd–Steinberg weights are 7/16,3/16,5/16,1/16; mirror horizontal offsets on serpentine rows. Do not apply artistic dithering destructively to the master.
+6. **Physical choke geometry:** 0.15 mm at 300 effective PPI = 1.77 pixels per side; a 0.20 mm stroke may lose white support with two-sided 0.15 mm choke. This is geometry, not universal printer calibration.
+7. **Preserve intentional white art.** Italian DTF prepress guidance distinguishes white artwork from unwanted exterior white backgrounds. Avoid converting alpha-zero pixels to opaque white, as demonstrated in a Japanese OpenCV JPEG-conversion example.
+
+**Verification:** 26 synthetic regression tests passed locally. No physical printer, RIP, ICC or garment calibration. Some academic sources are repository abstracts only. No merge, deployment, protected storefront or Ready-to-Print Master changes.
