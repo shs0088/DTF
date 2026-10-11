@@ -2917,3 +2917,28 @@ Previous provisional upper bound: 3130. New individually opened/read locally dis
 - 30 synthetic regression tests passed. No physical RIP or printer calibration.
 - See research/Batch_358_Progress_2026-10-11.md and research/Batch_358_Technical_Findings_2026-10-11.md. Full 17-source canonical URL/hash index preserved in local Batch 358 package; URL-index commits may be restricted by connector safety checks.
 - No merge, deployment or protected storefront changes.
+
+
+## Batch 361 — 19 opened, locally distinct pages (2026-10-11)
+
+Previous provisional 3426; updated provisional 3445. Globally certified unique count not yet established; historical semantic dedup incomplete. Some sources abstract-only. Complete evidence: research/Batch_361_Canonical_Source_Ledger_2026-10-11.md.
+
+1. https://aiinarabic.com/grabcut-foreground-segmentation-and-extraction/
+2. https://www.cnblogs.com/wuyuan2011woaini/p/15659878.html
+3. https://qiita.com/nagtkk/items/a2c7f78b24220c92d2cb
+4. https://076923.github.io/docs/grabCut
+5. https://habr.com/ru/companies/etmc_exponenta/articles/921784/
+6. https://habr.com/ru/articles/850890/
+7. https://piclab.click/es/articles/background-removal-techniques/
+8. https://diglib.eg.org/items/80e01cdf-0c97-473e-883c-92a87996fd4b
+9. https://revistas.utfpr.edu.br/pb/index.php/SysScy/article/view/2537
+10. https://aberto.univem.edu.br/handle/11077/1024
+11. https://www.digitalphoto.de/tutorials/photoshop-freistellen-farbkanaelen
+12. https://www.fototv.de/tutorial/lernt-das-freistellen-mit-alpha-kanalen-in-photoshop-cs-5
+13. https://openclassrooms.com/fr/courses/3938146-appropriez-vous-la-demarche-ux-en-pratique/4288071-retouchez-un-visuel-pour-le-web-avec-adobe-photoshop
+14. https://www.html.it/pag/18919/decontaminazione-dei-colori-e-ottimizzazione-dei-bordi/
+15. https://www.html.it/pag/59295/selezioni-con-maschera/
+16. https://feyzatopcu.medium.com/segmentation-segmentasyon-2b75fe76e4c9
+17. https://dergipark.org.tr/en/pub/ejosat/article/1009678
+18. https://dergipark.org.tr/en/pub/tdfd/article/364147
+19. https://jih.uobaghdad.edu.iq/index.php/j/article/view/97/version/94
