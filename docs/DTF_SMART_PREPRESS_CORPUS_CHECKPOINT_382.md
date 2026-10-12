@@ -1,0 +1,3 @@
+# DTF Smart Prepress — Batch 382 corpus checkpoint
+
+2026-10-12: 19 individually opened/read and locally deduplicated pages across 10 languages; 12 searched. Previous provisional 3,803; updated provisional upper bound **3,822/10,000 (38.22%)**, 6,178 provisionally remaining. Complete historical semantic deduplication unavailable; globally certified unique count unknown. 30 synthetic regression tests passed locally; no physical DTF printer/RIP testing. See research/Batch_382_Canonical_Source_Index_2026-10-12.md and research/Batch_382_Engineering_Synthesis_2026-10-12.md. No merge, deployment, protected storefront or master changes.
