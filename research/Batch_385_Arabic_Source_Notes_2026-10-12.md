@@ -1,0 +1,1 @@
+Batch 385 Arabic research: one 56-page engineering graduation-project PDF on image segmentation and connected components; one journal abstract on Daubechies wavelet denoising. Both individually opened and read. Full canonical URLs in local manifest.
