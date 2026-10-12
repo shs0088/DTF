@@ -1,0 +1,2 @@
+# Batch 391 — Matting Source Review B
+The reviewed Bayesian Matting code uses direct covariance inversion without a singularity guard, and an Alpha update whose denominator can approach zero. It does not explicitly clamp Alpha. Its final output is composited onto a selected background rather than exported as RGBA. Add regularization, denominator checks, Alpha bounds and transparent output. The original printing master must remain unchanged.
