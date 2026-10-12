@@ -2956,3 +2956,26 @@ Previous provisional 3426; updated provisional 3445. Globally certified unique c
 ## Batch 389 checkpoint (2026-10-12)
 
 18 individually opened/read, locally distinct sources; provisional upper bound 3,949/10,000. Global semantic uniqueness not certified. Canonical sources: `research/Batch_389_Canonical_Source_Index_2026-10-12.md`. No storefront modifications.
+
+
+## Provisional Batch 393 — 15 individually opened pages (2026-10-13)
+
+**Previous provisional cumulative upper bound:** 4,003 (Batch 392, whose central ledger write was blocked; see Batch 391 checkpoint and local Batch 392 manifest). **New provisional cumulative upper bound:** 4,018 / 10,000. **Globally certified unique count:** unknown; historical semantic deduplication incomplete. This section is an addendum, not a claim that missing Batch 390–392 canonical indexes have been centrally reconciled.
+
+1. https://qiita.com/xyue41464/items/13cc3e5bc9eb28021303
+2. https://zenn.dev/yoya/articles/d874880e1820a5
+3. https://zenn.dev/sktt_panda/articles/image-color-remove-chroma-key-browser
+4. https://blog.csdn.net/gitblog_07735/article/details/148888517
+5. https://velog.io/@ryoong1125/Fragment-Shader를-여러-레이어로-합성하는-방법
+6. https://velog.io/@yongmin_lee/AWS-S3로-이미지-업로드조회-하기Presigned-URL
+7. https://direct.ksu.edu.sa/entities/journalarticle/610d6785-a029-4896-8670-4a2205a92448
+8. https://pr.hu.edu.iq/index.php/pr/article/view/76
+9. https://www.inf.pucrs.br/pinho/CG/Aulas/Img/IMG.htm
+10. https://beltoforion.de/de/dithering/
+11. https://lmb.informatik.uni-freiburg.de/people/haasdonk/DBV_FHO/DBV_FHO_WS0708_E09_handout.pdf
+12. https://amslaurea.unibo.it/id/eprint/16951/1/Luca%20Cavicchioli%20-%20Tesi.pdf
+13. https://amslaurea.unibo.it/id/eprint/3539/
+14. https://albumentations.ai/docs/api-reference/albumentations/augmentations/pixel/transforms/
+15. https://courses.physics.illinois.edu/cs418/fa2026/text/dither.html
+
+Source evidence and technical notes: `research/Batch_393_Canonical_Source_Index_2026-10-13.md` and `research/Batch_393_Engineering_Synthesis_2026-10-13.md`. Opened/read and checked against accessible central ledger and mounted Batch 383–392 manifests; snippets, failed opens, known duplicates and simple localized mirrors excluded. No storefront/deployment/merge changes.
