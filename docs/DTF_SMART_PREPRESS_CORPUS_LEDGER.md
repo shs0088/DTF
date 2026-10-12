@@ -2951,3 +2951,8 @@ Previous provisional 3426; updated provisional 3445. Globally certified unique c
 - Historical semantic deduplication is incomplete; globally certified unique count not established.
 - Full canonical URLs and SHA-256 index preserved in local Batch 367 package; see research/Batch_367_Engineering_Synthesis_2026-10-12.md.
 - 30 synthetic tests passed; no physical calibration, deployment, merge or protected storefront changes.
+
+
+## Batch 389 checkpoint (2026-10-12)
+
+18 individually opened/read, locally distinct sources; provisional upper bound 3,949/10,000. Global semantic uniqueness not certified. Canonical sources: `research/Batch_389_Canonical_Source_Index_2026-10-12.md`. No storefront modifications.
