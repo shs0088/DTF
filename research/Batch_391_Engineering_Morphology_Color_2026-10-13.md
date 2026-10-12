@@ -1,0 +1,4 @@
+# Batch 391 — Morphology, Color and Geometry
+Korean morphology example /77 labels a cv2.MORPH_CLOSE operation as opening; closing and opening have opposite operation orders. Synthetic masks must define correctness. Protect Arabic dots, punctuation, disconnected components and holes. Korean RGB-to-XYZ example /83 applies an RGB matrix directly to encoded RGB/255 without linear-light conversion: encoded mid-gray 128/255 is about 0.502, linear sRGB is about 0.216. Use ICC-aware conversion and explicit transfer functions.
+
+Japanese ImageMagick examples demonstrate fit, cover, forced distortion and gravity anchoring. French INRAE morphology metrics distinguish area, Feret diameter, Crofton perimeter and shape moments. Use physical units and connected-component topology for printability checks, not one fixed minimum-pixel threshold.
