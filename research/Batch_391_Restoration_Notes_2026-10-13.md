@@ -1,0 +1,2 @@
+# Batch 391 — Restoration Notes
+Wiener and Richardson-Lucy deconvolution can amplify noise or produce ringing; use test fixtures and defect-specific enhancement. Fourier image reconstruction requires phase as well as magnitude. Semantic segmentation is not fractional Alpha Matting. Color-key white-background removal may delete intended white artwork. Content-aware background fill is not transparent extraction. The 15 accepted sources were read individually; cumulative 3,984 is provisional, not globally certified.
