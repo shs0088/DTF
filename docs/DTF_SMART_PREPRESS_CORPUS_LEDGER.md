@@ -2979,3 +2979,12 @@ Previous provisional 3426; updated provisional 3445. Globally certified unique c
 15. https://courses.physics.illinois.edu/cs418/fa2026/text/dither.html
 
 Source evidence and technical notes: `research/Batch_393_Canonical_Source_Index_2026-10-13.md` and `research/Batch_393_Engineering_Synthesis_2026-10-13.md`. Opened/read and checked against accessible central ledger and mounted Batch 383–392 manifests; snippets, failed opens, known duplicates and simple localized mirrors excluded. No storefront/deployment/merge changes.
+
+
+## Batch 403 — Provisional checkpoint (2026-10-13)
+
+- 20 individually opened/read, locally distinct technical pages; prior provisional 4,182; updated provisional 4,202 / 10,000 (42.02%).
+- Globally certified unique count not established; historical semantic deduplication and backfill remain incomplete.
+- Full canonical URLs: `research/Batch_403_Canonical_Source_Index_2026-10-13.md`.
+- Engineering synthesis preserved in Batch 403 local research package.
+- No merge, deployment, protected storefront or master modifications.
