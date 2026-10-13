@@ -1,7 +1,7 @@
 # DTF Smart Prepress — Batch 410 Checkpoint (2026-10-13)
 
-Previous provisional **4,310**; new individually opened/read locally distinct **19**; updated provisional upper bound **4,329 / 10,000 (43.29%)**; provisional remaining **5,671**. Globally certified unique count **not established** (historical semantic dedup incomplete).
+Previous provisional 4,310; newly opened/read locally distinct 19; updated provisional upper bound **4,329 / 10,000 (43.29%)**; remaining provisionally 5,671. Historical semantic deduplication incomplete, so globally certified unique-page count is not established.
 
-Canonical source index: research/Batch_410_Canonical_Source_Index_2026-10-13.md. Engineering synthesis: research/Batch_410_Engineering_Synthesis_2026-10-13.md.
+Research-only source index: research/Batch_410_Canonical_Source_Index_2026-10-13.md (14 URLs synchronized; 5 canonical URL writes blocked). Engineering findings: research/Batch_410_Engineering_Core.md. Full 19-source index and detailed synthesis are preserved in the local research package.
 
-All twelve requested languages searched; known mirrors and failed opens excluded. No deployment, merge, storefront or master changes.
+No merge, deployment, protected storefront or Ready-to-Print Master modification.
