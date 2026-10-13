@@ -1,0 +1,3 @@
+# Batch 396 opened/read source
+
+https://medium.com/miridih/ai%EC%99%80-%EC%BD%94%EB%93%9C-%EC%82%AC%EC%9D%B4-%EC%9D%B4%EB%AF%B8%EC%A7%80-%ED%95%9C-%EC%9E%A5%EC%9D%84-%ED%8E%B8%EC%A7%91-%EA%B0%80%EB%8A%A5%ED%95%9C-%EB%A0%88%EC%9D%B4%EC%96%B4%EB%A1%9C-%EB%90%98%EB%8F%8C%EB%A6%AC%EA%B8%B0-b31191b1fbc4
