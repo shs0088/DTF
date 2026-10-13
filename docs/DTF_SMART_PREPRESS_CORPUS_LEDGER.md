@@ -2993,3 +2993,8 @@ Source evidence and technical notes: `research/Batch_393_Canonical_Source_Index_
 ## Batch 405 provisional checkpoint (2026-10-13)
 
 16 individually opened/read and locally distinct pages; previous provisional 4216, updated provisional 4232/10000 (42.32%). Global semantic deduplication incomplete. Canonical URLs in Batch_405_Sources_A/B1/Source_07/Source_08/C1/C2/D and local complete index; source 08 repository write may be blocked. No storefront changes.
+
+
+## Batch 407 — 17 pages (2026-10-13)
+
+Prior provisional: 4253. New individually opened/read and locally deduplicated: 17. Provisional upper bound: 4270 / 10000. See research/Batch_407_Canonical_Source_Index_2026-10-13.md. Historical semantic uniqueness not certified. No merge or deployment.
