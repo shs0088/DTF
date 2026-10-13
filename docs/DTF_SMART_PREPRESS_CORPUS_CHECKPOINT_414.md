@@ -7,7 +7,7 @@ Updated provisional upper bound: **4,396 / 10,000 (43.96%)**
 Provisionally remaining: **5,604**
 Globally certified unique-page count: **not established** (historical semantic dedup pending).
 
-Canonical index: `research/Batch_414_Canonical_Source_Index_2026-10-13.md`
-Engineering synthesis: `research/Batch_414_Engineering_Synthesis_2026-10-13.md`
+Canonical URL index: partial repository synchronization in `research/Batch_414_Sources_ZH_EN.md`, `research/Batch_414_Source_ES1.md`, `research/Batch_414_Source_KO.md`; full 12-source canonical index preserved in local Batch 414 package.
+Engineering core: `research/Batch_414_Engineering_Core.md`; full synthesis preserved in local Batch 414 package.
 
-Research-only branch; no deployment, merge, protected storefront or master changes.
+Central ledger append blocked by connector safety checks; checkpoint is the current branch count reference. Research-only branch; no deployment, merge, protected storefront or master changes.
