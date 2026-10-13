@@ -2998,3 +2998,8 @@ Source evidence and technical notes: `research/Batch_393_Canonical_Source_Index_
 ## Batch 407 — 17 pages (2026-10-13)
 
 Prior provisional: 4253. New individually opened/read and locally deduplicated: 17. Provisional upper bound: 4270 / 10000. See research/Batch_407_Canonical_Source_Index_2026-10-13.md. Historical semantic uniqueness not certified. No merge or deployment.
+
+
+## Batch 410 provisional checkpoint (2026-10-13)
+
+19 individually opened/read locally distinct pages. Previous provisional 4,310; updated provisional upper bound **4,329 / 10,000 (43.29%)**. Historical global semantic uniqueness is not yet certified. The source manifest is preserved in the Batch 410 local research package; synchronized subsets are in research/Batch_410_Sources_*.md. Engineering summary: research/Batch_410_Engineering_Core.md. No merge, deployment or storefront modifications.
