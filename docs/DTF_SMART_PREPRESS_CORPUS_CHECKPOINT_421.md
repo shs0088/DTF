@@ -1,0 +1,1 @@
+Batch 421 (2026-10-14): 18 new individually read, locally distinct pages. Provisional cumulative 4513/10000. Global semantic deduplication incomplete. Source manifest and full synthesis preserved locally. No merge, deploy, or storefront changes.
