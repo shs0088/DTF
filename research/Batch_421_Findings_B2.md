@@ -1,0 +1,1 @@
+Batch 421: Test output edge fidelity, fractional transparency, source profile retention and physical print dimensions. Keep original artwork unchanged. Printer-specific calibration is pending. Provisional total: 4513.
