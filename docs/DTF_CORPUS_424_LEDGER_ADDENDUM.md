@@ -1,0 +1,1 @@
+Batch 424: 18 individually opened/read locally distinct pages. Provisional cumulative upper bound 4568/10000. Global semantic uniqueness unverified. Sources in research/Batch_424_Sources_01.md through _06.md and individual source files. No deployment or merge.
