@@ -3017,3 +3017,8 @@ Prior provisional: 4253. New individually opened/read and locally deduplicated: 
 - 12 requested languages searched; 11 languages accepted (Arabic candidate pages excluded as translations or duplicates). Search snippets, failed opens and localized mirrors excluded.
 - Complete canonical source URLs: `research/Batch_432_Canonical_Source_Index.md`. Engineering synthesis: `research/Batch_432_Engineering_Synthesis.md`.
 - Research-only; no merge, deployment, storefront, or Ready-to-Print Master changes.
+
+
+## Batch 437 — 2026-10-14 — 22 newly opened/read, locally distinct pages (provisional)
+
+Previous provisional cumulative upper bound: 4,806. New locally distinct pages: 22. Updated provisional upper bound: **4,828 / 10,000 (48.28%)**. Globally certified historical unique-page count: **not established** (historical semantic deduplication and earlier sync gaps remain). Canonical URLs and open/read references: research/Batch_437_Sources_01.md and research/Batch_437_Sources_02.md. Engineering synthesis: research/Batch_437_Engineering_Synthesis.md. Localized mirrors, known duplicates, failed opens and snippets excluded; Turkish academic landing pages were not counted as full papers. No merge, deployment or protected storefront changes.
