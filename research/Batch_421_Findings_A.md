@@ -1,0 +1,1 @@
+Batch 421 engineering findings: 1) Keep straight and premultiplied alpha conventions explicit during resampling. 2) Alpha geometry and contaminated foreground RGB require separate correction. 3) Poisson cloning is background-specific and cannot replace transparent master extraction. 4) Morphology can remove disconnected Arabic dots and thin strokes; require topology safeguards.
