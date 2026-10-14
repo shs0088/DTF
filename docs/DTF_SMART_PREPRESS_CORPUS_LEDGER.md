@@ -3003,3 +3003,8 @@ Prior provisional: 4253. New individually opened/read and locally deduplicated: 
 ## Batch 410 provisional checkpoint (2026-10-13)
 
 19 individually opened/read locally distinct pages. Previous provisional 4,310; updated provisional upper bound **4,329 / 10,000 (43.29%)**. Historical global semantic uniqueness is not yet certified. The source manifest is preserved in the Batch 410 local research package; synchronized subsets are in research/Batch_410_Sources_*.md. Engineering summary: research/Batch_410_Engineering_Core.md. No merge, deployment or storefront modifications.
+
+
+## Batch 422 provisional checkpoint (2026-10-14)
+
+18 individually opened/read locally distinct pages. Previous provisional 4,513; updated provisional upper bound **4,531/10,000**. Historical semantic deduplication incomplete. Research synthesis: research/Batch_422_Engineering_Synthesis_2026-10-14.md. Source addendum: docs/DTF_SMART_PREPRESS_CORPUS_LEDGER_422.md. No merge or deployment.
