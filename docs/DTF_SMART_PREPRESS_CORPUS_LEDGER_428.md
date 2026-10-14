@@ -1,0 +1,3 @@
+# Batch 428 research ledger addendum — 2026-10-14
+
+Previous provisional: 4,625. New individually opened/read and locally deduplicated pages: **20**. Updated provisional upper bound **4,645/10,000**. This is not a globally certified unique-page count: historical semantic deduplication remains incomplete. Eight prior URL duplicates plus one additional Italian URL previously counted in local manifests were excluded. Search-result snippets and failed opens were not counted. Complete source index: research/Batch_428_Canonical_Source_Index_2026-10-14.md. Synthesis: research/Batch_428_Engineering_Synthesis_2026-10-14.md. No merge/deployment/storefront changes.
