@@ -23,4 +23,4 @@ Date: 2026-10-14. New pages: 18. Provisional upper bound: 4,531 / 10,000. No glo
 
 ## Evidence and limitations
 
-Source index: `research/Batch_422_Canonical_Source_Index_2026-10-14.md`. Research findings are not deployed-app tests, physical print calibration or proof of generalization. Global deduplication and central ledger backfill are outstanding. No merge, deployment, storefront changes or master changes.
+Source index: only `research/Batch_422_Sources_01.md` (3 URLs) synchronized; the complete 18-source index is in the local Batch 422 research package. Research findings are not deployed-app tests, physical print calibration or proof of generalization. Global deduplication and central ledger backfill are outstanding. No merge, deployment, storefront changes or master changes.
