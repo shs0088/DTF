@@ -1,0 +1,10 @@
+PASS 1: accepted source count is 8
+PASS 2: canonical URLs unique within batch
+PASS 3: canonical URL hashes match
+PASS 4: all accepted records marked materially distinct
+PASS 5: every accepted page has read URL and read-depth note
+PASS 6: cumulative arithmetic is correct
+PASS 7: remaining arithmetic is correct
+PASS 8: percentage arithmetic is correct
+PASS 9: global uniqueness limitations are explicit
+PASS 10: no physical printer validation is falsely claimed
