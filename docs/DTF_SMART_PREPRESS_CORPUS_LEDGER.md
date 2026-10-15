@@ -3027,3 +3027,8 @@ Previous provisional cumulative upper bound: 4,806. New locally distinct pages: 
 ## Batch 451 — 2026-10-15 — 14 individually opened/read, locally distinct pages (provisional)
 
 Prior provisional upper bound 5,071. New locally distinct pages 14. Updated provisional upper bound **5,085 / 10,000 (50.85%)**; globally certified unique-page count remains unknown pending historical semantic deduplication. Sources: research/Batch_451_Sources_01a.md, research/Batch_451_Sources_01b.md, research/Batch_451_Sources_02.md, research/Batch_451_Sources_03.md, research/Batch_451_Sources_04.md. Engineering summary: research/Batch_451_Engineering_Summary.md. Excluded five known duplicates. No merge, deployment or protected storefront changes.
+
+
+## Batch 453 — 2026-10-15 — 15 new opened/read locally distinct pages
+
+Previous provisional upper bound 5,107. Updated provisional upper bound **5,122 / 10,000 (51.22%)**. Globally certified unique-page count remains unknown. Source indexes: `research/Batch_453_Sources_01.md`, `research/Batch_453_Sources_02.md`, `research/Batch_453_Sources_03.md`. Engineering summary: `research/Batch_453_Engineering_Summary.md`. Search snippets, localized mirrors, failed opens and prior duplicates excluded. No merge, deployment, storefront or printing-master changes.
