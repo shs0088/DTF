@@ -3022,3 +3022,8 @@ Prior provisional: 4253. New individually opened/read and locally deduplicated: 
 ## Batch 437 — 2026-10-14 — 22 newly opened/read, locally distinct pages (provisional)
 
 Previous provisional cumulative upper bound: 4,806. New locally distinct pages: 22. Updated provisional upper bound: **4,828 / 10,000 (48.28%)**. Globally certified historical unique-page count: **not established** (historical semantic deduplication and earlier sync gaps remain). Canonical URLs and open/read references: research/Batch_437_Sources_01.md and research/Batch_437_Sources_02.md. Engineering synthesis: research/Batch_437_Engineering_Synthesis.md. Localized mirrors, known duplicates, failed opens and snippets excluded; Turkish academic landing pages were not counted as full papers. No merge, deployment or protected storefront changes.
+
+
+## Batch 451 — 2026-10-15 — 14 individually opened/read, locally distinct pages (provisional)
+
+Prior provisional upper bound 5,071. New locally distinct pages 14. Updated provisional upper bound **5,085 / 10,000 (50.85%)**; globally certified unique-page count remains unknown pending historical semantic deduplication. Sources: research/Batch_451_Sources_01a.md, research/Batch_451_Sources_01b.md, research/Batch_451_Sources_02.md, research/Batch_451_Sources_03.md, research/Batch_451_Sources_04.md. Engineering summary: research/Batch_451_Engineering_Summary.md. Excluded five known duplicates. No merge, deployment or protected storefront changes.
