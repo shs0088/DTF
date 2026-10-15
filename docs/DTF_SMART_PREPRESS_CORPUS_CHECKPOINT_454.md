@@ -1,0 +1,3 @@
+# DTF Smart Prepress Corpus Checkpoint 454
+
+2026-10-15. Prior provisional upper bound **5,122**; **25** individually opened/read, locally distinct pages added; new provisional upper bound **5,147 / 10,000 (51.47%)**. Globally certified historical unique-page count remains **unknown**. Canonical index: `research/Batch_454_Canonical_Source_Index.md`. Synthesis: `research/Batch_454_Engineering_Synthesis.md`. All 12 requested languages searched; 11 language groups accepted, Spanish candidates only search snippets and not counted. Known duplicates, translations and failed opens excluded. No deployment, merge, storefront or printing-master changes.
