@@ -1,0 +1,3 @@
+Batch 463 integrity checks: 10/10 passed locally.
+Checks covered accepted-source count, canonical URL uniqueness, read-depth disclosure, cumulative arithmetic, remaining count, percentage, global-uniqueness caveat, and disclosure of abstract/PDF limitations.
+These are bookkeeping checks only; no image-quality algorithm or physical printer was tested.
