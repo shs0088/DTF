@@ -3032,3 +3032,22 @@ Prior provisional upper bound 5,071. New locally distinct pages 14. Updated prov
 ## Batch 453 — 2026-10-15 — 15 new opened/read locally distinct pages
 
 Previous provisional upper bound 5,107. Updated provisional upper bound **5,122 / 10,000 (51.22%)**. Globally certified unique-page count remains unknown. Source indexes: `research/Batch_453_Sources_01.md`, `research/Batch_453_Sources_02.md`, `research/Batch_453_Sources_03.md`. Engineering summary: `research/Batch_453_Engineering_Summary.md`. Search snippets, localized mirrors, failed opens and prior duplicates excluded. No merge, deployment, storefront or printing-master changes.
+
+
+## Batch 463 — 2026-10-16 — 6 new canonical source pages (provisional)
+
+Previous provisional upper bound: **5,259**. Six new canonical source pages were opened/read and checked against the current central ledger and locally accessible recent manifests. Updated provisional upper bound: **5,265 / 10,000 (52.65%)**; remaining by arithmetic: **4,735**. Globally certified unique-page count remains unknown because historical semantic deduplication is incomplete.
+
+Accepted canonical URLs:
+1. https://proceedings.neurips.cc/paper_files/paper/2024/hash/91edff07232fb1b55a505a9e9f6c0ff3-Abstract.html — official DRIP abstract page read; linked PDF could not be fetched due reader size limit.
+2. https://research.adobe.com/publication/polarmatte-fully-computational-ground-truth-quality-alpha-matteextraction-for-images-and-video-using-polarized-screen-matting/ — Adobe Research publication page/abstract read; full CVPR paper not opened.
+3. https://helpx.adobe.com/photoshop/desktop/make-selections/refine-modify-selections/fringe-pixels-around-a-selection.html — full Adobe Photoshop fringe-removal documentation read.
+4. https://www.microsoft.com/en-us/research/wp-content/uploads/2008/01/BMVC08-Matting.pdf — full 10-page alpha-matting paper read.
+5. https://borisfx.com/documentation/continuum/bcc-primatte-studio-1 — full Primatte Studio documentation page read.
+6. https://habr.com/ru/companies/jugru/articles/834546/ — full Russian engineering article on segmentation/matting trade-offs, border metrics, model optimization, and halo-safe background blur read.
+
+Engineering synthesis: `research/Batch_463_Engineering_Synthesis.md`. Canonical source index with read-depth limits and exclusions: `research/Batch_463_Canonical_Source_Index.md`. Manifest and ten integrity checks: `research/Batch_463_Manifest.json`, `research/Batch_463_Corpus_Integrity_Tests.py`, and `research/Batch_463_Test_Results.txt`.
+
+Excluded candidates included NanoAlpha, MFC-Net, a FastAPI/rembg repository, the Blue Screen Matting DOI, and a prior SberDevices matting article because they were already represented in the central ledger or accessible recent manifests. A Chinese alpha-blending mirror and a cloud-platform promotional tutorial were also excluded.
+
+No merge, deployment, protected storefront change, or approved Ready-to-Print Master modification occurred.
