@@ -1,0 +1,14 @@
+Batch 464 corpus-integrity tests — 11/11 passed
+- target page count
+- nine accepted source records
+- canonical URL uniqueness within batch
+- accepted/excluded disjointness
+- cumulative arithmetic
+- remaining-page arithmetic
+- percentage arithmetic
+- global uniqueness caveat present
+- abstract-only read-depth caveat present
+- AEMatter noncommercial license warning disclosed
+- canonical SHA-256 hashes match URL strings
+
+Bookkeeping only; no image-quality regression or physical print test.
