@@ -1,0 +1,25 @@
+{
+  "batch": 464,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5265,
+  "new_accepted_pages": 9,
+  "provisional_cumulative_upper_bound": 5274,
+  "percentage": 52.74,
+  "remaining_by_arithmetic": 4726,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "physical_printer_validation": false,
+  "synthetic_integrity_tests": 10,
+  "source_urls": [
+    "https://proceedings.mlr.press/v235/liu24as.html",
+    "https://github.com/aipixel/AEMatter",
+    "https://www.espanadtf.com/semitonos/",
+    "https://pixelcleaner.net/blog/white-underbase-choke-explained.html",
+    "https://habr.com/ru/articles/564458/",
+    "https://dergipark.org.tr/en/pub/ijiam/article/1407236",
+    "https://zenn.dev/mohhh_ok/articles/2026-07-rvm-matanyone2-green-halo-video-matting",
+    "https://zenn.dev/sc_tech/articles/75012e5f818806",
+    "https://note.com/sifca/n/n98ea77e9d523"
+  ]
+}
