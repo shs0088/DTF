@@ -1,0 +1,10 @@
+Batch 464 canonical URL SHA-256 values (2026-10-16)
+https://proceedings.mlr.press/v235/liu24as.html 973668c8e76ab7c32f81ee0f80d9a9387f91631e81f86332b5aef8a638f5368c
+https://github.com/aipixel/AEMatter 930ffa5d78dd1a3cccf6189d1ce63f9acb7ed95dd3222100b925ae24497628a0
+https://www.espanadtf.com/semitonos/ b82bbd12a689ee27a653364f4960f4a4b5d69af4cd172feeaa74ae766f2f97e1
+https://pixelcleaner.net/blog/white-underbase-choke-explained.html 7c2b80fb3bd568f6e3c397af4a61684acdac8fc5df61b3fe21a2ef3cfcd5dfc8
+https://habr.com/ru/articles/564458/ e8906db1cbc52f5b792833a8c0decd1eaf3ae9d5260b2a1245da1b482c54def0
+https://dergipark.org.tr/en/pub/ijiam/article/1407236 9478ca755cfe3333076dc5e99ab6c9ae53ef7d110b9f2959cd39669d6b622bc3
+https://zenn.dev/mohhh_ok/articles/2026-07-rvm-matanyone2-green-halo-video-matting e9986cf8e9d6520c118e3ab9cd5475b410fa32636c7b593731c197a66e40a207
+https://zenn.dev/sc_tech/articles/75012e5f818806 1df242093c300030d1f4151e065e6fad0b2bfbca81eb9c7aff9cc3db982a4e72
+https://note.com/sifca/n/n98ea77e9d523 e5cd1dd41f86ea6171ba1e2bc0091748acfcf8653c47ff7cf5a8792ad64d7cf0
