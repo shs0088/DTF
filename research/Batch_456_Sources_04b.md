@@ -1,0 +1,1 @@
+Batch 456 opened/read pages 22-24: EN https://aeroprint.si/print-file-preparation/ ; EN https://github.com/suchir-madap/open-source-background-remover ; EN https://www.pythontutorials.net/blog/how-to-remove-4th-channel-from-png-images/ .
