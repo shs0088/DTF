@@ -1,0 +1,24 @@
+{
+  "batch": 463,
+  "date": "2026-10-16",
+  "target": 10000,
+  "previous_provisional_upper_bound": 5259,
+  "new_accepted_sources": 6,
+  "provisional_cumulative_upper_bound": 5265,
+  "percent": 52.65,
+  "remaining_by_arithmetic": 4735,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "languages_searched": ["Arabic","Chinese","Japanese","Korean","Russian","Spanish","Portuguese","German","French","Italian","Turkish","English"],
+  "languages_accepted": ["Russian","English"],
+  "source_urls": [
+    "https://proceedings.neurips.cc/paper_files/paper/2024/hash/91edff07232fb1b55a505a9e9f6c0ff3-Abstract.html",
+    "https://research.adobe.com/publication/polarmatte-fully-computational-ground-truth-quality-alpha-matteextraction-for-images-and-video-using-polarized-screen-matting/",
+    "https://helpx.adobe.com/photoshop/desktop/make-selections/refine-modify-selections/fringe-pixels-around-a-selection.html",
+    "https://www.microsoft.com/en-us/research/wp-content/uploads/2008/01/BMVC08-Matting.pdf",
+    "https://borisfx.com/documentation/continuum/bcc-primatte-studio-1",
+    "https://habr.com/ru/companies/jugru/articles/834546/"
+  ],
+  "read_depth_note": "DRIP and PolarMatte were read at abstract/landing-page depth; Microsoft PDF read in full; Adobe and BorisFX docs and Russian Habr article read in full.",
+  "physical_printer_validation": false
+}
