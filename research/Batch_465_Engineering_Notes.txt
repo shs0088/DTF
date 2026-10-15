@@ -1,0 +1,14 @@
+BATCH 465 ENGINEERING NOTES — 2026-10-16
+
+Eight pages accepted after individual reading and local deduplication. Provisional cumulative upper bound: 5,282/10,000 (52.82%). Global unique count remains unknown.
+
+- Matting: combine semantic context with high-resolution edge features; preserve source-resolution detail.
+- Training: coarse trimaps plus directional distance consistency can supervise alpha transitions, but the cited work does not establish transparent-object performance.
+- High resolution: compare refinement and sparsity-based models on edge metrics, component preservation, runtime, memory, and repeatability.
+- Upscaling: repeated interpolation blurs; generative upscalers may hallucinate. Keep immutable originals and review derived masters.
+- Dithering: error diffusion, ordered thresholds, blue noise, and low-discrepancy patterns have different spatial artifacts. Real-time rendering papers do not define DTF screen settings.
+- Alpha safety: one reviewed Spanish tool flattens transparency onto white before dithering; never let such output replace the transparent master.
+- Color: RGB/HEX values require a color-space interpretation. Preserve ICC provenance and inspect the final encoded asset.
+- DTF-specific choke, LPI, and minimum-dot values still require tests on the actual RIP, printer, film, powder, cure, and press.
+
+No physical DTF print or production RIP was tested. No merge, deployment, storefront, or Ready-to-Print Master change occurred.
