@@ -1,0 +1,2 @@
+# Batch 456 checkpoint
+2026-10-15. Prior provisional 5166. New individually opened/read and locally distinct 24. Updated provisional upper bound 5190/10000 (51.90%). Globally certified unique count unknown because historical semantic deduplication is unfinished. Six accepted academic pages were abstracts/landing pages, not full papers. See research/Batch_456_Sources_01.md through Sources_04.md and Batch_456_Engineering_Synthesis.md. No merge or deployment.
