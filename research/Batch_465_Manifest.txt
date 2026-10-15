@@ -1,0 +1,12 @@
+batch=465
+date=2026-10-16
+target=10000
+previous_provisional_upper_bound=5274
+new_accepted_pages=8
+provisional_cumulative_upper_bound=5282
+percentage=52.82
+remaining_by_arithmetic=4718
+globally_certified_unique_count=unknown
+historical_semantic_deduplication_complete=false
+physical_printer_validation=false
+integrity_tests_passed=10
