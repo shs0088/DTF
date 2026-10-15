@@ -1,0 +1,14 @@
+DTF Smart Prepress — Batch 464 synthesis (2026-10-16)
+
+Progress: previous provisional 5265; nine new accepted pages; updated provisional upper bound 5274/10000 (52.74%); 4726 remaining by arithmetic. Global uniqueness is not certified.
+
+Findings:
+1. Keep Alpha geometry, foreground RGB decontamination, and RIP white-layer generation as separate outputs. Choke compensates for registration tolerance; it does not reliably fix semi-transparent fringe RGB. Do not binarize every Alpha channel: retain soft photographic edges unless a tested RIP workflow requires a binary/halftone derivative.
+2. Express choke in millimetres as well as pixels: mm_per_px = 25.4 / DPI. Assign choke to either prepress or RIP, never both by accident. Test thin strokes, small text, circles and isolated dots.
+3. Keep halftone LPI, angle, minimum dot, tone/gamma, knockout, speck cleanup and hole filling as separate controls. Vendor presets are not universal standards; validate after film, powder, curing and pressing.
+4. Reduced model-input resolution can degrade the matte even if the output canvas is later enlarged. Track preview scale and use a validated high-resolution final path.
+5. Diagnose halos by inspecting RGB and Alpha separately and compositing over white, black and saturated backgrounds. This separates capture-time spill from code-level fill-color artifacts.
+6. Add script-aware fine-detail checks. Arabic diacritics, ligatures and small disconnected marks must not be deleted solely because of component area.
+7. Check model license and benchmark domain before production use. The AEMatter repository says noncommercial use/distribution only.
+
+Ten local bookkeeping tests passed. They are not image-quality tests. No physical DTF printer/RIP calibration was performed. No merge, deployment or storefront/master change.
