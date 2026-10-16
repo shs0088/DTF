@@ -1,0 +1,14 @@
+BATCH 467 CANONICAL SOURCE INDEX — 2026-10-16
+Nine pages individually opened/read; normalized against the full accessible central ledger and local manifests 457–466. Global semantic uniqueness remains uncertified.
+
+467-01 | Adobe Magic Eraser | https://helpx.adobe.com/photoshop/desktop/repair-retouch/clean-restore-images/change-similar-pixels-with-the-magic-eraser-tool.html | English | full page
+467-02 | Adobe Smooth selection cleanup | https://helpx.adobe.com/photoshop/desktop/make-selections/refine-modify-selections/clean-up-stray-pixels-in-color-based-selection.html | English | full page
+467-03 | Automatic Image Matting with Attention Mechanism and Feature Fusion | https://www.jcad.cn/article/doi/10.3724/SP.J.1089.2020.18121 | Chinese/English abstract | landing page/abstract only
+467-04 | Шляхи підвищення ефективності сучасних методів матування зображень | https://oeipt.vntu.edu.ua/index.php/oeipt/article/view/589 | Ukrainian | landing page, abstract, references; PDF unreadable
+467-05 | Renkli Görüntüler İçin Yusufçuk Algoritması... | https://dergipark.org.tr/en/pub/dubited/article/310198 | Turkish/English abstract | full 18-page PDF
+467-06 | Polyomino-Based Digital Halftoning | https://arxiv.org/abs/0812.1647 | English | full 8-page PDF
+467-07 | Dot-Diffused Halftoning with Improved Homogeneity | https://arxiv.org/abs/1508.05373 | English | full 10-page PDF
+467-08 | A binary noisy channel to model errors in printing process | https://arxiv.org/abs/1110.0463 | English; Russian printing institute authors | full 12-page PDF
+467-09 | العمليات المورفولوجية — Morphological Operations | https://pixlane.media/ar-eg/morphological-ops | Arabic/English | full tool documentation page
+
+Excluded: https://diglib.eg.org/items/80e01cdf-0c97-473e-883c-92a87996fd4b (exact canonical duplicate in central ledger); Adobe /ca regional URL normalized to one canonical page. Search snippets alone were never counted.
