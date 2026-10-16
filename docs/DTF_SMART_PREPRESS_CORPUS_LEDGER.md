@@ -3061,3 +3061,41 @@ No merge, deployment, protected storefront change, or approved Ready-to-Print Ma
 - Batch 470 source index and synthesis were prepared as sidecars; some GitHub writes were blocked by connector safety checks. Hash index and test-results files were committed separately.
 - Historical semantic deduplication remains incomplete. Do not label 5,332 globally verified until missing manifests and historical duplicates are reconciled.
 - No physical DTF validation, merge, deployment, storefront modification, or Ready-to-Print Master modification.
+
+
+## Batch 471 — Provisional checkpoint (2026-10-16)
+
+- Eight new source works were individually opened/read and locally deduplicated; provisional chain advances from 5,332 to **5,340 / 10,000 (53.40%)**.
+- Source index: `research/Batch_471_Canonical_Source_Index.md`. Read depth varies by source; some journal items were abstract/metadata-only.
+- Historical semantic deduplication remains incomplete. No physical DTF validation, merge, deployment, storefront change or Ready-to-Print Master change.
+
+## Batch 472 — Provisional checkpoint (2026-10-16)
+
+- Ten new canonical pages were individually opened/read and locally deduplicated; provisional chain advances from 5,340 to **5,350 / 10,000 (53.50%)**.
+- Source index and complete manifest are preserved in the local Batch 472 package; engineering synthesis and ledger addendum were synchronized separately.
+- Historical semantic deduplication remains incomplete. No physical DTF validation, merge, deployment, storefront change or Ready-to-Print Master change.
+
+## Batch 473 — Provisional checkpoint (2026-10-16)
+
+- Twelve new canonical source pages were individually opened/read and locally deduplicated after checks against the central ledger and Batch 472 source index.
+- Prior provisional upper bound: **5,350**. Updated chain-based provisional upper bound: **5,362 / 10,000 (53.62%)**; remaining by arithmetic: **4,638**.
+- **Globally certified unique-page count remains unknown.** Historical semantic deduplication and the Batch 465/466 source-record gap remain unresolved.
+- Accepted languages: English 5, Turkish 6, Arabic 1. All 12 requested language groups were searched; localized mirrors, known duplicates, and versioned aliases were excluded.
+- Engineering synthesis: `research/Batch_473_Engineering_Synthesis.md`. Canonical source index and SHA-256 values: `research/Batch_473_Canonical_Source_Index.md` and `research/Batch_473_Canonical_URL_Hashes.tsv`. Manifest, integrity tests/results, and addendum are also preserved in the research package.
+- No physical printer/RIP validation, merge, deployment, protected storefront modification or Ready-to-Print Master modification.
+
+### Batch 473 accepted canonical URLs
+
+1. https://helpx.adobe.com/acrobat/using/color-managing-documents.html
+2. https://dtfstation.com/knowledge-base/how-to-perform-white-ink-adjustments-on-digirip/
+3. https://dtfstation.com/knowledge-base/how-to-minimize-black-ink-usage-for-black-garments/
+4. https://dtfstation.com/knowledge-base/https-www-youtube-com-watch-v-ihe1zxvql0u/
+5. https://dtfstation.com/knowledge-base/save-white-ink-when-printing-with-the-kn/
+6. https://dergipark.org.tr/en/pub/duzceitbd/article/66389
+7. https://dergipark.org.tr/tr/pub/ecjse/article/1141148
+8. https://dergipark.org.tr/tr/pub/bjesr/article/789534
+9. https://dergipark.org.tr/en/pub/dubited/article/471040
+10. https://dergipark.org.tr/tr/pub/dubited/issue/38650/413822
+11. https://dergipark.org.tr/tr/pub/ejosat/article/682278
+12. https://zeromathai.com/ar/gaussian-filter-ar/
+
