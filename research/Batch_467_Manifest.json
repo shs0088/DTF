@@ -1,0 +1,196 @@
+{
+  "batch": 467,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5292,
+  "new_accepted_pages": 9,
+  "provisional_cumulative_upper_bound": 5301,
+  "percentage": 53.01,
+  "remaining_by_arithmetic": 4699,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "dedup_scope": "Normalized canonical URLs and title/identifier strings checked against the full currently accessible central ledger and local manifests for Batches 457–466. One exact canonical duplicate (Portuguese morphology paper) was excluded. Global semantic uniqueness remains uncertified because historical manifests and semantic equivalence cannot be exhaustively verified.",
+  "languages_searched": [
+    "Arabic",
+    "Chinese",
+    "Japanese",
+    "Korean",
+    "Russian",
+    "Spanish",
+    "Portuguese",
+    "German",
+    "French",
+    "Italian",
+    "Turkish",
+    "English"
+  ],
+  "languages_with_accepted_pages": [
+    "Arabic",
+    "Chinese",
+    "Ukrainian",
+    "Turkish",
+    "English"
+  ],
+  "physical_printer_validation": false,
+  "accepted_sources": [
+    {
+      "id": "467-01",
+      "title": "Remove similar pixels with the Magic Eraser tool",
+      "canonical_url": "https://helpx.adobe.com/photoshop/desktop/repair-retouch/clean-restore-images/change-similar-pixels-with-the-magic-eraser-tool.html",
+      "canonical_url_sha256": "6cb8bb03a41b473fcddee74383464834b3b41785e185d9d81b38f38bccfe7667",
+      "language": "English",
+      "publisher": "Adobe Photoshop Help",
+      "read_depth": "Full documentation page read; tolerance, anti-alias, contiguous, sample-all-layers, and opacity controls inspected.",
+      "method": "Color tolerance and connected-region background removal",
+      "finding": "Tolerance 0–255 broadens or narrows color matching; Contiguous limits removal to adjacent similar pixels, while disabling it removes matching colors throughout the layer; lower opacity creates partial transparency.",
+      "limitation": "Color-key erasure is not semantic segmentation or alpha matting; non-contiguous removal can erase intentional same-color regions inside artwork.",
+      "read_urls": [
+        "https://helpx.adobe.com/photoshop/desktop/repair-retouch/clean-restore-images/change-similar-pixels-with-the-magic-eraser-tool.html"
+      ]
+    },
+    {
+      "id": "467-02",
+      "title": "Clean up stray pixels in a color-based selection",
+      "canonical_url": "https://helpx.adobe.com/photoshop/desktop/make-selections/refine-modify-selections/clean-up-stray-pixels-in-color-based-selection.html",
+      "canonical_url_sha256": "23dd14b2956f7e69e899e9ccbfd329b225a33a94fbdf61b8a402eb23ad349475",
+      "language": "English",
+      "publisher": "Adobe Photoshop Help",
+      "read_depth": "Full documentation page read; sample-radius and neighborhood-majority behavior inspected.",
+      "method": "Selection smoothing / neighborhood majority filter",
+      "finding": "The Smooth command uses a 1–100 px sample radius and a local majority decision to add or remove selected pixels, reducing patchiness and jagged edges.",
+      "limitation": "Large radii can round corners, close gaps, merge components, and destroy thin strokes; apply to a mask/selection derivative, not indiscriminately to RGB.",
+      "read_urls": [
+        "https://helpx.adobe.com/photoshop/desktop/make-selections/refine-modify-selections/clean-up-stray-pixels-in-color-based-selection.html"
+      ]
+    },
+    {
+      "id": "467-03",
+      "title": "Automatic Image Matting with Attention Mechanism and Feature Fusion",
+      "canonical_url": "https://www.jcad.cn/article/doi/10.3724/SP.J.1089.2020.18121",
+      "canonical_url_sha256": "8af02d1c8420dbf8ae181f1604f2dc870667dce684fef766078ed920b48be817",
+      "language": "Chinese (Chinese page with English abstract)",
+      "publisher": "Journal of Computer-Aided Design & Computer Graphics",
+      "read_depth": "Article landing page and Chinese/English abstract read. A full-text label was present but the body was not retrievable in the reader; full-paper reading is not claimed.",
+      "method": "Instance pre-segmentation followed by trimap-based alpha matting with attention and feature fusion",
+      "finding": "The abstract describes instance segmentation, trimap construction, and a separate Alpha-matting network; it reports SAD/MSE improvements on a custom vehicle dataset versus DIM.",
+      "limitation": "Reported improvements are dataset-specific, not guarantees for logos, fine typography, hair, translucent objects, or DTF artwork.",
+      "read_urls": [
+        "https://www.jcad.cn/article/doi/10.3724/SP.J.1089.2020.18121"
+      ]
+    },
+    {
+      "id": "467-04",
+      "title": "Шляхи підвищення ефективності сучасних методів матування зображень",
+      "canonical_url": "https://oeipt.vntu.edu.ua/index.php/oeipt/article/view/589",
+      "canonical_url_sha256": "b150cd2a54de680f41c0f0cf2e50ab9d6a3b7c7fc10b33ec7c182143df34f939",
+      "language": "Ukrainian",
+      "publisher": "Opto-Electronic Information-Energy Technologies",
+      "read_depth": "Full landing page including abstract, DOI, and references read. Linked PDF endpoint returned no readable paper text; underlying full paper is not counted as read.",
+      "method": "Review of modern image-matting methods and efficiency/accuracy trade-offs",
+      "finding": "The review frames matting as a family of segmentation/computer-vision methods whose accuracy and efficiency require comparative evaluation and provides a bibliography for tracing primary methods.",
+      "limitation": "No detailed numerical conclusion from the full paper is asserted because the PDF was unreadable.",
+      "read_urls": [
+        "https://oeipt.vntu.edu.ua/index.php/oeipt/article/view/589",
+        "https://oeipt.vntu.edu.ua/index.php/oeipt/article/view/589/560"
+      ]
+    },
+    {
+      "id": "467-05",
+      "title": "Renkli Görüntüler İçin Yusufçuk Algoritması Kullanılarak Benzerlik Görüntüsüne Dayalı Eşikleme",
+      "canonical_url": "https://dergipark.org.tr/en/pub/dubited/article/310198",
+      "canonical_url_sha256": "d04b313d03e53231510d59240d2fc65444b1fdd62fffa2973a0a70cae97a53fc",
+      "language": "Turkish (with English abstract)",
+      "publisher": "Düzce University Journal of Science and Technology",
+      "read_depth": "Landing page and full 18-page PDF read; method, equations, evaluation, and conclusion inspected.",
+      "method": "Similarity-image edge detection and multilevel threshold selection using a Dragonfly Algorithm with Otsu/Kapur objectives",
+      "finding": "The paper constructs a local similarity image, selects thresholds with Otsu/Kapur objective functions, and compares the optimizer with GSA/HSA using segmentation/edge measures and runtime.",
+      "limitation": "Evaluation uses a small set of 256×256 test images; reported performance is not universal superiority or direct DTF printability evidence.",
+      "read_urls": [
+        "https://dergipark.org.tr/en/pub/dubited/article/310198",
+        "https://dergipark.org.tr/en/download/article-file/329690"
+      ]
+    },
+    {
+      "id": "467-06",
+      "title": "Polyomino-Based Digital Halftoning",
+      "canonical_url": "https://arxiv.org/abs/0812.1647",
+      "canonical_url_sha256": "8cdc60beb6851d9cbeb8778ca386f0d5337383d941819a8e374b0ec00581a9a3",
+      "language": "English",
+      "publisher": "arXiv research paper",
+      "read_depth": "Full 8-page PDF read, including method, results, conclusion, and references.",
+      "method": "Non-periodic self-similar polyomino threshold structures with pre-optimized lookup tables",
+      "finding": "A non-periodic threshold structure can reduce periodic alignment artifacts and exhibit blue-noise-like spectra; the paper emphasizes that halftoning behavior depends on target printing technology and dot-gain characteristics.",
+      "limitation": "Not DTF-specific screen calibration; thresholds require adaptation and physical validation.",
+      "read_urls": [
+        "https://arxiv.org/abs/0812.1647",
+        "https://arxiv.org/pdf/0812.1647"
+      ]
+    },
+    {
+      "id": "467-07",
+      "title": "Dot-Diffused Halftoning with Improved Homogeneity",
+      "canonical_url": "https://arxiv.org/abs/1508.05373",
+      "canonical_url_sha256": "30a34515732255880276cc2dada515d31ba201e01a525e3ef5af73615b93c6d3",
+      "language": "English",
+      "publisher": "arXiv research paper",
+      "read_depth": "Full 10-page PDF read, including algorithm, benchmark metrics, comparisons, discussion, and conclusion.",
+      "method": "Dot diffusion with spatially related processing order and improved average power-spectrum evaluation",
+      "finding": "The proposed method improves halftone homogeneity and suppresses periodic/blocking artifacts while enabling parallel processing; error diffusion can score better on some quality metrics at a runtime cost.",
+      "limitation": "Benchmarks are not DTF-specific; dot transfer, film/powder behavior, and RIP screening remain untested.",
+      "read_urls": [
+        "https://arxiv.org/abs/1508.05373",
+        "https://arxiv.org/pdf/1508.05373"
+      ]
+    },
+    {
+      "id": "467-08",
+      "title": "A binary noisy channel to model errors in printing process",
+      "canonical_url": "https://arxiv.org/abs/1110.0463",
+      "canonical_url_sha256": "d03d4bf465bd377b1bb942f4733ba9df5a0666a7e1e7b2f166bea5836e268348",
+      "language": "English (authors affiliated with a Russian printing institute)",
+      "publisher": "arXiv research paper",
+      "read_depth": "Full 12-page PDF read; binary-channel model, noise types, relative-entropy analysis, and limitations inspected.",
+      "method": "Printing robustness model using binary bit-flip and erasure noise on halftoned images",
+      "finding": "The paper models printed output as a noisy channel and compares algorithms under dot errors. It warns that histogram divergence alone can misrepresent perceptual/semantic similarity and that robustness varies with image class and noise.",
+      "limitation": "Abstract binary-channel simulation, not a calibrated DTF model of white ink, film, powder, curing, pressing, or registration.",
+      "read_urls": [
+        "https://arxiv.org/abs/1110.0463",
+        "https://arxiv.org/pdf/1110.0463"
+      ]
+    },
+    {
+      "id": "467-09",
+      "title": "العمليات المورفولوجية — Morphological Operations",
+      "canonical_url": "https://pixlane.media/ar-eg/morphological-ops",
+      "canonical_url_sha256": "37702c2ca5cfb6ae037143fea1d8e4225120b4fe8ac38e5276aedece0330e223",
+      "language": "Arabic/English bilingual tool page",
+      "publisher": "Pixlane",
+      "read_depth": "Full tool/documentation page read, including local-processing statement, operation definitions, kernel-shape notes, and workflow.",
+      "method": "Browser-local morphology: erosion, dilation, opening, closing, and morphological gradient",
+      "finding": "Kernel shape changes effects: rectangular kernels suit grid/text-like structures but can be blocky; elliptical kernels smooth contours; cross kernels emphasize horizontal/vertical structure. Opening removes small bright components; closing fills small dark gaps.",
+      "limitation": "Tool documentation, not a peer-reviewed benchmark. Morphology can damage counters, Arabic dots/diacritics, halftone dots, and thin strokes if topology is not checked.",
+      "read_urls": [
+        "https://pixlane.media/ar-eg/morphological-ops/"
+      ]
+    }
+  ],
+  "excluded_sources": [
+    {
+      "canonical_url": "https://diglib.eg.org/items/80e01cdf-0c97-473e-883c-92a87996fd4b",
+      "reason": "Exact canonical URL already present in the central corpus ledger; excluded as a duplicate."
+    },
+    {
+      "canonical_url": "https://helpx.adobe.com/ca/photoshop/desktop/make-selections/refine-modify-selections/clean-up-stray-pixels-in-color-based-selection.html",
+      "reason": "Regional path normalized to the canonical English Adobe help URL; one page counted, not two."
+    },
+    {
+      "reason": "Localized mirrors, previously counted sources, snippets without readable page content, and candidates without a materially distinct technical contribution were excluded."
+    }
+  ],
+  "integrity_checks": {
+    "expected_source_count": 9,
+    "canonical_url_unique_count": 9,
+    "canonical_url_hashes_present": true,
+    "source_ids_unique": true
+  }
+}
