@@ -1,0 +1,165 @@
+{
+  "batch": 475,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5372,
+  "new_accepted_pages": 10,
+  "provisional_cumulative_upper_bound": 5382,
+  "percentage": 53.82,
+  "remaining_by_arithmetic": 4618,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "physical_dtf_validation": false,
+  "languages_searched": [
+    "Arabic",
+    "Chinese",
+    "Japanese",
+    "Korean",
+    "Russian",
+    "Spanish",
+    "Portuguese",
+    "German",
+    "French",
+    "Italian",
+    "Turkish",
+    "English"
+  ],
+  "accepted_language_counts": {
+    "English": 4,
+    "Chinese": 1,
+    "Japanese": 2,
+    "Turkish": 1,
+    "Portuguese": 1,
+    "Spanish": 1
+  },
+  "accepted_sources": [
+    {
+      "id": "B475-001",
+      "title": "Comparison of Multi-Level Image Thresholding Performances of Meta-Heuristic Search Algorithms",
+      "canonical_url": "https://dergipark.org.tr/en/pub/ngumuh/article/1529614",
+      "language": "Turkish (bilingual Turkish/English page)",
+      "read_depth": "Journal landing page, Turkish and English abstracts, references read; linked PDF not read.",
+      "finding": "Compares 11 meta-heuristics for 2–8-level thresholding on 100 images with Friedman analysis; moth-flame and particle-swarm methods ranked best in this experiment, not a general DTF guarantee.",
+      "canonical_url_sha256": "7cd7c68936d63d95b96da3f5c44eacad04cf6cac1ab48d353e8bd995e292e270"
+    },
+    {
+      "id": "B475-002",
+      "title": "Stripe Chromakey Using Active Contour Models",
+      "canonical_url": "https://www.jstage.jst.go.jp/article/itej/61/2/61_2_189/_article",
+      "language": "Japanese page with English abstract",
+      "read_depth": "J-STAGE page, metadata, abstract and references read; linked 9-page PDF not read.",
+      "finding": "Uses a two-tone striped background to disambiguate foreground colors matching the background, then refines regions with active contours; controlled-capture technique, not arbitrary-artwork removal.",
+      "canonical_url_sha256": "5a1430f87b2338d6e59cf5aee3481b15c535d74c79b6de48c5d29ec2afba2425"
+    },
+    {
+      "id": "B475-003",
+      "title": "DTF Color Management Guide: ICC Profiles, RIP & Calibration",
+      "canonical_url": "https://dtfdatabase.com/blog/dtf-color-management/",
+      "language": "English",
+      "read_depth": "Full visible guide read, including ICC setup, white-ink management, linearization, ink limits, soft-proofing, gamut limits and post-press shifts.",
+      "finding": "Emphasizes printer/ink/film-specific output profiles, measured charts, documented RIP settings and profiles validated against pressed transfers; commercial guidance not independently certified.",
+      "canonical_url_sha256": "88551f1690487a11249d7124ba73cdcbdeba6b398b6261d3b9c863d763b4062d"
+    },
+    {
+      "id": "B475-004",
+      "title": "关于图像抖动实验 (Image Dithering Experiment)",
+      "canonical_url": "https://blog.csdn.net/yuhq3/article/details/78084721",
+      "language": "Chinese",
+      "read_depth": "Full visible article read through Bayer, Floyd–Steinberg, dynamic Bayer, palette quantization, octree and implementation sections.",
+      "finding": "Contrasts ordered Bayer dithering with error diffusion; ordered patterns can be visible, while Floyd–Steinberg distributes quantization error. Serpentine scanning can reduce directional artifacts; code is educational, not production-ready.",
+      "canonical_url_sha256": "6a0abe7b5ac04360d290d6cfc07c2f206d452dfd82e4e21e840a04cbfbaf62b5"
+    },
+    {
+      "id": "B475-005",
+      "title": "O emprego da análise de imagem na determinação da distribuição de tamanho de partículas da areia presente no esgoto sanitário",
+      "canonical_url": "https://www.scielo.br/j/esa/a/K4SspZtJhj8sfXrr9vkZkHp/",
+      "language": "Portuguese",
+      "read_depth": "SciELO HTML article read across methods, binary processing, results, discussion and references.",
+      "finding": "Describes grayscale conversion, threshold binarization, morphological hole filling and separation of touching clusters; manual decisions were reported in a 2,700-image workflow, highlighting the cost of QA.",
+      "canonical_url_sha256": "355639cbb2f6dc0e131c70f8a11afafdcc50de359dd5fda2df41ccf290e5b60d"
+    },
+    {
+      "id": "B475-006",
+      "title": "Segmentación de Imágenes en Color utilizando Histogramas Bi-Variables en Espacios Color Polares Luminancia/Saturación/Matiz",
+      "canonical_url": "https://paperity.org/p/190825862/segmentacion-de-imagenes-en-color-utilizando-histogramas-bi-variables-en-espacios-color",
+      "language": "Spanish",
+      "read_depth": "Paperity preview read, including Spanish/English abstracts and substantial introduction/method text; linked PDF and publisher page could not be fetched.",
+      "finding": "Uses hue/saturation and luminance/saturation histograms, watershed-based morphological clustering, back-projection and saturation-based combination of chromatic/achromatic partitions.",
+      "canonical_url_sha256": "5d6fd238b4966658576f64c071a7ef31b278c9fd0b2e5d674484cc3a8289c92f"
+    },
+    {
+      "id": "B475-007",
+      "title": "popcon-matting-bench: Matting Model Benchmark for LINE Animated Emoji Background Removal",
+      "canonical_url": "https://github.com/ice-ice-bear/popcon-matting-bench",
+      "language": "English",
+      "read_depth": "GitHub repository page and full visible README read, including models, halo/coverage metrics, commands, sample results and limitations.",
+      "finding": "Pairs perimeter-normalized halo score with foreground coverage; shows low halo alone can hide lost thin details. Small high-contrast cartoon sample cannot rank models generally.",
+      "canonical_url_sha256": "bc2a025cb84f38252f4c9463afcfc9d2fbe672936d31ab209bdfc515b76fd6f4"
+    },
+    {
+      "id": "B475-008",
+      "title": "RVMとMatAnyone2のVideo Matting halo は「撮影由来」か「コード由来」か切り分けた",
+      "canonical_url": "https://github.com/mohhh-ok/blog/blob/main/articles/2026-07-rvm-matanyone2-green-halo-video-matting.md",
+      "language": "Japanese",
+      "read_depth": "Full visible 216-line GitHub article read, including code paths, test conditions, edge-band measurements and despill proposal.",
+      "finding": "Separates physical green spill from a fixed green fill introduced by inference post-processing using natural-background and contrasting-composite tests; author-defined metrics are local.",
+      "canonical_url_sha256": "098b9fd84883621bd86559b5535ef067a40810ab1a0f13b1607c431b75d39b8d"
+    },
+    {
+      "id": "B475-009",
+      "title": "Binary Morphology on Run-Length Encoded Image",
+      "canonical_url": "https://docs.opencv.org/5.0/extra_modules/ximgproc_run_length_morphology.html",
+      "language": "English",
+      "read_depth": "Official OpenCV page read, including representation, operations, boundary semantics and performance guidance.",
+      "finding": "Run-length encoding can speed morphology on structured binary masks with large/custom kernels, but may be worse for noisy masks and small rectangular/cross kernels; benchmark-driven dispatch.",
+      "canonical_url_sha256": "a3db5ddcfcedf5cf8609df22bf2f42b43daf5981a981cc6512ff637ce527d910"
+    },
+    {
+      "id": "B475-010",
+      "title": "How AI Background Removal Works",
+      "canonical_url": "https://imagetoolkit.org/learn/how-ai-background-removal-works",
+      "language": "English",
+      "read_depth": "Full visible 113-line guide read, including alpha, difficult cases, edge cleanup, shadow handling, local/cloud processing and checklist.",
+      "finding": "Separates segmentation, soft alpha, decontamination and edge decisions; recommends contrasting composites, preserving originals, inspecting narrow gaps at 100%, and disclosing local/cloud processing before upload.",
+      "canonical_url_sha256": "613f62ca90eeb449baddf4b1402d6e8bc23079e0a141c0b36291b9f31e8e9759"
+    }
+  ],
+  "exclusions": [
+    [
+      "https://aiinarabic.com/image-processing-using-opencv/",
+      "Already in ledger after slash normalization."
+    ],
+    [
+      "https://www.aeroprint.si/print-file-preparation/",
+      "Already in ledger."
+    ],
+    [
+      "https://pymatting.github.io/",
+      "Already in ledger."
+    ],
+    [
+      "https://www.nestsheet.com/white-underbase",
+      "Already in ledger."
+    ],
+    [
+      "https://beltoforion.de/de/dithering/",
+      "German localized mirror of same article; excluded."
+    ],
+    [
+      "https://openclassrooms.com/fr/courses/3938146-appropriez-vous-la-demarche-ux-en-pratique/4288071-retouchez-un-visuel-pour-le-web-avec-adobe-photoshop",
+      "Already counted in Batch 361."
+    ],
+    [
+      "https://habr.com/ru/articles/353890/",
+      "Already in ledger."
+    ],
+    [
+      "https://habr.com/ru/articles/468067/",
+      "Already in ledger."
+    ],
+    [
+      "https://www.scielo.org.mx/scielo.php?script=sci_abstract&pid=S1405-55462005000200005&lng=pt&nrm=iso&tlng=en",
+      "Official publisher page timed out; accessible Paperity preview counted once under its own URL."
+    ]
+  ]
+}
