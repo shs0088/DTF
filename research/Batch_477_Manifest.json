@@ -1,0 +1,16 @@
+{
+  "batch": 477,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5392,
+  "new_accepted_pages": 10,
+  "provisional_cumulative_upper_bound": 5402,
+  "percentage": 54.02,
+  "remaining_by_arithmetic": 4598,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "physical_dtf_validation": false,
+  "source_index": "research/Batch_477_Canonical_Source_Index.md",
+  "url_hashes": "research/Batch_477_Canonical_URL_Hashes.tsv",
+  "test_results": "research/Batch_477_Test_Results.txt"
+}
