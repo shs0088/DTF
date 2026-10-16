@@ -1,0 +1,7 @@
+Batch 471 engineering notes (2026-10-16)
+
+Eight new works accepted; provisional chain upper bound 5,340/10,000 (53.40%), global uniqueness uncertified.
+
+Key lessons: morphology footprint/connectivity controls whether thin strokes survive; polar color-histogram segmentation is fragile when modes overlap; mask evaluation should combine pixel scores with topology and shape metrics; label preparation and manual correction are production costs; RGB edge contamination and alpha geometry must be validated separately; recent generative matting remains experimental until independently benchmarked.
+
+No physical DTF validation, merge, deployment, or storefront changes. Batch 465/466 manifests remain missing.
