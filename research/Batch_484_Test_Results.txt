@@ -1,0 +1,13 @@
+Batch 484 local integrity checks — 2026-10-16
+
+PASS: accepted records = 10
+PASS: canonical URLs within batch are distinct = 10
+PASS: SHA-256 values are 64 lowercase hexadecimal characters = 10
+PASS: manifest and TSV URLs match in order = 10/10
+PASS: source IDs are unique = 10/10
+PASS: language, read-depth, topic and caveat fields present = 10/10
+PASS: arithmetic 5462 + 10 = 5472
+PASS: percentage 5472/10000 = 54.72%
+PASS: remaining arithmetic 10000 - 5472 = 4528
+
+LIMITATION: checks validate batch bookkeeping only. Historical global semantic deduplication is incomplete. No physical DTF/RIP validation performed.
