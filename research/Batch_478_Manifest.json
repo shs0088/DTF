@@ -1,0 +1,21 @@
+{
+  "batch": 478,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5402,
+  "new_accepted_pages": 10,
+  "provisional_cumulative_upper_bound": 5412,
+  "percentage": 54.12,
+  "remaining_by_arithmetic": 4588,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "physical_dtf_validation": false,
+  "languages_searched": ["Arabic", "Chinese", "Japanese", "Korean", "Russian", "Spanish", "Portuguese", "German", "French", "Italian", "Turkish", "English"],
+  "accepted_language_counts": {"English": 6, "French": 1, "Arabic": 2, "Japanese": 1},
+  "source_index": "research/Batch_478_Canonical_Source_Index.md",
+  "url_hashes": "research/Batch_478_Canonical_URL_Hashes.tsv",
+  "synthesis": "research/Batch_478_Engineering_Synthesis.md",
+  "test_results": "research/Batch_478_Test_Results.txt",
+  "source_ids": ["B478-001", "B478-002", "B478-003", "B478-004", "B478-005", "B478-006", "B478-007", "B478-008", "B478-009", "B478-010"],
+  "dedup_scope": "Canonical URLs checked within batch and against accessible recent branch indexes (Batches 469-477), visible central ledger, and exact-title repository searches. Historical semantic deduplication remains incomplete."
+}
