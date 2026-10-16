@@ -1,0 +1,125 @@
+{
+  "batch": 471,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5332,
+  "new_accepted_pages": 8,
+  "provisional_cumulative_upper_bound": 5340,
+  "percentage": 53.4,
+  "remaining_by_arithmetic": 4660,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "physical_printer_validation": false,
+  "dedup_scope": "Exact canonical URLs and DOI identifiers checked against the current branch ledger and accessible Batch 464, 467–470 manifests/indexes. Exact duplicates and localized/version mirrors excluded where identified. Batches 465–466 source manifests remain unavailable; historical semantic deduplication is incomplete.",
+  "languages_searched": [
+    "Arabic",
+    "Chinese",
+    "Japanese",
+    "Korean",
+    "Russian",
+    "Spanish",
+    "Portuguese",
+    "German",
+    "French",
+    "Italian",
+    "Turkish",
+    "English"
+  ],
+  "languages_with_accepted_pages": [
+    "Arabic abstract / English body",
+    "Spanish",
+    "Portuguese",
+    "Japanese",
+    "Chinese",
+    "French",
+    "English research"
+  ],
+  "excluded_candidates": [
+    {
+      "url": "https://habr.com/ru/articles/353890/",
+      "reason": "Exact canonical URL already present in central ledger; not counted again."
+    }
+  ],
+  "accepted_sources": [
+    {
+      "id": "B471-001",
+      "title": "Mathematical Morphology Operations on Grayscale Image",
+      "canonical_url": "https://doi.org/10.35950/cbej.vi.7817",
+      "access_url": "https://iasj.rdd.edu.iq/journals/uploads/2025/03/03/fb1071454d3904bd648e44b41ff64a49.pdf",
+      "language": "Arabic abstract and English body; journal from Iraq",
+      "read_depth": "Full 11-page PDF opened and read; journal landing page also opened. Counted as one work.",
+      "finding": "Structuring-element size and shape govern erosion/dilation; opening removes narrow bright features and closing removes dark details. Morphological gradients can produce different edge/noise trade-offs than Sobel; transfer requires mask-specific testing.",
+      "canonical_url_sha256": "2d4fe49c34c95c3b50ae241e128b0e7c1461d63ccf9a7d9b41b47d5dbbf757d7"
+    },
+    {
+      "id": "B471-002",
+      "title": "Segmentación de Imágenes en Color utilizando Histogramas Bi–Variables en Espacios Color Polares Luminancia/Saturación/Matiz",
+      "canonical_url": "https://www.scielo.org.mx/scielo.php?pid=S1405-55462005000200005&script=sci_arttext",
+      "access_url": "https://www.scielo.org.mx/scielo.php?pid=S1405-55462005000200005&script=sci_arttext",
+      "language": "Spanish with English abstract",
+      "read_depth": "Full HTML article page and abstract read; PDF download could not be fetched, so full-paper reading is not claimed.",
+      "finding": "Uses luminance/saturation/hue polar spaces, bivariate HS and LS histograms, watershed-based morphological clustering, inverse projection, and saturation-based combination of chromatic/achromatic partitions. Authors note failures where histogram clusters overlap.",
+      "canonical_url_sha256": "48d4c3fd5cb8082108411de0a78c6db346e35dcdbef0f5fb6f3f7a077ef4b9b1"
+    },
+    {
+      "id": "B471-003",
+      "title": "Índice para a avaliação de segmentação de imagens",
+      "canonical_url": "https://doi.org/10.5380/rf.v39i1.13733",
+      "access_url": "https://revistas.ufpr.br/floresta/article/view/13733",
+      "language": "Portuguese (Brazil)",
+      "read_depth": "Journal landing page and abstract read; linked PDF not read.",
+      "finding": "The IAVAS_mod proposal compares a segmentation to a reference using polygon count, centroid distance, area difference, perimeter difference, and overlap range. This motivates multiple boundary/shape metrics rather than one pixel score.",
+      "canonical_url_sha256": "0bc0fe672c0d2fc03fb44c919009ae64d8ef011f76e31dfa1734ed297998effb"
+    },
+    {
+      "id": "B471-004",
+      "title": "Deep learningを用いた生物電子顕微鏡画像のセグメンテーション",
+      "canonical_url": "https://doi.org/10.11410/kenbikyo.58.1_31",
+      "access_url": "https://www.jstage.jst.go.jp/article/kenbikyo/58/1/58_31/_article/-char/ja",
+      "language": "Japanese",
+      "read_depth": "Full J-STAGE metadata and Japanese abstract read; PDF not read.",
+      "finding": "Deep-learning segmentation reduces manual annotation effort, but preparing training labels and calibrating model outputs remain bottlenecks. Transferable lesson: keep human QA and correction effort measurable.",
+      "canonical_url_sha256": "dd4a89fb930afae3f69ec1d315193e19d78f36939cdb39bcb451862429c413b1"
+    },
+    {
+      "id": "B471-005",
+      "title": "基于前背景特性的逆光交通场景图像增强",
+      "canonical_url": "https://wxdg.cbpt.cnki.net/portal/journal/portal/client/paper/bc9b6235755529f2326bf65afbab5792",
+      "access_url": "https://wxdg.cbpt.cnki.net/portal/journal/portal/client/paper/bc9b6235755529f2326bf65afbab5792",
+      "language": "Chinese with English abstract",
+      "read_depth": "Full accessible article page, Chinese abstract, English abstract, and references read; full text unavailable through the page.",
+      "finding": "Separates foreground/background using Otsu, applies LIME globally, separately equalizes background channels, then uses Canny-detected seam edges and adaptive filters to reduce black seams. This is enhancement research, not a validated matting algorithm.",
+      "canonical_url_sha256": "77dc2ddb8394f74988423a9f4eee12cc238081ddd2ef63e90770fd3a42aef5b6"
+    },
+    {
+      "id": "B471-006",
+      "title": "TIFO: Introduction à la morphologie mathématique",
+      "canonical_url": "https://lemasyma.github.io/cours/posts/tifo_morpho_maths/",
+      "access_url": "https://lemasyma.github.io/cours/posts/tifo_morpho_maths/",
+      "language": "French",
+      "read_depth": "Full 248-line tutorial page read.",
+      "finding": "Explains connectivity, structuring elements, erosion/dilation, opening/closing, and operator properties including idempotence. Notes OpenCV channel-order pitfalls (BGR vs RGB); connectivity and footprint choice should be explicit in mask cleanup.",
+      "canonical_url_sha256": "9b256ee9f7a23533e44ad70e1b63e4fd72a0ccc4f4825fda48716ecd3ceadd34"
+    },
+    {
+      "id": "B471-007",
+      "title": "Alpha matting using robust color sampling and fully connected conditional random fields",
+      "canonical_url": "https://doi.org/10.1007/s11042-017-5031-0",
+      "access_url": "https://scholar.nycu.edu.tw/zh/publications/alpha-matting-using-robust-color-sampling-and-fully-connected-con/",
+      "language": "English paper; Chinese-language institutional interface",
+      "read_depth": "Institutional record and complete available abstract/metadata read; publisher full text unavailable. Counted once by DOI, not as separate Chinese/English mirrors.",
+      "finding": "Variable-size search windows expand foreground/background sample candidates for unknown pixels, then a fully connected CRF refines the matte at pixel level. Avoid overly local sampling when true color samples are absent nearby.",
+      "canonical_url_sha256": "f21e1105bd9adbb8d99562caa4901c153d4c357cbe87d35a99190c3d7a291712"
+    },
+    {
+      "id": "B471-008",
+      "title": "RenderMatte: Exact-Alpha Rendering and Group-Relative Alignment for Image Matting",
+      "canonical_url": "https://arxiv.org/abs/2608.08487",
+      "access_url": "https://arxiv.org/abs/2608.08487",
+      "language": "English",
+      "read_depth": "ArXiv HTML abstract, introduction, alpha-edge loss, and group-relative alignment method sections read; complete experiments/appendix not read.",
+      "finding": "Combines diffusion-model adaptation with an alpha-edge objective and multi-scale Laplacian boundary loss; post-training compares mattes under the same trimap using alpha accuracy, boundary fidelity, trimap compliance, and compositional consistency. Promising research, not independently benchmarked here.",
+      "canonical_url_sha256": "d6acc0b586ae75374fce95f5e8b315bbb3cdcd748e214ac03e89b535867d10c8"
+    }
+  ]
+}
