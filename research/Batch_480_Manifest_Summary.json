@@ -1,0 +1,23 @@
+{
+  "batch_id": 480,
+  "date": "2026-10-16",
+  "accepted_new_pages": 10,
+  "previous_provisional_upper_bound": 5422,
+  "updated_provisional_cumulative_upper_bound": 5432,
+  "progress_percent": 54.32,
+  "remaining_by_arithmetic": 4568,
+  "globally_certified_unique_page_count": null,
+  "global_historical_semantic_deduplication_complete": false,
+  "language_distribution": {
+    "English": 7,
+    "Arabic (with English abstract)": 2,
+    "Turkish": 1
+  },
+  "local_integrity_checks": "30/30 passed",
+  "physical_dtf_validation_performed": false,
+  "merge_performed": false,
+  "deployment_performed": false,
+  "protected_storefront_modified": false,
+  "ready_to_print_master_modified": false,
+  "note": "Read depth varies; abstract-only records are explicitly documented. Exact URL checks cover available local packages for Batches 470 and 472–479 only."
+}
