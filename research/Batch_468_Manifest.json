@@ -1,0 +1,243 @@
+{
+  "batch": 468,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5301,
+  "new_accepted_pages": 14,
+  "provisional_cumulative_upper_bound": 5315,
+  "percentage": 53.15,
+  "remaining_by_arithmetic": 4685,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "dedup_scope": "Canonical URLs and title/DOI identifiers checked against the central ledger and accessible local manifests for Batches 458–467. Duplicate URLs and localized mirrors were excluded. Global semantic deduplication remains incomplete.",
+  "languages_searched": [
+    "Arabic",
+    "Chinese",
+    "Japanese",
+    "Korean",
+    "Russian",
+    "Spanish",
+    "Portuguese",
+    "German",
+    "French",
+    "Italian",
+    "Turkish",
+    "English"
+  ],
+  "languages_with_accepted_pages": [
+    "Chinese",
+    "Japanese",
+    "English"
+  ],
+  "physical_printer_validation": false,
+  "accepted_sources": [
+    {
+      "id": "B468-001",
+      "canonical_url": "https://repository.rit.edu/theses/2844/",
+      "title": "Visual-Based Error Diffusion for Printers",
+      "language": "English",
+      "read_depth": "Repository page and abstract read; linked thesis PDF could not be fetched.",
+      "key_finding": "Printer-model and visual-model-aware error diffusion; low-frequency local errors may be more objectionable than high-frequency noise.",
+      "sha256_canonical_url": "0810879e70bc5915f4c6fa5c7d159107914123aa32378a3d83708126471a1597"
+    },
+    {
+      "id": "B468-002",
+      "canonical_url": "https://ira.lib.polyu.edu.hk/handle/10397/1524",
+      "title": "Feature-Preserving Multiscale Error Diffusion for Digital Halftoning",
+      "language": "English",
+      "read_depth": "Repository record and linked seven-page PDF read; counted as one work.",
+      "key_finding": "Addresses directional hysteresis, dot-polarity bias, flat-region pattern noise and boundary effects; warns against edge-enhancement preprocessing that distorts intensities.",
+      "sha256_canonical_url": "a20af2b1bb6fdc9e194f8d897e4178d633b3ebb03e30669968aa4bcf5701c488"
+    },
+    {
+      "id": "B468-003",
+      "canonical_url": "https://pubmed.ncbi.nlm.nih.gov/30281457/",
+      "title": "Deep Convolutional Neural Network for Natural Image Matting Using Initial Alpha Mattes",
+      "language": "English",
+      "read_depth": "PubMed metadata and abstract read; publisher full text not retrieved.",
+      "key_finding": "CNN refines complementary closed-form and KNN initial mattes; paper also describes RGB-guided JPEG-artifact removal.",
+      "sha256_canonical_url": "f0c91ad14345626575a827d18ec085f1035329efdb7b7a649bbdce07698b10f1"
+    },
+    {
+      "id": "B468-004",
+      "canonical_url": "https://www.avclabs.com/user-guide/photopro/matting.html",
+      "title": "Image Matting with AVCLabs PhotoPro AI",
+      "language": "English",
+      "read_depth": "Full visible guide page read.",
+      "key_finding": "Workflow separates object selection, matting, transparent preview, background replacement and export; not an accuracy benchmark.",
+      "sha256_canonical_url": "96bf28be39c87cf082913756f70aa1fa68d626e6e64c0d67005ceb553b9102b0"
+    },
+    {
+      "id": "B468-005",
+      "canonical_url": "https://www.jcad.cn/en/article/doi/10.3724/SP.J.1089.2022.19175",
+      "title": "Coarse Semantic Guided Alpha Matting via Simultaneous Foreground and Background Estimation",
+      "language": "Chinese research / English page",
+      "read_depth": "Metadata and abstract read; full-text body not retrievable.",
+      "key_finding": "Joint foreground/background/alpha prediction targets color spill; coarse semantics are refined by an encoder-decoder.",
+      "sha256_canonical_url": "4270465bf35d2b5fdc39c3fa45acfb1a05e2a7b85ce55d3f797e9d957e73d439"
+    },
+    {
+      "id": "B468-006",
+      "canonical_url": "https://ken.ieice.org/ken/paper/20180518z135/eng/",
+      "title": "Contour Extraction of Transparent Objects Using Fully Convolutional Networks",
+      "language": "Japanese paper / English record",
+      "read_depth": "English abstract and metadata read; Japanese full paper not retrieved.",
+      "key_finding": "Two FCN methods extract transparent-object contours; the contour-neighborhood task is reported to perform better.",
+      "sha256_canonical_url": "5397f68bed1fdd6ba2899d9465f7028991966c0296e8cf0665c16c5b293af4c5"
+    },
+    {
+      "id": "B468-007",
+      "canonical_url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.13156",
+      "title": "A Comprehensive Survey on Sampling-Based Image Matting",
+      "language": "English",
+      "read_depth": "Abstract and visible references read; full text not retrieved.",
+      "key_finding": "Recommends isolating sampling strategy from weights, post-processing and other refinements in controlled comparisons.",
+      "sha256_canonical_url": "d0d6e4e8c7f5fe2c8f8f2b6be015e0bf4bee912f4d846c3713e26336bd742d92"
+    },
+    {
+      "id": "B468-008",
+      "canonical_url": "https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1467-8659.2009.01627.x",
+      "title": "Shared Sampling for Real-Time Alpha Matting",
+      "language": "English",
+      "read_depth": "Abstract and supporting-information description read; full article access not obtained.",
+      "key_finding": "Reuses selected foreground/background sample pairs to reduce redundant computation; the paper reports up to 100x speedup.",
+      "sha256_canonical_url": "9d52679f0c8060f55e2acd6a814a6bd8fe79e8b6f4db05e012360209e45c30a5"
+    },
+    {
+      "id": "B468-009",
+      "canonical_url": "https://sigclean.io/en/",
+      "title": "SigCleaner — Background Removal for Stamps and Signatures",
+      "language": "English",
+      "read_depth": "Visible feature, processing and API overview read.",
+      "key_finding": "Specialized extraction workflow; remote processing makes it a capability reference, not a default for private customer artwork.",
+      "sha256_canonical_url": "235ec4f63b1a726037fb346398585dfb1316955c43e01028498a070c85b9a1c5"
+    },
+    {
+      "id": "B468-010",
+      "canonical_url": "https://sigclean.io/en/api-docs",
+      "title": "SigCleaner REST API Documentation",
+      "language": "English",
+      "read_depth": "Visible API documentation read, including upload, file listing, deletion, renaming and error codes.",
+      "key_finding": "Bearer-authenticated file/URL input and PNG/WebP output; remote retention and URL-fetch security need separate review.",
+      "sha256_canonical_url": "d20358887ed54748e400f921065a0279d6c2694ac7800db5f75a030f15de51ee"
+    },
+    {
+      "id": "B468-011",
+      "canonical_url": "https://utils4.work/signature-cleaner/",
+      "title": "Signature Cleaner — Remove Background, Export Transparent PNG",
+      "language": "English",
+      "read_depth": "Full visible page read.",
+      "key_finding": "Four-corner background sampling, color-distance-to-alpha soft ramp and optional trim; corner contamination can bias results.",
+      "sha256_canonical_url": "fcc763beb9b6cbb48cb4efdc6f74410f031eec0c23885e6c5eb61b6474e1866c"
+    },
+    {
+      "id": "B468-012",
+      "canonical_url": "https://pubmed.ncbi.nlm.nih.gov/28650812/",
+      "title": "Alpha Matting With KL-Divergence-Based Sparse Sampling",
+      "language": "English",
+      "read_depth": "PubMed metadata and abstract read; publisher full text not retrieved.",
+      "key_finding": "Frames sample selection as sparse subset selection and compares candidates using KL-divergence between local feature distributions.",
+      "sha256_canonical_url": "ecfa141addb24775a3f3e03a09de98818983855acf388f1678486458991fb6de"
+    },
+    {
+      "id": "B468-013",
+      "canonical_url": "https://arxiv.org/abs/2003.03613",
+      "title": "AlphaNet: An Attention Guided Deep Network for Automatic Image Matting",
+      "language": "English",
+      "read_depth": "HTML paper opened; architecture, trimap generation, attention-guided up/downsampling and evaluation sections read.",
+      "key_finding": "Combines segmentation, erosion/dilation trimap generation and attention-guided matting; reports MSE/SAD/gradient/connectivity metrics.",
+      "sha256_canonical_url": "e4e4b22b81d8a9e1bd6e7d8ad6628dd05d6f70820338f83c94bb9d3de20a143e"
+    },
+    {
+      "id": "B468-014",
+      "canonical_url": "https://support.printfactory.cloud/portal/en/kb/articles/white-document-component",
+      "title": "White — Document Component",
+      "language": "English",
+      "read_depth": "Full visible documentation page read.",
+      "key_finding": "Documents white-plate methods, positive spread/negative choke, minimum-alpha cutoff, spot mapping and No Choke on White; helps prevent duplicate underbase generation.",
+      "sha256_canonical_url": "b5f642ace8820d539502213ee804a03b1013e313d8eac64d45a750612d227397"
+    }
+  ],
+  "excluded_sources": [
+    {
+      "url": "https://www.dtflinko.com/technical-services/printer-technical-operation-repair/set-the-white-layer-choke/",
+      "reason": "Exact canonical duplicate in Batch 460/461."
+    },
+    {
+      "url": "https://pymatting.github.io/",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://github.com/pymatting/pymatting",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://dtfwiz.com/tools/white-ink-checker",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://help.housedtf.com/portal/en/kb/articles/choke-adjustments-in-dtf-printing",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://www.nestsheet.com/white-underbase",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://www.nestsheet.com/blog/dtf-white-underbase-choke-explained",
+      "reason": "Exact canonical duplicate in central ledger."
+    },
+    {
+      "url": "https://dtfgears.com/blogs/news/digital-factory-v12-for-white-ink-underbase-printing-best-practice-settings/",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://docs.opencv.org/5.0/extra_modules/alphamat.html",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://learnopencv.com/image-matting-with-state-of-the-art-method-f-b-alpha-matting/",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://www.ipol.im/pub/pre/532/",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://arxiv.org/abs/2103.17020",
+      "reason": "Already present in central ledger."
+    },
+    {
+      "url": "https://ietresearch.onlinelibrary.wiley.com/doi/full/10.1049/ipr2.12829",
+      "reason": "DOI already present in central ledger."
+    },
+    {
+      "url": "https://zeromathai.com/ar/median-filter-ar/",
+      "reason": "Exact canonical URL already in central ledger."
+    },
+    {
+      "url": "https://helpx.adobe.com/mena_ar/photoshop-express/mobile/quick-actions/denoise.html",
+      "reason": "Localized Adobe help mirror excluded."
+    },
+    {
+      "url": "https://www.alphaxiv.org/fr/abs/2012.07810",
+      "reason": "French translated abstract mirror excluded."
+    },
+    {
+      "url": "https://www.mdpi.com/2076-3417/11/22/10601",
+      "reason": "Open attempt returned HTTP 429; snippet alone does not count."
+    },
+    {
+      "url": "https://ira.lib.polyu.edu.hk/bitstream/10397/1524/1/J-JEI-Feature-preserving%20multiscale%20error%20diffusion_04.pdf",
+      "reason": "Linked PDF belongs to B468-002 and is not a second work."
+    },
+    {
+      "url": "https://ken.ieice.org/ken/paper/20180518z135/jpn/",
+      "reason": "Localized record for B468-006; not counted separately."
+    },
+    {
+      "url": "https://www.jcad.cn/article/doi/10.3724/SP.J.1089.2022.19175",
+      "reason": "Localized version of B468-005; not counted separately."
+    }
+  ]
+}
