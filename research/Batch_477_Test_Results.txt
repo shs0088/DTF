@@ -1,0 +1,19 @@
+DTF Smart Prepress Batch 477 integrity checks
+Run date: 2026-10-16
+
+PASS: 10 accepted source records
+PASS: unique source IDs
+PASS: unique canonical URLs within batch
+PASS: canonical URL hashes match their recorded values (local test)
+PASS: read-depth and finding recorded for every source
+PASS: cumulative arithmetic: 5,392 + 10 = 5,402
+PASS: remaining arithmetic: 10,000 - 5,402 = 4,598
+PASS: percentage arithmetic: 54.02%
+PASS: global uniqueness not overstated
+PASS: physical DTF validation not claimed
+PASS: all 12 requested language groups searched
+PASS: excluded candidates documented
+PASS: language counts sum to 10
+PASS: no merge or deployment claimed
+
+17/17 local integrity checks passed. These tests validate bookkeeping only; they do not certify global uniqueness or physical print quality.
