@@ -1,0 +1,19 @@
+{
+  "batch_id": 479,
+  "date": "2026-10-16",
+  "accepted_new_pages": 10,
+  "previous_provisional_upper_bound": 5412,
+  "updated_provisional_cumulative_upper_bound": 5422,
+  "remaining_by_arithmetic": 4578,
+  "globally_certified_unique_page_count": null,
+  "global_historical_semantic_deduplication_complete": false,
+  "physical_dtf_validation_performed": false,
+  "merge_performed": false,
+  "deployment_performed": false,
+  "protected_storefront_modified": false,
+  "ready_to_print_master_modified": false,
+  "language_groups": ["Chinese", "Japanese", "Korean", "Turkish", "Spanish", "Portuguese", "French", "Italian", "English"],
+  "read_depth_varies": true,
+  "full_detailed_manifest_and_url_hashes": "included in the downloadable local package",
+  "deduplication_scope": "Exact normalized URL checks against locally available Batches 469, 470, and 472-478; historical semantic deduplication remains incomplete."
+}
