@@ -13,7 +13,11 @@ Target: 10,000 individually opened/read, materially distinct pages.
 - Batch 478: +10; provisional upper bound 5,412.
 - Batch 479: +10; provisional upper bound 5,422.
 - Batch 480: +10; provisional upper bound **5,432 / 10,000 (54.32%)**.
-- Remaining by arithmetic: **4,568**.
+- Batch 481: +10; provisional upper bound **5,442 / 10,000 (54.42%)**.
+- Batch 482: +10; provisional upper bound **5,452 / 10,000 (54.52%)**.
+- Batch 483: +10; provisional upper bound **5,462 / 10,000 (54.62%)**.
+- Batch 484: +10; provisional upper bound **5,472 / 10,000 (54.72%)**.
+- Remaining by arithmetic: **4,528**.
 - Globally certified unique-page count: **unknown**.
 
 ## Reconciliation and integrity
@@ -44,3 +48,17 @@ No merge, deployment, protected storefront change, or Ready-to-Print Master chan
 
 ### Batch 479 hash-index correction
 The previously committed Batch_479_Canonical_URL_Hashes.tsv contained malformed/truncated hash values. It has now been replaced with the correctly computed values from the locally validated Batch 479 package. Use the corrected branch file, not any earlier cached copy.
+
+
+## Batch 481–484 consolidated checkpoint — 2026-10-16
+
+- Batch 481: +10 individually opened/read pages; provisional upper bound 5,442.
+- Batch 482: +10 individually opened/read pages; provisional upper bound 5,452.
+- Batch 483: +10 individually opened/read pages; provisional upper bound 5,462.
+- Batch 484: +10 individually opened/read pages; provisional upper bound **5,472 / 10,000 (54.72%)**.
+- Remaining by arithmetic: **4,528**. Globally certified unique-page count remains **unknown**.
+- Batch 484 accepted languages include English, German, Russian and Portuguese full/partial technical pages, an Arabic catalog abstract, and an English abstract on a Chinese journal platform. Read depth is recorded per source.
+- Batch 484 exclusions include the PyMatting duplicate (Batches 395/409), the alternate-URL Portuguese ovitrampas work already listed in Batch 469, and pages that failed to open. Search-result-only candidates were not counted.
+- Exact URL/title checks covered accessible source-index and batch artifacts across Batches 324, 346, 353, 357, 360, 370–421 where available, 432–469, and selected Batches 470–483. Some paths were missing or incomplete and older history is not fully reconciled; this checkpoint is a provisional upper bound, not global uniqueness certification.
+- Batch 479 hash-index repair was reported as verified in Batch 483; retain the branch's read-back artifact as the evidence and do not rely on cached copies.
+- No physical DTF/RIP validation was performed. No merge, deployment, protected storefront edit, application-code modification or Ready-to-Print Master modification occurred.
