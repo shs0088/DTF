@@ -1,0 +1,104 @@
+{
+  "batch": 485,
+  "date": "2026-10-16",
+  "previous_provisional_upper_bound": 5472,
+  "accepted_this_batch": 10,
+  "updated_provisional_upper_bound": 5482,
+  "target": 10000,
+  "remaining_by_arithmetic": 4518,
+  "global_unique_count": "unknown",
+  "reading_policy": "Only individually opened/read pages count; search-result snippets and pages that failed to open are excluded. Reading depth varies and is recorded per source.",
+  "historical_deduplication": "Exact URL comparison against available Batches 481, 483 and 484. Batch 482 and 480 hash indexes unavailable at expected paths; older corpus incomplete.",
+  "sources": [
+    {
+      "source_id": "B485-001",
+      "canonical_url": "https://docs.opencv.org/4.13.0/d9/d61/tutorial_py_morphological_ops.html",
+      "canonical_url_sha256": "f70d9b5dbce7b9890ea639e00729700c6a2a70890000bbb5527deaea3b2e0fa4",
+      "title": "OpenCV: Morphological Transformations",
+      "language": "English",
+      "read_depth": "Full visible tutorial sections read",
+      "caveat": "Not a universal cleanup preset"
+    },
+    {
+      "source_id": "B485-002",
+      "canonical_url": "https://scikit-image.org/docs/stable/api/skimage.filters.html",
+      "canonical_url_sha256": "0ea278fd99b30b78f3943bf0cb78abbf06e935d572444712ba31ef4badf37ca6",
+      "title": "skimage.filters API reference",
+      "language": "English",
+      "read_depth": "Relevant API sections read",
+      "caveat": "API docs do not validate DTF output"
+    },
+    {
+      "source_id": "B485-003",
+      "canonical_url": "https://www.w3.org/TR/png-3/",
+      "canonical_url_sha256": "65ac8a5a430c83eb162172a98bea549a0c1599f6a6d1c2e8653f67f007f8fb5b",
+      "title": "Portable Network Graphics (PNG) Specification, Third Edition",
+      "language": "English",
+      "read_depth": "Alpha-channel and alpha-processing sections read",
+      "caveat": "Spec does not itself decontaminate foreground RGB"
+    },
+    {
+      "source_id": "B485-004",
+      "canonical_url": "https://github.com/neosr-project/neosr",
+      "canonical_url_sha256": "84b27478ee1e3549078f395453d488e85c2a92ede89de8652ed5798664b01b25",
+      "title": "neosr open-source super-resolution framework",
+      "language": "English",
+      "read_depth": "Repository README and setup/feature sections read",
+      "caveat": "Model quality must be tested on target artwork"
+    },
+    {
+      "source_id": "B485-005",
+      "canonical_url": "https://dtfstation.com/knowledge-base/setting-the-white-choke-amount-with-the-digital-factory-queue-wizard/",
+      "canonical_url_sha256": "b95e23b9da568a77a7447a5b7725db134a07ea15c5e3597509cd0936bbe292fc",
+      "title": "Setting The White Choke Amount With the Digital Factory Queue Wizard",
+      "language": "English",
+      "read_depth": "Full visible step-by-step guide read",
+      "caveat": "Vendor workflow only; printer-specific validation needed"
+    },
+    {
+      "source_id": "B485-006",
+      "canonical_url": "https://www.dtflinko.com/technical-services/printer-technical-operation-repair/set-the-white-layer-choke/",
+      "canonical_url_sha256": "b5cefb8ef332253bb55c1eee1b7593b7c9f2e559e01c59a1e1055c55f28ef02b",
+      "title": "Set the White Layer Choke in PrintFactory",
+      "language": "English",
+      "read_depth": "Full visible guide read",
+      "caveat": "Vendor starting values are not universal"
+    },
+    {
+      "source_id": "B485-007",
+      "canonical_url": "https://www.subli-star.com/zh/dtf-rip-setup-color-management-fix-color-shift-white-fringe-hot-press-issues/",
+      "canonical_url_sha256": "59948b4c1ffe47a8e9a7485ded2d5b3569adec6e360c20ee901e873da4d8920a",
+      "title": "DTF RIP setup and color management: fix color shift, white fringe and heat-press issues",
+      "language": "Chinese",
+      "read_depth": "Relevant technical sections read",
+      "caveat": "Generic numeric claims are unverified across systems"
+    },
+    {
+      "source_id": "B485-008",
+      "canonical_url": "https://pixlane.media/ar-eg/morphological-ops/",
+      "canonical_url_sha256": "308c2a50100c7f2fbe061f3c58ab4e50cfbf5d3a104c2ccd15498fff73f38956",
+      "title": "العمليات المورفولوجية (Morphological Operations)",
+      "language": "Arabic/English",
+      "read_depth": "Full visible tool documentation and FAQ read",
+      "caveat": "Tool page, not peer-reviewed research; privacy claims not independently audited"
+    },
+    {
+      "source_id": "B485-009",
+      "canonical_url": "https://www.publish.ru/articles/201705_20013726",
+      "canonical_url_sha256": "b1cf262a1d5bd5b93413470debe6ecfbfaeea229d3935738eb0ce70d7cd30965",
+      "title": "Управление цветом в Adobe Creative Cloud без секретов",
+      "language": "Russian",
+      "read_depth": "Visible article sections read",
+      "caveat": "Offset assumptions are not DTF profiles"
+    },
+    {
+      "source_id": "B485-010",
+      "canonical_url": "https://dtfgears.com/blogs/news/digital-factory-v12-for-white-ink-underbase-printing-best-practice-settings/",
+      "canonical_url_sha256": "338e86acb8a5ef5efa238984e4e0f8dde84b6cab656522b5b4d670bdee21f1a3",
+      "title": "Digital Factory V12 for White Ink & Underbase Printing: Best Practice Settings",
+      "language": "English",
+      "read_depth": "Full visible article read",
+      "caveat": "Retailer advice is not manufacturer-independent validation"
+    }
+  ]
+}
