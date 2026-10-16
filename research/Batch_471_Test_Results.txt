@@ -1,0 +1,14 @@
+Batch 471 validation (local structural checks performed before repository sync):
+- 8 accepted source records: PASS
+- unique source IDs: PASS
+- unique canonical URLs within batch: PASS
+- HTTPS canonical URL format: PASS
+- canonical URL SHA-256 values generated: PASS
+- cumulative arithmetic 5,332 + 8 = 5,340: PASS
+- remaining arithmetic 10,000 - 5,340 = 4,660: PASS
+- percentage 53.40%: PASS
+- global uniqueness explicitly left uncertified: PASS
+- historical semantic deduplication explicitly incomplete: PASS
+- physical DTF validation explicitly not claimed: PASS
+
+Excluded: https://habr.com/ru/articles/353890/ because exact URL is already in the central ledger. No localized mirror counted separately.
