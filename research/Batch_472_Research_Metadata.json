@@ -1,0 +1,15 @@
+{
+  "batch": 472,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5340,
+  "new_accepted_pages": 10,
+  "provisional_cumulative_upper_bound": 5350,
+  "percentage": 53.5,
+  "remaining_by_arithmetic": 4650,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "physical_printer_validation": false,
+  "accepted_languages": ["English", "Russian", "Japanese", "Chinese with English abstract"],
+  "note": "Batch 471 checkpoint was integrated from its existing sidecar. Historical semantic deduplication is incomplete; the global unique count is unknown."
+}
