@@ -1,0 +1,7 @@
+Batch 481 GitHub synchronization status
+Date: 2026-10-16
+
+- Target branch: chatgpt/dtf-smart-prepress-20260928
+- Batch 481 research artifacts are being added as documentation-only files in one append-only commit.
+- The existing central ledger and Batch 479 hash-index files could not be overwritten through the connector; an append-only ledger checkpoint and corrected alternate hash file are supplied.
+- No application source, workflow, protected storefront, Ready-to-Print Master, deployment, or merge was changed.

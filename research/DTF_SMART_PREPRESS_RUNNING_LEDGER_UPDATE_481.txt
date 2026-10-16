@@ -1,0 +1,14 @@
+# DTF Smart Prepress — Batch 481 Ledger Addendum
+Date: 2026-10-16
+
+- Previous provisional upper bound: 5,432 (Batch 480).
+- Batch 481 accepted: +10 individually opened/read pages.
+- Updated provisional upper bound: **5,442 / 10,000 (54.42%)**.
+- Remaining by arithmetic: **4,558**.
+- Global unique-page count: unknown; historical semantic deduplication is incomplete.
+- Local integrity checks: 18/18 passed.
+- Accepted languages: English (4), Japanese (2), Korean (1), Spanish (1), Chinese (1), Russian (1).
+- Physical DTF validation: not performed.
+- Merge/deployment/storefront/Ready-to-Print Master changes: none.
+
+Integrity correction: Batch 481 inspection found the active branch's Batch 479 canonical URL hash TSV malformed/truncated. The Batch 479 manifest contains the authoritative hashes; a corrected replacement file and correction note are supplied in this batch package. A direct overwrite of the existing hash file and central ledger was blocked by connector safety checks, so this addendum is the append-only checkpoint; the central ledger snapshot remains stale until a permitted maintenance update can be made.

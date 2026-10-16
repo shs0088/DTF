@@ -1,0 +1,24 @@
+DTF Smart Prepress Batch 481 — Integrity Test Results
+Date: 2026-10-16
+Checks: 18/18 passed
+
+PASS exactly 10 accepted records
+PASS unique source IDs
+PASS unique canonical URLs
+PASS all URLs use HTTPS
+PASS all records include read depth
+PASS all records include limitations
+PASS all SHA-256 hashes are 64 hex characters
+PASS URL hashes match canonical URL strings
+PASS count arithmetic
+PASS remaining arithmetic
+PASS percentage arithmetic
+PASS global count not falsely certified
+PASS no merge/deployment/storefront/master change
+PASS language distribution sums to accepted records
+PASS source index exists
+PASS synthesis exists
+PASS dedup report exists
+PASS hash index rows match manifest
+
+These checks validate batch bookkeeping only. They do not certify global historical uniqueness or physical DTF print quality.

@@ -1,0 +1,126 @@
+{
+  "batch": 481,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5432,
+  "accepted_new_pages": 10,
+  "updated_provisional_cumulative_upper_bound": 5442,
+  "progress_percent": 54.42,
+  "remaining_by_arithmetic": 4558,
+  "globally_certified_unique_page_count": null,
+  "global_historical_semantic_deduplication_complete": false,
+  "local_integrity_checks": "18/18 passed",
+  "physical_dtf_validation_performed": false,
+  "merge_performed": false,
+  "deployment_performed": false,
+  "protected_storefront_modified": false,
+  "ready_to_print_master_modified": false,
+  "language_distribution": {
+    "English": 4,
+    "Japanese": 2,
+    "Korean with English abstract": 1,
+    "Spanish": 1,
+    "Chinese page with Chinese and English abstracts": 1,
+    "Russian": 1
+  },
+  "accepted_sources": [
+    {
+      "id": "B481-001",
+      "title": "Memory Efficient Matting with Adaptive Token Routing",
+      "canonical_url": "https://ojs.aaai.org/index.php/AAAI/article/view/32563",
+      "language": "English",
+      "read_depth": "Official AAAI page and full visible abstract read; full PDF not read.",
+      "canonical_url_sha256": "2072de46327f8619c0a9d2c48a1ce1b8cf27daecaf169619129d672018672b10"
+    },
+    {
+      "id": "B481-002",
+      "title": "Print color separations in Photoshop on desktop",
+      "canonical_url": "https://helpx.adobe.com/photoshop/desktop/print/print-color-separations.html",
+      "language": "English",
+      "read_depth": "Official instructions and caveats read; updated 2026-10-10.",
+      "canonical_url_sha256": "71fd2ff50f4f8924f36c0559e2868505cd7d43f7dc60a1e61720b9b509f947b8"
+    },
+    {
+      "id": "B481-003",
+      "title": "Print with color management in Photoshop",
+      "canonical_url": "https://helpx.adobe.com/photoshop/desktop/print/print-with-color-management.html",
+      "language": "English",
+      "read_depth": "Both Photoshop-managed and printer-managed workflows read; updated 2026-10-04.",
+      "canonical_url_sha256": "044169e57262bb1463d7561d2837efcfe9f155e57efe24094ea4f74e7746d60d"
+    },
+    {
+      "id": "B481-004",
+      "title": "Create and edit duotone images in Photoshop on desktop",
+      "canonical_url": "https://helpx.adobe.com/photoshop/desktop/adjust-color/color-effects-techniques/create-and-edit-duotone-images.html",
+      "language": "English",
+      "read_depth": "Per-ink curves, separations, screen angles and export caveats read; updated 2026-10-07.",
+      "canonical_url_sha256": "1908305d117c8890bd14041d206abaa765b5240db4b910dbfbf45ba8d1965712"
+    },
+    {
+      "id": "B481-005",
+      "title": "日本画像学会と関連技術の歩み—画像処理—",
+      "canonical_url": "https://www.jstage.jst.go.jp/article/isj/47/4/47_4_258/_article/-char/ja/",
+      "language": "Japanese",
+      "read_depth": "J-STAGE metadata, keywords and abstract read; PDF not read.",
+      "canonical_url_sha256": "620767a5df9d04c17795c73e874120df6ac65d7a783796b1de92f25280aaa1bf"
+    },
+    {
+      "id": "B481-006",
+      "title": "画像処理技術入門—撮像から出力の最適化に向けて— (IV)",
+      "canonical_url": "https://www.jstage.jst.go.jp/article/isj/48/5/48_5_432/_article/-char/ja",
+      "language": "Japanese",
+      "read_depth": "Article record and abstract read; PDF not read.",
+      "canonical_url_sha256": "782802c254eaedd4dfe0575805dfd1d91e6dfa0cacf6355940732fd36a1d72ca"
+    },
+    {
+      "id": "B481-007",
+      "title": "한자 이미지 분할 기법 및 Mask R-CNN 성능 평가",
+      "canonical_url": "https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002522124",
+      "language": "Korean with English abstract",
+      "read_depth": "KCI record and Korean/English abstracts read; full paper not read.",
+      "canonical_url_sha256": "e3d5f52560f979e50c27a033cb87d1c4d509cf14b94e0829ec3a1717ac877396"
+    },
+    {
+      "id": "B481-008",
+      "title": "Métodos de segmentación de nubes en imágenes satelitales",
+      "canonical_url": "https://revistas.udistrital.edu.co/index.php/Tecnura/article/view/6900",
+      "language": "Spanish",
+      "read_depth": "Full visible HTML article read.",
+      "canonical_url_sha256": "df16cbf928f0558bb807b6b434d1bdc39d449a2806f35ebd1b341b94cbd8e8e3"
+    },
+    {
+      "id": "B481-009",
+      "title": "Blueprint separable convolution Transformer network for lightweight image super-resolution",
+      "canonical_url": "https://www.cjig.cn/en/article/doi/10.11834/jig.230225/",
+      "language": "Chinese page with Chinese and English abstracts",
+      "read_depth": "Chinese/English abstracts, visible methods/results, training setup and references read; full gated text not read.",
+      "canonical_url_sha256": "1c63d745ff67de5c93f1a28f23abb4dcdbbd01dd8c1237a263a2413d90590ff6"
+    },
+    {
+      "id": "B481-010",
+      "title": "Применение методов глубокого обучения в задачах сегментации текстовых изображений",
+      "canonical_url": "https://sanse.uni-dubna.ru/index.php/sanse/article/view/618",
+      "language": "Russian",
+      "read_depth": "Russian abstract, metadata and visible bibliography read; PDF not read.",
+      "canonical_url_sha256": "c2e3bd5c766a70ddf1d7aff2ff88ff027628a00dfa42af28b134a628fe7df7b4"
+    }
+  ],
+  "excluded": [
+    {
+      "url": "https://arxiv.org/abs/2608.08487",
+      "reason": "Exact duplicate in Batch 471."
+    },
+    {
+      "url": "https://ojs.aaai.org/index.php/AAAI/article/view/32597",
+      "reason": "Exact duplicate in Batch 460."
+    },
+    {
+      "url": "https://www.scielo.br/j/bcg/a/Lj9v7LxDLtYGYDmn5vD4Nfh/",
+      "reason": "Exact duplicate in Batches 438 and 450."
+    },
+    {
+      "url": "https://dergipark.org.tr/en/pub/ngumuh/article/1529614",
+      "reason": "Exact duplicate in Batch 475."
+    }
+  ]
+}
