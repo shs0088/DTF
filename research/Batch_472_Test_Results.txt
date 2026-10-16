@@ -1,0 +1,18 @@
+DTF Smart Prepress Batch 472 integrity checks
+Run date: 2026-10-16
+PASS: 10 accepted sources
+PASS: unique source IDs
+PASS: unique canonical URLs
+PASS: all URLs are HTTPS
+PASS: all read-depth fields disclosed
+PASS: all findings nonempty
+PASS: all URL hashes match
+PASS: cumulative arithmetic
+PASS: remaining arithmetic
+PASS: percentage arithmetic
+PASS: global uniqueness not overstated
+PASS: no physical validation claimed
+PASS: language search rotation documented
+PASS: excluded candidates recorded
+14/14 checks passed.
+These checks validate bookkeeping only; they do not prove global semantic uniqueness or physical print quality.
