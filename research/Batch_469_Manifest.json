@@ -1,0 +1,111 @@
+{
+  "batch": 469,
+  "date": "2026-10-16",
+  "target_pages": 10000,
+  "previous_provisional_upper_bound": 5315,
+  "new_accepted_pages": 8,
+  "provisional_cumulative_upper_bound": 5323,
+  "percentage": 53.23,
+  "remaining_by_arithmetic": 4677,
+  "globally_certified_unique_count": null,
+  "historical_semantic_deduplication_complete": false,
+  "physical_printer_validation": false,
+  "dedup_scope": "Canonical URL and DOI/handle/arXiv identifier checks against central ledger and accessible manifests/addenda for Batches 460, 462–468. Exact duplicates, localized/version mirrors and inaccessible candidates excluded. Global semantic deduplication incomplete.",
+  "languages_searched": [
+    "Arabic",
+    "Chinese",
+    "Japanese",
+    "Korean",
+    "Russian",
+    "Spanish",
+    "Portuguese",
+    "German",
+    "French",
+    "Italian",
+    "Turkish",
+    "English"
+  ],
+  "languages_with_accepted_pages": [
+    "Italian repository page",
+    "Spanish",
+    "Portuguese",
+    "Russian",
+    "English"
+  ],
+  "accepted_sources": [
+    {
+      "id": "B469-001",
+      "canonical_url": "https://hdl.handle.net/11311/577312",
+      "canonical_url_sha256": "bf7673d7c297e2f59894c25893d89949d7c44c56a6b5465fec9ea812d4a45b5b",
+      "title": "Motion-blurred objects and alpha mattes",
+      "language": "Italian repository page; English abstract",
+      "read_depth": "Repository page and abstract read; PDF access-restricted.",
+      "key_finding": "Motion blur can be interpreted as apparent transparency; alpha relates to the fraction of exposure time a moving object covers a pixel."
+    },
+    {
+      "id": "B469-002",
+      "canonical_url": "https://doi.org/10.33586/hya.2019.2079",
+      "canonical_url_sha256": "5bd47ab98f0df146e4737a9e0cfab267d0ae0906e02d438f5c93630c3116789b",
+      "title": "Spanish orientation-kernel crack detection",
+      "language": "Spanish",
+      "read_depth": "Repository page and all seven PDF pages read; one work counted.",
+      "key_finding": "ROI, Prewitt gradients, local thresholds, connected components and orientation kernels provide scale-aware line-feature detection; reported errors are task-specific."
+    },
+    {
+      "id": "B469-003",
+      "canonical_url": "https://doi.org/10.4322/rbeb.2012.043",
+      "canonical_url_sha256": "30ba3a092534a95e247682c9fba7adcc80b70e3d5c61146236555d2a8f14d543",
+      "title": "Ovitrap image acquisition and processing",
+      "language": "Portuguese",
+      "read_depth": "Full open-access article read.",
+      "key_finding": "Combines global RGB and local histogram masks, a 3x3 mode filter and disk-shaped morphological opening; aggregate and per-image errors differ."
+    },
+    {
+      "id": "B469-004",
+      "canonical_url": "https://habr.com/ru/companies/sberdevices/articles/739352/",
+      "canonical_url_sha256": "cc72ac25db13882663542846101bd1688ba709974106b49ebacbb23ab9827ec3",
+      "title": "Interactive segmentation for faster annotation",
+      "language": "Russian",
+      "read_depth": "Full visible article read.",
+      "key_finding": "Positive/negative clicks refine masks; NoC at a target IoU measures interaction effort; segmentation masks are not fractional alpha mattes."
+    },
+    {
+      "id": "B469-005",
+      "canonical_url": "https://habr.com/ru/companies/nix/articles/350576/",
+      "canonical_url_sha256": "30b8456870ccad8f504f3e14a73a72c95e9f371c380dea9f8d6f06ccc53b3262",
+      "title": "Deep-learning background removal",
+      "language": "Russian translation",
+      "read_depth": "Full visible translated article read; no English mirror counted.",
+      "key_finding": "Task-specific portrait datasets and encoder-decoder architecture matter; skip connections and upsampling affect edge detail; deployment location is a product constraint."
+    },
+    {
+      "id": "B469-006",
+      "canonical_url": "https://arxiv.org/abs/2306.04121",
+      "canonical_url_sha256": "6f601b083b950681389fa0886c0d4dd2c9bf25c9161a7756b2315e697ae602e3",
+      "title": "Matte Anything",
+      "language": "English",
+      "read_depth": "Landing page and full HTML opened; substantial method/evaluation sections read.",
+      "key_finding": "Uses interactive segmentation, open-vocabulary detection and pseudo-trimap construction; results are paper-reported."
+    },
+    {
+      "id": "B469-007",
+      "canonical_url": "https://arxiv.org/abs/2306.05399",
+      "canonical_url_sha256": "d2df88c0ab58c3265ffa7667c0ae06fbdac23ee1d121029efe0d651344294f5e",
+      "title": "Matting Anything (MAM)",
+      "language": "English; Korean mirror excluded",
+      "read_depth": "Landing page and full HTML opened; architecture, metrics and experiments read.",
+      "key_finding": "SAM masks/features feed a lightweight multiscale Mask-to-Matte module; alpha is iteratively refined; multiple metrics and prompt types matter."
+    },
+    {
+      "id": "B469-008",
+      "canonical_url": "https://arxiv.org/abs/2601.14255",
+      "canonical_url_sha256": "358495447909f14732ca194375a7a998fdc1cddbd61eb102fb18cd3da956f35d",
+      "title": "VideoMaMa",
+      "language": "English; Korean discovery mirror excluded",
+      "read_depth": "Landing page and full HTML opened; abstract, introduction and architecture/training outline read.",
+      "key_finding": "Video diffusion priors convert coarse masks to alpha mattes and support pseudo-labeling for temporal matting; not required for static PNGs."
+    }
+  ],
+  "excluded_candidates_count": 17,
+  "exclusion_details": "Japanese records returned HTTP 429/timeouts; one Portuguese PDF could not be opened; exact duplicates, localized mirrors and version mirrors are listed in the local package."
+}
