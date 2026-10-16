@@ -1,0 +1,16 @@
+DTF Smart Prepress — Batch 471 Engineering Synthesis
+Date: 2026-10-16
+
+Eight source works were accepted after individual reads. Chain-based provisional upper bound: 5,340/10,000 (53.40%); globally certified uniqueness remains unknown.
+
+1) Morphology: opening can remove narrow bright strokes; closing can fill small dark holes. Scale structuring elements to intended physical print size and preserve counters, isolated dots, and topology.
+2) Color segmentation: watershed clustering of bivariate hue/saturation and luminance/saturation histograms can separate chromatic/achromatic regions when histogram modes are distinct. Overlapping modes require a fallback model or human review.
+3) Segmentation quality: combine pixelwise measures with reference geometry—component/polygon count, centroid displacement, area/perimeter differences, overlap, and boundary/topology checks.
+4) Human-in-the-loop cost: label preparation and model-output calibration remain workflow bottlenecks. Track correction rate and correction time per artwork class.
+5) Edge decontamination: evaluate RGB contamination independently from alpha geometry. Check composites on light, dark, and saturated backgrounds.
+6) Classical matting: variable-size sample windows reduce the risk of missing true foreground/background samples; CRF refinement should be evaluated separately.
+7) Generative matting: RenderMatte adds alpha-edge and multiscale Laplacian objectives and group-relative rewards for alpha accuracy, boundary fidelity, trimap compliance, and composite quality. It remains experimental here; no independent benchmark was run.
+
+Implementation priorities: preserve original RGB, Alpha, recovered foreground RGB, and final composite as separate artifacts; use scale-aware morphology; route uncertain masks to matting or manual correction; do not infer DTF underbase/choke settings from general morphology research.
+
+Evidence limitations: several sources were abstract-only; see the canonical source index. Batch 465/466 manifests remain unavailable. No physical DTF printer/RIP/ink/film/powder/press or ICC workflow was tested. No merge, deployment, or storefront changes occurred.
