@@ -11,8 +11,9 @@ Target: 10,000 individually opened/read, materially distinct pages.
 - Batch 476: +10; provisional upper bound 5,392.
 - Batch 477: +10; provisional upper bound 5,402.
 - Batch 478: +10; provisional upper bound 5,412.
-- Batch 479: +10; provisional upper bound **5,422 / 10,000 (54.22%)**.
-- Remaining by arithmetic: **4,578**.
+- Batch 479: +10; provisional upper bound 5,422.
+- Batch 480: +10; provisional upper bound **5,432 / 10,000 (54.32%)**.
+- Remaining by arithmetic: **4,568**.
 - Globally certified unique-page count: **unknown**.
 
 ## Reconciliation and integrity
@@ -30,3 +31,16 @@ Batch 479 accepted ten individually opened pages. Read depth varies and is recor
 ## Safety boundaries
 
 No merge, deployment, protected storefront change, or Ready-to-Print Master change was performed. No printer/film/ink/powder/curing/press/wash validation was performed. Keep this ledger provisional until the historical registry is reconciled and deduplicated globally.
+
+
+## Batch 480 checkpoint — 2026-10-16
+
+- Batch 480: +10 individually opened/read source pages; provisional cumulative upper bound **5,432 / 10,000 (54.32%)**.
+- Remaining by arithmetic: **4,568**.
+- Globally certified unique-page count: **unknown**; exact URL checks covered available local packages for Batches 470 and 472–479 only. Batch 471 and parts of older history remain unavailable.
+- Language coverage this batch: 7 English-language pages (including a J-STAGE paper record presented in English), 2 Arabic bibliographic records/abstracts, and 1 Turkish article record/abstract. The Chinese SwinIR translated mirror, Russian page that timed out, inaccessible Turkish morphology thesis, and Spanish pages that timed out were excluded.
+- Batch 480 local integrity checks: **30/30 passed**; canonical URL hashes verified against the manifest. Full-text depth varies; abstract-only sources are explicitly marked.
+- No physical DTF validation, merge, deployment, storefront edit, or Ready-to-Print Master modification.
+
+### Batch 479 hash-index correction
+The previously committed Batch_479_Canonical_URL_Hashes.tsv contained malformed/truncated hash values. It has now been replaced with the correctly computed values from the locally validated Batch 479 package. Use the corrected branch file, not any earlier cached copy.
