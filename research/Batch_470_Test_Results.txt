@@ -1,0 +1,16 @@
+Batch 470 integrity checks: 15/15 passed
+PASS - 9 source records
+PASS - unique IDs
+PASS - unique canonical URLs
+PASS - read depths present
+PASS - findings present
+PASS - limitations present
+PASS - hash rows count
+PASS - hashes correct
+PASS - cumulative arithmetic
+PASS - remaining arithmetic
+PASS - percentage
+PASS - global uniqueness withheld
+PASS - physical limitation
+PASS - excluded candidates recorded
+PASS - missing historical manifests disclosed
