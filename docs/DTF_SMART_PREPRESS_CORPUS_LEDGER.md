@@ -3051,3 +3051,13 @@ Engineering synthesis: `research/Batch_463_Engineering_Synthesis.md`. Canonical 
 Excluded candidates included NanoAlpha, MFC-Net, a FastAPI/rembg repository, the Blue Screen Matting DOI, and a prior SberDevices matting article because they were already represented in the central ledger or accessible recent manifests. A Chinese alpha-blending mirror and a cloud-platform promotional tutorial were also excluded.
 
 No merge, deployment, protected storefront change, or approved Ready-to-Print Master modification occurred.
+
+
+## Batch 470 — Provisional checkpoint (2026-10-16)
+
+- Nine new source pages were individually opened/read and locally deduplicated: adaptive threshold modulation, weighted Sigma-Delta halftoning, deep reinforcement-learning halftoning, low-complexity multiscale error diffusion, spectral/temporal matting, and two Chinese programming tutorials.
+- Chain-based provisional upper bound: **5,332 / 10,000 (53.32%)**; remaining by arithmetic: **4,668**.
+- **Globally certified unique-page count: unknown.** The central ledger's last previously integrated batch is 463 at 5,265. Batch 464's sidecar reports 9 pages (5,274). Batch 465/466 manifests were not found; Batch 467's previous count implies an 18-page gap across those batches, but their source-level records remain unavailable. Batch 467 (+9), Batch 468 (+14), Batch 469 (+8), and Batch 470 (+9) produce this chain-based upper bound.
+- Batch 470 source index and synthesis were prepared as sidecars; some GitHub writes were blocked by connector safety checks. Hash index and test-results files were committed separately.
+- Historical semantic deduplication remains incomplete. Do not label 5,332 globally verified until missing manifests and historical duplicates are reconciled.
+- No physical DTF validation, merge, deployment, storefront modification, or Ready-to-Print Master modification.
