@@ -1,0 +1,1 @@
+Integrity summary: 9 accepted records; 9 canonical URLs; URL hashes present; cumulative arithmetic 5,292 + 9 = 5,301; global uniqueness remains unverified.
