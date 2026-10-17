@@ -1,0 +1,24 @@
+{
+  "batch": 506,
+  "research_date": "2026-10-17",
+  "target_branch": "chatgpt/dtf-smart-prepress-20260928",
+  "accepted_source_pages": 8,
+  "new_exact_url_collisions_in_local_B500_B505_indexes": 0,
+  "corrected_batch_505_net_additions": 10,
+  "provisional_cumulative_arithmetic": 5675,
+  "progress_percent": 56.75,
+  "remaining_by_arithmetic": 4325,
+  "conservative_cumulative_excluding_B496_B500": 5625,
+  "globally_certified_unique_page_count": null,
+  "sources": [
+    {"id":"B506-001","title":"scikit-image Denoising a picture","canonical_url":"https://scikit-image.org/docs/stable/auto_examples/filters/plot_denoise.html","sha256":"54e6395ae7bea43e09721012835e6543a1cab6732fee80473e2de03e55120a7c","language":"English","reading_depth":"Full example and code"},
+    {"id":"B506-002","title":"scikit-image Rescale, resize, and downscale","canonical_url":"https://scikit-image.org/docs/stable/auto_examples/transform/plot_rescale.html","sha256":"bc2c6afc1b34557761de60713f44028a6fcad6dde3a547273d5617948dcbd9df","language":"English","reading_depth":"Full example and code"},
+    {"id":"B506-003","title":"scikit-image Calibrating Denoisers Using J-Invariance","canonical_url":"https://scikit-image.org/docs/stable/auto_examples/filters/plot_j_invariant.html","sha256":"f7d4221c38913b8b2da65d8baf641d24c2ad1cc825209dec9dd901b59f34ee10","language":"English","reading_depth":"Full method and code"},
+    {"id":"B506-004","title":"scikit-image Unsharp masking","canonical_url":"https://scikit-image.org/docs/stable/auto_examples/filters/plot_unsharp_mask.html","sha256":"513eed2c710094843c1d04ee76571a737c8a27ff5512c7dfc64a0c29eaec8b2f","language":"English","reading_depth":"Full method and code"},
+    {"id":"B506-005","title":"Pillow concepts","canonical_url":"https://pillow.readthedocs.io/en/stable/handbook/concepts.html","sha256":"d63e3b0bb95171f053848b73055357d827092e383414d80011d90b55c69f4ed9","language":"English","reading_depth":"Transparency, orientation and resampling sections"},
+    {"id":"B506-006","title":"Habr classical image segmentation with color and morphology","canonical_url":"https://habr.com/ru/companies/etmc_exponenta/articles/921784/","sha256":"647fbc39129a636d1b8acd415835caf91045cfef75c1e72914382f71b5dea3a9","language":"Russian","reading_depth":"Major technical sections"},
+    {"id":"B506-007","title":"Operações Morfológicas sobre Imagens Segmentadas","canonical_url":"https://diglib.eg.org/items/80e01cdf-0c97-473e-883c-92a87996fd4b","sha256":"d0dcf6fcc83d4a1b86df3578e87063dfa6bff66d0d6bb7268805daaa395bb36d","language":"Portuguese","reading_depth":"Abstract and metadata only"},
+    {"id":"B506-008","title":"Adobe Photoshop Reduce image noise and JPEG artifacts","canonical_url":"https://helpx.adobe.com/photoshop/desktop/effects-filters/artistic-stylize-filters/reduce-image-noise-and-jpeg-artifacts.html","sha256":"29d728da19c8471c8ebfc1b6fefc6bd51fc203658e502c268e745764d45f760b","language":"English","reading_depth":"Official guide sections"}
+  ],
+  "limitations": ["Historical indexes incomplete","Portuguese PDF body inaccessible","No physical DTF validation","Exact URL hashes do not prove semantic uniqueness"]
+}
