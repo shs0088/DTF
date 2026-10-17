@@ -1,0 +1,130 @@
+{
+  "batch": 490,
+  "date": "2026-10-17",
+  "repository": "shs0088/DTF",
+  "branch": "chatgpt/dtf-smart-prepress-20260928",
+  "previous_provisional_upper_bound": 5522,
+  "accepted_pages": 10,
+  "new_provisional_upper_bound": 5532,
+  "target": 10000,
+  "progress_percent": 55.32,
+  "remaining_by_arithmetic": 4468,
+  "globally_certified_unique_page_count": null,
+  "reading_depth": {
+    "full_visible_pages": 9,
+    "abstract_or_record_level": 1,
+    "search_snippets_counted": 0
+  },
+  "sources": [
+    {
+      "id": "B490-001",
+      "title": "ViTMatte: Boosting Image Matting with Pretrained Plain Vision Transformers",
+      "language": "English",
+      "url": "https://arxiv.org/abs/2305.15272",
+      "depth": "Full HTML paper opened and read through methodology, training, experiments, and benchmark discussion.",
+      "finding": "Uses a pretrained plain vision transformer with hybrid window/global attention, convolution necks, and a lightweight detail-capture stream. The method takes an RGB image plus a trimap and predicts alpha; benchmark evaluation includes Composition-1k and Distinctions-646.",
+      "limitation": "Research benchmark results do not prove performance on small DTF lettering, distressed art, or customer uploads; trimap is an input."
+    },
+    {
+      "id": "B490-002",
+      "title": "Fast Multi-Level Foreground Estimation",
+      "language": "English",
+      "url": "https://arxiv.org/abs/2006.14970",
+      "depth": "Full HTML paper opened and read through method, qualitative/quantitative experiments, runtime, memory, and conclusion.",
+      "finding": "Separates foreground-color estimation from alpha estimation. A multi-level method propagates foreground/background color estimates into translucent regions and reduces background-color bleed; the paper reports SAD, MSE, gradient error, runtime, and memory.",
+      "limitation": "The authors' benchmarks use matting datasets and do not directly measure print quality; results depend on the alpha matte and color-space handling."
+    },
+    {
+      "id": "B490-003",
+      "title": "Восстановление расфокусированных и смазанных изображений",
+      "language": "Russian",
+      "url": "https://habr.com/ru/articles/136853/",
+      "depth": "Full visible article opened; read degradation model, PSF discussion, noise-aware deconvolution, MATLAB examples, and artifact discussion.",
+      "finding": "Models blur as convolution with a point-spread function plus noise, and compares Wiener, Tikhonov-regularized, blind, and Richardson–Lucy restoration examples. The article shows that noise can dominate naive inverse filtering.",
+      "limitation": "Educational 2012 article with illustrative MATLAB examples; parameters and boundary handling require modern validation."
+    },
+    {
+      "id": "B490-004",
+      "title": "Восстановление расфокусированных и смазанных изображений. Практика",
+      "language": "Russian",
+      "url": "https://habr.com/ru/articles/147828/",
+      "depth": "Full visible article opened; read practical deconvolution discussion, frequency-domain formulation, examples, and real-image caveats.",
+      "finding": "Demonstrates how PSF choice, noise estimates, and iterative restoration affect practical results. Restored images can become more legible while acquiring artifacts.",
+      "limitation": "The article's camera examples and hand-selected parameters are not a controlled DTF artwork benchmark."
+    },
+    {
+      "id": "B490-005",
+      "title": "Восстановление расфокусированных и смазанных изображений. Повышаем качество",
+      "language": "Russian",
+      "url": "https://habr.com/ru/articles/152885/",
+      "depth": "Full visible article opened; read total-variation prior, edge-preservation rationale, smoothed objective, and iterative optimization discussion.",
+      "finding": "Total-variation regularization is presented as a way to reduce ringing and preserve sharper boundaries compared with basic Wiener restoration. The author explicitly notes that restoration generally does not create genuinely new source detail.",
+      "limitation": "TV restoration can still alter fine texture and needs tuning; this is not evidence that aggressive sharpening improves printability."
+    },
+    {
+      "id": "B490-006",
+      "title": "Метод повышения резкости цифровых изображений",
+      "language": "Russian",
+      "url": "https://openbooks.itmo.ru/ru/article/11194/metod_povysheniya_rezkosti_cifrovyh_izobrazheniy.html",
+      "depth": "Repository record and abstract read; PDF was not available/read.",
+      "finding": "The abstract describes multiscale differential-response analysis and a reconstruction function for sharpening, with gradient-sign handling near object boundaries and integer arithmetic to reduce computation. It targets mild blur without requiring a known blur kernel.",
+      "limitation": "Abstract-level evidence only; no independent reproduction or DTF test."
+    },
+    {
+      "id": "B490-007",
+      "title": "Transparency Flattener preset options in InDesign",
+      "language": "English (official Adobe documentation)",
+      "url": "https://helpx.adobe.com/indesign/desktop/apply-color/advanced-color-techniques/transparency-flattener-preset-options.html",
+      "depth": "Official documentation page opened and read, including resolution, outline, clipping, and preview-option descriptions.",
+      "finding": "Transparency flattening balances raster and vector regions. Adobe describes 600–1200 ppi for high-quality line art/text rasterization and typically 150–300 ppi for gradients/meshes; outlining strokes can slightly thicken them, and clipping complex regions may reduce stitching artifacts.",
+      "limitation": "Applies to formats/workflows that require transparency flattening; these settings are not a universal specification for transparent PNG DTF masters."
+    },
+    {
+      "id": "B490-008",
+      "title": "Guida alla preparazione del file di stampa",
+      "language": "Italian",
+      "url": "https://bigprinting.it/guida-preparazione-file-stampa/",
+      "depth": "Full visible print-preparation guidance page opened and read.",
+      "finding": "The printer specifies its own file requirements for resolution, accepted formats, CMYK conversion, transparency effects, outlined/embedded fonts, bleed, and safety margins. It is a concrete example of printer-specific preflight rules.",
+      "limitation": "Conventional commercial-print guidance, not DTF-specific. Its 300-DPI and CMYK requirements must not be treated as universal rules for transparent DTF PNGs."
+    },
+    {
+      "id": "B490-009",
+      "title": "Blind Deconvolution — автоматическое восстановление смазанных изображений",
+      "language": "Russian",
+      "url": "https://habr.com/ru/articles/175717/",
+      "depth": "Full visible article opened and read, including image/kernel model, objective priors, pyramid refinement, implementation notes, and limits.",
+      "finding": "Blind deconvolution jointly estimates the latent image and blur kernel, using priors on image gradients and kernel structure. A coarse-to-fine image pyramid refines the kernel across scales; the article notes substantial memory cost and imperfect robustness.",
+      "limitation": "Historical implementation notes include small image-size limits and acknowledge that acceptable results are not achieved for every image."
+    },
+    {
+      "id": "B490-010",
+      "title": "Context-Aware Image Matting for Simultaneous Foreground and Alpha Estimation — inference implementation README",
+      "language": "English (open-source implementation documentation)",
+      "url": "https://github.com/hqqxyy/Context-Aware-Matting",
+      "depth": "Repository README opened and read, including requirements, run commands, model variants, and license statement.",
+      "finding": "The implementation accepts an image and trimap and estimates both alpha and foreground color. The README documents legacy TensorFlow versions and substantial RAM/GPU needs, and offers smaller-input/CPU fallbacks.",
+      "limitation": "The README states the provided implementation is for research purposes and directs commercial users to contact the authors. Do not incorporate into a commercial product without resolving licensing/permission."
+    }
+  ],
+  "failed_candidates": [
+    {
+      "title": "Cascade Image Matting With Deformable Graph Refinement",
+      "url": "https://openaccess.thecvf.com/content/ICCV2021/html/Yu_Cascade_Image_Matting_With_Deformable_Graph_Refinement_ICCV_2021_paper.html",
+      "reason": "Open returned internal error; excluded."
+    },
+    {
+      "title": "In-Context Matting",
+      "url": "https://openaccess.thecvf.com/content/CVPR2024/html/Guo_In-Context_Matting_CVPR_2024_paper.html",
+      "reason": "Open returned internal error; excluded."
+    },
+    {
+      "title": "Chinese and Korean image-processing search candidates",
+      "reason": "Search did not surface an accessible, materially distinct page that could be individually opened and read; none counted."
+    }
+  ],
+  "dedup_scope": "Exact URL checks against accessible recent canonical hash indexes. Batches 471, 480, 482 and 486 were not available in the repository; older semantic deduplication remains incomplete.",
+  "physical_dtf_validation": false,
+  "merge": false,
+  "deployment": false
+}
