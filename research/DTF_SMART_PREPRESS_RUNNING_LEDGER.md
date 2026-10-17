@@ -31,3 +31,16 @@ Batch 495 source details and exact canonical URL hashes are in the batch-specifi
 ## Safety boundaries
 
 No merge, deployment, protected storefront change or Ready-to-Print Master change was performed. No printer/film/ink/powder/curing/press/wash validation was performed. Keep the corpus provisional until historical URLs and semantic duplicates are reconciled globally.
+
+
+## Batch 501 update — 2026-10-17
+
+- Batch 496–500 were previously reported as +9, +9, +10, +10 and +12 respectively, but their full source indexes are not synchronized on this branch.
+- Batch 501: 7 accepted pages after individual reading and available-index dedup checks.
+- Provisional arithmetic including the reported B496–B500 additions and B501: 5,632 / 10,000 (56.32%); 4,368 remaining by arithmetic.
+- Conservative arithmetic anchored to the committed B495 checkpoint plus Batch 501 only: 5,582.
+- Globally certified unique-page count remains UNKNOWN.
+- Batch 501 excludes two exact-URL duplicates (scikit-image filters already in B485; PixelCleaner choke article already in B478) and one paper already present in the consolidated corpus (Fast Multi-Level Foreground Estimation).
+- Batch 501 research focuses on alpha/foreground separation, self-supervised denoising calibration, resampling/anti-aliasing, edge-preserving filtering, recent matting and segmentation/contour pipelines.
+- See Batch_501_Canonical_Source_Index.md, Batch_501_Canonical_URL_Hashes.tsv, Batch_501_Engineering_Synthesis.md and Batch_501_Dedup_Report.md.
+- No physical DTF/RIP validation, merge, deployment, protected storefront change or Ready-to-Print Master change.
