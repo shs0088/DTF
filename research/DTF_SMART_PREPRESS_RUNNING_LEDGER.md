@@ -44,3 +44,14 @@ No merge, deployment, protected storefront change or Ready-to-Print Master chang
 - Batch 501 research focuses on alpha/foreground separation, self-supervised denoising calibration, resampling/anti-aliasing, edge-preserving filtering, recent matting and segmentation/contour pipelines.
 - See Batch_501_Canonical_Source_Index.md, Batch_501_Canonical_URL_Hashes.tsv, Batch_501_Engineering_Synthesis.md and Batch_501_Dedup_Report.md.
 - No physical DTF/RIP validation, merge, deployment, protected storefront change or Ready-to-Print Master change.
+
+
+## Automation checkpoint — Batch 518 (2026-10-18)
+
+- Batch 517 was reported as +11, producing provisional arithmetic 5,772/10,000; its source package was not synchronized to this branch.
+- Batch 518 accepted **7 newly read candidate pages** after checking canonical URLs against the available sampled source-index files. Batch-local SHA-256 URL hashes are recorded in `Batch_518_Canonical_URL_Hashes.tsv`.
+- Updated provisional arithmetic based on the prior report: **5,779/10,000 (57.79%)**, 4,221 remaining by arithmetic. Conservative arithmetic excluding reported B496–B500 additions: **5,729**.
+- **Globally certified unique-page count remains UNKNOWN.** The arithmetic includes unsynchronized reported batches B507–B517; not every historical index file was scanned, and URL hashes cannot prove semantic uniqueness.
+- B518 topics: foreground edge sampling and protection; marker-controlled watershed and over-segmentation; controlled preprocessing ablations with Dice/IoU/boundary metrics; Gaussian scale-space segmentation; global/local denoising fusion; non-local self-supervised denoising; mathematical morphology for noise and contour processing.
+- Excluded duplicates: PyMatting docs (B409), BorderCut README (B440), MEMatte (B481), PixelCleaner choke article (B478), Aero Print guide (B470/B478), and Russian Habr ARC-filter tutorial (B421). Arabic Photoshop Quick Action page was excluded as a localized mirror; inaccessible or metadata-only pages were not counted.
+- No physical DTF validation, merge, deployment, protected storefront change, or Ready-to-Print Master change occurred.
