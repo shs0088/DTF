@@ -1,11 +1,11 @@
 # DTF Smart Prepress — Living Research Synthesis
 
-Last updated: 2026-10-17 (Batch 506)  
+Last updated: 2026-10-18 (Batch 520)  
 Target: 10,000 materially distinct source pages individually opened/read.
 
 ## Status and confidence
 
-Corrected provisional arithmetic is **5,675 / 10,000 (56.75%)**, with 4,325 remaining by arithmetic. This incorporates the committed Batch 495 checkpoint (5,575), 50 previously reported additions from Batches 496–500, reported B501–B504 additions (7, 9, 8, 8), corrected Batch 505 net additions (10, after one duplicate with B501), and eight Batch 506 additions. Conservative arithmetic excluding B496–B500 is 5,625. The globally certified unique-page count is **unknown**: several historical source indexes are missing or incomplete, and exact URL hashes cannot establish semantic uniqueness.
+Updated provisional arithmetic through Batch 520 is **5,793 / 10,000 (57.93%)**, with 4,207 remaining by arithmetic. This includes the previously reported Batch 519 (+7) and Batch 520 (+7) on top of Batch 518 arithmetic (5,779). Conservative arithmetic excluding reported B496–B500 additions is 5,743. The globally certified unique-page count is **unknown**: historical source indexes are missing or incomplete, and URL hashes cannot establish semantic uniqueness.
 
 ## Architecture principles
 
@@ -27,6 +27,29 @@ Corrected provisional arithmetic is **5,675 / 10,000 (56.75%)**, with 4,325 rema
 - B504: halftone/dither methods, RIP white-layer behavior, film workflow and physical printability guidance.
 - B505: alpha/foreground estimation, trimap-guided matting, high-resolution refinement and vendor-specific white choke. A duplicate audit corrected its net addition from 11 to 10 because the PyMatting overview repeats B501-001.
 - B506: denoising calibration, anti-aliased resampling, unsharp masking, EXIF orientation/alpha representation, Russian-language classical segmentation and Portuguese color-aware morphology.
+
+
+
+## Batch 519–520 findings — 2026-10-18
+
+### Batch 519
+- Assess white-underbase choke against the actual physical print size; small strokes/dots can lose white support while remaining in the RGB art.
+- Keep alpha coverage separate from foreground RGB correction. Binary thresholding destroys partial alpha and can make soft-edge color recovery ineffective.
+- Granulometry can characterize mask feature sizes; small components may be intentional, so do not auto-delete them solely by size.
+- Prefer one resampling pass from the original and inspect Lanczos ringing on sharp artwork. Treat sharpening as a validated segmentation aid rather than a universal preset.
+
+### Batch 520
+- OpenCV Information Flow matting estimates alpha in the unknown region of an RGB image guided by a trimap. The API reference and build/test tutorial are distinct pages from the same implementation family.
+- A Chinese implementation demonstrates compositing inversion for a known, approximately uniform background. Guard very small alpha values because division amplifies noise; do not assume the original background is known for arbitrary images.
+- Browser-local Transformers.js matting with a locally hosted model can reduce image-upload exposure and avoid external model fetches, but model distribution and licensing still need review.
+- Prefer immutable original assets and versioned derived images. Cloud background-removal docs distinguish on-the-fly derivatives from asynchronous upload/update workflows that may replace stored originals.
+- Preserve existing partial alpha unless the job explicitly calls for a binary mask. Thresholding is destructive; make it an explicit, reviewable option.
+- Async APIs should expose job state, retryable queue/rate-limit errors, and optional webhook completion. Validate remote URL fetching before accepting user-supplied URLs.
+- No physical DTF/RIP validation was performed.
+
+## Latest corpus status
+Provisional arithmetic: **5,793 / 10,000 (57.93%)**. Globally certified unique-page count remains UNKNOWN pending full historical index and semantic-duplicate reconciliation.
+
 
 ## Production-validation boundary
 
