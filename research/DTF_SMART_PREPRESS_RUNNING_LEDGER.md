@@ -1,6 +1,6 @@
 # DTF Smart Prepress — Running Ledger Snapshot
 
-Snapshot date: 2026-10-17
+Snapshot date: 2026-10-18
 Target: 10,000 individually opened/read, materially distinct pages.
 
 ## Current checkpoint
@@ -55,3 +55,15 @@ No merge, deployment, protected storefront change or Ready-to-Print Master chang
 - B518 topics: foreground edge sampling and protection; marker-controlled watershed and over-segmentation; controlled preprocessing ablations with Dice/IoU/boundary metrics; Gaussian scale-space segmentation; global/local denoising fusion; non-local self-supervised denoising; mathematical morphology for noise and contour processing.
 - Excluded duplicates: PyMatting docs (B409), BorderCut README (B440), MEMatte (B481), PixelCleaner choke article (B478), Aero Print guide (B470/B478), and Russian Habr ARC-filter tutorial (B421). Arabic Photoshop Quick Action page was excluded as a localized mirror; inaccessible or metadata-only pages were not counted.
 - No physical DTF validation, merge, deployment, protected storefront change, or Ready-to-Print Master change occurred.
+
+
+## Latest checkpoint — Batch 520 (2026-10-18)
+
+- Batch 519: +7 previously reported pages; its canonical source index has now been added to this branch.
+- Batch 520: +7 pages individually opened/read; see Batch_520_Canonical_URL_Hashes.tsv and Batch_520_Canonical_Source_Index.md when synchronized.
+- Provisional arithmetic including reported B496–B500 and B507–B520 additions: **5,793 / 10,000 (57.93%)**; 4,207 remaining by arithmetic.
+- Conservative arithmetic excluding reported B496–B500 additions: **5,743**.
+- **Globally certified unique-page count remains UNKNOWN.** The expected B501–B510 and B512–B518 URL-hash files were unavailable; older indexes are incomplete and semantic deduplication is unfinished.
+- Batch 520 topics: trimap-guided alpha estimation; foreground-color recovery; local browser processing; original/derivative separation; asynchronous background-removal APIs; alpha preservation and explicit thresholding; upload limits and queue errors.
+- Localized parallel pages and materially overlapping API documentation were excluded.
+- No physical DTF/RIP validation, merge, deployment, storefront change, or Ready-to-Print Master change.
